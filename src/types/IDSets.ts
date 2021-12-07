@@ -1,0 +1,16 @@
+export const QASet = {
+  DqnQZLFI07XA: 'diabetes',
+  RO9hYJDJSY5d: 'gender',
+  y811Ht4wFlk7: 'height',
+  ZomxIwhTwiDI: 'weight',
+  '2ouLLBfpcPu8': 'age',
+  OY5ahhiimeHj: 'medicalCondition',
+  OuGVT3I0ogEV: 'activeLevel',
+  '2smbBBo0VRdm': 'a1cScore',
+  MwDtebdxjPy0: 'a1cScoreTarget',
+  AJurjbRyf59j: 'allegies',
+  UeMcjfF8WezG: 'tastePreferences',
+  d6r3b8vnxZuP: 'sweetOrSavory',
+  fgm7wSkH8AxF: 'foodPalate',
+  AO2jXYZYNuqI: 'email',
+};
