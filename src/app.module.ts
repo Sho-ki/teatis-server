@@ -9,25 +9,17 @@ const env = process.env;
 @Module({
   imports: [
     TypeOrmModule.forRoot({
+      ...({ host: 'localhost' } || {
+        host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
+      }),
       type: 'postgres',
-      host: `localhost`,
       port: Number(env.DB_PORT),
       username: env.DB_USER,
       password: env.DB_PASSWORD,
       database: env.DB_DATABASE,
-      entities: ['dist/**/*.entity{.ts,.js}'],
+      entities: [env.ENTITIES],
       synchronize: true,
     }),
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
-    //   port: Number(env.DB_PORT),
-    //   username: env.DB_USER,
-    //   password: env.DB_PASSWORD,
-    //   database: env.DB_DATABASE,
-    //   entities: ['dist/**/*.entity{.ts,.js}'],
-    //   synchronize: true,
-    // }),
 
     UsersModule,
   ],
