@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// datasource db {
+//   provider = "postgresql"
+//   url      = "postgres://postgres:teatis-discovery@localhost:5432/postgres"
+// }
+
+model Customers {
+  id        Int      @default(autoincrement()) @id
+  email     String
+  typeform_id   String
+  BMR Int
+  carbs_macronutrients    Int
+  protein_macronutrients  Int
+  fat_macronutrients Int
+  carbs_per_meal Int
+  protein_per_meal Int
+  fat_per_meal Int
+  calorie_per_meal Int
+}
+

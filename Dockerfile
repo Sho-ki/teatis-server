@@ -1,23 +1,24 @@
-# Use the official lightweight Node.js 12 image.
-# https://hub.docker.com/_/node
-FROM node:15.4 as build
+FROM node:14 AS builder
 
-# Create and change to the app directory.
-WORKDIR /usr/src/app
+# Create app directory
+WORKDIR /app
 
-# Copy application dependency manifests to the container image.
-# A wildcard is used to ensure both package.json AND package-lock.json are copied.
-# Copying this separately prevents re-running npm install on every code change.
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Install dependencies
+# Install app dependencies
 RUN npm install
 
-# Copy local code to the container image.
-COPY . ./
+COPY . .
 
-# Build the application
 RUN npm run build
 
-# Run the web service on container startup.
+FROM node:14
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 8080
 CMD [ "npm", "run", "start:prod" ]

@@ -1,23 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import {
-  UserAllRes,
-  UserResFields,
-  UserResponse,
-} from 'src/types/UserResponse';
+  CustomerAllRes,
+  CustomerResFields,
+  CustomerResponse,
+} from 'src/types/CustomerResponse';
 
-export interface TypeFromRepositoryIntreface {
-  getUserResponses(userResponseId: string): Promise<UserResponse>;
+interface TypeFromRepositoryIntreface {
+  getCustomerResponses(customerResponseId: string): Promise<CustomerResponse>;
 }
 
 @Injectable()
 export class TypeFormRepostitory implements TypeFromRepositoryIntreface {
-  async getUserResponses(userResponseId: string): Promise<UserResponse> {
+  async getCustomerResponses(
+    customerResponseId: string,
+  ): Promise<CustomerResponse> {
     try {
       const typeformId = 'NoAh1OoI';
-      const TYPEFORM_URL = `https://api.typeform.com/forms/${typeformId}/responses?query=${userResponseId}`;
-      const { answers: userResFields } = await axios
-        .get<UserAllRes>(TYPEFORM_URL, {
+      const TYPEFORM_URL = `https://api.typeform.com/forms/${typeformId}/responses?query=${customerResponseId}`;
+
+      const { answers: customerResFields } = await axios
+        .get<CustomerAllRes>(TYPEFORM_URL, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: process.env.TYPEFORM_AUTH,
@@ -27,48 +30,54 @@ export class TypeFormRepostitory implements TypeFromRepositoryIntreface {
         .then((res) => {
           return res.data.items[0];
         });
-      let QACombination: UserResponse = this.createQACombination(userResFields);
+
+      let QACombination: CustomerResponse =
+        this.createQACombination(customerResFields);
       return QACombination;
     } catch (e) {
       throw new Error('Something went wrong');
     }
   }
 
-  createQACombination(userResFields: UserResFields[]): UserResponse {
-    let QASetObj = {} as UserResponse;
+  createQACombination(
+    customerResFields: CustomerResFields[],
+  ): CustomerResponse {
+    let QASetObj = {} as CustomerResponse;
 
-    userResFields.map((userResAnswer: UserResFields) => {
-      switch (userResAnswer.field.ref) {
+    customerResFields.map((customerResAnswer: CustomerResFields) => {
+      switch (customerResAnswer.field.ref) {
         case 'diabetes':
-          return (QASetObj['diabetes'] = userResAnswer.choice.ref);
+          return (QASetObj['diabetes'] = customerResAnswer.choice.ref);
         case 'gender':
-          return (QASetObj['gender'] = userResAnswer.choice.ref);
+          return (QASetObj['gender'] = customerResAnswer.choice.ref);
         case 'height':
-          return (QASetObj['height'] = userResAnswer.number);
+          return (QASetObj['height'] = customerResAnswer.number);
         case 'weight':
-          return (QASetObj['weight'] = userResAnswer.number);
+          return (QASetObj['weight'] = customerResAnswer.number);
         case 'age':
-          return (QASetObj['age'] = userResAnswer.number);
+          return (QASetObj['age'] = customerResAnswer.number);
         case 'medicalConditions':
-          return (QASetObj['medicalConditions'] = userResAnswer.choice.ref);
+          return (QASetObj['medicalConditions'] = customerResAnswer.choice.ref);
         case 'tastePreferences':
-          return (QASetObj['tastePreferences'] = userResAnswer.choices.refs);
+          return (QASetObj['tastePreferences'] =
+            customerResAnswer.choices.refs);
         case 'activeLevel':
-          return (QASetObj['activeLevel'] = userResAnswer.choice.ref);
+          return (QASetObj['activeLevel'] = customerResAnswer.choice.ref);
         case 'a1cScore':
-          return (QASetObj['a1cScore'] = userResAnswer.choice.ref);
+          return (QASetObj['a1cScore'] = customerResAnswer.choice.ref);
         case 'a1cScoreGoal':
-          return (QASetObj['a1cScoreGoal'] = userResAnswer.choice.ref);
+          return (QASetObj['a1cScoreGoal'] = customerResAnswer.choice.ref);
         case 'allergies':
-          return (QASetObj['allergies'] = userResAnswer.text);
+          return (QASetObj['allergies'] = customerResAnswer.text);
         case 'tastePreferences':
-          return (QASetObj['tastePreferences'] = userResAnswer.choices.refs);
+          return (QASetObj['tastePreferences'] =
+            customerResAnswer.choices.refs);
         case 'sweetOrSavory':
-          return (QASetObj['sweetOrSavory'] = userResAnswer.choice.ref);
+          return (QASetObj['sweetOrSavory'] = customerResAnswer.choice.ref);
         case 'foodPalate':
-          return (QASetObj['foodPalate'] = userResAnswer.number);
+          return (QASetObj['foodPalate'] = customerResAnswer.number);
         case 'email':
-          return (QASetObj['email'] = userResAnswer.email);
+          return (QASetObj['email'] = customerResAnswer.email);
         default:
           break;
       }

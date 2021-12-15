@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class CreateUserInfoDto {
+export class CreateCustomerInfoDto {
   @IsString()
-  userResponseId: string;
+  typeformId: string;
 }

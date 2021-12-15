@@ -1,4 +1,4 @@
-export type UserResFields = {
+export type CustomerResFields = {
   field: {
     id: string;
     ref: string;
@@ -12,7 +12,7 @@ export type UserResFields = {
   email?: string;
 };
 
-export interface UserResponse {
+export type CustomerResponse = {
   a1c: string;
   a1cgoal: string;
   activelevel: string;
@@ -27,22 +27,22 @@ export interface UserResponse {
   allergies: string;
   tastePreferences: string[];
   email: string;
-}
+};
 
-export interface Step2Response {
+export type Step2Response = {
   carbsMacronutrients: number;
   proteinMacronutrients: number;
   fatMacronutrients: number;
-}
+};
 
-export interface Step3Response {
+export type Step3Response = {
   carbsPerMeal: number;
   proteinPerMeal: number;
   fatPerMeal: number;
   caloriePerMeal: number;
-}
+};
 
-export interface UserAllRes {
+export type CustomerAllRes = {
   total_items: number;
   page_count: number;
   items: [
@@ -62,7 +62,7 @@ export interface UserAllRes {
       hidden: {
         answerlabel: string;
       };
-      answers: UserResFields[];
+      answers: CustomerResFields[];
     },
   ];
-}
+};
