@@ -4,7 +4,7 @@ import {
   CustomerAllRes,
   CustomerResFields,
   CustomerResponse,
-} from 'src/types/CustomerResponse';
+} from 'src/types/customerResponse';
 
 interface TypeFromRepositoryIntreface {
   getCustomerResponses(customerResponseId: string): Promise<CustomerResponse>;

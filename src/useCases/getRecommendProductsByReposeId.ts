@@ -3,13 +3,12 @@ import {
   Step2Response,
   Step3Response,
   CustomerResponse,
-} from 'src/types/CustomerResponse';
+} from 'src/types/customerResponse';
 
-import { ShopifyRepo } from 'src/repositories/shopify/ShopifyRepo';
-import { TypeFormRepostitory } from 'src/repositories/typeform/TypeformRepo';
+import { ShopifyRepo } from 'src/repositories/shopify/shopifyRepo';
+import { TypeFormRepostitory } from 'src/repositories/typeform/typeformRepo';
 
 interface GetRecommendProductsUseCaseInterface {
-  // function is not completed, so using any type
   getRecommendProducts(customerTypeformId: string): any;
 }
 
@@ -36,9 +35,10 @@ export class GetRecommendProductsUseCase
         66.473 + 13.7516 * weight + 5.0033 * height - 6.755 * age,
       );
     } else {
+      // if female or no answer
       return Math.round(
         655.0955 + 9.5634 * weight + 1.8496 * height - 4.6756 * age,
-      ); // if female or no answer
+      );
     }
   }
 
@@ -97,6 +97,7 @@ export class GetRecommendProductsUseCase
     const typeformResponse: CustomerResponse =
       await this.typeFormRepo.getCustomerResponses(customerTypeformId);
 
+    console.log(typeformResponse);
     let BMR: number = this.calculateBMR(
       typeformResponse.gender,
       typeformResponse.age,

@@ -5,14 +5,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
 // datasource db {
 //   provider = "postgresql"
-//   url      = "postgres://postgres:teatis-discovery@localhost:5432/postgres"
+//   url      = env("DATABASE_URL")
 // }
+datasource db {
+  provider = "postgresql"
+  url      = "postgres://postgres:teatis-discovery@localhost:5432/postgres"
+}
 
 model Customers {
   id        Int      @default(autoincrement()) @id

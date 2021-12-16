@@ -3,24 +3,37 @@ import axios from 'axios';
 require('dotenv').config();
 
 interface ShopifyRepoInterface {
-  getMatchedProduct(carbsPerMeal: number, isHighblood: boolean);
+  getMatchedProduct(carbsPerMeal: number, isHighblood: boolean): any;
 }
 
 @Injectable()
 export class ShopifyRepo implements ShopifyRepoInterface {
-  private getPersonTypeId(carbsPerMeal: number, isHighblood: boolean) {
+  private getPersonTypeId(carbsPerMeal: number, isHighblood: boolean): number {
     let personTypeId: number;
-    if (carbsPerMeal - 23 <= 7) {
+    let counts = [15, 30];
+    let goal = carbsPerMeal;
+
+    let closest = counts.reduce((prev, curr) => {
+      return Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev;
+    });
+
+    if (closest === 30) {
       if (isHighblood) {
+        // Moderate carb & Low sodium
         personTypeId = 6618823753783;
+        // Moderate carb
       } else personTypeId = 6618823458871;
     } else {
+      // Low carb
       personTypeId = 6618822967351;
     }
     return personTypeId;
   }
 
-  async getMatchedProduct(carbsPerMeal: number, isHighblood: boolean) {
+  async getMatchedProduct(
+    carbsPerMeal: number,
+    isHighblood: boolean,
+  ): Promise<any> {
     try {
       const personTypeId: number = this.getPersonTypeId(
         carbsPerMeal,

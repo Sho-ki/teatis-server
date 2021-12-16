@@ -29,6 +29,11 @@ export class CustomersService {
       caloriePerMeal,
     } = await this.getRecommendProductsUseCase.getRecommendProducts(typeformId);
 
+    const isCustomerExist = await this.checkIfExists(typeformId);
+    if (isCustomerExist) {
+      return recommendProductData;
+    }
+
     const data: Prisma.CustomersCreateInput = {
       typeform_id: typeformId,
       email,
@@ -44,5 +49,14 @@ export class CustomersService {
 
     await this.prisma.customers.create({ data });
     return { recommendProductData };
+  }
+
+  private async checkIfExists(typeform_id: string): Promise<boolean> {
+    const findCustomerByTypeformId = await this.prisma.customers.findMany({
+      where: {
+        typeform_id,
+      },
+    });
+    return findCustomerByTypeformId.length ? true : false;
   }
 }
