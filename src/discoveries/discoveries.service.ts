@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { CreateCustomerInfoDto } from './dtos/create-customer.dto';
+import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -8,13 +8,13 @@ import { Prisma } from '@prisma/client';
 // https://teatis.notion.site/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
 // All the calculations are conducted based on this document.
 @Injectable()
-export class CustomersService {
+export class DiscoveriesService {
   constructor(
     private prisma: PrismaService,
     private getRecommendProductsUseCase: GetRecommendProductsUseCase,
   ) {}
 
-  async createCustomer(body: CreateCustomerInfoDto) {
+  async createDiscovery(body: CreateDiscoveryInfoDto) {
     const typeformId = body.typeformId;
     const {
       recommendProductData,
@@ -29,12 +29,12 @@ export class CustomersService {
       caloriePerMeal,
     } = await this.getRecommendProductsUseCase.getRecommendProducts(typeformId);
 
-    const isCustomerExist = await this.checkIfExists(typeformId);
-    if (isCustomerExist) {
+    const isDiscoveryExist = await this.checkIfExists(typeformId);
+    if (isDiscoveryExist) {
       return recommendProductData;
     }
 
-    const data: Prisma.CustomersCreateInput = {
+    const data: Prisma.DiscoveriesCreateInput = {
       typeform_id: typeformId,
       email,
       BMR,
@@ -47,16 +47,16 @@ export class CustomersService {
       calorie_per_meal: caloriePerMeal,
     };
 
-    await this.prisma.customers.create({ data });
+    await this.prisma.discoveries.create({ data });
     return { recommendProductData };
   }
 
   private async checkIfExists(typeform_id: string): Promise<boolean> {
-    const findCustomerByTypeformId = await this.prisma.customers.findMany({
+    const findDiscoveryByTypeformId = await this.prisma.discoveries.findMany({
       where: {
         typeform_id,
       },
     });
-    return findCustomerByTypeformId.length ? true : false;
+    return findDiscoveryByTypeformId.length ? true : false;
   }
 }

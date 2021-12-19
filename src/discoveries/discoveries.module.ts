@@ -1,20 +1,20 @@
 import { Module } from '@nestjs/common';
-import { CustomersController } from './customers.controller';
-import { CustomersService } from './customers.service';
+import { DiscoveriesController } from './discoveries.controller';
+import { DiscoveriesService } from './discoveries.service';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
 import { ShopifyRepo } from 'src/repositories/shopify/shopifyRepo';
 import { TypeFormRepostitory } from 'src/repositories/typeform/typeformRepo';
 import { PrismaService } from 'src/prisma.service';
 
 @Module({
-  controllers: [CustomersController],
+  controllers: [DiscoveriesController],
   providers: [
-    CustomersService,
+    DiscoveriesService,
     TypeFormRepostitory,
     ShopifyRepo,
     GetRecommendProductsUseCase,
     PrismaService,
   ],
-  exports: [CustomersService],
+  exports: [DiscoveriesService],
 })
-export class CustomersModule {}
+export class DiscoveriesModule {}

@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import {
   Step2Response,
   Step3Response,
-  CustomerResponse,
-} from 'src/types/customerResponse';
+  DiscoveryResponse,
+} from 'src/types/discoveryResponse';
 
 import { ShopifyRepo } from 'src/repositories/shopify/shopifyRepo';
 import { TypeFormRepostitory } from 'src/repositories/typeform/typeformRepo';
 
 interface GetRecommendProductsUseCaseInterface {
-  getRecommendProducts(customerTypeformId: string): any;
+  getRecommendProducts(discoveryTypeformId: string): any;
 }
 
 @Injectable()
@@ -93,9 +93,9 @@ export class GetRecommendProductsUseCase
     };
   }
 
-  async getRecommendProducts(customerTypeformId: string): Promise<any> {
-    const typeformResponse: CustomerResponse =
-      await this.typeFormRepo.getCustomerResponses(customerTypeformId);
+  async getRecommendProducts(discoveryTypeformId: string): Promise<any> {
+    const typeformResponse: DiscoveryResponse =
+      await this.typeFormRepo.getDiscoveryResponses(discoveryTypeformId);
 
     console.log(typeformResponse);
     let BMR: number = this.calculateBMR(

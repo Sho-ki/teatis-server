@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Customers" (
+CREATE TABLE "Discoveries" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "typeform_id" TEXT NOT NULL,
@@ -12,5 +12,5 @@ CREATE TABLE "Customers" (
     "fat_per_meal" INTEGER NOT NULL,
     "calorie_per_meal" INTEGER NOT NULL,
 
-    CONSTRAINT "Customers_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Discoveries_pkey" PRIMARY KEY ("id")
 );

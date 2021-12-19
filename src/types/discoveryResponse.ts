@@ -1,4 +1,4 @@
-export type CustomerResFields = {
+export type DiscoveryResFields = {
   field: {
     id: string;
     ref: string;
@@ -12,7 +12,7 @@ export type CustomerResFields = {
   email?: string;
 };
 
-export type CustomerResponse = {
+export type DiscoveryResponse = {
   a1c: string;
   a1cgoal: string;
   activelevel: string;
@@ -42,7 +42,7 @@ export type Step3Response = {
   caloriePerMeal: number;
 };
 
-export type CustomerAllRes = {
+export type DiscoveryAllRes = {
   total_items: number;
   page_count: number;
   items: [
@@ -62,7 +62,7 @@ export type CustomerAllRes = {
       hidden: {
         answerlabel: string;
       };
-      answers: CustomerResFields[];
+      answers: DiscoveryResFields[];
     },
   ];
 };

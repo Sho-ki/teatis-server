@@ -9,6 +9,16 @@ steps:
  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
    entrypoint: gcloud
    args:
+   - 'run' 
+   - 'services' 
+   - 'update' 
+   - '--add-cloudsql-instances' 
+   - '$_SERVICE_NAME:'
+   - '$_REGION:'
+   - 'teatis-discovery'
+ - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+   entrypoint: gcloud
+   args:
    - 'run'
    - 'deploy'
    - '$_SERVICE_NAME'
