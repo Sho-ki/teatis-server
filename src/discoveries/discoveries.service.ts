@@ -31,7 +31,7 @@ export class DiscoveriesService {
 
     const isDiscoveryExist = await this.checkIfExists(typeformId);
     if (isDiscoveryExist) {
-      return recommendProductData;
+      return { recommendProductData };
     }
 
     const data: Prisma.DiscoveriesCreateInput = {
