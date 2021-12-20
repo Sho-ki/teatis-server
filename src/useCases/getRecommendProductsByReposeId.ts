@@ -3,10 +3,10 @@ import {
   Step2Response,
   Step3Response,
   DiscoveryResponse,
-} from 'src/types/discoveryResponse';
+} from '../types/discoveryResponse';
 
-import { ShopifyRepo } from 'src/repositories/shopify/shopifyRepo';
-import { TypeFormRepostitory } from 'src/repositories/typeform/typeformRepo';
+import { ShopifyRepo } from '../repositories/shopify/shopifyRepo';
+import { TypeFormRepostitory } from '../repositories/typeform/typeformRepo';
 
 interface GetRecommendProductsUseCaseInterface {
   getRecommendProducts(discoveryTypeformId: string): any;
