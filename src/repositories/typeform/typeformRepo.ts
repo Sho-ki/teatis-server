@@ -30,9 +30,14 @@ export class TypeFormRepostitory implements TypeFromRepositoryIntreface {
           },
         })
         .then((res) => {
-          return res.data.items[0];
+          const matchedItem = res.data.items.find((item) => {
+            return item.hidden.typefomid === discoveryResponseId;
+          });
+          return matchedItem[0];
+        })
+        .catch(() => {
+          throw new Error('Something went wrong');
         });
-
       let QACombination: DiscoveryResponse =
         this.createQACombination(discoveryResFields);
       return QACombination;
