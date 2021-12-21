@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-
+import { BigQuery } from '@google-cloud/bigquery';
 import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
 import { PrismaService } from 'src/prisma.service';
@@ -7,6 +7,9 @@ import { Prisma } from '@prisma/client';
 
 // https://teatis.notion.site/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
 // All the calculations are conducted based on this document.
+const bigquery = new BigQuery();
+const bqTableName = process.env.BQ_TABLE_NAME;
+
 @Injectable()
 export class DiscoveriesService {
   constructor(
@@ -34,29 +37,19 @@ export class DiscoveriesService {
       return { recommendProductData };
     }
 
-    const data: Prisma.DiscoveriesCreateInput = {
-      typeform_id: typeformId,
-      email,
-      BMR,
-      carbs_macronutrients: carbsMacronutrients,
-      protein_macronutrients: proteinMacronutrients,
-      fat_macronutrients: fatMacronutrients,
-      carbs_per_meal: carbsPerMeal,
-      protein_per_meal: proteinPerMeal,
-      fat_per_meal: fatPerMeal,
-      calorie_per_meal: caloriePerMeal,
-    };
-
-    await this.prisma.discoveries.create({ data });
+    const insertQuery = `INSERT INTO ${bqTableName} VALUES(
+                       '${email}', 
+                       '${typeformId}',
+                        ${BMR}, 
+                        ${carbsMacronutrients}, ${proteinMacronutrients}, ${fatMacronutrients}, 
+                        ${carbsPerMeal}, ${proteinPerMeal}, ${fatPerMeal}, ${caloriePerMeal}) `;
+    await bigquery.query(insertQuery);
     return { recommendProductData };
   }
 
   private async checkIfExists(typeform_id: string): Promise<boolean> {
-    const findDiscoveryByTypeformId = await this.prisma.discoveries.findMany({
-      where: {
-        typeform_id,
-      },
-    });
-    return findDiscoveryByTypeformId.length ? true : false;
+    const getQuery = `SELECT * FROM ${bqTableName} WHERE typeform_id='${typeform_id}'`;
+    const findDiscoveryByTypeformId = await bigquery.query(getQuery);
+    return findDiscoveryByTypeformId[0].length ? true : false;
   }
 }
