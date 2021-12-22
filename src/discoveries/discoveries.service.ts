@@ -19,6 +19,7 @@ export class DiscoveriesService {
 
   async createDiscovery(body: CreateDiscoveryInfoDto) {
     const typeformId = body.typeformId;
+    if (!typeformId) throw new Error('Something went wrong');
     const {
       recommendProductData,
       email,
@@ -30,9 +31,15 @@ export class DiscoveriesService {
       proteinPerMeal,
       fatPerMeal,
       caloriePerMeal,
-    } = await this.getRecommendProductsUseCase.getRecommendProducts(typeformId);
+    } = await this.getRecommendProductsUseCase
+      .getRecommendProducts(typeformId)
+      .catch(() => {
+        throw new Error('Something went wrong');
+      });
 
-    const isDiscoveryExist = await this.checkIfExists(typeformId);
+    const isDiscoveryExist = await this.checkIfExists(typeformId).catch(() => {
+      throw new Error('Something went wrong');
+    });
     if (isDiscoveryExist) {
       return { recommendProductData };
     }
@@ -43,13 +50,19 @@ export class DiscoveriesService {
                         ${BMR}, 
                         ${carbsMacronutrients}, ${proteinMacronutrients}, ${fatMacronutrients}, 
                         ${carbsPerMeal}, ${proteinPerMeal}, ${fatPerMeal}, ${caloriePerMeal}) `;
-    await bigquery.query(insertQuery);
+    await bigquery.query(insertQuery).catch(() => {
+      throw new Error('Something went wrong');
+    });
     return { recommendProductData };
   }
 
   private async checkIfExists(typeform_id: string): Promise<boolean> {
-    const getQuery = `SELECT * FROM ${bqTableName} WHERE typeform_id='${typeform_id}'`;
-    const findDiscoveryByTypeformId = await bigquery.query(getQuery);
+    const getQuery = `SELECT typeform_id FROM ${bqTableName} WHERE typeform_id='${typeform_id}'`;
+    const findDiscoveryByTypeformId = await bigquery
+      .query(getQuery)
+      .catch(() => {
+        throw new Error('Something went wrong');
+      });
     return findDiscoveryByTypeformId[0].length ? true : false;
   }
 }
