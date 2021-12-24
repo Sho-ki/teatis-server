@@ -1,10 +1,10 @@
 # README.md
 # teatis-discovery
-## 環境
+## Requirement
  - [node.js v14.16.0](https://nodejs.org/en/)
 
 
-## はじめに
+## Getting started
 ```bash
 git clone git@github.com:Teatis/teatis-discovery.git
 npm install
@@ -12,7 +12,7 @@ npm install
 
 ### Commands
 
-#### サーバー起動
+#### Run
 ```bash
 $ npm run start:dev
 ```
