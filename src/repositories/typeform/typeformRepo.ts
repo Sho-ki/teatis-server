@@ -33,7 +33,7 @@ export class TypeFormRepostitory implements TypeFromRepositoryIntreface {
           const matchedItem = res.data.items.find((item) => {
             return item.hidden.typefomid === discoveryResponseId;
           });
-          return matchedItem[0];
+          return matchedItem;
         })
         .catch(() => {
           throw new Error('Something went wrong');
