@@ -20,3 +20,6 @@ steps:
    - 'managed'
 images:
  - 'gcr.io/$PROJECT_ID/$_SERVICE_NAME'
+substitutions:
+ _REGION: us-central1
+ _SERVICE_NAME: teatis-discovery-dev
