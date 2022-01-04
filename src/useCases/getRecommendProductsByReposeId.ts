@@ -96,6 +96,8 @@ export class GetRecommendProductsUseCase
   async getRecommendProducts(discoveryTypeformId: string): Promise<any> {
     const typeformResponse: DiscoveryResponse =
       await this.typeFormRepo.getDiscoveryResponses(discoveryTypeformId);
+
+    console.log(typeformResponse);
     let BMR: number = this.calculateBMR(
       typeformResponse.gender,
       typeformResponse.age,
