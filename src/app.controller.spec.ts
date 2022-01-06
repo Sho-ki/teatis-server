@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "You need to add endpoint"', () => {
+      expect(appController.getHello()).toBe('You need to add endpoint');
     });
   });
 });
