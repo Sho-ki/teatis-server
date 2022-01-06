@@ -3,15 +3,17 @@ import { DiscoveriesController } from './discoveries.controller';
 import { DiscoveriesService } from './discoveries.service';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
 import { ShopifyRepo } from '../repositories/shopify/shopifyRepo';
-import { TypeFormRepostitory } from '../repositories/typeform/typeformRepo';
+import { TypeFormRepo } from '../repositories/typeform/typeformRepo';
 import { PrismaService } from '../prisma.service';
+import { DiscoveriesRepo } from '../repositories/teatisDB/discoveriesRepo';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
     DiscoveriesService,
-    TypeFormRepostitory,
+    TypeFormRepo,
     ShopifyRepo,
+    DiscoveriesRepo,
     GetRecommendProductsUseCase,
     PrismaService,
   ],

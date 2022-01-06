@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
+
 import {
   Step2Response,
   Step3Response,
   DiscoveryResponse,
 } from '../types/discoveryResponse';
-
 import { ShopifyRepo } from '../repositories/shopify/shopifyRepo';
-import { TypeFormRepostitory } from '../repositories/typeform/typeformRepo';
+import { TypeFormRepo } from '../repositories/typeform/typeformRepo';
 
-interface GetRecommendProductsUseCaseInterface {
-  getRecommendProducts(discoveryTypeformId: string): any;
+export interface GetRecommendProductsUseCaseInterface {
+  getRecommendProducts(discoveryTypeformId: string): Promise<any>;
 }
 
 @Injectable()
@@ -17,16 +17,17 @@ export class GetRecommendProductsUseCase
   implements GetRecommendProductsUseCaseInterface
 {
   constructor(
-    private typeFormRepo: TypeFormRepostitory,
+    private typeFormRepo: TypeFormRepo,
     private shopifyRepo: ShopifyRepo,
   ) {}
 
   // Step 1: Calculate calorie needs
+  // Default values are from the average of woman in the States
   private calculateBMR(
     gender: string,
-    age: number,
-    height: number,
-    weight: number,
+    age: number = 40,
+    height: number = 55,
+    weight: number = 170,
   ): number {
     height = height * 2.54; // inches to cm
     weight = weight * 0.453592; // lb to kg
@@ -45,7 +46,7 @@ export class GetRecommendProductsUseCase
   // Step 2: Calculate individual macronutrients
   private calculateMacronutrients(
     BMR: number,
-    activeLevel: string,
+    activeLevel: string = 'moderatelyActive',
   ): Step2Response {
     let macronutrientsObj = {};
     switch (activeLevel) {
@@ -96,6 +97,7 @@ export class GetRecommendProductsUseCase
   async getRecommendProducts(discoveryTypeformId: string): Promise<any> {
     const typeformResponse: DiscoveryResponse =
       await this.typeFormRepo.getDiscoveryResponses(discoveryTypeformId);
+
     let BMR: number = this.calculateBMR(
       typeformResponse.gender,
       typeformResponse.age,

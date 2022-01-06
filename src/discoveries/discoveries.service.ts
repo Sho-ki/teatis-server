@@ -1,25 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { BigQuery } from '@google-cloud/bigquery';
 import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
+import { DiscoveriesRepo } from '../repositories/teatisDB/discoveriesRepo';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
-import { PrismaService } from 'src/prisma.service';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 // https://teatis.notion.site/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
 // All the calculations are conducted based on this document.
-const bigquery = new BigQuery();
-const bqTableName = process.env.BQ_TABLE_NAME;
 
 @Injectable()
 export class DiscoveriesService {
   constructor(
-    private prisma: PrismaService,
     private getRecommendProductsUseCase: GetRecommendProductsUseCase,
+    private discoveriesRepo: DiscoveriesRepo,
   ) {}
 
   async createDiscovery(body: CreateDiscoveryInfoDto) {
     const typeformId = body.typeformId;
-    if (!typeformId) throw new Error('Something went wrong');
+    if (!typeformId) throw new Error('No typeformId is provided');
     const {
       recommendProductData,
       email,
@@ -34,35 +31,32 @@ export class DiscoveriesService {
     } = await this.getRecommendProductsUseCase
       .getRecommendProducts(typeformId)
       .catch(() => {
-        throw new Error('Something went wrong');
+        throw new Error('No typeformId is matched');
       });
 
-    const isDiscoveryExist = await this.checkIfExists(typeformId).catch(() => {
-      throw new Error('Something went wrong');
-    });
+    const isDiscoveryExist = await this.discoveriesRepo
+      .checkIfExists(typeformId)
+      .catch(() => {
+        throw new Error('Something went wrong');
+      });
     if (isDiscoveryExist) {
       return { recommendProductData };
     }
 
-    const insertQuery = `INSERT INTO ${bqTableName} VALUES(
-                       '${email}', 
-                       '${typeformId}',
-                        ${BMR}, 
-                        ${carbsMacronutrients}, ${proteinMacronutrients}, ${fatMacronutrients}, 
-                        ${carbsPerMeal}, ${proteinPerMeal}, ${fatPerMeal}, ${caloriePerMeal}) `;
-    await bigquery.query(insertQuery).catch(() => {
-      throw new Error('Something went wrong');
-    });
-    return { recommendProductData };
-  }
+    const data: Prisma.DiscoveriesCreateInput = {
+      email,
+      typeform_id: typeformId,
+      BMR,
+      carbs_macronutrients: carbsMacronutrients,
+      protein_macronutrients: proteinMacronutrients,
+      fat_macronutrients: fatMacronutrients,
+      carbs_per_meal: carbsPerMeal,
+      protein_per_meal: proteinPerMeal,
+      fat_per_meal: fatPerMeal,
+      calorie_per_meal: caloriePerMeal,
+    };
+    await this.discoveriesRepo.createDiscovery(data);
 
-  private async checkIfExists(typeform_id: string): Promise<boolean> {
-    const getQuery = `SELECT typeform_id FROM ${bqTableName} WHERE typeform_id='${typeform_id}'`;
-    const findDiscoveryByTypeformId = await bigquery
-      .query(getQuery)
-      .catch(() => {
-        throw new Error('Something went wrong');
-      });
-    return findDiscoveryByTypeformId[0].length ? true : false;
+    return { recommendProductData };
   }
 }

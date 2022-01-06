@@ -6,14 +6,14 @@ import {
   DiscoveryResponse,
 } from 'src/types/discoveryResponse';
 
-interface TypeFromRepositoryIntreface {
+interface TypeFormRepoIntreface {
   getDiscoveryResponses(
     discoveryResponseId: string,
   ): Promise<DiscoveryResponse>;
 }
 
 @Injectable()
-export class TypeFormRepostitory implements TypeFromRepositoryIntreface {
+export class TypeFormRepo implements TypeFormRepoIntreface {
   async getDiscoveryResponses(
     discoveryResponseId: string,
   ): Promise<DiscoveryResponse> {
