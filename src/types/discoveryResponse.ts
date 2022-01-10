@@ -60,7 +60,7 @@ export type DiscoveryAllRes = {
         browser: string;
       };
       hidden: {
-        typefomid: string;
+        typeformid: string;
       };
       answers: DiscoveryResFields[];
     },
