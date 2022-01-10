@@ -19,7 +19,7 @@ export class TypeFormRepo implements TypeFormRepoIntreface {
   ): Promise<DiscoveryResponse> {
     try {
       const typeformUrlId = process.env.TYPEFORM_URL_ID;
-      const TYPEFORM_URL = `https://api.typeform.com/forms/${'u2vWQh4a'}/responses?query=${discoveryResponseId}`;
+      const TYPEFORM_URL = `https://api.typeform.com/forms/${typeformUrlId}/responses?query=${discoveryResponseId}`;
 
       const { answers: discoveryResFields } = await axios
         .get<DiscoveryAllRes>(TYPEFORM_URL, {
