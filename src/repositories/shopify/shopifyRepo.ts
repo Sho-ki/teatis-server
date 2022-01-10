@@ -44,7 +44,6 @@ export class ShopifyRepo implements ShopifyRepoInterface {
         API_PASSWORD: process.env.SHOPIFY_API_PASSWORD,
         query: 'Meal Box',
       };
-
       const response = await axios(
         `https://thetis-tea.myshopify.com/admin/api/2021-10/products.json?product_type=${shopifyInfo.query}`,
         {

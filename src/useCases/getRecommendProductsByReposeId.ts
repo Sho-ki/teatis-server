@@ -97,7 +97,6 @@ export class GetRecommendProductsUseCase
   async getRecommendProducts(discoveryTypeformId: string): Promise<any> {
     const typeformResponse: DiscoveryResponse =
       await this.typeFormRepo.getDiscoveryResponses(discoveryTypeformId);
-
     let BMR: number = this.calculateBMR(
       typeformResponse.gender,
       typeformResponse.age,
@@ -130,7 +129,6 @@ export class GetRecommendProductsUseCase
       carbsPerMeal,
       typeformResponse['medicalConditions'] === 'hightBloodPressure',
     );
-
     return {
       recommendProductData,
       email,
