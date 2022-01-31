@@ -38,8 +38,6 @@ export class DiscoveriesController {
   // When you migrate the data (Discoveries -> Customer etc...)
   @Post('job')
   async dataMigrate() {
-    console.log('OK');
-    const targetData = await this.teatisJob.getTagertData();
-    // await this.teatisJob.applyToNewDB(targetData);
+    await this.teatisJob.databaseMigrate();
   }
 }
