@@ -12,7 +12,7 @@ datasource db {
 
 
 model Discoveries {
-  id        Int      @default(autoincrement()) @id
+  id        Int       @default(autoincrement()) @id
   email     String
   typeform_id   String
   BMR Int
@@ -25,3 +25,177 @@ model Discoveries {
   calorie_per_meal Int
 }
 
+
+model Customer{
+  id                      Int             @default(autoincrement()) @id
+  email                   String
+  customer_nutrition_items CustomerNutrition[]
+  customer_medical_conditions CustomerMedicalCondition[]
+  // customer_product_prefs   CustomerProductPref[]
+  // multiple_option_reviews MultipleOptionReview[]
+  // text_reviews TextReview[]
+  created_at DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+model CustomerNutrition{
+  customer_nutrition_item    CustomerNutritionItem   @relation(fields: [customer_nutrition_item_id], references: [id])
+  customer_nutrition_item_id Int
+  customer                   Customer                @relation(fields: [customer_id], references: [id])
+  customer_id                Int
+  nutrition_value            Int
+  created_at DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([customer_nutrition_item_id, customer_id])
+}
+
+model CustomerNutritionItem{
+  id            Int       @default(autoincrement()) @id
+  description   String
+  label         String @unique
+  customer_nutritions      CustomerNutrition[]
+  created_at DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+model CustomerMedicalCondition{
+  medical_condition_value String
+  customer_medical_condition_item CustomerMedicalConditionItem @relation(fields: [customer_medical_condition_item_id], references: [id])
+  customer_medical_condition_item_id Int
+  customer                   Customer                @relation(fields: [customer_id], references: [id])
+  customer_id                Int
+  created_at DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([customer_medical_condition_item_id, customer_id])
+}
+
+model CustomerMedicalConditionItem{
+  id    Int     @default(autoincrement()) @id
+  description   String
+  label String
+  customer_medical_conditions CustomerMedicalCondition[]
+  created_at DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+model Product{
+  id                  Int             @default(autoincrement()) @id
+  // product_povider     ProductPovider @relation(fields: [product_povider_id], references: [id])
+  product_povider_id  Int
+  // customer_product_prefs CustomerProductPref[]
+  external_id         Int
+  upc_code  Int
+  created_at DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+}
+
+// model ProductNutritionFacts{
+
+// }
+
+// model ProductPovider{
+//   id       Int         @default(autoincrement()) @id
+//   provider String  @unique
+//   products  Product[]
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+// }
+
+// model CustomerProductPref{
+//   id                              Int       @default(autoincrement()) @id
+//   product                         Product  @relation(fields: [product_id], references: [id])
+//   product_id                      Int
+//   customer                        Customer @relation(fields: [customer_id], references: [id])
+//   customer_id                     Int
+//   customer_product_pref_distances  CustomerProductPrefDistance[]
+//   customer_product_pref_question_answers CustomerProductPrefQuestionAnswer[]
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+// }
+
+// model CustomerProductPrefDistance{
+//   id                                    Int                  @default(autoincrement()) @id
+//   distance                              Float
+//   customer_product_pref                 CustomerProductPref @relation(fields: [customer_product_pref_id], references: [id])
+//   customer_product_pref_id              Int
+//   answer_count Int
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+
+// }
+
+// model CustomerProductPrefQuestionAnswer{
+//   id                                Int                          @default(autoincrement()) @id
+//   answer                            Boolean
+//   answer_count                      Int
+//   customer_product_pref_question    CustomerProductPrefQuestion @relation(fields: [customer_product_pref_question_id], references: [id])
+//   customer_product_pref_question_id Int
+//   customer_product_pref CustomerProductPref @relation(fields: [customer_product_pref_id], references: [id])
+//   customer_product_pref_id Int
+//   reason String
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+  
+// }
+
+// model CustomerProductPrefQuestion{
+//   id                                    Int    @default(autoincrement()) @id
+//   description                           String
+//   label                                 String  @unique
+//   index_id                              Int
+//   customer_product_pref_question_answers CustomerProductPrefQuestionAnswer[]
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+// }
+
+
+// model MultipleOptionReview{
+//   id          Int    @default(autoincrement()) @id
+//   customer                        Customer @relation(fields: [customer_id], references: [id])
+//   customer_id                     Int
+//   review_question_option  ReviewQuestionOption @relation(fields: [review_question_option_id], references: [id])
+//   review_question_option_id Int
+//   answer_count  Int
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+// }
+
+// model ReviewQuestion{
+//   id Int    @default(autoincrement()) @id 
+//   is_active Boolean
+//   required Boolean
+//   question String
+//   instruction String?
+//   label String  @unique
+//   review_question_options ReviewQuestionOption[]
+//   text_reviews TextReview[]
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+// }
+
+// model ReviewQuestionOption{
+//   id Int    @default(autoincrement()) @id
+//   multiple_option_reviews MultipleOptionReview[]
+//   label String
+//   review_question ReviewQuestion @relation(fields: [review_question_id], references: [id])
+//   review_question_id Int
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+// }
+
+
+// model TextReview{
+//   id Int    @default(autoincrement()) @id
+//   customer                        Customer @relation(fields: [customer_id], references: [id])
+//   customer_id                     Int
+//   review_question ReviewQuestion @relation(fields: [review_question_id], references: [id])
+//   review_question_id Int
+//   answer String
+//   answer_count Int
+//   created_at DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+
+// }

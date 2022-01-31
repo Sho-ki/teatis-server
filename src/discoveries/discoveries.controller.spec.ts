@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscoveriesRepo } from '../repositories/teatisDB/discoveriesRepo';
+import { DiscoveriesRepo } from '../repositories/teatisDB/customerRepo/discoveriesRepo';
 import { ShopifyRepo } from '../repositories/shopify/shopifyRepo';
 import { TypeFormRepo } from '../repositories/typeform/typeformRepo';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
