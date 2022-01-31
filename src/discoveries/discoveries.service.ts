@@ -1,8 +1,9 @@
 import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
-import { DiscoveriesRepo } from '../repositories/teatisDB/discoveriesRepo';
+import { DiscoveriesRepo } from '../repositories/teatisDB/customerRepo/discoveriesRepo';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { prisma, Prisma, PrismaClient } from '@prisma/client';
+const prismaData = new PrismaClient();
 
 // https://teatis.notion.site/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
 // All the calculations are conducted based on this document.
@@ -17,6 +18,7 @@ export class DiscoveriesService {
   async createDiscovery(body: CreateDiscoveryInfoDto) {
     const typeformId = body.typeformId;
     if (!typeformId) throw new Error('No typeformId is provided');
+
     const {
       recommendProductData,
       email,
@@ -35,7 +37,7 @@ export class DiscoveriesService {
       });
 
     const isDiscoveryExist = await this.discoveriesRepo
-      .checkIfExists(typeformId)
+      .checkIfExists(email)
       .catch(() => {
         throw new Error('Something went wrong');
       });
@@ -43,19 +45,28 @@ export class DiscoveriesService {
       return { recommendProductData };
     }
 
-    const data: Prisma.DiscoveriesCreateInput = {
-      email,
-      typeform_id: typeformId,
-      BMR,
-      carbs_macronutrients: carbsMacronutrients,
-      protein_macronutrients: proteinMacronutrients,
-      fat_macronutrients: fatMacronutrients,
-      carbs_per_meal: carbsPerMeal,
-      protein_per_meal: proteinPerMeal,
-      fat_per_meal: fatPerMeal,
-      calorie_per_meal: caloriePerMeal,
-    };
-    await this.discoveriesRepo.createDiscovery(data);
+    const retrieveAllCustomerNutritionItems = await this.discoveriesRepo
+      .retrieveAllCustomerNutritionItems()
+      .catch(() => {
+        throw new Error('Cound not retrieve CustomerNutritionItems');
+      });
+
+    await this.discoveriesRepo
+      .createDiscovery({
+        email,
+        BMR,
+        carbsMacronutrients,
+        proteinMacronutrients,
+        fatMacronutrients,
+        carbsPerMeal,
+        proteinPerMeal,
+        fatPerMeal,
+        caloriePerMeal,
+        retrieveAllCustomerNutritionItems,
+      })
+      .catch(() => {
+        throw new Error('Cound not create a customer');
+      });
 
     return { recommendProductData };
   }
