@@ -10,7 +10,7 @@ import {
 import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { DiscoveriesService } from './discoveries.service';
 import { v4 as uuidv4 } from 'uuid';
-import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
+import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
 
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))

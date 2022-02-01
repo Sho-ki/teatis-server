@@ -6,7 +6,7 @@ import { ShopifyRepo } from '../repositories/shopify/shopifyRepo';
 import { TypeFormRepo } from '../repositories/typeform/typeformRepo';
 import { PrismaService } from '../prisma.service';
 import { DiscoveriesRepo } from '../repositories/teatisDB/customerRepo/discoveriesRepo';
-import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
+import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
 
 @Module({
   controllers: [DiscoveriesController],

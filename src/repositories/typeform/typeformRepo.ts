@@ -4,7 +4,7 @@ import {
   DiscoveryAllRes,
   DiscoveryResFields,
   DiscoveryResponse,
-} from 'src/types/discoveryResponse';
+} from '../../types/discoveryResponse';
 
 interface TypeFormRepoIntreface {
   getDiscoveryResponses(
