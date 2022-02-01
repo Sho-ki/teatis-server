@@ -10,7 +10,7 @@ import {
 import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { DiscoveriesService } from './discoveries.service';
 import { v4 as uuidv4 } from 'uuid';
-import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
+import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
 
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -38,8 +38,6 @@ export class DiscoveriesController {
   // When you migrate the data (Discoveries -> Customer etc...)
   @Post('job')
   async dataMigrate() {
-    console.log('OK');
-    const targetData = await this.teatisJob.getTagertData();
-    // await this.teatisJob.applyToNewDB(targetData);
+    await this.teatisJob.databaseMigrate();
   }
 }
