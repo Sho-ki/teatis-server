@@ -92,7 +92,125 @@ model Product{
 
 }
 
+model Customers{
+  id                      Int             @default(autoincrement()) @id
+  email                   String
+  intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
+  // intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
+  // customer_product_prefs   CustomerProductPref[]
+  // multiple_option_reviews MultipleOptionReview[]
+  // text_reviews TextReview[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+model IntermediateCustomerNutritionNeed{
+  customerNutritionNeed    CustomerNutritionNeed   @relation(fields: [customerNutritionNeedId], references: [id])
+  customerNutritionNeedId Int
+  customer                   Customers                @relation(fields: [customerId], references: [id])
+  customerId                Int
+  nutritionValue            Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([customerNutritionNeedId, customerId])
+}
+
+model CustomerNutritionNeed{
+  id            Int       @default(autoincrement()) @id
+  description   String?
+  label         String? @unique
+  intermediateCustomerNutritionNeed      IntermediateCustomerNutritionNeed[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+// model IntermediateCustomerMedicalCondition{
+//   medicalConditionValue String
+//   customerMedicalCondition CustomerMedicalCondition @relation(fields: [customerMedicalConditionId], references: [id])
+//   customerMedicalConditionId Int
+//   customer                   Customer                @relation(fields: [customerId], references: [id])
+//   customerId                Int
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime  @updatedAt @default(now())
+
+//   @@id([customerMedicalConditionId, customerId])
+// }
+
+// model CustomerMedicalCondition{
+//   id    Int     @default(autoincrement()) @id
+//   description   String?
+//   label String?  @unique
+//   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime  @updatedAt @default(now())
+// }
+
+// model Product{
+//   id                  Int             @default(autoincrement()) @id
+//   name String
+//   // product_povider     ProductPovider @relation(fields: [productPoviderId], references: [id])
+//   productPoviderId  Int
+//   // customer_product_prefs CustomerProductPref[]
+//   externalId         Int
+//   upcCode  Int?
+//   productNutritionFact ProductNutritionFact[]
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+
+// }
+
+
+// model ProductNutritionFact{
+//   id                  Int             @default(autoincrement()) @id
+//   product   Product @relation(fields: [productId], references: [id])
+//   productId Int
+//   quantity	Int? 
+//   servingSize	Int? 
+//   // category	
+//   // flavor	
+//   calories Int?
+//   totalFatG Int?
+//   saturatedFatG Int?
+//   transFatG	Int? 
+//   cholesteroleMg	Int?
+//   sodiumMg	Int?
+//   totalCarbohydrateG	Int?
+//   dietaryFiberG	Int?
+//   totalSugarG	Int?
+//   addedSugarG	Int?
+//   proteinG	Int?
+//   // ingredients	
+//   // allergens
+//   sweet	Int?
+//   sour	Int?
+//   salty	Int?
+//   bitter	Int?
+//   spicy	Int?
+//   texture Texure	@default(medium)
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt @default(now())
+
+// }
+
+// enum Texure {
+//   soft
+//   medium
+//   hard
+// }
+
+
+
+
+
+
+
 // model ProductNutritionFacts{
+//   id                  Int             @default(autoincrement()) @id
+//   calories Int
+//   total_fat_g Int
+//   saturated_fat_g Int
+
 
 // }
 

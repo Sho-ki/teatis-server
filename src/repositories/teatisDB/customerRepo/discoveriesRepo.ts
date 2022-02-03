@@ -4,12 +4,13 @@ import {
   Discoveries,
   Customer,
   CustomerNutritionItem,
+  Customers,
 } from '@prisma/client';
 import { PrismaService } from '../../../prisma.service';
 
 export interface DiscoveriesRepoInterface {
   checkIfExists(typeform_id: string): Promise<boolean>;
-  createDiscovery(data: Prisma.CustomerCreateInput): Promise<Customer>;
+  createDiscovery(data: Prisma.CustomersCreateInput): Promise<Customers>;
   retrieveAllCustomerNutritionItems(): Promise<Object>;
 }
 
@@ -18,7 +19,7 @@ export class DiscoveriesRepo implements DiscoveriesRepoInterface {
   constructor(private prisma: PrismaService) {}
 
   async checkIfExists(email: string): Promise<boolean> {
-    const findDiscoveryByTypeformId = await this.prisma.customer.findMany({
+    const findDiscoveryByTypeformId = await this.prisma.customers.findMany({
       where: { email },
     });
 
@@ -26,16 +27,16 @@ export class DiscoveriesRepo implements DiscoveriesRepoInterface {
   }
 
   async retrieveAllCustomerNutritionItems(): Promise<Object> {
-    const allCustomerNutritionItems =
-      await this.prisma.customerNutritionItem.findMany({
+    const allCustomerNutritionNeeds =
+      await this.prisma.customerNutritionNeed.findMany({
         select: { id: true, label: true },
       });
-    let allCustomerNutritionItemsObj = {};
-    allCustomerNutritionItems.map((allCustomerNutritionItem) => {
-      allCustomerNutritionItemsObj[allCustomerNutritionItem.label] =
-        allCustomerNutritionItem.id;
+    let allCustomerNutritionNeedsObj = {};
+    allCustomerNutritionNeeds.map((allCustomerNutritionNeed) => {
+      allCustomerNutritionNeedsObj[allCustomerNutritionNeed.label] =
+        allCustomerNutritionNeed.id;
     });
-    return allCustomerNutritionItemsObj;
+    return allCustomerNutritionNeedsObj;
   }
 
   async createDiscovery({
@@ -49,78 +50,79 @@ export class DiscoveriesRepo implements DiscoveriesRepoInterface {
     fatPerMeal,
     caloriePerMeal,
     retrieveAllCustomerNutritionItems,
-  }): Promise<Customer> {
-    const data: Prisma.CustomerCreateInput = {
+  }): Promise<Customers> {
+    const data: Prisma.CustomersCreateInput = {
       email,
-      customer_nutrition_items: {
+      intermediateCustomerNutritionNeeds: {
         create: [
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['BMR'],
               },
             },
-            nutrition_value: BMR,
+            nutritionValue: BMR,
           },
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['carbs_macronutrients'],
               },
             },
-            nutrition_value: carbsMacronutrients,
+            nutritionValue: carbsMacronutrients,
           },
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['protein_macronutrients'],
               },
             },
-            nutrition_value: proteinMacronutrients,
+            nutritionValue: proteinMacronutrients,
           },
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['fat_macronutrients'],
               },
             },
-            nutrition_value: fatMacronutrients,
+            nutritionValue: fatMacronutrients,
           },
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['carbs_per_meal'],
               },
             },
-            nutrition_value: carbsPerMeal,
+            nutritionValue: carbsPerMeal,
           },
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['protein_per_meal'],
               },
             },
-            nutrition_value: proteinPerMeal,
+            nutritionValue: proteinPerMeal,
           },
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['fat_per_meal'],
               },
             },
-            nutrition_value: fatPerMeal,
+            nutritionValue: fatPerMeal,
           },
           {
-            customer_nutrition_item: {
+            customerNutritionNeed: {
               connect: {
                 id: retrieveAllCustomerNutritionItems['calorie_per_meal'],
               },
             },
-            nutrition_value: caloriePerMeal,
+            nutritionValue: caloriePerMeal,
           },
         ],
       },
     };
-    return await this.prisma.customer.create({ data });
+
+    return await this.prisma.customers.create({ data });
   }
 }

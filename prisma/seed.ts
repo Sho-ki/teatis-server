@@ -38,7 +38,7 @@ async function main() {
   ];
 
   for (let customerNutritionItem of customerNutritionItems) {
-    await prisma.customerNutritionItem.upsert({
+    await prisma.customerNutritionNeed.upsert({
       where: { label: customerNutritionItem.label },
       update: {},
       create: {

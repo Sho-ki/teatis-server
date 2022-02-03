@@ -7,6 +7,7 @@ import {
 } from '../types/discoveryResponse';
 import { ShopifyRepo } from '../repositories/shopify/shopifyRepo';
 import { TypeFormRepo } from '../repositories/typeform/typeformRepo';
+import { DiscoveriesRepo } from '../repositories/teatisDB/customerRepo/discoveriesRepo';
 
 export interface GetRecommendProductsUseCaseInterface {
   getRecommendProducts(discoveryTypeformId: string): Promise<any>;
@@ -19,6 +20,7 @@ export class GetRecommendProductsUseCase
   constructor(
     private typeFormRepo: TypeFormRepo,
     private shopifyRepo: ShopifyRepo,
+    private discoveriesRepo: DiscoveriesRepo,
   ) {}
 
   // Step 1: Calculate calorie needs
@@ -94,15 +96,71 @@ export class GetRecommendProductsUseCase
     };
   }
 
+  private async getRecommendProductData(
+    carbsPerMeal: number,
+    isHighBloodPressure: boolean,
+  ): Promise<any> {
+    return await this.shopifyRepo.getMatchedProduct(
+      carbsPerMeal,
+      isHighBloodPressure,
+    );
+  }
+
+  private async createDiscovery(
+    email: string,
+    BMR: number,
+    carbsMacronutrients: number,
+    proteinMacronutrients: number,
+    fatMacronutrients: number,
+    carbsPerMeal: number,
+    proteinPerMeal: number,
+    fatPerMeal: number,
+    caloriePerMeal: number,
+  ): Promise<void> {
+    const isDiscoveryExist = await this.discoveriesRepo
+      .checkIfExists(email)
+      .catch(() => {
+        throw new Error('Something went wrong');
+      });
+    if (isDiscoveryExist) {
+      return;
+    }
+    const retrieveAllCustomerNutritionItems = await this.discoveriesRepo
+      .retrieveAllCustomerNutritionItems()
+      .catch(() => {
+        throw new Error('Cound not retrieve CustomerNutritionItems');
+      });
+
+    await this.discoveriesRepo
+      .createDiscovery({
+        email,
+        BMR,
+        carbsMacronutrients,
+        proteinMacronutrients,
+        fatMacronutrients,
+        carbsPerMeal,
+        proteinPerMeal,
+        fatPerMeal,
+        caloriePerMeal,
+        retrieveAllCustomerNutritionItems,
+      })
+      .catch(() => {
+        throw new Error('Cound not create a customer');
+      });
+    return;
+  }
+
   async getRecommendProducts(discoveryTypeformId: string): Promise<any> {
     const typeformResponse: DiscoveryResponse =
       await this.typeFormRepo.getDiscoveryResponses(discoveryTypeformId);
+
     let BMR: number = this.calculateBMR(
       typeformResponse.gender,
       typeformResponse.age,
       typeformResponse.height,
       typeformResponse.weight,
     );
+
     let {
       carbsMacronutrients,
       proteinMacronutrients,
@@ -125,12 +183,22 @@ export class GetRecommendProductsUseCase
     );
     const email = typeformResponse.email;
 
-    const recommendProductData = await this.shopifyRepo.getMatchedProduct(
+    // Because type was found, if statement is used for now. Need to be fixed as well as typeform typo.
+    let isHighBloodPressure: boolean = false;
+    if (
+      typeformResponse['medicalConditions'] === 'highBloodPressure' ||
+      typeformResponse['medicalConditions'] === 'hightBloodPressure'
+    ) {
+      isHighBloodPressure = true;
+    }
+
+    const recommendProductData = await this.getRecommendProductData(
       carbsPerMeal,
-      typeformResponse['medicalConditions'] === 'hightBloodPressure',
+      isHighBloodPressure,
+      // typeformResponse['medicalConditions'] === 'highBloodPressure',
     );
-    return {
-      recommendProductData,
+
+    await this.createDiscovery(
       email,
       BMR,
       carbsMacronutrients,
@@ -140,6 +208,10 @@ export class GetRecommendProductsUseCase
       proteinPerMeal,
       fatPerMeal,
       caloriePerMeal,
+    );
+
+    return {
+      recommendProductData,
     };
   }
 }

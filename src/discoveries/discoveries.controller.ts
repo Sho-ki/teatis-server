@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
@@ -11,6 +12,7 @@ import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { DiscoveriesService } from './discoveries.service';
 import { v4 as uuidv4 } from 'uuid';
 import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
+import { AnalyzeDiscoveryInfoDto } from './dtos/analyze-discovery';
 
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -25,6 +27,11 @@ export class DiscoveriesController {
     return this.discoveriesService.createDiscovery(body);
   }
 
+  @Get('analyze')
+  analyzeDiscovery(@Body() body: AnalyzeDiscoveryInfoDto) {
+    this.discoveriesService.analyzeDiscovery(body);
+  }
+
   @Get('typeform')
   @Redirect()
   redirectToTypeform() {
@@ -36,8 +43,11 @@ export class DiscoveriesController {
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
-  @Post('job')
-  async dataMigrate() {
-    await this.teatisJob.databaseMigrate();
-  }
+  // @Post('job')
+  // async dataMigrate() {
+  //   if (process.env.engine === 'local') {
+  //     await this.teatisJob.databaseMigrate();
+  //   }
+  //   return;
+  // }
 }

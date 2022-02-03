@@ -1,0 +1,15 @@
+query getLastOrderItems ($sku:String!){
+  product(sku: $sku) {
+    request_id
+    complexity
+		data{
+      id
+      sku
+      kit_components {
+        id
+        sku
+      }
+		}
+
+	}
+}

@@ -1,0 +1,12 @@
+overwrite: true
+schema: 
+  - "https://public-api.shiphero.com/graphql":
+      headers:
+        Authorization: ${SHIPHERO_API_KEY}
+documents: src/repositories/shiphero/graphql/*.graphql
+generates:
+  src/repositories/shiphero/generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"

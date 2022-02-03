@@ -7,6 +7,8 @@ import { TypeFormRepo } from '../repositories/typeform/typeformRepo';
 import { PrismaService } from '../prisma.service';
 import { DiscoveriesRepo } from '../repositories/teatisDB/customerRepo/discoveriesRepo';
 import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
+import { ShipheroRepo } from '../repositories/shiphero/shipheroRepo';
+import { GetLastOrderUseCase } from '../useCases/getPostPurchaseSurvey';
 
 @Module({
   controllers: [DiscoveriesController],
@@ -15,7 +17,9 @@ import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
     TypeFormRepo,
     ShopifyRepo,
     DiscoveriesRepo,
+    ShipheroRepo,
     GetRecommendProductsUseCase,
+    GetLastOrderUseCase,
     PrismaService,
     TeatisJobs,
   ],
