@@ -20,7 +20,6 @@ export class TypeFormRepo implements TypeFormRepoIntreface {
     try {
       const typeformUrlId = process.env.TYPEFORM_URL_ID;
       const TYPEFORM_URL = `https://api.typeform.com/forms/${typeformUrlId}/responses?query=${discoveryResponseId}`;
-
       const { answers: discoveryResFields } = await axios
         .get<DiscoveryAllRes>(TYPEFORM_URL, {
           headers: {
@@ -33,6 +32,7 @@ export class TypeFormRepo implements TypeFormRepoIntreface {
           const matchedItem = res.data.items.find((item) => {
             return item.hidden.typeformid === discoveryResponseId;
           });
+
           return matchedItem;
         })
         .catch(() => {
