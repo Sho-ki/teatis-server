@@ -1,10 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Prisma,
-  Discoveries,
-  Customer,
-  CustomerNutritionItem,
-} from '@prisma/client';
 import { PrismaService } from '../../prisma.service';
 
 interface TeatisJobsInterface {
@@ -15,7 +9,7 @@ interface TeatisJobsInterface {
 export class TeatisJobs implements TeatisJobsInterface {
   constructor(private prisma: PrismaService) {}
   async databaseMigrate(): Promise<void> {
-    const AllDiscoveries = await this.prisma.customerNutrition.findMany({});
+    const AllDiscoveries = await this.prisma.discoveries.findMany({});
     for (let i = 0; i < AllDiscoveries.length; i++) {
       await this.prisma.$queryRaw`
     with first_insert as (

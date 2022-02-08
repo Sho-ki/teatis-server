@@ -1,7 +1,7 @@
 import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { GetRecommendProductsUseCase } from '../useCases/getRecommendProductsByReposeId';
 import { Injectable } from '@nestjs/common';
-import { AnalyzeDiscoveryInfoDto } from './dtos/analyze-discovery';
+import { getPostPurchaseSurveyInfoDto } from './dtos/get-post-purchase-survey';
 import { GetLastOrderUseCase } from '../useCases/getPostPurchaseSurvey';
 
 // https://teatis.notion.site/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
@@ -27,7 +27,7 @@ export class DiscoveriesService {
     return { recommendProductData };
   }
 
-  async analyzeDiscovery(body: AnalyzeDiscoveryInfoDto) {
+  async getPostPurchaseSurvey(body: getPostPurchaseSurveyInfoDto) {
     const email = body.email;
     if (!email) throw new Error('No typeformId is provided');
     console.log(

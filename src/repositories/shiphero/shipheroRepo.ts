@@ -7,14 +7,15 @@
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient, gql } from 'graphql-request';
 import {
-  GetItemDetailQuery,
-  GetLastOrderItemsQuery,
-  GetLastOrderKitQuery,
+  GetLastOrderProductsQuery,
+  GetProductDetailQuery,
   getSdk,
 } from './generated/graphql';
 
 interface ShipheroRepoInterface {
-  getLastOrderItemsByEmail(email: string): Promise<GetItemDetailQuery[]>;
+  getLastOrderProductsByEmail(
+    email: string,
+  ): Promise<GetLastOrderProductsQuery[]>;
 }
 
 const client = new GraphQLClient('https://public-api.shiphero.com/graphql', {
@@ -28,25 +29,52 @@ const sdk = getSdk(client);
 export class ShipheroRepo implements ShipheroRepoInterface {
   constructor() {}
 
-  async getLastOrderItemsByEmail(email: string): Promise<GetItemDetailQuery[]> {
-    const lastOrderedKit: GetLastOrderKitQuery = await sdk.getLastOrderKit({
-      email,
-    });
-    const kitSku =
-      lastOrderedKit.orders.data.edges[0].node.line_items.edges[0].node.sku;
-
-    const lastOrderedItems: GetLastOrderItemsQuery =
-      await sdk.getLastOrderItems({ sku: kitSku });
-    const kitComponents = lastOrderedItems.product.data.kit_components;
-
-    let items = [];
-    for (let component of kitComponents) {
-      const itemDetail: GetItemDetailQuery = await sdk.getItemDetail({
-        sku: component.sku,
+  async getLastOrderProductsByEmail(
+    email: string,
+  ): Promise<GetLastOrderProductsQuery[]> {
+    const lastOrderedproducts: GetLastOrderProductsQuery =
+      await sdk.getLastOrderProducts({
+        email,
       });
-      items.push(itemDetail.product.data);
+    const lastproducts =
+      lastOrderedproducts.orders.data.edges[0].node.line_items.edges;
+    let productSkus = [];
+    for (let lastproduct of lastproducts) {
+      const productDetail: GetProductDetailQuery = await sdk.getProductDetail({
+        sku: lastproduct.node.sku,
+      });
+      const data = productDetail.product.data;
+      let images: string[];
+
+      if (data.product_note && data.product_note.includes('\n')) {
+        images = data.product_note.split('\n').filter((imageUrl) => {
+          return imageUrl.length > 0;
+        });
+      } else if (data.product_note && !data.product_note.includes('\n')) {
+        images = [data.product_note];
+      }
+
+      productSkus.push({
+        id: data.id,
+        sku: data.sku,
+        name: data.name,
+        images,
+      });
     }
 
-    return items;
+    // const lastOrderedproducts: GetLastOrderproductsQuery =
+    //   await sdk.getLastOrderproducts({ sku: kitSku });
+    // console.log(lastOrderedproducts);
+    // const kitComponents = lastOrderedproducts.product.data.kit_components;
+
+    // let items = [];
+    // for (let component of kitComponents) {
+    //   const itemDetail: GetproductDetailQuery = await sdk.getproductDetail({
+    //     sku: component.sku,
+    //   });
+    //   items.push(itemDetail.product.data);
+    // }
+
+    return productSkus;
   }
 }

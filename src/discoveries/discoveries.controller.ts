@@ -12,7 +12,7 @@ import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { DiscoveriesService } from './discoveries.service';
 import { v4 as uuidv4 } from 'uuid';
 import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
-import { AnalyzeDiscoveryInfoDto } from './dtos/analyze-discovery';
+import { getPostPurchaseSurveyInfoDto } from './dtos/get-post-purchase-survey';
 
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -27,9 +27,15 @@ export class DiscoveriesController {
     return this.discoveriesService.createDiscovery(body);
   }
 
-  @Get('analyze')
-  analyzeDiscovery(@Body() body: AnalyzeDiscoveryInfoDto) {
-    this.discoveriesService.analyzeDiscovery(body);
+  @Get('post-purchase-survey')
+  getPostPurchaseSurvey(@Body() body: getPostPurchaseSurveyInfoDto) {
+    this.discoveriesService.getPostPurchaseSurvey(body);
+  }
+
+  @Post('webhook')
+  getWebhook(@Body() test) {
+    console.log(test);
+    console.log('WE GOT A WEBHOOK');
   }
 
   @Get('typeform')

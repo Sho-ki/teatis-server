@@ -1,6 +1,6 @@
 import { IsEmail } from 'class-validator';
 
-export class AnalyzeDiscoveryInfoDto {
+export class getPostPurchaseSurveyInfoDto {
   @IsEmail()
   email: string;
 }

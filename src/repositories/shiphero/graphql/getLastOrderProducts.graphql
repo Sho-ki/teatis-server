@@ -1,4 +1,4 @@
-query getLastOrderKit ($email:String!) {
+query getLastOrderProducts ($email:String!) {
   orders(email: $email) {
     request_id
     complexity
@@ -12,7 +12,7 @@ query getLastOrderKit ($email:String!) {
           order_date
           email
           packing_note
-          line_items(first: 1) {
+          line_items {
             edges {
               node {
                 sku

@@ -1,4 +1,4 @@
-query getItemDetail ($sku:String!){
+query getProductDetail ($sku:String!){
   product(sku:$sku) {
     request_id
     complexity

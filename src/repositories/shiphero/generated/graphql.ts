@@ -4336,30 +4336,56 @@ export type WebhooksQueryResultDataArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
-export type GetItemDetailQueryVariables = Exact<{
-  sku: Scalars['String'];
-}>;
-
-
-export type GetItemDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, created_at?: any | null, tags?: Array<string | null> | null, product_note?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', warehouse_id?: string | null, warehouse_identifier?: string | null, on_hand?: number | null } | null> | null, images?: Array<{ __typename?: 'ProductImage', src?: string | null, position?: number | null } | null> | null, vendors?: Array<{ __typename?: 'ProductVendor', vendor_id?: string | null, vendor_sku?: string | null } | null> | null } | null } | null };
-
-export type GetLastOrderItemsQueryVariables = Exact<{
-  sku: Scalars['String'];
-}>;
-
-
-export type GetLastOrderItemsQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'Product', id?: string | null, sku?: string | null, kit_components?: Array<{ __typename?: 'KitComponent', id?: string | null, sku?: string | null } | null> | null } | null } | null };
-
-export type GetLastOrderKitQueryVariables = Exact<{
+export type GetLastOrderProductsQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
 
 
-export type GetLastOrderKitQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', sku?: string | null, quantity?: number | null, quantity_allocated?: number | null, quantity_pending_fulfillment?: number | null, backorder_quantity?: number | null, promotion_discount?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastOrderProductsQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', sku?: string | null, quantity?: number | null, quantity_allocated?: number | null, quantity_pending_fulfillment?: number | null, backorder_quantity?: number | null, promotion_discount?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+
+export type GetProductDetailQueryVariables = Exact<{
+  sku: Scalars['String'];
+}>;
 
 
-export const GetItemDetailDocument = gql`
-    query getItemDetail($sku: String!) {
+export type GetProductDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, created_at?: any | null, tags?: Array<string | null> | null, product_note?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', warehouse_id?: string | null, warehouse_identifier?: string | null, on_hand?: number | null } | null> | null, images?: Array<{ __typename?: 'ProductImage', src?: string | null, position?: number | null } | null> | null, vendors?: Array<{ __typename?: 'ProductVendor', vendor_id?: string | null, vendor_sku?: string | null } | null> | null } | null } | null };
+
+
+export const GetLastOrderProductsDocument = gql`
+    query getLastOrderProducts($email: String!) {
+  orders(email: $email) {
+    request_id
+    complexity
+    data(last: 1) {
+      edges {
+        node {
+          id
+          order_number
+          shop_name
+          fulfillment_status
+          order_date
+          email
+          packing_note
+          line_items {
+            edges {
+              node {
+                sku
+                quantity
+                quantity_allocated
+                quantity_pending_fulfillment
+                backorder_quantity
+                promotion_discount
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const GetProductDetailDocument = gql`
+    query getProductDetail($sku: String!) {
   product(sku: $sku) {
     request_id
     complexity
@@ -4387,55 +4413,6 @@ export const GetItemDetailDocument = gql`
   }
 }
     `;
-export const GetLastOrderItemsDocument = gql`
-    query getLastOrderItems($sku: String!) {
-  product(sku: $sku) {
-    request_id
-    complexity
-    data {
-      id
-      sku
-      kit_components {
-        id
-        sku
-      }
-    }
-  }
-}
-    `;
-export const GetLastOrderKitDocument = gql`
-    query getLastOrderKit($email: String!) {
-  orders(email: $email) {
-    request_id
-    complexity
-    data(last: 1) {
-      edges {
-        node {
-          id
-          order_number
-          shop_name
-          fulfillment_status
-          order_date
-          email
-          packing_note
-          line_items(first: 1) {
-            edges {
-              node {
-                sku
-                quantity
-                quantity_allocated
-                quantity_pending_fulfillment
-                backorder_quantity
-                promotion_discount
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
 
@@ -4444,14 +4421,11 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    getItemDetail(variables: GetItemDetailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetItemDetailQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetItemDetailQuery>(GetItemDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getItemDetail');
+    getLastOrderProducts(variables: GetLastOrderProductsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderProductsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderProductsQuery>(GetLastOrderProductsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderProducts');
     },
-    getLastOrderItems(variables: GetLastOrderItemsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderItemsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderItemsQuery>(GetLastOrderItemsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderItems');
-    },
-    getLastOrderKit(variables: GetLastOrderKitQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderKitQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderKitQuery>(GetLastOrderKitDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderKit');
+    getProductDetail(variables: GetProductDetailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductDetailQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProductDetailQuery>(GetProductDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductDetail');
     }
   };
 }

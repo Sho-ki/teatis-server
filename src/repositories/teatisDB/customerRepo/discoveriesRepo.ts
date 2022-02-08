@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Prisma,
-  Discoveries,
-  Customer,
-  CustomerNutritionItem,
-  Customers,
-} from '@prisma/client';
+import { Prisma, Discoveries, Customers } from '@prisma/client';
 import { PrismaService } from '../../../prisma.service';
 
 export interface DiscoveriesRepoInterface {
