@@ -8,12 +8,23 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { CloudTasksClient } from '@google-cloud/tasks';
+
 import { CreateDiscoveryInfoDto } from './dtos/create-discovery.dto';
 import { DiscoveriesService } from './discoveries.service';
 import { v4 as uuidv4 } from 'uuid';
 import { TeatisJobs } from '../repositories/teatisJobs/dbMigrationjob';
 import { getPostPurchaseSurveyInfoDto } from './dtos/get-post-purchase-survey';
 
+interface CloudTask {
+  appEngineHttpRequest: {
+    httpMethod: string;
+    relativeUri: string;
+  };
+  scheduleTime: {
+    seconds: number;
+  };
+}
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
@@ -32,10 +43,42 @@ export class DiscoveriesController {
     this.discoveriesService.getPostPurchaseSurvey(body);
   }
 
+  @Get('cloudTask')
+  cloudTask() {
+    console.log('Start task');
+    const client = new CloudTasksClient();
+    async function createTask() {
+      const parent = client.queuePath(
+        'teatis-discovery-dev',
+        'us-central1',
+        'test',
+      );
+
+      const task = {
+        httpMethod: 'GET',
+        relativeUri: '/excuteCloudTask',
+        scheduleTime: { seconds: 60 },
+      };
+
+      console.log('Sending task:');
+      console.log(task);
+      // Send create task request.
+      const request = { parent, task };
+      const [response] = await client.createTask(request);
+      const name = response.name;
+      console.log(`Created task ${name}`);
+    }
+    createTask();
+  }
+
+  @Get('excuteCloudTask')
+  checkIfWorks() {
+    console.log('IT IS DONE');
+  }
+
   @Post('webhook')
   getWebhook(@Body() test) {
     console.log(test);
-    console.log('WE GOT A WEBHOOK');
   }
 
   @Get('typeform')
