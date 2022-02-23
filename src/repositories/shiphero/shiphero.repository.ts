@@ -7,8 +7,6 @@
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient, gql } from 'graphql-request';
 
-import { ShipheroLastOrderNumberProducts } from '../../domains/model/shiphero/shiphero';
-import { LastOrderNumberAndProducts } from '../../domains/model/teatisDB/productRepo/productPostPurchaseSurvey';
 import { PrismaService } from '../../prisma.service';
 import {
   GetLastOrderProductsQuery,

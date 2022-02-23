@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { GetProductDetailQuery } from '../../repositories/shiphero/generated/graphql';
-import { SurveyQuestionIds } from '../../domains/model/teatisDB/questionRepo/questionPostPurchaseSurvey';
 import { PostPostPurchaseSurveyDto } from '../../controllers/discoveries/dtos/postPostPurchaseSurvey';
 import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
 import { QuestionPostPurchaseSurveyRepoInterface } from '../../repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
