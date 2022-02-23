@@ -8,7 +8,6 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { QuestionOptions } from '../../../domains/entity/surveyQuestions/surveyQuestions';
 
 export class PostPostPurchaseSurveyDto {
   @IsNumber()
@@ -40,7 +39,7 @@ export class PostPostPurchaseSurveyDto {
 
   @IsOptional()
   @IsArray()
-  answerOptions?: QuestionOptions[];
+  answerOptions?: { id: number; label: string }[];
 
   @IsOptional()
   @IsBoolean()

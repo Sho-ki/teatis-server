@@ -1,4 +1,4 @@
-export interface SurveyQuestions {
+export interface GetPostPurchaseSurveyUsecaseRes {
   id: number;
   name: string;
   label: string;
@@ -18,12 +18,18 @@ export interface SurveyQuestions {
   reason?: string;
   title?: string;
   content?: string;
-  answer_count?: number;
+  answerCount?: number;
   shopifyOrderNumber?: string;
   productId?: number;
-  customerId?: number;
+  customerId: number;
 }
-export interface QuestionOptions {
+
+interface QuestionOptions {
   id: number;
   label: string;
+}
+
+export interface GetPostPurchaseSurveyUsecaseArgs {
+  email: string;
+  orderNumber?: string;
 }

@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-
-import { Product } from '../../domains/entity/product/product';
-
+import {
+  GetRecommendProductsUsecaseArgs,
+  GetRecommendProductsUsecaseRes,
+} from '../../domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
 import {
   GetProductRes as ShopifyGetProductRes,
   ShopifyRepoInterface,
@@ -44,7 +45,9 @@ interface CustomerNutritions {
 }
 
 export interface GetRecommendProductsUseCaseInterface {
-  getRecommendProducts(typeformId: string): Promise<any>;
+  getRecommendProducts({
+    typeformId,
+  }: GetRecommendProductsUsecaseArgs): Promise<any>;
 }
 
 @Injectable()
@@ -210,7 +213,9 @@ export class GetRecommendProductsUseCase
     return productId;
   }
 
-  async getRecommendProducts(typeformId: string): Promise<any> {
+  async getRecommendProducts({
+    typeformId,
+  }: GetRecommendProductsUsecaseArgs): Promise<GetRecommendProductsUsecaseRes> {
     const typeformResponses: TypeformGetCustomerAnsRes[] =
       await this.typeFormRepo.getCustomerResponse({ typeformId });
 

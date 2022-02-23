@@ -20,6 +20,10 @@ import {
   GetCustomerProductFeedbackAnswersRes as TeatisDBGetCustomerProductFeedbackAnswersRes,
   GetCustomerRes as TeatisDBGetCustomerRes,
 } from '../../repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import {
+  GetPostPurchaseSurveyUsecaseArgs,
+  GetPostPurchaseSurveyUsecaseRes,
+} from '../../domains/postPurchaseSurvey/getPostPurchaseSurveyUsecaseRes';
 
 interface GetPostPurchaseSurveyProduct {
   shopifyId?: number;
@@ -35,42 +39,6 @@ export interface GetPostPurchaseSurveyImage {
   position: number;
   alt: string | null;
   src: string;
-}
-
-interface GetPostPurchaseSurveyUsecaseRes {
-  id: number;
-  name: string;
-  label: string;
-  questionCategoryId: number;
-  questionCategory: string;
-  mustBeAnswered: boolean;
-  instruction: string | null;
-  placeholder: string | null;
-  surveyQuestionAnswerTypeId: number;
-  surveyQuestionAnswerType: string;
-  surveyQuestionOptions: QuestionOptions[];
-  answerText?: string;
-  answerNumeric?: number;
-  answerSingleOptionId?: number;
-  answerOptions?: QuestionOptions[];
-  answerBool?: boolean;
-  reason?: string;
-  title?: string;
-  content?: string;
-  answerCount?: number;
-  shopifyOrderNumber?: string;
-  productId?: number;
-  customerId: number;
-}
-
-interface QuestionOptions {
-  id: number;
-  label: string;
-}
-
-interface GetPostPurchaseSurveyUsecaseArgs {
-  email: string;
-  orderNumber?: string;
 }
 
 export interface GetPostPurchaseSurveyUseCaseInterface {
@@ -253,7 +221,7 @@ export class GetPostPurchaseSurveyUseCase
                     case 'multipleAnswer':
                       question.answerOptions =
                         await this.productPostPurchaseSurveyRepo.getCustomerAnswerOptions(
-                          customerAnswer.id,
+                          { customerQuestionAnswerId: customerAnswer.id },
                         );
                       break;
                     default:
@@ -266,8 +234,6 @@ export class GetPostPurchaseSurveyUseCase
         },
       ),
     );
-
-    console.log(personalizedPostPurchaseSurveyQuestions);
 
     return personalizedPostPurchaseSurveyQuestions;
   }
