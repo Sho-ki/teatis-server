@@ -600,6 +600,7 @@ export type CreatePurchaseOrderInput = {
   discount?: InputMaybe<Scalars['String']>;
   fulfillment_status?: InputMaybe<Scalars['String']>;
   line_items: Array<InputMaybe<CreatePurchaseOrderLineItemInput>>;
+  origin_of_shipment?: InputMaybe<Scalars['String']>;
   packing_note?: InputMaybe<Scalars['String']>;
   partner_order_number?: InputMaybe<Scalars['String']>;
   po_date?: InputMaybe<Scalars['ISODateTime']>;
@@ -1551,6 +1552,7 @@ export type LineItem = {
   tote_picks?: Maybe<Array<Maybe<TotePick>>>;
   updated_at?: Maybe<Scalars['ISODateTime']>;
   warehouse?: Maybe<Scalars['String']>;
+  /** @deprecated Use order allocations instead */
   warehouse_id?: Maybe<Scalars['String']>;
 };
 
@@ -2127,6 +2129,7 @@ export type Order = {
   adult_signature_required?: Maybe<Scalars['Boolean']>;
   alcohol?: Maybe<Scalars['Boolean']>;
   allocation_priority?: Maybe<Scalars['Int']>;
+  allocations?: Maybe<Array<Maybe<OrderWarehouseAllocation>>>;
   allow_partial?: Maybe<Scalars['Boolean']>;
   allow_split?: Maybe<Scalars['Boolean']>;
   authorizations?: Maybe<Array<Maybe<Authorization>>>;
@@ -2291,6 +2294,18 @@ export type OrderHolds = {
   shipping_method_hold?: Maybe<Scalars['Boolean']>;
 };
 
+export type OrderLineItemAllocation = {
+  __typename?: 'OrderLineItemAllocation';
+  allocated_at?: Maybe<Scalars['ISODateTime']>;
+  allocation_reference?: Maybe<Scalars['String']>;
+  is_kit_component?: Maybe<Scalars['Boolean']>;
+  line_item_id?: Maybe<Scalars['String']>;
+  order_id?: Maybe<Scalars['String']>;
+  quantity_allocated?: Maybe<Scalars['Int']>;
+  sku?: Maybe<Scalars['String']>;
+  warehouse_id?: Maybe<Scalars['String']>;
+};
+
 export type OrderMutationOutput = {
   __typename?: 'OrderMutationOutput';
   complexity?: Maybe<Scalars['Int']>;
@@ -2315,6 +2330,15 @@ export type OrderThirdPartyShipper = {
   account_number?: Maybe<Scalars['String']>;
   country?: Maybe<Scalars['String']>;
   zip?: Maybe<Scalars['String']>;
+};
+
+export type OrderWarehouseAllocation = {
+  __typename?: 'OrderWarehouseAllocation';
+  allocated_at?: Maybe<Scalars['ISODateTime']>;
+  allocation_reference?: Maybe<Scalars['String']>;
+  line_items?: Maybe<Array<Maybe<OrderLineItemAllocation>>>;
+  order_id?: Maybe<Scalars['String']>;
+  warehouse_id?: Maybe<Scalars['String']>;
 };
 
 export type OrdersQueryResult = {
@@ -2613,6 +2637,7 @@ export type PurchaseOrder = {
   line_items?: Maybe<PurchaseOrderLineItemConnection>;
   locked_by_user_id?: Maybe<Scalars['String']>;
   locking?: Maybe<Scalars['String']>;
+  origin_of_shipment?: Maybe<Scalars['String']>;
   packing_note?: Maybe<Scalars['String']>;
   partner_order_number?: Maybe<Scalars['String']>;
   payment_due_by?: Maybe<Scalars['String']>;
@@ -2955,6 +2980,7 @@ export type QueryOrder_HistoryArgs = {
 
 
 export type QueryOrdersArgs = {
+  allocated_warehouse_id?: InputMaybe<Scalars['String']>;
   analyze?: InputMaybe<Scalars['Boolean']>;
   customer_account_id?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
@@ -3507,6 +3533,7 @@ export type ShippingPlan = {
   id?: Maybe<Scalars['String']>;
   legacy_id?: Maybe<Scalars['Int']>;
   line_items?: Maybe<ShippingPlanLineItemConnection>;
+  origin_of_shipment?: Maybe<Scalars['String']>;
   packages?: Maybe<ShippingPlanPackageConnection>;
   pallets?: Maybe<ShippingPlanPalletConnection>;
   pdf_location?: Maybe<Scalars['String']>;
@@ -4336,75 +4363,28 @@ export type WebhooksQueryResultDataArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
-export type GetItemDetailQueryVariables = Exact<{
-  sku: Scalars['String'];
-}>;
-
-
-export type GetItemDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, created_at?: any | null, tags?: Array<string | null> | null, product_note?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', warehouse_id?: string | null, warehouse_identifier?: string | null, on_hand?: number | null } | null> | null, images?: Array<{ __typename?: 'ProductImage', src?: string | null, position?: number | null } | null> | null, vendors?: Array<{ __typename?: 'ProductVendor', vendor_id?: string | null, vendor_sku?: string | null } | null> | null } | null } | null };
-
-export type GetLastOrderItemsQueryVariables = Exact<{
-  sku: Scalars['String'];
-}>;
-
-
-export type GetLastOrderItemsQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'Product', id?: string | null, sku?: string | null, kit_components?: Array<{ __typename?: 'KitComponent', id?: string | null, sku?: string | null } | null> | null } | null } | null };
-
-export type GetLastOrderKitQueryVariables = Exact<{
+export type GetLastOrderProductsQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
 
 
-export type GetLastOrderKitQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', sku?: string | null, quantity?: number | null, quantity_allocated?: number | null, quantity_pending_fulfillment?: number | null, backorder_quantity?: number | null, promotion_discount?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastOrderProductsQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', request_id?: string | null, complexity?: number | null, data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', sku?: string | null, quantity?: number | null, quantity_allocated?: number | null, quantity_pending_fulfillment?: number | null, backorder_quantity?: number | null, promotion_discount?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+
+export type GetProductDetailQueryVariables = Exact<{
+  sku: Scalars['String'];
+}>;
 
 
-export const GetItemDetailDocument = gql`
-    query getItemDetail($sku: String!) {
-  product(sku: $sku) {
-    request_id
-    complexity
-    data {
-      id
-      name
-      sku
-      created_at
-      warehouse_products {
-        warehouse_id
-        warehouse_identifier
-        on_hand
-      }
-      images {
-        src
-        position
-      }
-      tags
-      vendors {
-        vendor_id
-        vendor_sku
-      }
-      product_note
-    }
-  }
-}
-    `;
-export const GetLastOrderItemsDocument = gql`
-    query getLastOrderItems($sku: String!) {
-  product(sku: $sku) {
-    request_id
-    complexity
-    data {
-      id
-      sku
-      kit_components {
-        id
-        sku
-      }
-    }
-  }
-}
-    `;
-export const GetLastOrderKitDocument = gql`
-    query getLastOrderKit($email: String!) {
+export type GetProductDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, images?: Array<{ __typename?: 'ProductImage', src?: string | null, position?: number | null } | null> | null, vendors?: Array<{ __typename?: 'ProductVendor', vendor_id?: string | null, vendor_sku?: string | null } | null> | null } | null } | null };
+
+export type GetVendorsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetVendorsQuery = { __typename?: 'Query', vendors?: { __typename?: 'VendorsQueryResult', data?: { __typename?: 'VendorConnection', edges: Array<{ __typename?: 'VendorEdge', node?: { __typename?: 'Vendor', id?: string | null, name?: string | null } | null } | null> } | null } | null };
+
+
+export const GetLastOrderProductsDocument = gql`
+    query getLastOrderProducts($email: String!) {
   orders(email: $email) {
     request_id
     complexity
@@ -4418,7 +4398,7 @@ export const GetLastOrderKitDocument = gql`
           order_date
           email
           packing_note
-          line_items(first: 1) {
+          line_items {
             edges {
               node {
                 sku
@@ -4436,6 +4416,39 @@ export const GetLastOrderKitDocument = gql`
   }
 }
     `;
+export const GetProductDetailDocument = gql`
+    query getProductDetail($sku: String!) {
+  product(sku: $sku) {
+    data {
+      id
+      name
+      sku
+      images {
+        src
+        position
+      }
+      vendors {
+        vendor_id
+        vendor_sku
+      }
+    }
+  }
+}
+    `;
+export const GetVendorsDocument = gql`
+    query getVendors {
+  vendors {
+    data {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
 
@@ -4444,14 +4457,14 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    getItemDetail(variables: GetItemDetailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetItemDetailQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetItemDetailQuery>(GetItemDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getItemDetail');
+    getLastOrderProducts(variables: GetLastOrderProductsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderProductsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderProductsQuery>(GetLastOrderProductsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderProducts');
     },
-    getLastOrderItems(variables: GetLastOrderItemsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderItemsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderItemsQuery>(GetLastOrderItemsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderItems');
+    getProductDetail(variables: GetProductDetailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductDetailQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProductDetailQuery>(GetProductDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductDetail');
     },
-    getLastOrderKit(variables: GetLastOrderKitQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderKitQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderKitQuery>(GetLastOrderKitDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderKit');
+    getVendors(variables?: GetVendorsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetVendorsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetVendorsQuery>(GetVendorsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getVendors');
     }
   };
 }
