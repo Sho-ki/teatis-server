@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Discoveries, Customers } from '@prisma/client';
 import { PrismaService } from '../../../prisma.service';
-
-import { Product } from '../../../domains/entity/product/product';
-import { QuestionOptions } from '../../../domains/entity/surveyQuestions/surveyQuestions';
 
 interface UpsertProductArgs {
   sku: string;
@@ -13,12 +9,21 @@ export interface UpsertProductRes {
   id: number;
 }
 
+interface GetCustomerAnswerOptionsArgs {
+  customerQuestionAnswerId: number;
+}
+
+export interface GetCustomerAnswerOptionsRes {
+  id: number;
+  label: string;
+}
+
 export interface ProductPostPurchaseSurveyRepoInterface {
   upsertProduct({ sku }: UpsertProductArgs): Promise<UpsertProductRes>;
 
-  getCustomerAnswerOptions(
-    customerQuestionAnswerId: number,
-  ): Promise<QuestionOptions[]>;
+  getCustomerAnswerOptions({
+    customerQuestionAnswerId,
+  }: GetCustomerAnswerOptionsArgs): Promise<GetCustomerAnswerOptionsRes[]>;
 }
 
 @Injectable()
@@ -27,9 +32,9 @@ export class ProductPostPurchaseSurveyRepo
 {
   constructor(private prisma: PrismaService) {}
 
-  async getCustomerAnswerOptions(
-    customerQuestionAnswerId: number,
-  ): Promise<QuestionOptions[]> {
+  async getCustomerAnswerOptions({
+    customerQuestionAnswerId,
+  }: GetCustomerAnswerOptionsArgs): Promise<GetCustomerAnswerOptionsRes[]> {
     let customerAnswerOptions =
       await this.prisma.intermediateSurveyQuestionAnswerService.findMany({
         where: {
@@ -37,7 +42,7 @@ export class ProductPostPurchaseSurveyRepo
         },
         select: {
           surveyQuestionOptionId: true,
-          surveyQuestionOption: { select: { label: true } },
+          surveyQuestionOption: { select: { label: true, id: true } },
         },
       });
 

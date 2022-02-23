@@ -11,13 +11,14 @@ import {
 
 import { CreateDiscoveryInfoDto } from './dtos/createDiscovery';
 import { v4 as uuidv4 } from 'uuid';
-import { TeatisJobs } from '../../repositories/teatisJobs/dbMigrationjob';
 import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
 import { CreateOrderTaskDto } from './dtos/createOrderTask';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
 import { GetPostPurchaseSurveyUseCase } from '../../useCases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { PostPostPurchaseSurveyUseCase } from '../../useCases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { GetRecommendProductsUseCase } from '../../useCases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { GetPostPurchaseSurveyUsecaseRes } from '../../domains/postPurchaseSurvey/getPostPurchaseSurveyUsecaseRes';
+import { GetRecommendProductsUsecaseRes } from '../../domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
 
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -29,26 +30,32 @@ export class DiscoveriesController {
   ) {}
 
   @Get()
-  async createDiscovery(@Query() body: CreateDiscoveryInfoDto) {
+  async createDiscovery(
+    @Query() body: CreateDiscoveryInfoDto,
+  ): Promise<GetRecommendProductsUsecaseRes> {
     const typeformId = body.typeformId;
     if (!typeformId) throw new Error('No typeformId is provided');
     const { recommendProductData, customerId } =
       await this.getRecommendProductsUseCase
-        .getRecommendProducts(typeformId)
+        .getRecommendProducts({ typeformId })
         .catch(() => {
-          throw new Error('No typeformId is matched');
+          throw new Error('Something went wrong');
         });
 
     return { recommendProductData, customerId };
   }
 
   @Get('post-purchase-survey')
-  async getPostPurchaseSurvey(@Body() body: GetPostPurchaseSurveyInfoDto) {
+  async getPostPurchaseSurvey(
+    @Body() body: GetPostPurchaseSurveyInfoDto,
+  ): Promise<GetPostPurchaseSurveyUsecaseRes[]> {
     const email = body.email;
     if (!email) throw new Error('No email is provided');
 
-    const surveyQuestions =
+    const surveyQuestions: GetPostPurchaseSurveyUsecaseRes[] =
       await this.getPostPurchaseSurveyUseCase.getPostPurchaseSurvey({ email });
+
+    return surveyQuestions;
   }
 
   @Post('post-purchase-survey')
