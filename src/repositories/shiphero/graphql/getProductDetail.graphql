@@ -1,27 +1,17 @@
 query getProductDetail ($sku:String!){
   product(sku:$sku) {
-    request_id
-    complexity
     data {
       id
       name
       sku
-      created_at
-      warehouse_products {
-        warehouse_id
-        warehouse_identifier
-        on_hand
-      }
       images {
         src
         position
       }
-      tags
       vendors {
         vendor_id
         vendor_sku
       }
-      product_note
     }
   }
 }

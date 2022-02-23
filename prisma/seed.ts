@@ -48,17 +48,150 @@ async function main() {
     });
   }
 
-  //   const croductPoviders = [{ provider: 'shiphero' }];
+  const surveyCreationItems = [
+    // {
+    //   surveyName: 'post-purchase',
+    //   question: {
+    //     order: 1,
+    //     label: 'How would you feel if you could no longer use our service?',
+    //     name: 'ifNoLongerAvailable',
+    //     mustBeAnswered: true,
+    //     category: 'serviceFeedback',
+    //     answerType: 'singleAnswer',
+    //     options: [
+    //       'Not disappointed',
+    //       'Somewhat disappointed',
+    //       'Very disppointed',
+    //     ],
+    //   },
+    // },
+    // {
+    //   surveyName: 'post-purchase',
+    //   order: 2,
+    //   question: {
+    //     label:
+    //       'What would you likely use as an alternative if our services were no longer available?',
+    //     name: 'alternativeService',
+    //     mustBeAnswered: false,
+    //     category: 'serviceFeedback',
+    //     placeHolder: 'Any other services come to mind?',
+    //     answerType: 'text',
+    //   },
+    // },
+    // {
+    //   surveyName: 'post-purchase',
+    //   question: {
+    //     label: 'Hove you recommended our service to anyone?',
+    //     name: 'haveRecommended',
+    //     mustBeAnswered: false,
+    //     category: 'serviceFeedback',
+    //     answerType: 'singleAnswer',
+    //     options: ['Yes', 'No'],
+    //   },
+    // },
+    // {
+    //   surveyName: 'post-purchase',
+    //   question: {
+    //     label: 'What is the main benefit you received from our service?',
+    //     name: 'mainBenefitReceived',
+    //     mustBeAnswered: true,
+    //     category: 'serviceFeedback',
+    //     answerType: 'text',
+    //     instruction: 'List as many as you can, separated by commas.',
+    //   },
+    // },
+    // {
+    //   surveyName: 'post-purchase',
+    //   question: {
+    //     label: 'How can we improve our service to better meet your needs?',
+    //     name: 'improvablePoint',
+    //     mustBeAnswered: true,
+    //     category: 'serviceFeedback',
+    //     answerType: 'text',
+    //     instruction: 'List as many as you can, separated by commas.',
+    //   },
+    // },
+    {
+      surveyName: 'post-purchase',
+      question: {
+        label: 'How satisfied are you with PRODUCT_NAME?',
+        name: 'productSatisfaction',
+        mustBeAnswered: false,
+        category: 'productFeedback',
+        answerType: 'numeric',
+      },
+    },
+  ];
 
-  //   for (let croductPovider of croductPoviders) {
-  //     await prisma.productPovider.upsert({
-  //       where: { provider: croductPovider.provider },
-  //       update: {},
-  //       create: {
-  //         provider: croductPovider.provider,
-  //       },
-  //     });
-  //   }
+  for (let surveyCreationItem of surveyCreationItems) {
+    const surveyQuery = await prisma.survey.upsert({
+      where: { name: surveyCreationItem.surveyName },
+      create: { name: surveyCreationItem.surveyName },
+      update: {},
+    });
+
+    const questionQuery = await prisma.surveyQuestion.upsert({
+      where: { name: surveyCreationItem.question.name },
+      create: {
+        label: surveyCreationItem.question.label,
+        name: surveyCreationItem.question.name,
+        mustBeAnswered: surveyCreationItem.question.mustBeAnswered,
+        questionCategory: {
+          connectOrCreate: {
+            where: { label: surveyCreationItem.question.category },
+            create: { label: surveyCreationItem.question.category },
+          },
+        },
+        surveyQuestionOptions: {},
+        surveyQuestionAnswerType: {
+          connectOrCreate: {
+            where: { label: surveyCreationItem.question.answerType },
+            create: { label: surveyCreationItem.question.answerType },
+          },
+        },
+      },
+      update: {},
+    });
+    if (surveyCreationItem.question['options']) {
+      for (let option of surveyCreationItem.question['options']) {
+        await prisma.surveyQuestionOption.upsert({
+          where: {
+            QuestionOptionIdentifier: {
+              surveyQuestionId: questionQuery.id,
+              label: option,
+            },
+          },
+          create: { surveyQuestionId: questionQuery.id, label: option },
+          update: {},
+        });
+      }
+    }
+    await prisma.intermediateSurveyQuestion.upsert({
+      where: {
+        surveyId_surveyQuestionId: {
+          surveyId: surveyQuery.id,
+          surveyQuestionId: questionQuery.id,
+        },
+      },
+      create: {
+        surveyId: surveyQuery.id,
+        surveyQuestionId: questionQuery.id,
+      },
+      update: {},
+    });
+  }
+
+  const productPoviders = [{ provider: 'shiphero' }];
+
+  for (let productPovider of productPoviders) {
+    await prisma.productPovider.upsert({
+      where: { provider: productPovider.provider },
+      update: {},
+      create: {
+        provider: productPovider.provider,
+      },
+    });
+  }
   //   const customerProductPrefQuestions = [
   //     {
   //       description: 'delivered last time',
@@ -125,7 +258,7 @@ async function main() {
   //     id: 'productEvaluation_7',
   //     order: 7,
   //     question: 'How satisfied are you with A?',
-  //     type: 'multipleOptions',
+  //     type: 'singleAnswers',
   //     label: 'AAA', // product_name
   //     answer: 3,
   //   },
@@ -133,7 +266,7 @@ async function main() {
   //     id: 'productEvaluation_8',
   //     order: 8,
   //     question: 'How satisfied are you with B?',
-  //     type: 'multipleOptions',
+  //     type: 'singleAnswers',
   //     label: 'BBB', // product_name
   //     answer: undefined,
   //   },
@@ -141,7 +274,7 @@ async function main() {
   //     id: 'productEvaluation_9',
   //     order: 9,
   //     question: 'How satisfied are you with C?',
-  //     type: 'multipleOptions',
+  //     type: 'singleAnswers',
   //     label: 'CCC', // product_name
   //     answer: undefined,
   //   },

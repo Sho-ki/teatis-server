@@ -1,0 +1,12 @@
+query getVendors{
+  vendors {
+    data {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+}
