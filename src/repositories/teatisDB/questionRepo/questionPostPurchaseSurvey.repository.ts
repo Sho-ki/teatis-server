@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Discoveries, Customers, prisma } from '@prisma/client';
 import { PrismaService } from '../../../prisma.service';
-import { SurveyQuestionIds } from '../../../domains/model/teatisDB/questionRepo/questionPostPurchaseSurvey';
 import { SurveyQuestions } from '../../../domains/entity/surveyQuestions/surveyQuestions';
 
 interface GetSurveyIdArgs {
@@ -54,14 +53,6 @@ export class QuestionPostPurchaseSurveyRepo
       where: { name: surveyName },
     });
     return { surveyId: targetSurvey.id };
-  }
-
-  async findSurveyQuestionIds(surveyId: number): Promise<SurveyQuestionIds[]> {
-    return await this.prisma.intermediateSurveyQuestion.findMany({
-      where: { surveyId },
-      orderBy: [{ order: 'asc' }],
-      select: { surveyQuestionId: true },
-    });
   }
 
   async getSurveyQuestions({

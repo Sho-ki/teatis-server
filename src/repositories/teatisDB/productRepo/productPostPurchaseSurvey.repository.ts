@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Discoveries, Customers } from '@prisma/client';
 import { PrismaService } from '../../../prisma.service';
-import {
-  LastOrderNumberAndProducts,
-  LastOrderProducts,
-} from '../../../domains/model/teatisDB/productRepo/productPostPurchaseSurvey';
+
 import { Product } from '../../../domains/entity/product/product';
 import { QuestionOptions } from '../../../domains/entity/surveyQuestions/surveyQuestions';
 
@@ -17,8 +14,6 @@ export interface UpsertProductRes {
 }
 
 export interface ProductPostPurchaseSurveyRepoInterface {
-  addProductIds(lastOrderProducts: LastOrderProducts[]): Promise<any>;
-
   upsertProduct({ sku }: UpsertProductArgs): Promise<UpsertProductRes>;
 
   getCustomerAnswerOptions(
@@ -68,29 +63,5 @@ export class ProductPostPurchaseSurveyRepo
       update: {},
     });
     return { id: upsertedProduct.id };
-  }
-
-  async addProductIds(lastOrderProducts: LastOrderProducts[]): Promise<any> {
-    await Promise.all(
-      lastOrderProducts.map(async (product, index) => {
-        const productId = await this.prisma.product.upsert({
-          where: { externalSku: product.sku },
-          create: {
-            externalSku: product.sku,
-            productPovider: {
-              connectOrCreate: {
-                where: { provider: 'shiphero' },
-                create: { provider: 'shiphero' },
-              },
-            },
-          },
-          update: {},
-        });
-        lastOrderProducts[index] = {
-          ...lastOrderProducts[index],
-          productId: productId.id,
-        };
-      }),
-    );
   }
 }
