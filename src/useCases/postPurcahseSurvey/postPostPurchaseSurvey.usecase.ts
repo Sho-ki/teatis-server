@@ -16,7 +16,6 @@ export interface PostPostPurchaseSurveyUseCaseInterface {
     shopifyOrderNumber,
     productId,
     questionCategory,
-    surveyQuestionAnswerType,
     answerBool,
     answerNumeric,
     answerOptions,
@@ -26,6 +25,10 @@ export interface PostPostPurchaseSurveyUseCaseInterface {
     content,
     reason,
   }: PostPostPurchaseSurveyDto): Promise<any>;
+}
+
+interface PostPostPurchaseSurveyRes {
+  id: number;
 }
 
 @Injectable()
@@ -47,7 +50,6 @@ export class PostPostPurchaseSurveyUseCase
     shopifyOrderNumber,
     productId,
     questionCategory,
-    surveyQuestionAnswerType,
     answerBool,
     answerNumeric,
     answerOptions,
@@ -56,7 +58,7 @@ export class PostPostPurchaseSurveyUseCase
     title,
     content,
     reason,
-  }: PostPostPurchaseSurveyDto): Promise<any> {
+  }: PostPostPurchaseSurveyDto): Promise<[PostPostPurchaseSurveyRes, Error]> {
     let { currentMaxAnswerCount }: TeatisDBGetAnswerCount =
       await this.customerpostPurchaseSurveyRepo.getAnswerCount({ customerId });
     if (!currentMaxAnswerCount) {
@@ -71,27 +73,27 @@ export class PostPostPurchaseSurveyUseCase
         currentMaxAnswerCount += 1;
       }
     }
-    console.log('currentMaxAnswerCount', currentMaxAnswerCount);
 
-    if (questionCategory === 'productFeedback') {
-      await this.customerpostPurchaseSurveyRepo.postPostPurchaseSurveyCustomerAnswerProductFeedback(
-        {
-          id,
-          customerId,
-          shopifyOrderNumber,
-          productId,
-          answerBool,
-          answerNumeric,
-          answerOptions,
-          answerSingleOptionId,
-          answerText,
-          title,
-          content,
-          reason,
-          currentMaxAnswerCount,
-        },
-      );
+    if (questionCategory.name === 'productFeedback') {
+      const [postProductFeedback, postProductFeedbackError] =
+        await this.customerpostPurchaseSurveyRepo.postPostPurchaseSurveyCustomerAnswerProductFeedback(
+          {
+            id,
+            customerId,
+            shopifyOrderNumber,
+            productId,
+            answerBool,
+            answerNumeric,
+            answerOptions,
+            answerSingleOptionId,
+            answerText,
+            title,
+            content,
+            reason,
+            currentMaxAnswerCount,
+          },
+        );
+      return [{ id: postProductFeedback.id }, null];
     }
-    return;
   }
 }

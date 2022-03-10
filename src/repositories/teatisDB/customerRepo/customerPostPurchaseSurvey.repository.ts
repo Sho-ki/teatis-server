@@ -3,18 +3,63 @@ import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../../prisma.service';
 
-interface GetCustomerProductFeedbackAnswersArgs {
+interface GetCustomerAnswerOptionsArgs {
+  customerQuestionAnswerId: number;
+}
+
+export interface GetCustomerAnswerOptionsRes {
+  options: GetCustomerAnswerOptionsResElement[];
+}
+
+interface GetCustomerAnswerOptionsResElement {
+  id: number;
+  label: string;
+  name: string;
+}
+
+interface GetCustomerAnswersArgs {
+  email: string;
+  orderNumber: string;
+}
+
+interface GetCustomerWithAnswersRes {
+  id: number;
+  email: string;
+  customerAnswers?: GetCustomerWithAnswersResElement[];
+}
+
+interface GetCustomerWithAnswersResElement {
+  id: number;
+  surveyQuestionId: number;
+  answer?: {
+    text?: string;
+    numeric?: number;
+    singleOptionId?: number;
+    multipleOptionIds?: number[];
+    bool?: boolean;
+  };
+  reason?: string;
+  title?: string;
+  content?: string;
+  answerCount: number;
+  productId?: number;
   shopifyOrderNumber: string;
 }
 
 export interface GetCustomerProductFeedbackAnswersRes {
+  customerAnswers: GetCustomerProductFeedbackAnswersResElement[];
+}
+
+interface GetCustomerProductFeedbackAnswersResElement {
   id: number;
-  customerId: number;
   surveyQuestionId: number;
-  answerSingleOptionId?: number;
-  answerNumeric?: number;
-  answerText?: string;
-  answerBool?: boolean;
+  answer?: {
+    text?: string;
+    numeric?: number;
+    singleOptionId?: number;
+    multipleOptionIds?: number[];
+    bool?: boolean;
+  };
   reason?: string;
   title?: string;
   content?: string;
@@ -40,13 +85,43 @@ export interface GetCustomerRes {
   email: string;
 }
 
+interface PostPostPurchaseSurveyCustomerAnswerProductFeedbackArgs {
+  id: number;
+  customerId: number;
+  shopifyOrderNumber: string;
+  productId: number;
+  answerBool: boolean | null;
+  answerNumeric: number | null;
+  answerOptions: { id: number; label: string; name: string }[] | null;
+  answerSingleOptionId: number | null;
+  answerText: string | null;
+  title: string | null;
+  content: string | null;
+  reason: string | null;
+  currentMaxAnswerCount: number;
+}
+
+export interface PostPostPurchaseSurveyCustomerAnswerProductFeedbackRes {
+  id: number;
+}
+
 export interface CustomerPostPurchaseSurveyRepoInterface {
-  getCustomer({ email }: GetCustomerArgs): Promise<GetCustomerRes>;
-  getCustomerProductFeedbackAnswers({
-    shopifyOrderNumber,
-  }: GetCustomerProductFeedbackAnswersArgs): Promise<
-    GetCustomerProductFeedbackAnswersRes[]
+  getCustomerWithAnswers({
+    email,
+    orderNumber,
+  }: GetCustomerAnswersArgs): Promise<[GetCustomerWithAnswersRes, Error]>;
+  getCustomerAnswerOptions({
+    customerQuestionAnswerId,
+  }: GetCustomerAnswerOptionsArgs): Promise<
+    [GetCustomerAnswerOptionsRes, Error]
   >;
+
+  getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes, Error]>;
+  // getCustomerProductFeedbackAnswers({
+  //   shopifyOrderNumber,
+  // }: GetCustomerProductFeedbackAnswersArgs): Promise<
+  //   [GetCustomerProductFeedbackAnswersRes, Error]
+  // >;
 
   postPostPurchaseSurveyCustomerAnswerProductFeedback({
     id,
@@ -62,7 +137,9 @@ export interface CustomerPostPurchaseSurveyRepoInterface {
     content,
     reason,
     currentMaxAnswerCount,
-  }: any): Promise<any>;
+  }: PostPostPurchaseSurveyCustomerAnswerProductFeedbackArgs): Promise<
+    [PostPostPurchaseSurveyCustomerAnswerProductFeedbackRes, Error]
+  >;
 
   getAnswerCount({
     customerId,
@@ -107,28 +184,129 @@ export class CustomerPostPurchaseSurveyRepo
     return { currentMaxAnswerCount: count._max.answerCount };
   }
 
-  async getCustomer({ email }: GetCustomerArgs): Promise<GetCustomerRes> {
-    return await this.prisma.customers.findUnique({
+  async getCustomer({
+    email,
+  }: GetCustomerArgs): Promise<[GetCustomerRes, Error]> {
+    let getCustomerRes = await this.prisma.customers.findUnique({
       where: { email },
       select: { id: true, email: true },
     });
+
+    if (!getCustomerRes) {
+      return [
+        null,
+        { name: 'Internal Server Error', message: 'getCustomer failed' },
+      ];
+    }
+    return [getCustomerRes, null];
   }
-  async getCustomerProductFeedbackAnswers({
-    shopifyOrderNumber,
-  }: GetCustomerProductFeedbackAnswersArgs): Promise<
-    GetCustomerProductFeedbackAnswersRes[]
+
+  async getCustomerWithAnswers({
+    email,
+    orderNumber,
+  }: GetCustomerAnswersArgs): Promise<[GetCustomerWithAnswersRes, Error]> {
+    let getCustomerRes = await this.prisma.customers.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        surveyQuestionAnswerProductFeedback: {
+          where: { shopifyOrderNumber: orderNumber },
+          select: {
+            id: true,
+            customerId: true,
+            surveyQuestionId: true,
+            answerText: true,
+            answerNumeric: true,
+            answerBool: true,
+            intermediateSurveyQuestionAnswerProduct: {
+              select: {
+                surveyQuestionOption: {
+                  select: { label: true, id: true, name: true },
+                },
+              },
+            },
+            reason: true,
+            title: true,
+            content: true,
+            answerCount: true,
+            productId: true,
+            shopifyOrderNumber: true,
+          },
+        },
+      },
+    });
+
+    if (!getCustomerRes) {
+      return [
+        null,
+        { name: 'Internal Server Error', message: 'getCustomer failed' },
+      ];
+    }
+    let customerAnswers: GetCustomerWithAnswersResElement[] = [];
+    for (let customerAnswer of getCustomerRes.surveyQuestionAnswerProductFeedback) {
+      let answer: GetCustomerWithAnswersResElement = {
+        id: customerAnswer.id,
+        surveyQuestionId: customerAnswer.surveyQuestionId,
+        answer: {
+          text: customerAnswer.answerText,
+          numeric: customerAnswer.answerNumeric,
+          singleOptionId: customerAnswer.surveyQuestionId,
+          multipleOptionIds:
+            customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
+              ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
+                  (option) => {
+                    return option.surveyQuestionOption.id;
+                  },
+                )
+              : [],
+          bool: customerAnswer.answerBool,
+        },
+        reason: customerAnswer.reason,
+        title: customerAnswer.title,
+        content: customerAnswer.content,
+        answerCount: customerAnswer.answerCount,
+        productId: customerAnswer.productId,
+        shopifyOrderNumber: customerAnswer.shopifyOrderNumber,
+      };
+      customerAnswers.push(answer);
+    }
+
+    return [
+      { id: getCustomerRes.id, email: getCustomerRes.email, customerAnswers },
+      null,
+    ];
+  }
+
+  async getCustomerAnswerOptions({
+    customerQuestionAnswerId,
+  }: GetCustomerAnswerOptionsArgs): Promise<
+    [GetCustomerAnswerOptionsRes, Error]
   > {
-    let customerAnswers =
-      await this.prisma.surveyQuestionAnswerProductFeedback.findMany({
+    let customerAnswerOptions =
+      await this.prisma.intermediateSurveyQuestionAnswerService.findMany({
         where: {
-          shopifyOrderNumber,
+          surveyQuestionAnswerServiceFeedbackId: customerQuestionAnswerId,
+        },
+        select: {
+          surveyQuestionOptionId: true,
+          surveyQuestionOption: {
+            select: { label: true, id: true, name: true },
+          },
         },
       });
-    return customerAnswers.map((answer) => {
-      return {
-        ...answer,
-      };
-    });
+
+    let options: GetCustomerAnswerOptionsResElement[] = [];
+    for (let customerAnswerOption of customerAnswerOptions) {
+      const id = customerAnswerOption?.surveyQuestionOption.id,
+        label = customerAnswerOption?.surveyQuestionOption?.label,
+        name = customerAnswerOption?.surveyQuestionOption?.name;
+      if (id && label && name) {
+        options.push({ id, label, name });
+      }
+    }
+
+    return [{ options }, null];
   }
 
   async postPostPurchaseSurveyCustomerAnswerProductFeedback({
@@ -145,7 +323,9 @@ export class CustomerPostPurchaseSurveyRepo
     content,
     reason,
     currentMaxAnswerCount,
-  }: any): Promise<any> {
+  }: PostPostPurchaseSurveyCustomerAnswerProductFeedbackArgs): Promise<
+    [PostPostPurchaseSurveyCustomerAnswerProductFeedbackRes, Error]
+  > {
     let prismaQuery: Prisma.SurveyQuestionAnswerProductFeedbackUpsertArgs = {
       where: {
         CustomerSurveyQuestionProductFeedbackIdentifier: {
@@ -219,8 +399,8 @@ export class CustomerPostPurchaseSurveyRepo
           shopifyOrderNumber,
           answerCount: currentMaxAnswerCount,
           intermediateSurveyQuestionAnswerProduct: {
-            create: answerOptions.map((id: number) => {
-              return { surveyQuestionOptionId: id };
+            create: answerOptions.map((option) => {
+              return { surveyQuestionOptionId: option.id };
             }),
           },
         },
@@ -239,13 +419,13 @@ export class CustomerPostPurchaseSurveyRepo
           reason,
           shopifyOrderNumber,
           answerCount: currentMaxAnswerCount,
-          intermediateSurveyQuestionAnswerProduct: {
-            // needs to be updated
-            deleteMany: {},
-            connectOrCreate: answerOptions.map((id: number) => {
-              return { surveyQuestionOptionId: id };
-            }),
-          },
+          // intermediateSurveyQuestionAnswerProduct: {
+          //   // needs to be updated
+          //   deleteMany: {},
+          //   connectOrCreate: answerOptions.map((option) => {
+          //     return { surveyQuestionOptionId: option.id, };
+          //   }),
+          // },
         },
       };
     } else {
@@ -292,9 +472,9 @@ export class CustomerPostPurchaseSurveyRepo
       };
     }
 
-    let aaa = await this.prisma.surveyQuestionAnswerProductFeedback.upsert(
+    let res = await this.prisma.surveyQuestionAnswerProductFeedback.upsert(
       prismaQuery,
     );
-    console.log(aaa);
+    return [{ id: res.id }, null];
   }
 }

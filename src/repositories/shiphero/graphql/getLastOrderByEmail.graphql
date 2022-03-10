@@ -1,0 +1,32 @@
+query getLastOrderByEmail ($email:String!) {
+  orders(email: $email) {
+    data(last: 1) {
+      edges {
+        node {
+          id
+          order_number
+          shop_name
+          fulfillment_status
+          order_date
+          email
+          packing_note
+          line_items {
+            edges {
+              node {
+                product_name
+                sku
+                product{
+									kit
+									kit_components{
+									  sku
+								  }
+								}
+                quantity
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

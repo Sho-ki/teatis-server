@@ -1,0 +1,11 @@
+cacheでshipheroのproductを入れておく
+nemchashe server でmemory上に持つ - 制限時間設定する(1時間)
+
+error handling
+test
+teatis-discovery -> teatis-server
+Usecase consistence
+
+
+Should I divide the repositories by the usecase or others?
+Do I need to create all interface and functioins for getOptions()?

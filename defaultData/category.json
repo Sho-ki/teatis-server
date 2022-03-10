@@ -1,0 +1,44 @@
+{
+  "categories": [
+    {
+      "name": "mealShake",
+      "label": "Meal Shake"
+    },
+    {
+      "name": "bar",
+      "label": "Bar"
+    },
+    {
+      "name": "oatmeal",
+      "label": "Oatmeal"
+    },
+    {
+      "name": "cereal",
+      "label": "Cereal"
+    },
+    {
+      "name": "candy",
+      "label": "Candy"
+    },
+    {
+      "name": "pancake",
+      "label": "Pancake"
+    },
+    {
+      "name": "chips",
+      "label": "Chips"
+    },
+    {
+      "name": "soup",
+      "label": "Soup"
+    },
+    {
+      "name": "saltySnack",
+      "label": "Salty Snack"
+    },
+    {
+      "name": "sweetSnack",
+      "label": "Sweet Snack"
+    }
+  ]
+}

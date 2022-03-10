@@ -11,7 +11,6 @@ export interface GetRecommendProductsUsecaseRes {
     sku: string;
     provider: string;
   };
-  customerId: number;
 }
 
 interface GetRecommendProductsUsecaseImage {

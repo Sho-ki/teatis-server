@@ -1,0 +1,296 @@
+{
+  "ingredients": [
+    {
+      "name": "apples",
+      "label": "Apples"
+    },
+    {
+      "name": "asparagus",
+      "label": "Asparagus"
+    },
+    {
+      "name": "bananas",
+      "label": "Bananas"
+    },
+    {
+      "name": "beans",
+      "label": "Beans"
+    },
+    {
+      "name": "beef",
+      "label": "Beef"
+    },
+    {
+      "name": "beets",
+      "label": "Beets"
+    },
+    {
+      "name": "blueberries",
+      "label": "Blueberries"
+    },
+    {
+      "name": "boneBroth",
+      "label": "Bone Broth"
+    },
+    {
+      "name": "brusselsSprouts",
+      "label": "Brussels Sprouts"
+    },
+    {
+      "name": "butter",
+      "label": "Butter"
+    },
+    {
+      "name": "cabbage",
+      "label": "Cabbage"
+    },
+    {
+      "name": "caneBerries",
+      "label": "Cane Berries"
+    },
+    {
+      "name": "carrots",
+      "label": "Carrots"
+    },
+    {
+      "name": "cauliflower",
+      "label": "Cauliflower"
+    },
+    {
+      "name": "celery",
+      "label": "Celery"
+    },
+    {
+      "name": "cheese",
+      "label": "Cheese"
+    },
+    {
+      "name": "cherries",
+      "label": "Cherries"
+    },
+    {
+      "name": "chicken",
+      "label": "Chicken"
+    },
+    {
+      "name": "coconutMilk",
+      "label": "Coconut Milk"
+    },
+    {
+      "name": "corn",
+      "label": "Corn"
+    },
+    {
+      "name": "cranberries",
+      "label": "Cranberries"
+    },
+    {
+      "name": "cucumber",
+      "label": "Cucumber"
+    },
+    {
+      "name": "dates",
+      "label": "Dates"
+    },
+    {
+      "name": "eggplant",
+      "label": "Eggplant"
+    },
+    {
+      "name": "eggs",
+      "label": "Eggs"
+    },
+    {
+      "name": "garlic",
+      "label": "Garlic"
+    },
+    {
+      "name": "grapes",
+      "label": "Grapes"
+    },
+    {
+      "name": "greenBeans",
+      "label": "Green Beans"
+    },
+    {
+      "name": "herbs",
+      "label": "Herbs"
+    },
+    {
+      "name": "honey",
+      "label": "Honey"
+    },
+    {
+      "name": "hotPeppers",
+      "label": "Hot Peppers"
+    },
+    {
+      "name": "kale",
+      "label": "Kale"
+    },
+    {
+      "name": "kiwi",
+      "label": "Kiwi"
+    },
+    {
+      "name": "leafyGreens",
+      "label": "Leafy Greens"
+    },
+    {
+      "name": "asparagus",
+      "label": "Asparagus"
+    },
+    {
+      "name": "leeks",
+      "label": "Leeks"
+    },
+    {
+      "name": "lemons",
+      "label": "Lemons"
+    },
+    {
+      "name": "lentils",
+      "label": "Lentils"
+    },
+    {
+      "name": "mangos",
+      "label": "Mangos"
+    },
+    {
+      "name": "milk",
+      "label": "Milk"
+    },
+    {
+      "name": "mushrooms",
+      "label": "Mushrooms"
+    },
+    {
+      "name": "oats",
+      "label": "Oats"
+    },
+    {
+      "name": "onions",
+      "label": "Onions"
+    },
+    {
+      "name": "oranges",
+      "label": "Oranges"
+    },
+    {
+      "name": "parsnips",
+      "label": "Parsnips"
+    },
+    {
+      "name": "peaches",
+      "label": "Peaches"
+    },
+    {
+      "name": "pears",
+      "label": "Pears"
+    },
+    {
+      "name": "peas",
+      "label": "Peas"
+    },
+    {
+      "name": "peppers",
+      "label": "Peppers"
+    },
+    {
+      "name": "pineapple",
+      "label": "Pineapple"
+    },
+    {
+      "name": "pork",
+      "label": "Pork"
+    },
+    {
+      "name": "potatoes",
+      "label": "Potatoes"
+    },
+    {
+      "name": "pumpkin",
+      "label": "Pumpkin"
+    },
+    {
+      "name": "radishes",
+      "label": "Radishes"
+    },
+    {
+      "name": "rhubarb",
+      "label": "Rhubarb"
+    },
+    {
+      "name": "rice",
+      "label": "Rice"
+    },
+    {
+      "name": "salmon",
+      "label": "Salmon"
+    },
+    {
+      "name": "seed",
+      "label": "Seed"
+    },
+    {
+      "name": "spinach",
+      "label": "Spinach"
+    },
+    {
+      "name": "strawberries",
+      "label": "Strawberries"
+    },
+    {
+      "name": "summerSquash",
+      "label": "Summer Squash"
+    },
+    {
+      "name": "sweetPotato",
+      "label": "Sweet Potato"
+    },
+    {
+      "name": "tofu",
+      "label": "Tofu"
+    },
+    {
+      "name": "tomatoes",
+      "label": "Tomatoes"
+    },
+    {
+      "name": "tuna",
+      "label": "Tuna"
+    },
+    {
+      "name": "turkey",
+      "label": "Turkey"
+    },
+    {
+      "name": "turmerics",
+      "label": "Turmerics"
+    },
+    {
+      "name": "turnips",
+      "label": "Turnips"
+    },
+    {
+      "name": "watermelon",
+      "label": "Watermelon"
+    },
+    {
+      "name": "wheat",
+      "label": "Wheat"
+    },
+    {
+      "name": "wholeGrains",
+      "label": "Whole Grains"
+    },
+    {
+      "name": "winterSquash",
+      "label": "Winter Squash"
+    },
+    {
+      "name": "yogurt",
+      "label": "Yogurt"
+    }
+  ]
+}

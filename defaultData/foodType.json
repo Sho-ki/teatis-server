@@ -1,0 +1,16 @@
+{
+  "foodTypes": [
+    {
+      "name": "vegan",
+      "label": "Vegan"
+    },
+    {
+      "name": "organic",
+      "label": "Organic"
+    },
+    {
+      "name": "kosher",
+      "label": "Kosher"
+    }
+  ]
+}

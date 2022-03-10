@@ -1,0 +1,24 @@
+{
+  "cookMethods": [
+    {
+      "name": "pourMilk",
+      "label": "Pour Milk"
+    },
+    {
+      "name": "useMicrowave",
+      "label": "Use microwave"
+    },
+    {
+      "name": "pourHotWater",
+      "label": "Pour Hot Water"
+    },
+    {
+      "name": "bake",
+      "label": "Bake"
+    },
+    {
+      "name": "useShakerBottle",
+      "label": "Use Shaker Bottle"
+    }
+  ]
+}

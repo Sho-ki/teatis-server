@@ -1,0 +1,56 @@
+{
+  "medicalConditions": [
+    {
+      "name": "highBloodPressure",
+      "label": "High blood pressure"
+    },
+    {
+      "name": "heartDiseases",
+      "label": "Heart diseases"
+    },
+    {
+      "name": "highCholesterol",
+      "label": "High cholesterol"
+    },
+    {
+      "name": "gastritis",
+      "label": "Gastritis"
+    },
+    {
+      "name": "irritableBowelSyndrome",
+      "label": "Irritable bowel syndrome"
+    },
+    {
+      "name": "chronicKidneyDisease",
+      "label": "Chronic kidney disease"
+    },
+    {
+      "name": "gastroesophagealRefluxDisease",
+      "label": "Gastroesophageal reflux disease"
+    },
+    {
+      "name": "anemia",
+      "label": "Anemia"
+    },
+    {
+      "name": "hypothyroidism",
+      "label": "Hypothyroidism"
+    },
+    {
+      "name": "hyperthyroidism",
+      "label": "Hyperthyroidism"
+    },
+    {
+      "name": "A1c",
+      "label": "A1c"
+    },
+    {
+      "name": "targetA1c",
+      "label": "Target A1c"
+    },
+    {
+      "name": "diabetes",
+      "label": "Diabetes"
+    }
+  ]
+}

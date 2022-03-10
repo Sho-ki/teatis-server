@@ -19,11 +19,11 @@ export class PostPostPurchaseSurveyDto {
   @IsString()
   shopifyOrderNumber: string;
 
-  @IsString()
-  surveyQuestionAnswerType: string;
+  // @IsString()
+  // surveyQuestionAnswerType: string;
 
-  @IsString()
-  questionCategory: string;
+  @IsObject()
+  questionCategory: { id: number; label: string; name: string };
 
   @IsOptional()
   @IsString()
@@ -39,7 +39,7 @@ export class PostPostPurchaseSurveyDto {
 
   @IsOptional()
   @IsArray()
-  answerOptions?: { id: number; label: string }[];
+  answerOptions?: { id: number; label: string; name: string }[];
 
   @IsOptional()
   @IsBoolean()

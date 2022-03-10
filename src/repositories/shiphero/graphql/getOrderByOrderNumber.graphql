@@ -1,7 +1,5 @@
-query getLastOrderProducts ($email:String!) {
-  orders(email: $email) {
-    request_id
-    complexity
+query getOrderProductsByOrderNumber ($orderNumber:String!){
+  orders(order_number: $orderNumber) {
     data(last: 1) {
       edges {
         node {
@@ -15,12 +13,15 @@ query getLastOrderProducts ($email:String!) {
           line_items {
             edges {
               node {
+                product_name
                 sku
+                product{
+				  kit
+				  kit_components{
+					sku
+				  }
+				}
                 quantity
-                quantity_allocated
-                quantity_pending_fulfillment
-                backorder_quantity
-                promotion_discount
               }
             }
           }

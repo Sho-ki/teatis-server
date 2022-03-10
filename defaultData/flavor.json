@@ -1,0 +1,88 @@
+{
+  "flavors": [
+    {
+      "name": "chocolate",
+      "label": "Chocolate"
+    },
+    {
+      "name": "fruity",
+      "label": "Fruity"
+    },
+    {
+      "name": "chocolateMint",
+      "label": "Chocolate Mint"
+    },
+    {
+      "name": "tea",
+      "label": "Tea"
+    },
+    {
+      "name": "sesame",
+      "label": "Sesame"
+    },
+    {
+      "name": "matcha",
+      "label": "Matcha"
+    },
+    {
+      "name": "berry",
+      "label": "Berry"
+    },
+    {
+      "name": "chocolateBanana",
+      "label": "Chocolate Banana"
+    },
+    {
+      "name": "maple",
+      "label": "Maple"
+    },
+    {
+      "name": "cinnamon",
+      "label": "Cinnamon"
+    },
+    {
+      "name": "vanilla",
+      "label": "Vanilla"
+    },
+    {
+      "name": "coffee",
+      "label": "Coffee"
+    },
+    {
+      "name": "cheese",
+      "label": "Cheese"
+    },
+    {
+      "name": "bbq",
+      "label": "BBQ"
+    },
+    {
+      "name": "peanutButter ",
+      "label": "Peanut Butter "
+    },
+    {
+      "name": "chocolateberry",
+      "label": "Chocolate berry"
+    },
+    {
+      "name": "salt",
+      "label": "Salt"
+    },
+    {
+      "name": "cacao",
+      "label": "Cacao"
+    },
+    {
+      "name": "turmeric",
+      "label": "Turmeric"
+    },
+    {
+      "name": "spicy",
+      "label": "Spicy"
+    },
+    {
+      "name": "bbq",
+      "label": "BBQ"
+    }
+  ]
+}

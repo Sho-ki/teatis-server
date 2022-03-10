@@ -1,0 +1,180 @@
+{
+  "vendors": [
+    {
+      "name": "teatis",
+      "label": "Teatis"
+    },
+    {
+      "name": "yishi",
+      "label": "Yishi"
+    },
+    {
+      "name": "catalinaCrunch",
+      "label": "Catalina Crunch"
+    },
+    {
+      "name": "buletProof",
+      "label": "Bulet Proof"
+    },
+    {
+      "name": "chocZero",
+      "label": "ChocZero"
+    },
+    {
+      "name": "ellasFlats",
+      "label": "Ella's Flats"
+    },
+    {
+      "name": "kissMyKeto",
+      "label": "Kiss My Keto"
+    },
+    {
+      "name": "upsideDownBakery",
+      "label": "Upside Down Bakery"
+    },
+    {
+      "name": "sated",
+      "label": "Sated"
+    },
+    {
+      "name": "wowProteinDonuts",
+      "label": "Wow! Protein Donuts"
+    },
+    {
+      "name": "projectBreakfast",
+      "label": "Project breakfast"
+    },
+    {
+      "name": "keho",
+      "label": "Keho"
+    },
+    {
+      "name": "sowGood",
+      "label": "Sow Good"
+    },
+    {
+      "name": "protos",
+      "label": "Protos"
+    },
+    {
+      "name": "nushFoods",
+      "label": "Nush Foods"
+    },
+    {
+      "name": "chefSoraya",
+      "label": "Chef Soraya"
+    },
+    {
+      "name": "bevivaFoods",
+      "label": "Beviva Foods"
+    },
+    {
+      "name": "properGood",
+      "label": "Proper Good"
+    },
+    {
+      "name": "peatos",
+      "label": "PEATOS"
+    },
+    {
+      "name": "flockChickenChips",
+      "label": "FLOCK Chicken Chips"
+    },
+    {
+      "name": "canDo",
+      "label": "CanDo"
+    },
+    {
+      "name": "wildZora",
+      "label": "Wild Zora"
+    },
+    {
+      "name": "behave",
+      "label": "Behave"
+    },
+    {
+      "name": "gr8nola",
+      "label": "gr8nola"
+    },
+    {
+      "name": "sproutLiving",
+      "label": "SPROUT LIVING"
+    },
+    {
+      "name": "chipMonkBaking",
+      "label": "ChipMonk Baking"
+    },
+    {
+      "name": "kaliforniaKeto",
+      "label": "Kalifornia Keto"
+    },
+    {
+      "name": "theOnlyBean",
+      "label": "The Only Bean"
+    },
+    {
+      "name": "nanaJoesGranola",
+      "label": "NANA JOES GRANOLA"
+    },
+    {
+      "name": "betterThanGoodFoods",
+      "label": "Better Than Good Foods"
+    },
+    {
+      "name": "bett3rKeto",
+      "label": "BETT3R KETO"
+    },
+    {
+      "name": "iqbar",
+      "label": "IQBAR"
+    },
+    {
+      "name": "rxbar",
+      "label": "RXBAR"
+    },
+    {
+      "name": "maxSweets",
+      "label": "Max Sweets"
+    },
+    {
+      "name": "shrewdFood",
+      "label": "Shrewd Food"
+    },
+    {
+      "name": "zestyZ",
+      "label": "Zesty Z"
+    },
+    {
+      "name": "aahanasNaturals",
+      "label": "Aahana's Naturals"
+    },
+    {
+      "name": "ashaPops",
+      "label": "AshaPops"
+    },
+    {
+      "name": "gourmeccaKitchen",
+      "label": "Gourmecca Kitchen"
+    },
+    {
+      "name": "blakesSeedBased",
+      "label": "Blake's Seed Based"
+    },
+    {
+      "name": "brooklynBiltong",
+      "label": "Brooklyn Biltong"
+    },
+    {
+      "name": "jojos",
+      "label": "JOJO's"
+    },
+    {
+      "name": "ha",
+      "label": "HA!"
+    },
+    {
+      "name": "sevenSundays",
+      "label": "Seven Sundays"
+    }
+  ]
+}
