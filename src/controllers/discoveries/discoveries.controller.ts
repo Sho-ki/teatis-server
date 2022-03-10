@@ -16,17 +16,18 @@ import { v4 as uuidv4 } from 'uuid';
 import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
 import { CreateOrderTaskDto } from './dtos/createOrderTask';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
-import { GetPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { PostPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-import { GetRecommendProductsUsecase } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { GetPostPurchaseSurveyUsecaseInterface } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+import { PostPostPurchaseSurveyUsecaseInterface } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
+import { GetRecommendProductsUsecaseInterface } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 
 import { GetRecommendProductsUsecaseRes } from '../../domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
 import { UpdateCustomerBoxTaskDto } from './dtos/updateCustomerBoxTask';
-import { UpdateCustomerBoxUsecase } from '../../usecases/customerBox/updateCustomerBox.usecase';
+import { UpdateCustomerBoxUsecaseInterface } from '../../usecases/customerBox/updateCustomerBox.usecase';
 import { Response } from 'express';
 import { TeatisJobs } from '../../repositories/teatisJobs/dbMigrationjob';
 import {
   GetAllOptionsUsecase,
+  GetAllOptionsUsecaseInterface,
   GetAllOptionsUsecaseRes,
 } from '../../usecases/prePurchaseSurvey/getAllOptions.usecase';
 
@@ -34,11 +35,16 @@ import {
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    private getRecommendProductsUsecase: GetRecommendProductsUsecase,
-    private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecase,
-    private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecase,
-    private updateCustomerBoxUsecase: UpdateCustomerBoxUsecase,
-    private getAllOptionsUsecase: GetAllOptionsUsecase, // private teatisJob: TeatisJobs,
+    @Inject('GetRecommendProductsUsecaseInterface')
+    private getRecommendProductsUsecase: GetRecommendProductsUsecaseInterface,
+    @Inject('GetPostPurchaseSurveyUsecaseInterface')
+    private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecaseInterface,
+    @Inject('PostPostPurchaseSurveyUsecaseInterface')
+    private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecaseInterface,
+    @Inject('UpdateCustomerBoxUsecaseInterface')
+    private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
+    @Inject('GetAllOptionsUsecaseInterface')
+    private getAllOptionsUsecase: GetAllOptionsUsecaseInterface, // private teatisJob: TeatisJobs,
   ) {}
 
   @Get()

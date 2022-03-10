@@ -56,13 +56,31 @@ import { GetAllOptionsUsecase } from '../../usecases/prePurchaseSurvey/getAllOpt
       provide: 'ShopifyRepoInterface',
       useClass: ShopifyRepo,
     },
+    {
+      provide: 'GetRecommendProductsUsecaseInterface',
+      useClass: GetRecommendProductsUsecase,
+    },
+    {
+      provide: 'GetAllOptionsUsecaseInterface',
+      useClass: GetAllOptionsUsecase,
+    },
+    {
+      provide: ' GetRecommendProductsUsecaseInterface',
+      useClass: GetRecommendProductsUsecase,
+    },
+    {
+      provide: 'GetPostPurchaseSurveyUsecaseInterface',
+      useClass: GetPostPurchaseSurveyUsecase,
+    },
+    {
+      provide: 'PostPostPurchaseSurveyUsecaseInterface',
+      useClass: PostPostPurchaseSurveyUsecase,
+    },
+    {
+      provide: 'UpdateCustomerBoxUsecaseInterface',
+      useClass: UpdateCustomerBoxUsecase,
+    },
 
-    GetRecommendProductsUsecase,
-    GetAllOptionsUsecase,
-    GetRecommendProductsUsecase,
-    GetPostPurchaseSurveyUsecase,
-    PostPostPurchaseSurveyUsecase,
-    UpdateCustomerBoxUsecase,
     TeatisJobs,
     DiscoveriesController,
     PrismaService,
@@ -70,3 +88,17 @@ import { GetAllOptionsUsecase } from '../../usecases/prePurchaseSurvey/getAllOpt
   exports: [DiscoveriesController],
 })
 export class DiscoveriesModule {}
+
+// DiscoveriesService,
+// DatabasePrePurchaseSurveyRepo,
+// CustomerPostPurchaseSurveyRepo,
+// ConnectShipheroRepo,
+// ProductGeneralRepo,
+// TypeformRepo,
+// QuestionPostPurchaseSurveyRepo,
+// ConnectShopifyRepo,
+// GetRecommendProductsUsecase,
+// GetPostPurchaseSurveyUsecase,
+// PostPostPurchaseSurveyUsecase,
+// PrismaService,
+// TeatisJobs,
