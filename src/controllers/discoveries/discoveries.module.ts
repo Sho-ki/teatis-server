@@ -4,18 +4,18 @@ import { ShopifyRepo } from 'src/repositories/shopify/shopify.repository';
 import { TypeformRepo } from 'src/repositories/typeform/typeform.repository';
 import { PrismaService } from 'src/prisma.service';
 import { CustomerPrePurchaseSurveyRepo } from 'src/repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
-import { GetPostPurchaseSurveyUsecase } from 'src/usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+import { GetPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { QuestionPostPurchaseSurveyRepo } from 'src/repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
 import { CustomerPostPurchaseSurveyRepo } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
-import { PostPostPurchaseSurveyUsecase } from 'src/usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
+import { PostPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { ProductGeneralRepo } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
-import { GetRecommendProductsUsecase } from 'src/usecases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { GetRecommendProductsUsecase } from '@Usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 import { ShipheroRepo } from 'src/repositories/shiphero/shiphero.repository';
-import { UpdateCustomerBoxUsecase } from 'src/usecases/customerBox/updateCustomerBox.usecase';
+import { UpdateCustomerBoxUsecase } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { CustomerGeneralRepo } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerUpdateCustomerBoxRepo } from 'src/repositories/teatisDB/customerRepo/customerUpdateCustomerBox.repository';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
-import { GetAllOptionsUsecase } from 'src/usecases/prePurchaseSurvey/getAllOptions.usecase';
+import { GetAllOptionsUsecase } from '@Usecases/prePurchaseSurvey/getAllOptions.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
