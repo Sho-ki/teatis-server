@@ -159,7 +159,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         getOptionsRes = await this.prisma.productCategory.findMany({
           select: { id: true, name: true, label: true, src: true },
         });
-        console.log('category', getOptionsRes);
+
         break;
       case 'foodType':
         getOptionsRes = await this.prisma.productFoodType.findMany({
@@ -170,7 +170,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         getOptionsRes = await this.prisma.productAllergen.findMany({
           select: { id: true, name: true, label: true },
         });
-        console.log('allergen', getOptionsRes);
+
         break;
       case 'ingredient':
         getOptionsRes = await this.prisma.productIngredient.findMany({

@@ -27,7 +27,7 @@ export interface GetPostPurchaseSurveyImage {
   src: string;
 }
 
-export interface GetPostPurchaseSurveyUseCaseInterface {
+export interface GetPostPurchaseSurveyUsecaseInterface {
   getPostPurchaseSurvey({
     email,
     orderNumber,
@@ -35,8 +35,8 @@ export interface GetPostPurchaseSurveyUseCaseInterface {
 }
 
 @Injectable()
-export class GetPostPurchaseSurveyUseCase
-  implements GetPostPurchaseSurveyUseCaseInterface
+export class GetPostPurchaseSurveyUsecase
+  implements GetPostPurchaseSurveyUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepoInterface')

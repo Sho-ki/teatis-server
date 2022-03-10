@@ -4,12 +4,12 @@ import { ShopifyRepo } from '../../repositories/shopify/shopify.repository';
 import { TypeformRepo } from '../../repositories/typeform/typeform.repository';
 import { PrismaService } from '../../prisma.service';
 import { CustomerPrePurchaseSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
-import { GetPostPurchaseSurveyUseCase } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+import { GetPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { QuestionPostPurchaseSurveyRepo } from '../../repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
 import { CustomerPostPurchaseSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
-import { PostPostPurchaseSurveyUseCase } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
+import { PostPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { ProductGeneralRepo } from '../../repositories/teatisDB/productRepo/productGeneral.repository';
-import { GetRecommendProductsUseCase } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { GetRecommendProductsUsecase } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 import { ShipheroRepo } from '../../repositories/shiphero/shiphero.repository';
 import { UpdateCustomerBoxUsecase } from '../../usecases/customerBox/updateCustomerBox.usecase';
 import { CustomerGeneralRepo } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
@@ -57,24 +57,24 @@ import { GetAllOptionsUsecase } from '../../usecases/prePurchaseSurvey/getAllOpt
       useClass: ShopifyRepo,
     },
     {
-      provide: 'GetRecommendProductsUseCaseInterface',
-      useClass: GetRecommendProductsUseCase,
+      provide: 'GetRecommendProductsUsecaseInterface',
+      useClass: GetRecommendProductsUsecase,
     },
     {
       provide: 'GetAllOptionsUsecaseInterface',
       useClass: GetAllOptionsUsecase,
     },
     {
-      provide: ' GetRecommendProductsUseCaseInterface',
-      useClass: GetRecommendProductsUseCase,
+      provide: ' GetRecommendProductsUsecaseInterface',
+      useClass: GetRecommendProductsUsecase,
     },
     {
-      provide: 'GetPostPurchaseSurveyUseCaseInterface',
-      useClass: GetPostPurchaseSurveyUseCase,
+      provide: 'GetPostPurchaseSurveyUsecaseInterface',
+      useClass: GetPostPurchaseSurveyUsecase,
     },
     {
-      provide: 'PostPostPurchaseSurveyUseCaseInterface',
-      useClass: PostPostPurchaseSurveyUseCase,
+      provide: 'PostPostPurchaseSurveyUsecaseInterface',
+      useClass: PostPostPurchaseSurveyUsecase,
     },
     {
       provide: 'UpdateCustomerBoxUsecaseInterface',
@@ -97,8 +97,8 @@ export class DiscoveriesModule {}
 // TypeformRepo,
 // QuestionPostPurchaseSurveyRepo,
 // ConnectShopifyRepo,
-// GetRecommendProductsUseCase,
-// GetPostPurchaseSurveyUseCase,
-// PostPostPurchaseSurveyUseCase,
+// GetRecommendProductsUsecase,
+// GetPostPurchaseSurveyUsecase,
+// PostPostPurchaseSurveyUsecase,
 // PrismaService,
 // TeatisJobs,

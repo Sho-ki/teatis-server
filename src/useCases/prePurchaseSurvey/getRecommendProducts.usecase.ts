@@ -5,10 +5,7 @@ import {
   ShopifyRepoInterface,
 } from '../../repositories/shopify/shopify.repository';
 import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
-import {
-  CustomerPrePurchaseSurveyRepoInterface,
-  UpsertCustomerRes as TeatisDBUpsertCustomerRes,
-} from '../../repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
+import { CustomerPrePurchaseSurveyRepoInterface } from '../../repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
 import {
   GetCustomerAnsRes as TypeformGetCustomerAnsRes,
   TypeformRepoInterface,
@@ -63,15 +60,15 @@ interface CustomerNutritions {
   caloriePerMeal: number;
 }
 
-export interface GetRecommendProductsUseCaseInterface {
+export interface GetRecommendProductsUsecaseInterface {
   getRecommendProducts({
     typeformId,
   }: GetRecommendProductsUsecaseArgs): Promise<GetRecommendProductsUsecaseRes>;
 }
 
 @Injectable()
-export class GetRecommendProductsUseCase
-  implements GetRecommendProductsUseCaseInterface
+export class GetRecommendProductsUsecase
+  implements GetRecommendProductsUsecaseInterface
 {
   constructor(
     @Inject('TypeformRepoInterface')

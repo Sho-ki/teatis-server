@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { GetProductDetailQuery } from '../../repositories/shiphero/generated/graphql';
 import { PostPostPurchaseSurveyDto } from '../../controllers/discoveries/dtos/postPostPurchaseSurvey';
 import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
 import { QuestionPostPurchaseSurveyRepoInterface } from '../../repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
@@ -9,7 +8,7 @@ import {
   GetAnswerCountRes as TeatisDBGetAnswerCount,
 } from '../../repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
 
-export interface PostPostPurchaseSurveyUseCaseInterface {
+export interface PostPostPurchaseSurveyUsecaseInterface {
   postPostPurchaseSurvey({
     id,
     customerId,
@@ -32,8 +31,8 @@ interface PostPostPurchaseSurveyRes {
 }
 
 @Injectable()
-export class PostPostPurchaseSurveyUseCase
-  implements PostPostPurchaseSurveyUseCaseInterface
+export class PostPostPurchaseSurveyUsecase
+  implements PostPostPurchaseSurveyUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepoInterface')

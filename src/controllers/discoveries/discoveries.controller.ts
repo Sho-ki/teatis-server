@@ -10,23 +10,20 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import * as fs from 'fs';
 
 import { CreateDiscoveryInfoDto } from './dtos/createDiscovery';
 import { v4 as uuidv4 } from 'uuid';
 import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
 import { CreateOrderTaskDto } from './dtos/createOrderTask';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
-import { GetPostPurchaseSurveyUseCase } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { PostPostPurchaseSurveyUseCase } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-import { GetRecommendProductsUseCase } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { GetPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+import { PostPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
+import { GetRecommendProductsUsecase } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 
 import { GetRecommendProductsUsecaseRes } from '../../domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
 import { UpdateCustomerBoxTaskDto } from './dtos/updateCustomerBoxTask';
 import { UpdateCustomerBoxUsecase } from '../../usecases/customerBox/updateCustomerBox.usecase';
-import { UpdateCustomerBox } from '../../domains/updateCustomerBox';
 import { Response } from 'express';
-import { PrismaService } from '../../prisma.service';
 import { TeatisJobs } from '../../repositories/teatisJobs/dbMigrationjob';
 import {
   GetAllOptionsUsecase,
@@ -37,16 +34,16 @@ import {
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    @Inject('GetRecommendProductsUseCaseInterface')
-    private getRecommendProductsUseCase: GetRecommendProductsUseCase,
-    @Inject('GetPostPurchaseSurveyUseCaseInterface')
-    private getPostPurchaseSurveyUseCase: GetPostPurchaseSurveyUseCase,
-    @Inject('PostPostPurchaseSurveyUseCaseInterface')
-    private postPostPurchaseSurveyUseCase: PostPostPurchaseSurveyUseCase,
+    @Inject('GetRecommendProductsUsecaseInterface')
+    private getRecommendProductsUsecase: GetRecommendProductsUsecase,
+    @Inject('GetPostPurchaseSurveyUsecaseInterface')
+    private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecase,
+    @Inject('PostPostPurchaseSurveyUsecaseInterface')
+    private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecase,
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecase,
     @Inject('GetAllOptionsUsecaseInterface')
-    private getAllOptionsUsecase: GetAllOptionsUsecase, // private prisma: PrismaService, // private teatisJob: TeatisJobs,
+    private getAllOptionsUsecase: GetAllOptionsUsecase, // private teatisJob: TeatisJobs,
   ) {}
 
   @Get()
@@ -55,7 +52,7 @@ export class DiscoveriesController {
   ): Promise<GetRecommendProductsUsecaseRes> {
     const typeformId = body.typeformId;
     if (!typeformId) throw new Error('No typeformId is provided');
-    const { recommendProductData } = await this.getRecommendProductsUseCase
+    const { recommendProductData } = await this.getRecommendProductsUsecase
       .getRecommendProducts({ typeformId })
       .catch(() => {
         throw new Error('Something went wrong');
@@ -87,7 +84,7 @@ export class DiscoveriesController {
     if (!email) throw new Error('No email is provided');
 
     const [surveyQuestions, error] =
-      await this.getPostPurchaseSurveyUseCase.getPostPurchaseSurvey({
+      await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
         email,
         orderNumber,
       });
@@ -104,7 +101,7 @@ export class DiscoveriesController {
     @Res() response: Response,
   ) {
     const [res, error] =
-      await this.postPostPurchaseSurveyUseCase.postPostPurchaseSurvey(body);
+      await this.postPostPurchaseSurveyUsecase.postPostPurchaseSurvey(body);
     if (error) {
       return response.status(500).send(error);
     }

@@ -1,19 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import {
-  GetProductRes as ShopifyGetProductRes,
-  ShopifyRepoInterface,
-} from '../../repositories/shopify/shopify.repository';
-import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
-import {
-  CustomerPrePurchaseSurveyRepoInterface,
-  UpsertCustomerRes as TeatisDBUpsertCustomerRes,
-} from '../../repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
 import { ProductGeneralRepoInterface } from '../../repositories/teatisDB/productRepo/productGeneral.repository';
-import {
-  GetCustomerAnsRes as TypeformGetCustomerAnsRes,
-  TypeformRepoInterface,
-} from '../../repositories/typeform/typeform.repository';
 
 export interface GetAllOptionsUsecaseRes {
   cookMethod: Options[];

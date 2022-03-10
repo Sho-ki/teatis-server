@@ -2,7 +2,7 @@
 // import { CustomerInformationRepo } from '../infrastructure/repositories/teatisDB/customerRepo/customerInformationRepo';
 // import { ShopifyRepo } from '../infrastructure/repositories/shopify/shopifyRepo';
 // import { TypeformRepo } from '../infrastructure/repositories/typeform/typeform.repository';
-// import { GetRecommendProductsUseCase } from '../useCases/prePurchaseSurvey/getRecommendProducts.usecase';
+// import { GetRecommendProductsUsecase } from '../useCases/prePurchaseSurvey/getRecommendProducts.usecase';
 // import { DiscoveriesController } from './discoveries.controller';
 // import { DiscoveriesService } from './discoveries.service';
 // import { Discoveries, Prisma } from '@prisma/client';
@@ -24,8 +24,8 @@
 //   caloriePerMeal: 428,
 // };
 
-// class MockedRecommendProductsUseCase {
-//   // implements GetRecommendProductsUseCaseInterface
+// class MockedRecommendProductsUsecase {
+//   // implements GetRecommendProductsUsecaseInterface
 //   getRecommendProducts(discoveryTypeformId: string): any {
 //     return fakeGetRecommendProductsInput;
 //   }
@@ -66,8 +66,8 @@
 //         TypeformRepo,
 //         ShopifyRepo,
 //         {
-//           provide: GetRecommendProductsUseCase,
-//           useValue: MockedRecommendProductsUseCase,
+//           provide: GetRecommendProductsUsecase,
+//           useValue: MockedRecommendProductsUsecase,
 //         },
 //         {
 //           provide: CustomerInformationRepo,
