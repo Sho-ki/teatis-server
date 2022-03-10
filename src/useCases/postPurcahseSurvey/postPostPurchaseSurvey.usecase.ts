@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PostPostPurchaseSurveyDto } from '../../controllers/discoveries/dtos/postPostPurchaseSurvey';
-import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
-import { QuestionPostPurchaseSurveyRepoInterface } from '../../repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
+import { PostPostPurchaseSurveyDto } from 'src/controllers/discoveries/dtos/postPostPurchaseSurvey';
+import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
+import { QuestionPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
 import {
   CustomerPostPurchaseSurveyRepoInterface,
   GetAnswerCountRes as TeatisDBGetAnswerCount,
-} from '../../repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+} from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
 
 export interface PostPostPurchaseSurveyUsecaseInterface {
   postPostPurchaseSurvey({

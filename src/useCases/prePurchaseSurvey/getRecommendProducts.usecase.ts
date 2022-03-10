@@ -3,13 +3,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   GetProductRes as ShopifyGetProductRes,
   ShopifyRepoInterface,
-} from '../../repositories/shopify/shopify.repository';
-import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerPrePurchaseSurveyRepoInterface } from '../../repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
+} from 'src/repositories/shopify/shopify.repository';
+import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerPrePurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
 import {
   GetCustomerAnsRes as TypeformGetCustomerAnsRes,
   TypeformRepoInterface,
-} from '../../repositories/typeform/typeform.repository';
+} from 'src/repositories/typeform/typeform.repository';
 
 interface GetRecommendProductsUsecaseArgs {
   typeformId: string;

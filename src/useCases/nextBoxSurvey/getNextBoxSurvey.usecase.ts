@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepoInterface } from '../../repositories/teatisDB/productRepo/productGeneral.repository';
+import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
 import {
   CustomerPostPurchaseSurveyRepoInterface,
   GetCustomerProductFeedbackAnswersRes as TeatisDBGetCustomerProductFeedbackAnswersRes,
   GetCustomerRes as TeatisDBGetCustomerRes,
-} from '../../repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
-import { PostPurchaseSurvey } from '../../domains/PostPurchaseSurvey';
-import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
+} from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { PostPurchaseSurvey } from 'src/domains/PostPurchaseSurvey';
+import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 
 interface GetNextBoxUsecaseArgs {
   orderNumber: string;

@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
 import { DiscoveriesController } from './discoveries.controller';
-import { ShopifyRepo } from '../../repositories/shopify/shopify.repository';
-import { TypeformRepo } from '../../repositories/typeform/typeform.repository';
-import { PrismaService } from '../../prisma.service';
-import { CustomerPrePurchaseSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
-import { GetPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { QuestionPostPurchaseSurveyRepo } from '../../repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
-import { CustomerPostPurchaseSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
-import { PostPostPurchaseSurveyUsecase } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-import { ProductGeneralRepo } from '../../repositories/teatisDB/productRepo/productGeneral.repository';
-import { GetRecommendProductsUsecase } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
-import { ShipheroRepo } from '../../repositories/shiphero/shiphero.repository';
-import { UpdateCustomerBoxUsecase } from '../../usecases/customerBox/updateCustomerBox.usecase';
-import { CustomerGeneralRepo } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerUpdateCustomerBoxRepo } from '../../repositories/teatisDB/customerRepo/customerUpdateCustomerBox.repository';
-import { TeatisJobs } from '../../repositories/teatisJobs/dbMigrationjob';
-import { GetAllOptionsUsecase } from '../../usecases/prePurchaseSurvey/getAllOptions.usecase';
+import { ShopifyRepo } from 'src/repositories/shopify/shopify.repository';
+import { TypeformRepo } from 'src/repositories/typeform/typeform.repository';
+import { PrismaService } from 'src/prisma.service';
+import { CustomerPrePurchaseSurveyRepo } from 'src/repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
+import { GetPostPurchaseSurveyUsecase } from 'src/usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+import { QuestionPostPurchaseSurveyRepo } from 'src/repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
+import { CustomerPostPurchaseSurveyRepo } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { PostPostPurchaseSurveyUsecase } from 'src/usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
+import { ProductGeneralRepo } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
+import { GetRecommendProductsUsecase } from 'src/usecases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { ShipheroRepo } from 'src/repositories/shiphero/shiphero.repository';
+import { UpdateCustomerBoxUsecase } from 'src/usecases/customerBox/updateCustomerBox.usecase';
+import { CustomerGeneralRepo } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerUpdateCustomerBoxRepo } from 'src/repositories/teatisDB/customerRepo/customerUpdateCustomerBox.repository';
+import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
+import { GetAllOptionsUsecase } from 'src/usecases/prePurchaseSurvey/getAllOptions.usecase';
 
 @Module({
   controllers: [DiscoveriesController],

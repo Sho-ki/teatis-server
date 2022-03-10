@@ -16,20 +16,20 @@ import { v4 as uuidv4 } from 'uuid';
 import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
 import { CreateOrderTaskDto } from './dtos/createOrderTask';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
-import { GetPostPurchaseSurveyUsecaseInterface } from '../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { PostPostPurchaseSurveyUsecaseInterface } from '../../usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-import { GetRecommendProductsUsecaseInterface } from '../../usecases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { GetPostPurchaseSurveyUsecaseInterface } from 'src/usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+import { PostPostPurchaseSurveyUsecaseInterface } from 'src/usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
+import { GetRecommendProductsUsecaseInterface } from 'src/usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 
-import { GetRecommendProductsUsecaseRes } from '../../domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
+import { GetRecommendProductsUsecaseRes } from 'src/domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
 import { UpdateCustomerBoxTaskDto } from './dtos/updateCustomerBoxTask';
-import { UpdateCustomerBoxUsecaseInterface } from '../../usecases/customerBox/updateCustomerBox.usecase';
+import { UpdateCustomerBoxUsecaseInterface } from 'src/usecases/customerBox/updateCustomerBox.usecase';
 import { Response } from 'express';
-import { TeatisJobs } from '../../repositories/teatisJobs/dbMigrationjob';
+import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
   GetAllOptionsUsecase,
   GetAllOptionsUsecaseInterface,
   GetAllOptionsUsecaseRes,
-} from '../../usecases/prePurchaseSurvey/getAllOptions.usecase';
+} from 'src/usecases/prePurchaseSurvey/getAllOptions.usecase';
 
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
