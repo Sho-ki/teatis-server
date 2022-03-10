@@ -34,15 +34,10 @@ import {
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    @Inject('GetRecommendProductsUsecaseInterface')
     private getRecommendProductsUsecase: GetRecommendProductsUsecase,
-    @Inject('GetPostPurchaseSurveyUsecaseInterface')
     private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecase,
-    @Inject('PostPostPurchaseSurveyUsecaseInterface')
     private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecase,
-    @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecase,
-    @Inject('GetAllOptionsUsecaseInterface')
     private getAllOptionsUsecase: GetAllOptionsUsecase, // private teatisJob: TeatisJobs,
   ) {}
 
