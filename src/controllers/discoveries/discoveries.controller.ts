@@ -22,7 +22,6 @@ import { GetRecommendProductsUsecaseInterface } from '@Usecases/prePurchaseSurve
 
 import { GetRecommendProductsUsecaseRes } from 'src/domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
 import { UpdateCustomerBoxTaskDto } from './dtos/updateCustomerBoxTask';
-import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
@@ -30,6 +29,7 @@ import {
   GetAllOptionsUsecaseInterface,
   GetAllOptionsUsecaseRes,
 } from '@Usecases/prePurchaseSurvey/getAllOptions.usecase';
+import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
