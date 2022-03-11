@@ -46,7 +46,7 @@ model Customers{
   intermediateCustomerCategoryPreference IntermediateCustomerCategoryPreference[]
   intermediateCustomerIngredientDislike IntermediateCustomerIngredientDislike[]
   intermediateCustomerFoodType IntermediateCustomerFoodType[]
-  intermediateCustomerUnavailableCookMethod IntermediateCustomerUnavailableCookMethod[]
+  intermediateCustomerUnavailableCookingMethod IntermediateCustomerUnavailableCookingMethod[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -144,7 +144,7 @@ model Product{
   intermediateProductFoodType IntermediateProductFoodType[]
   intermediateProductIngredients IntermediateProductIngredient[]	
   intermediateProductAllergens IntermediateProductAllergen[]
-  intermediateProductCookMethod IntermediateProductCookMethod[]
+  intermediateProductCookingMethod IntermediateProductCookingMethod[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
@@ -169,34 +169,34 @@ model ProductImage{
 }
 
 
-model IntermediateProductCookMethod{
+model IntermediateProductCookingMethod{
   product Product @relation(fields: [productId], references: [id])
   productId Int
-  productCookMethod   ProductCookMethod   @relation(fields: [productCookMethodId], references: [id])
-  productCookMethodId  Int
+  productCookingMethod   ProductCookingMethod   @relation(fields: [productCookingMethodId], references: [id])
+  productCookingMethodId  Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@id([productId, productCookMethodId])
+  @@id([productId, productCookingMethodId])
 }
 
-model IntermediateCustomerUnavailableCookMethod{
+model IntermediateCustomerUnavailableCookingMethod{
   customer Customers @relation(fields: [customerId], references: [id])
   customerId Int
-  productCookMethod   ProductCookMethod   @relation(fields: [productCookMethodId], references: [id])
-  productCookMethodId  Int
+  productCookingMethod   ProductCookingMethod   @relation(fields: [productCookingMethodId], references: [id])
+  productCookingMethodId  Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@id([customerId, productCookMethodId])
+  @@id([customerId, productCookingMethodId])
 }
 
-model ProductCookMethod{
+model ProductCookingMethod{
   id       Int         @default(autoincrement()) @id
   label String 
   name String @unique
-  intermediateProductCookMethod IntermediateProductCookMethod[]
-  intermediateCustomerUnavailableCookMethod IntermediateCustomerUnavailableCookMethod[]
+  intermediateProductCookingMethod IntermediateProductCookingMethod[]
+  intermediateCustomerUnavailableCookingMethod IntermediateCustomerUnavailableCookingMethod[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }

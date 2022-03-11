@@ -251,15 +251,15 @@ async function main() {
     });
   }
 
-  const cookMethodsData = JSON.parse(
-    fs.readFileSync('./defaultData/cookMethod.json', 'utf8'),
+  const cookingMethodsData = JSON.parse(
+    fs.readFileSync('./defaultData/cookingMethod.json', 'utf8'),
   );
 
-  for (let cookMethod of cookMethodsData.cookMethods) {
-    await prisma.productCookMethod.upsert({
-      where: { name: cookMethod.name },
-      create: { name: cookMethod.name, label: cookMethod.label },
-      update: { name: cookMethod.name, label: cookMethod.label },
+  for (let cookingMethod of cookingMethodsData.cookingMethods) {
+    await prisma.productCookingMethod.upsert({
+      where: { name: cookingMethod.name },
+      create: { name: cookingMethod.name, label: cookingMethod.label },
+      update: { name: cookingMethod.name, label: cookingMethod.label },
     });
   }
 

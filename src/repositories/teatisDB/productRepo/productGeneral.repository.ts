@@ -38,12 +38,6 @@ interface GetOptionsRes<T> {
   option: T[];
 }
 
-// interface GetCookMethods {
-//   id: number;
-//   name: string;
-//   label: string;
-// }
-
 interface GetOptionsElement {
   id: number;
   name: string;
@@ -145,8 +139,8 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }: GetOptionsArgs): Promise<[GetOptionsRes<GetOptionsElement>, Error]> {
     let getOptionsRes: GetOptionsElement[];
     switch (target) {
-      case 'cookMethod':
-        getOptionsRes = await this.prisma.productCookMethod.findMany({
+      case 'cookingMethod':
+        getOptionsRes = await this.prisma.productCookingMethod.findMany({
           select: { id: true, name: true, label: true },
         });
         break;

@@ -31,6 +31,7 @@ import {
 } from '@Usecases/prePurchaseSurvey/getAllOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 
+// /discovery
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
@@ -47,6 +48,7 @@ export class DiscoveriesController {
     private getAllOptionsUsecase: GetAllOptionsUsecaseInterface, // private teatisJob: TeatisJobs,
   ) {}
 
+  // /discovery
   @Get()
   async createDiscovery(
     @Query() body: CreateDiscoveryInfoDto,
@@ -62,29 +64,30 @@ export class DiscoveriesController {
     return { recommendProductData };
   }
 
-  @Get('all-options')
+  // /discovery/all-options
+  @Get('pre-purchase-options')
   async getAllOptions(
     @Res() response: Response,
-  ): Promise<Response<[GetAllOptionsUsecaseRes, Error]>> {
-    const [allOptions, getAllOptionsError] =
-      await this.getAllOptionsUsecase.getAllOptions();
+  ): Promise<Response<[GetAllOptionsUsecaseRes | Error]>> {
+    const [res, error] = await this.getAllOptionsUsecase.getAllOptions();
 
-    if (getAllOptionsError) {
-      return response.status(500).send([null, getAllOptionsError]);
+    if (error) {
+      return response.status(500).send(error);
     }
-    return response.status(200).send([allOptions, null]);
+    return response.status(200).send(res);
   }
 
+  // GET: /discovery/post-purchase-survey
   @Get('post-purchase-survey')
   async getPostPurchaseSurvey(
     @Body() body: GetPostPurchaseSurveyInfoDto,
     @Res() response: Response,
-  ) {
+  ): Promise<Response<any | Error>> {
     const email = body.email;
     const orderNumber = body.orderNumber;
     if (!email) throw new Error('No email is provided');
 
-    const [surveyQuestions, error] =
+    const [res, error] =
       await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
         email,
         orderNumber,
@@ -93,9 +96,10 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(surveyQuestions);
+    return response.status(200).send(res);
   }
 
+  // POST: /discovery/post-purchase-survey
   @Post('post-purchase-survey')
   async postPostPurchaseSurvey(
     @Body() body: PostPostPurchaseSurveyDto,
@@ -109,6 +113,7 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
+  // POST: /discovery/order-creation-webhook
   @Post('order-creation-webhook')
   getWebhook(@Body() body: CreateOrderTaskDto) {
     console.log('start webhook');
@@ -117,6 +122,7 @@ export class DiscoveriesController {
     }, 20000);
   }
 
+  // POST: /discovery/update-customer-box-webhook
   @Post('update-customer-box-webhook')
   async createCustomerBox(
     @Body() body: UpdateCustomerBoxTaskDto,
@@ -134,6 +140,7 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
+  // POST: /discovery/typeform
   @Get('typeform')
   @Redirect()
   redirectToTypeform() {

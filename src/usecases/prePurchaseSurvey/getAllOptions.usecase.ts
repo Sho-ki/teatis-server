@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
 
 export interface GetAllOptionsUsecaseRes {
-  cookMethod: Options[];
+  cookingMethod: Options[];
   allergen: Options[];
   ingredient: Options[];
   foodType: Options[];
@@ -30,8 +30,8 @@ export class GetAllOptionsUsecase implements GetAllOptionsUsecaseInterface {
   ) {}
 
   async getAllOptions(): Promise<[GetAllOptionsUsecaseRes, Error]> {
-    const [cookMethods, getCookMethodsError] =
-      await this.productGeneralRepo.getOptions({ target: 'cookMethod' });
+    const [cookingMethods, getCookMethodsError] =
+      await this.productGeneralRepo.getOptions({ target: 'cookingMethod' });
     if (getCookMethodsError) {
       return [null, getCookMethodsError];
     }
@@ -64,7 +64,7 @@ export class GetAllOptionsUsecase implements GetAllOptionsUsecaseInterface {
 
     return [
       {
-        cookMethod: cookMethods.option,
+        cookingMethod: cookingMethods.option,
         category: categories.option,
         ingredient: flavors.option,
         foodType: foodTypes.option,

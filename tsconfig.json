@@ -11,7 +11,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@Usecases/*": ["src/usecases/*"],
+      "@Usecases/*": ["src/useCases/*"],
       
     },
     "incremental": true,
