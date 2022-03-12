@@ -68,7 +68,6 @@ export class GetPostPurchaseSurveyUsecase
     if (getProductDetailError) {
       return [null, getProductDetailError];
     }
-
     let detailedProductList: GetPostPurchaseSurveyProduct[] =
       order.products.map((orderProduct) => {
         let detailedProduct: GetPostPurchaseSurveyProduct;

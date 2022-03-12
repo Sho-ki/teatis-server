@@ -35,12 +35,7 @@ interface GetOrderByOrderNumberRes {
   orderNumber: string;
 }
 
-const client = new GraphQLClient('https://public-api.shiphero.com/graphql', {
-  headers: <HeadersInit | undefined>{
-    authorization: process.env.SHIPHERO_API_KEY,
-  },
-});
-const sdk = getSdk(client);
+const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepoInterface {
   getLastOrder({ email }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]>;
@@ -55,6 +50,12 @@ export class ShipheroRepo implements ShipheroRepoInterface {
   async getOrderByOrderNumber({
     orderNumber,
   }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
+    });
+    const sdk = getSdk(client);
     let res: GetLastOrderByEmailQuery = await sdk.getOrderProductsByOrderNumber(
       {
         orderNumber,
@@ -98,6 +99,13 @@ export class ShipheroRepo implements ShipheroRepoInterface {
   async getLastOrder({
     email,
   }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
+    });
+    const sdk = getSdk(client);
+
     let res: GetLastOrderByEmailQuery = await sdk.getLastOrderByEmail({
       email,
     });
