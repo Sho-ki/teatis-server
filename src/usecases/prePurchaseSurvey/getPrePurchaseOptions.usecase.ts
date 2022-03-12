@@ -3,12 +3,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
 
 export interface getPrePurchaseOptionsUsecaseRes {
-  cookingMethod: Options[];
-  allergen: Options[];
-  ingredient: Options[];
+  unavailableCookingMethods: Options[];
+  allergens: Options[];
+  ingredientDislikes: Options[];
   foodType: Options[];
-  flavor: Options[];
-  category: Options[];
+  flavorDislikes: Options[];
+  categoryPreferences: Options[];
 }
 
 interface Options {
@@ -68,12 +68,12 @@ export class getPrePurchaseOptionsUsecase
 
     return [
       {
-        cookingMethod: cookingMethods.option,
-        category: categories.option,
-        ingredient: flavors.option,
+        unavailableCookingMethods: cookingMethods.option,
+        allergens: allergens.option,
+        ingredientDislikes: ingredients.option,
         foodType: foodTypes.option,
-        flavor: ingredients.option,
-        allergen: allergens.option,
+        flavorDislikes: flavors.option,
+        categoryPreferences: categories.option,
       },
       null,
     ];
