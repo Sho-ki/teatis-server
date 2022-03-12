@@ -1,124 +1,83 @@
 import { PrismaClient } from '@prisma/client';
+import * as fs from 'fs';
+
 const prisma = new PrismaClient();
 
 async function main() {
   const customerNutritionItems = [
     {
-      description: 'BMR',
+      name: 'BMR',
       label: 'BMR',
     },
     {
-      description: 'carbs_macronutrients',
-      label: 'carbs_macronutrients',
+      name: 'carbsMacronutrients',
+      label: 'Carbs Macronutrients',
     },
     {
-      description: 'protein_macronutrients',
-      label: 'protein_macronutrients',
+      name: 'proteinMacronutrients',
+      label: 'Protein Macronutrients',
     },
     {
-      description: 'fat_macronutrients',
-      label: 'fat_macronutrients',
+      name: 'fat Macronutrients',
+      label: 'Fat Macronutrients',
     },
     {
-      description: 'carbs_per_meal',
-      label: 'carbs_per_meal',
+      name: 'carbsPerMeal',
+      label: 'Carbs Per Meal',
     },
     {
-      description: 'protein_per_meal',
-      label: 'protein_per_meal',
+      name: 'proteinPerMeal',
+      label: 'Protein Per Meal',
     },
     {
-      description: 'fat_per_meal',
-      label: 'fat_per_meal',
+      name: 'fatPerMeal',
+      label: 'Fat Per Meal',
     },
     {
-      description: 'calorie_per_meal',
-      label: 'calorie_per_meal',
+      name: 'caloriePerMeal',
+      label: 'Calorie PerMeal',
     },
   ];
 
   for (let customerNutritionItem of customerNutritionItems) {
     await prisma.customerNutritionNeed.upsert({
-      where: { label: customerNutritionItem.label },
+      where: { name: customerNutritionItem.name },
       update: {},
       create: {
         label: customerNutritionItem.label,
-        description: customerNutritionItem.description,
+        name: customerNutritionItem.name,
       },
     });
   }
 
   const surveyCreationItems = [
-    // {
-    //   surveyName: 'post-purchase',
-    //   question: {
-    //     order: 1,
-    //     label: 'How would you feel if you could no longer use our service?',
-    //     name: 'ifNoLongerAvailable',
-    //     mustBeAnswered: true,
-    //     category: 'serviceFeedback',
-    //     answerType: 'singleAnswer',
-    //     options: [
-    //       'Not disappointed',
-    //       'Somewhat disappointed',
-    //       'Very disppointed',
-    //     ],
-    //   },
-    // },
-    // {
-    //   surveyName: 'post-purchase',
-    //   order: 2,
-    //   question: {
-    //     label:
-    //       'What would you likely use as an alternative if our services were no longer available?',
-    //     name: 'alternativeService',
-    //     mustBeAnswered: false,
-    //     category: 'serviceFeedback',
-    //     placeHolder: 'Any other services come to mind?',
-    //     answerType: 'text',
-    //   },
-    // },
-    // {
-    //   surveyName: 'post-purchase',
-    //   question: {
-    //     label: 'Hove you recommended our service to anyone?',
-    //     name: 'haveRecommended',
-    //     mustBeAnswered: false,
-    //     category: 'serviceFeedback',
-    //     answerType: 'singleAnswer',
-    //     options: ['Yes', 'No'],
-    //   },
-    // },
-    // {
-    //   surveyName: 'post-purchase',
-    //   question: {
-    //     label: 'What is the main benefit you received from our service?',
-    //     name: 'mainBenefitReceived',
-    //     mustBeAnswered: true,
-    //     category: 'serviceFeedback',
-    //     answerType: 'text',
-    //     instruction: 'List as many as you can, separated by commas.',
-    //   },
-    // },
-    // {
-    //   surveyName: 'post-purchase',
-    //   question: {
-    //     label: 'How can we improve our service to better meet your needs?',
-    //     name: 'improvablePoint',
-    //     mustBeAnswered: true,
-    //     category: 'serviceFeedback',
-    //     answerType: 'text',
-    //     instruction: 'List as many as you can, separated by commas.',
-    //   },
-    // },
     {
       surveyName: 'post-purchase',
+      surveyLabel: 'Post Purchase Survey',
       question: {
-        label: 'How satisfied are you with PRODUCT_NAME?',
+        label: 'What kind of product do you want to add to our line-up?',
+        name: 'productLineUp',
+        mustBeAnswered: false,
+        category: 'productFeedback',
+        categoryLabel: 'Product Feedback',
+        answerType: 'text',
+        answerTypeLabel: 'text',
+        instruction: 'List as many as you can, separated by commas.',
+        order: 1,
+      },
+    },
+    {
+      surveyName: 'post-purchase',
+      surveyLabel: 'Post Purchase Survey',
+      question: {
+        label: 'How satisfied are you with ${PRODUCT_NAME}?',
         name: 'productSatisfaction',
         mustBeAnswered: false,
         category: 'productFeedback',
+        categoryLabel: 'Product Feedback',
         answerType: 'numeric',
+        answerTypeLabel: 'numeric',
+        order: 2,
       },
     },
   ];
@@ -126,8 +85,14 @@ async function main() {
   for (let surveyCreationItem of surveyCreationItems) {
     const surveyQuery = await prisma.survey.upsert({
       where: { name: surveyCreationItem.surveyName },
-      create: { name: surveyCreationItem.surveyName },
-      update: {},
+      create: {
+        name: surveyCreationItem.surveyName,
+        label: surveyCreationItem.surveyLabel,
+      },
+      update: {
+        name: surveyCreationItem.surveyName,
+        label: surveyCreationItem.surveyLabel,
+      },
     });
 
     const questionQuery = await prisma.surveyQuestion.upsert({
@@ -135,22 +100,52 @@ async function main() {
       create: {
         label: surveyCreationItem.question.label,
         name: surveyCreationItem.question.name,
+
         mustBeAnswered: surveyCreationItem.question.mustBeAnswered,
         questionCategory: {
           connectOrCreate: {
-            where: { label: surveyCreationItem.question.category },
-            create: { label: surveyCreationItem.question.category },
+            where: { name: surveyCreationItem.question.category },
+            create: {
+              name: surveyCreationItem.question.category,
+              label: surveyCreationItem.question.categoryLabel,
+            },
           },
         },
         surveyQuestionOptions: {},
         surveyQuestionAnswerType: {
           connectOrCreate: {
-            where: { label: surveyCreationItem.question.answerType },
-            create: { label: surveyCreationItem.question.answerType },
+            where: { name: surveyCreationItem.question.answerType },
+            create: {
+              name: surveyCreationItem.question.answerType,
+              label: surveyCreationItem.question.answerTypeLabel,
+            },
           },
         },
       },
-      update: {},
+      update: {
+        label: surveyCreationItem.question.label,
+        name: surveyCreationItem.question.name,
+        mustBeAnswered: surveyCreationItem.question.mustBeAnswered,
+        questionCategory: {
+          connectOrCreate: {
+            where: { name: surveyCreationItem.question.category },
+            create: {
+              name: surveyCreationItem.question.category,
+              label: surveyCreationItem.question.categoryLabel,
+            },
+          },
+        },
+        surveyQuestionOptions: {},
+        surveyQuestionAnswerType: {
+          connectOrCreate: {
+            where: { name: surveyCreationItem.question.answerType },
+            create: {
+              name: surveyCreationItem.question.answerType,
+              label: surveyCreationItem.question.answerTypeLabel,
+            },
+          },
+        },
+      },
     });
     if (surveyCreationItem.question['options']) {
       for (let option of surveyCreationItem.question['options']) {
@@ -158,11 +153,19 @@ async function main() {
           where: {
             QuestionOptionIdentifier: {
               surveyQuestionId: questionQuery.id,
-              label: option,
+              name: option.name,
             },
           },
-          create: { surveyQuestionId: questionQuery.id, label: option },
-          update: {},
+          create: {
+            surveyQuestionId: questionQuery.id,
+            label: option.label,
+            name: option.name,
+          },
+          update: {
+            surveyQuestionId: questionQuery.id,
+            label: option.label,
+            name: option.name,
+          },
         });
       }
     }
@@ -174,119 +177,127 @@ async function main() {
         },
       },
       create: {
+        order: surveyCreationItem.question.order,
         surveyId: surveyQuery.id,
         surveyQuestionId: questionQuery.id,
       },
-      update: {},
+      update: {
+        surveyId: surveyQuery.id,
+        surveyQuestionId: questionQuery.id,
+        order: surveyCreationItem.question.order,
+      },
     });
   }
 
-  const productPoviders = [{ provider: 'shiphero' }];
+  const providerData = JSON.parse(
+    fs.readFileSync('./defaultData/provider.json', 'utf8'),
+  );
 
-  for (let productPovider of productPoviders) {
-    await prisma.productPovider.upsert({
+  for (let productPovider of providerData.productPoviders) {
+    await prisma.productProvider.upsert({
       where: { provider: productPovider.provider },
-      update: {},
+      update: { provider: productPovider.provider },
       create: {
         provider: productPovider.provider,
       },
     });
   }
-  //   const customerProductPrefQuestions = [
-  //     {
-  //       description: 'delivered last time',
-  //       label: 'delivered_last_time',
-  //       index_id: 1,
-  //     },
-  //     {
-  //       description: 'must deliver next time',
-  //       label: 'is_must',
-  //       index_id: 2,
-  //     },
-  //     {
-  //       description: 'dislike by preference',
-  //       label: 'is_bad_evaluation',
-  //       index_id: 3,
-  //     },
-  //     {
-  //       description: 'dislike by allergy',
-  //       label: 'have_allergy',
-  //       index_id: 4,
-  //     },
-  //   ];
 
-  //   for (let customerProductPrefQuestion of customerProductPrefQuestions) {
-  //     await prisma.customerProductPrefQuestion.upsert({
-  //       where: { label: customerProductPrefQuestion.label },
-  //       update: {},
-  //       create: {
-  //         description: customerProductPrefQuestion.description,
-  //         label: customerProductPrefQuestion.label,
-  //         index_id: customerProductPrefQuestion.index_id,
-  //       },
-  //     });
-  //   }
+  const flavorData = JSON.parse(
+    fs.readFileSync('./defaultData/flavor.json', 'utf8'),
+  );
 
-  //   const feedbackQuestions = [
-  //     {
-  //       question:
-  //         'What would you likely use as an alternative if our service were no longer available?',
-  //       label: 'alternativeService',
-  //       is_active: true,
-  //       required: true,
-  //     },
-  //     {
-  //       question: 'Hove you recommended our service to anyone?',
-  //       label: 'haveRecommended',
-  //       options: [{ label: 'Yes' }, { label: 'No' }],
-  //     },
-  //     {
-  //       question: 'What is the main benefit you received from our service?',
-  //       label: 'mainBenefitReceived',
-  //       instruction: 'List as many as you can, separated by commas.',
-  //     },
-  //     {
-  //       question: 'How can we improve our service to better meet your needs?',
-  //       label: 'improvablePoint',
-  //       instruction: 'List as many as you can, separated by commas.',
-  //     },
-  //   ];
+  for (let flavor of flavorData.flavors) {
+    await prisma.productFlavor.upsert({
+      where: { name: flavor.name },
+      create: { name: flavor.name, label: flavor.label },
+      update: { name: flavor.name, label: flavor.label },
+    });
+  }
 
-  //   const productEvaluationQuestions = [{}];
+  const categoryData = JSON.parse(
+    fs.readFileSync('./defaultData/category.json', 'utf8'),
+  );
 
-  //   {
-  //     id: 'productEvaluation_7',
-  //     order: 7,
-  //     question: 'How satisfied are you with A?',
-  //     type: 'singleAnswers',
-  //     label: 'AAA', // product_name
-  //     answer: 3,
-  //   },
-  //   {
-  //     id: 'productEvaluation_8',
-  //     order: 8,
-  //     question: 'How satisfied are you with B?',
-  //     type: 'singleAnswers',
-  //     label: 'BBB', // product_name
-  //     answer: undefined,
-  //   },
-  //   {
-  //     id: 'productEvaluation_9',
-  //     order: 9,
-  //     question: 'How satisfied are you with C?',
-  //     type: 'singleAnswers',
-  //     label: 'CCC', // product_name
-  //     answer: undefined,
-  //   },
-  //   {
-  //     id: 'productEvaluation_10',
-  //     order: 10,
-  //     question: 'What kind of product do you want to add to our line-up?',
-  //     type: 'text',
-  //     label: 'mainBenefitReceived',
-  //     description: 'List as many as you can, separated by commas.',
-  //     answer: undefined,
-  //   },
+  for (let category of categoryData.categories) {
+    await prisma.productCategory.upsert({
+      where: { name: category.name },
+      create: { name: category.name, label: category.label },
+      update: { name: category.name, label: category.label },
+    });
+  }
+
+  const allergenData = JSON.parse(
+    fs.readFileSync('./defaultData/allergen.json', 'utf8'),
+  );
+
+  for (let allergen of allergenData.allergens) {
+    await prisma.productAllergen.upsert({
+      where: { name: allergen.name },
+      create: { name: allergen.name, label: allergen.label },
+      update: { name: allergen.name, label: allergen.label },
+    });
+  }
+
+  const ingredientData = JSON.parse(
+    fs.readFileSync('./defaultData/ingredient.json', 'utf8'),
+  );
+
+  for (let ingredient of ingredientData.ingredients) {
+    await prisma.productIngredient.upsert({
+      where: { name: ingredient.name },
+      create: { name: ingredient.name, label: ingredient.label },
+      update: { name: ingredient.name, label: ingredient.label },
+    });
+  }
+
+  const cookingMethodsData = JSON.parse(
+    fs.readFileSync('./defaultData/cookingMethod.json', 'utf8'),
+  );
+
+  for (let cookingMethod of cookingMethodsData.cookingMethods) {
+    await prisma.productCookingMethod.upsert({
+      where: { name: cookingMethod.name },
+      create: { name: cookingMethod.name, label: cookingMethod.label },
+      update: { name: cookingMethod.name, label: cookingMethod.label },
+    });
+  }
+
+  const vendorsData = JSON.parse(
+    fs.readFileSync('./defaultData/vendor.json', 'utf8'),
+  );
+
+  for (let vendor of vendorsData.vendors) {
+    await prisma.productVendor.upsert({
+      where: { name: vendor.name },
+      create: { name: vendor.name, label: vendor.label },
+      update: { name: vendor.name, label: vendor.label },
+    });
+  }
+
+  const foodTypesData = JSON.parse(
+    fs.readFileSync('./defaultData/foodType.json', 'utf8'),
+  );
+
+  for (let foodType of foodTypesData.foodTypes) {
+    await prisma.productFoodType.upsert({
+      where: { name: foodType.name },
+      create: { name: foodType.name, label: foodType.label },
+      update: { name: foodType.name, label: foodType.label },
+    });
+  }
+
+  const medicalConditionsData = JSON.parse(
+    fs.readFileSync('./defaultData/medicalCondition.json', 'utf8'),
+  );
+
+  for (let medicalCondition of medicalConditionsData.medicalConditions) {
+    await prisma.customerMedicalCondition.upsert({
+      where: { name: medicalCondition.name },
+      create: { name: medicalCondition.name, label: medicalCondition.label },
+      update: { name: medicalCondition.name, label: medicalCondition.label },
+    });
+  }
 }
 
 main()

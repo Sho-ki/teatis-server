@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Post,
   Query,
   Redirect,
+  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -14,57 +16,105 @@ import { v4 as uuidv4 } from 'uuid';
 import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
 import { CreateOrderTaskDto } from './dtos/createOrderTask';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
-import { GetPostPurchaseSurveyUseCase } from '../../useCases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { PostPostPurchaseSurveyUseCase } from '../../useCases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-import { GetRecommendProductsUseCase } from '../../useCases/prePurchaseSurvey/getRecommendProducts.usecase';
-import { GetPostPurchaseSurveyUsecaseRes } from '../../domains/postPurchaseSurvey/getPostPurchaseSurveyUsecaseRes';
-import { GetRecommendProductsUsecaseRes } from '../../domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
+import { GetPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
+import { GetRecommendProductsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 
+import { GetRecommendProductsUsecaseRes } from 'src/domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
+import { UpdateCustomerBoxTaskDto } from './dtos/updateCustomerBoxTask';
+import { Response } from 'express';
+import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
+import {
+  getPrePurchaseOptionsUsecase,
+  getPrePurchaseOptionsUsecaseInterface,
+  getPrePurchaseOptionsUsecaseRes,
+} from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
+import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
+
+// /discovery
 @Controller('discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    private getRecommendProductsUseCase: GetRecommendProductsUseCase,
-    private getPostPurchaseSurveyUseCase: GetPostPurchaseSurveyUseCase,
-    private postPostPurchaseSurveyUseCase: PostPostPurchaseSurveyUseCase,
+    @Inject('GetRecommendProductsUsecaseInterface')
+    private getRecommendProductsUsecase: GetRecommendProductsUsecaseInterface,
+    @Inject('GetPostPurchaseSurveyUsecaseInterface')
+    private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecaseInterface,
+    @Inject('PostPostPurchaseSurveyUsecaseInterface')
+    private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecaseInterface,
+    @Inject('UpdateCustomerBoxUsecaseInterface')
+    private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
+    @Inject('getPrePurchaseOptionsUsecaseInterface')
+    private getPrePurchaseOptionsUsecase: getPrePurchaseOptionsUsecaseInterface, // private teatisJob: TeatisJobs,
   ) {}
 
+  // /discovery
   @Get()
   async createDiscovery(
     @Query() body: CreateDiscoveryInfoDto,
   ): Promise<GetRecommendProductsUsecaseRes> {
     const typeformId = body.typeformId;
     if (!typeformId) throw new Error('No typeformId is provided');
-    const { recommendProductData, customerId } =
-      await this.getRecommendProductsUseCase
-        .getRecommendProducts({ typeformId })
-        .catch(() => {
-          throw new Error('Something went wrong');
-        });
+    const { recommendProductData } = await this.getRecommendProductsUsecase
+      .getRecommendProducts({ typeformId })
+      .catch(() => {
+        throw new Error('Something went wrong');
+      });
 
-    return { recommendProductData, customerId };
+    return { recommendProductData };
   }
 
+  // /discovery/all-options
+  @Get('pre-purchase-options')
+  async getPrePurchaseOptions(
+    @Res() response: Response,
+  ): Promise<Response<getPrePurchaseOptionsUsecaseRes | Error>> {
+    const [res, error] =
+      await this.getPrePurchaseOptionsUsecase.getPrePurchaseOptions();
+
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
+  }
+
+  // GET: /discovery/post-purchase-survey
   @Get('post-purchase-survey')
   async getPostPurchaseSurvey(
     @Body() body: GetPostPurchaseSurveyInfoDto,
-  ): Promise<GetPostPurchaseSurveyUsecaseRes[]> {
+    @Res() response: Response,
+  ): Promise<Response<any | Error>> {
     const email = body.email;
+    const orderNumber = body.orderNumber;
     if (!email) throw new Error('No email is provided');
 
-    const surveyQuestions: GetPostPurchaseSurveyUsecaseRes[] =
-      await this.getPostPurchaseSurveyUseCase.getPostPurchaseSurvey({ email });
+    const [res, error] =
+      await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
+        email,
+        orderNumber,
+      });
 
-    return surveyQuestions;
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
   }
 
+  // POST: /discovery/post-purchase-survey
   @Post('post-purchase-survey')
-  async postPostPurchaseSurvey(@Body() body: PostPostPurchaseSurveyDto) {
-    const res = await this.postPostPurchaseSurveyUseCase.postPostPurchaseSurvey(
-      body,
-    );
+  async postPostPurchaseSurvey(
+    @Body() body: PostPostPurchaseSurveyDto,
+    @Res() response: Response,
+  ) {
+    const [res, error] =
+      await this.postPostPurchaseSurveyUsecase.postPostPurchaseSurvey(body);
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
   }
 
+  // POST: /discovery/order-creation-webhook
   @Post('order-creation-webhook')
   getWebhook(@Body() body: CreateOrderTaskDto) {
     console.log('start webhook');
@@ -73,6 +123,25 @@ export class DiscoveriesController {
     }, 20000);
   }
 
+  // POST: /discovery/update-customer-box-webhook
+  @Post('update-customer-box-webhook')
+  async createCustomerBox(
+    @Body() body: UpdateCustomerBoxTaskDto,
+    @Res() response: Response,
+  ) {
+    const orderNumber = body.name;
+    const email = body.email;
+    const [res, error] = await this.updateCustomerBoxUsecase.updateCustomerBox({
+      orderNumber,
+      email,
+    });
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
+  }
+
+  // POST: /discovery/typeform
   @Get('typeform')
   @Redirect()
   redirectToTypeform() {
@@ -86,9 +155,8 @@ export class DiscoveriesController {
   // When you migrate the data (Discoveries -> Customer etc...)
   // @Post('job')
   // async dataMigrate() {
-  //   if (process.env.engine === 'local') {
-  //     await this.teatisJob.databaseMigrate();
-  //   }
+  //   await this.teatisJob.databaseMigrate();
+
   //   return;
   // }
 }

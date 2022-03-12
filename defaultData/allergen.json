@@ -1,0 +1,36 @@
+{
+  "allergens": [
+    {
+      "name": "treeNuts",
+      "label": "Tree nuts"
+    },
+    {
+      "name": "eggs",
+      "label": "Eggs"
+    },
+    {
+      "name": "milk",
+      "label": "Milk"
+    },
+    {
+      "name": "fish",
+      "label": "Fish"
+    },
+    {
+      "name": "crustaceanShellfish",
+      "label": "Crustacean shellfish"
+    },
+    {
+      "name": "peanuts",
+      "label": "Peanuts"
+    },
+    {
+      "name": "wheat",
+      "label": "Wheat"
+    },
+    {
+      "name": "soybeans",
+      "label": "Soybeans"
+    }
+  ]
+}

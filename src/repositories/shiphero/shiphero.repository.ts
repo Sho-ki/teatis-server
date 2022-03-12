@@ -7,9 +7,8 @@
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient, gql } from 'graphql-request';
 
-import { PrismaService } from '../../prisma.service';
 import {
-  GetLastOrderProductsQuery,
+  GetLastOrderByEmailQuery,
   GetProductDetailQuery,
   getSdk,
 } from './generated/graphql';
@@ -18,101 +17,132 @@ interface GetLastOrderArgs {
   email: string;
 }
 
-export interface GetLastOrderRes {
-  products: ProductSku[];
+interface GetLastOrderRes {
+  products: GetLastOrderResProduct[];
   orderNumber: string;
 }
 
-interface ProductSku {
+interface GetLastOrderResProduct {
   sku: string;
 }
 
-export interface GetVendorsRes {
-  id: string;
-  name: string;
+interface GetOrderByOrderNumberArgs {
+  orderNumber: string;
 }
 
-interface GetProductDetailArgs {
-  sku: string;
+interface GetOrderByOrderNumberRes {
+  products: GetLastOrderResProduct[];
+  orderNumber: string;
 }
 
-export interface GetProductDetailRes {
-  id: string;
-  name: string;
-  sku: string;
-  images: GetProductDetailImage[];
-  vendors: GetProductDetailVendor[];
-}
-
-interface GetProductDetailImage {
-  src: string;
-  position: number;
-}
-
-interface GetProductDetailVendor {
-  id: string;
-  sku: string;
-}
-
-const client = new GraphQLClient('https://public-api.shiphero.com/graphql', {
-  headers: {
-    authorization: process.env.SHIPHERO_API_KEY,
-  },
-});
-const sdk = getSdk(client);
+const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepoInterface {
-  getLastOrder({ email }: GetLastOrderArgs): Promise<GetLastOrderRes>;
+  getLastOrder({ email }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]>;
 
-  getProductDetail({ sku }: GetProductDetailArgs): Promise<GetProductDetailRes>;
-
-  getVendors(): Promise<GetVendorsRes[]>;
+  getOrderByOrderNumber({
+    orderNumber,
+  }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes, Error]>;
 }
 
 @Injectable()
 export class ShipheroRepo implements ShipheroRepoInterface {
-  constructor(private prisma: PrismaService) {}
-
-  async getVendors(): Promise<GetVendorsRes[]> {
-    let res = await sdk.getVendors();
-    let vendors = res.vendors.data.edges;
-    return vendors.map((vendor): GetVendorsRes => {
-      return { id: vendor.node.id, name: vendor.node.name };
+  async getOrderByOrderNumber({
+    orderNumber,
+  }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
     });
-  }
+    const sdk = getSdk(client);
+    let res: GetLastOrderByEmailQuery = await sdk.getOrderProductsByOrderNumber(
+      {
+        orderNumber,
+      },
+    );
 
-  async getLastOrder({ email }: GetLastOrderArgs): Promise<GetLastOrderRes> {
-    let products: GetLastOrderProductsQuery = await sdk.getLastOrderProducts({
+    const items = res?.orders?.data?.edges[0]?.node?.line_items?.edges;
+
+    if (!items) {
+      return [
+        null,
+        {
+          name: 'Internal Server Error',
+          message: 'getOrderByOrderNumber failed',
+        },
+      ];
+    }
+    let products: GetLastOrderResProduct[] = [];
+    for (let item of items) {
+      if (!item) {
+        continue;
+      }
+      const itemNode = item.node;
+      if (itemNode.product.kit) {
+        const kitComponents = itemNode.product.kit_components;
+        for (let kitComponent of kitComponents) {
+          products.push({ sku: kitComponent.sku });
+        }
+      } else {
+        products.push({ sku: itemNode.sku });
+      }
+    }
+    return [
+      {
+        orderNumber,
+        products,
+      },
+      null,
+    ];
+  }
+  async getLastOrder({
+    email,
+  }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
+    });
+    const sdk = getSdk(client);
+
+    let res: GetLastOrderByEmailQuery = await sdk.getLastOrderByEmail({
       email,
     });
-    return {
-      orderNumber: products.orders.data.edges[0].node.order_number,
-      products: products.orders.data.edges[0].node.line_items.edges.map(
-        (item) => {
-          return { sku: item.node.sku };
-        },
-      ),
-    } as GetLastOrderRes;
-  }
 
-  async getProductDetail({
-    sku,
-  }: GetProductDetailArgs): Promise<GetProductDetailRes> {
-    const productDetail: GetProductDetailQuery = await sdk.getProductDetail({
-      sku,
-    });
-    const data = productDetail.product.data;
+    const node = res?.orders?.data?.edges[0]?.node;
+    const orderNumber = node?.order_number;
+    const items = node?.line_items?.edges;
 
-    return {
-      id: data.id,
-      name: data.name,
-      sku: data.sku,
-      images: data.images.map((image): GetProductDetailImage => {
-        return { src: image.src, position: image.position };
-      }),
-      vendors: data.vendors.map((vendor): GetProductDetailVendor => {
-        return { id: vendor.vendor_id, sku: vendor.vendor_sku };
-      }),
-    };
+    if (!node || !orderNumber || !items) {
+      return [
+        null,
+        { name: 'Internal Server Error', message: 'getLastOrder failed' },
+      ];
+    }
+
+    let products: GetLastOrderResProduct[] = [];
+    for (let item of items) {
+      if (!item) {
+        continue;
+      }
+      const itemNode = item.node;
+      if (itemNode.product.kit) {
+        const kitComponents = itemNode.product.kit_components;
+        for (let kitComponent of kitComponents) {
+          products.push({ sku: kitComponent.sku });
+        }
+      } else {
+        products.push({ sku: itemNode.sku });
+      }
+    }
+
+    return [
+      {
+        orderNumber,
+        products,
+      },
+      null,
+    ];
   }
 }

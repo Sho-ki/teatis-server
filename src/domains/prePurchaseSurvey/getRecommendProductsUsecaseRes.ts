@@ -1,8 +1,8 @@
-export interface GetRecommendProductsUsecaseArgs {
+export class GetRecommendProductsUsecaseArgs {
   typeformId: string;
 }
 
-export interface GetRecommendProductsUsecaseRes {
+export class GetRecommendProductsUsecaseRes {
   recommendProductData: {
     id: number;
     title: string;
@@ -11,10 +11,9 @@ export interface GetRecommendProductsUsecaseRes {
     sku: string;
     provider: string;
   };
-  customerId: number;
 }
 
-interface GetRecommendProductsUsecaseImage {
+class GetRecommendProductsUsecaseImage {
   position: number;
   alt: string | null;
   src: string;

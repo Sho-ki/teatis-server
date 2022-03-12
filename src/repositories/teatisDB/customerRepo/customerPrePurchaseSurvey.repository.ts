@@ -11,9 +11,25 @@ interface UpsertCustomerArgs {
   proteinPerMeal: number;
   fatPerMeal: number;
   caloriePerMeal: number;
+  height: number;
+  weight: number;
+  age: number;
+  gender: string;
+  prePurchaseSurveyAnswer?: PrePurchaseSurveyAnswer;
 }
 
-export interface UpsertCustomerRes {
+interface PrePurchaseSurveyAnswer {
+  diabetes?: string;
+  gender?: string;
+  medicalConditions?: string[];
+  activeLevel?: string;
+  A1c?: string;
+  targetA1c?: string;
+  foodPalate?: number;
+  email?: string;
+}
+
+interface UpsertCustomerRes {
   customerId: number;
 }
 
@@ -28,7 +44,12 @@ export interface CustomerPrePurchaseSurveyRepoInterface {
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
-  }: UpsertCustomerArgs): Promise<UpsertCustomerRes>;
+    height,
+    weight,
+    age,
+    gender,
+    prePurchaseSurveyAnswer,
+  }: UpsertCustomerArgs): Promise<[UpsertCustomerRes, Error]>;
 }
 
 @Injectable()
@@ -47,19 +68,109 @@ export class CustomerPrePurchaseSurveyRepo
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
-  }: UpsertCustomerArgs): Promise<UpsertCustomerRes> {
+    height,
+    weight,
+    age,
+    gender,
+    prePurchaseSurveyAnswer,
+  }: // prePurchaseSurveyAnswer
+  UpsertCustomerArgs): Promise<[UpsertCustomerRes, Error]> {
+    // // let medicalConditionsObj = {
+    // //   highBloodPressure: cu.highBloodPressure,
+    // //   heartDiseases: cu.heartDiseases,
+    // //   highCholesterol: cu.highCholesterol,
+    // //   gastritis: cu.gastritis,
+    // //   irritableBowelSyndrome: cu.irritableBowelSyndrome,
+    // //   chronicKidneyDisease: cu.chronicKidneyDisease,
+    // //   gastroesophagealRefluxDisease: cu.gastroesophagealRefluxDisease,
+    // //   anemia: cu.anemia,
+    // //   hypothyroidism: cu.hypothyroidism,
+    // //   hyperthyroidism: cu.hyperthyroidism,
+    // // };
+
+    // let diabetes: string = prePurchaseSurveyAnswer.diabetes;
+    // if (
+    //   !prePurchaseSurveyAnswer.diabetes ||
+    //   prePurchaseSurveyAnswer.diabetes.includes('not')
+    // ) {
+    //   diabetes = 'unknown';
+    // }
+    // if (prePurchaseSurveyAnswer.diabetes.includes('love')) {
+    //   diabetes = 'For A Loved One';
+    // }
+
+    // let a1c: string = prePurchaseSurveyAnswer.A1c;
+    // if (!a1c || a1c.includes('know')) {
+    //   a1c = 'unknown';
+    // }
+
+    // let targetA1c: string = prePurchaseSurveyAnswer.targetA1c;
+    // if (!targetA1c || targetA1c.includes('know')) {
+    //   targetA1c = 'unknown';
+    // }
+
+    // // let mediKeys = Object.keys(medicalConditionsObj);
+    // // let filteredMediArr = mediKeys.filter((key) => {
+    // //   return medicalConditionsObj[key] !== '';
+    // // });
+    // let mediQuery = [
+    //   {
+    //     medicalConditionValue: a1c,
+    //     customerMedicalCondition: {
+    //       connectOrCreate: {
+    //         where: { name: 'A1c' },
+    //         create: { name: 'A1c', label: 'A1c' },
+    //       },
+    //     },
+    //   },
+    //   {
+    //     medicalConditionValue: targetA1c,
+    //     customerMedicalCondition: {
+    //       connectOrCreate: {
+    //         where: { name: 'targetA1c' },
+    //         create: { name: 'targetA1c', label: 'targetA1c' },
+    //       },
+    //     },
+    //   },
+    //   {
+    //     medicalConditionValue: diabetes,
+    //     customerMedicalCondition: {
+    //       connectOrCreate: {
+    //         where: { name: 'diabetes' },
+    //         create: { name: 'diabetes', label: 'Diabetes' },
+    //       },
+    //     },
+    //   },
+    // ];
+    // for (let medi of prePurchaseSurveyAnswer.medicalConditions) {
+    //   mediQuery.push({
+    //     medicalConditionValue: 'yes',
+    //     customerMedicalCondition: {
+    //       connectOrCreate: {
+    //         where: { name: medi },
+    //         create: { name: medi, label: medicalConditionsObj[medi] },
+    //       },
+    //     },
+    //   });
+    // }
+
     const customer = await this.prisma.customers.upsert({
       where: { email },
       create: {
         email,
+        age,
+        gender,
+        heightCm: height,
+        weightKg: weight,
+        activeLevel: prePurchaseSurveyAnswer.activeLevel,
         intermediateCustomerNutritionNeeds: {
           create: [
             {
               nutritionValue: BMR,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'BMR' },
-                  create: { label: 'BMR', description: 'BMR' },
+                  where: { name: 'BMR' },
+                  create: { label: 'BMR', name: 'BMR' },
                 },
               },
             },
@@ -67,10 +178,10 @@ export class CustomerPrePurchaseSurveyRepo
               nutritionValue: carbsMacronutrients,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'carbs_macronutrients' },
+                  where: { name: 'carbsMacronutrients' },
                   create: {
-                    label: 'carbs_macronutrients',
-                    description: 'carbs_macronutrients',
+                    label: 'Carbs Macronutrients',
+                    name: 'carbsMacronutrients',
                   },
                 },
               },
@@ -79,10 +190,10 @@ export class CustomerPrePurchaseSurveyRepo
               nutritionValue: proteinMacronutrients,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'protein_macronutrients' },
+                  where: { name: 'proteinMacronutrients' },
                   create: {
-                    label: 'protein_macronutrients',
-                    description: 'protein_macronutrients',
+                    label: 'Protein Macronutrients',
+                    name: 'proteinMacronutrients',
                   },
                 },
               },
@@ -91,10 +202,10 @@ export class CustomerPrePurchaseSurveyRepo
               nutritionValue: fatMacronutrients,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'fat_macronutrients' },
+                  where: { name: 'fatMacronutrients' },
                   create: {
-                    label: 'fat_macronutrients',
-                    description: 'fat_macronutrients',
+                    label: 'Fat Macronutrients',
+                    name: 'fatMacronutrients',
                   },
                 },
               },
@@ -103,10 +214,10 @@ export class CustomerPrePurchaseSurveyRepo
               nutritionValue: carbsPerMeal,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'carbs_per_meal' },
+                  where: { name: 'carbsPerMeal' },
                   create: {
-                    label: 'carbs_per_meal',
-                    description: 'carbs_per_meal',
+                    name: 'carbsPerMeal',
+                    label: 'Carbs Per Meal',
                   },
                 },
               },
@@ -115,10 +226,10 @@ export class CustomerPrePurchaseSurveyRepo
               nutritionValue: proteinPerMeal,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'protein_per_meal' },
+                  where: { name: 'proteinPerMeal' },
                   create: {
-                    label: 'protein_per_meal',
-                    description: 'protein_per_meal',
+                    name: 'proteinPerMeal',
+                    label: 'Protein Per Meal',
                   },
                 },
               },
@@ -127,10 +238,10 @@ export class CustomerPrePurchaseSurveyRepo
               nutritionValue: fatPerMeal,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'fat_per_meal' },
+                  where: { name: 'fatPerMeal' },
                   create: {
-                    label: 'fat_per_meal',
-                    description: 'fat_per_meal',
+                    name: 'fatPerMeal',
+                    label: 'Fat Per Meal',
                   },
                 },
               },
@@ -139,10 +250,10 @@ export class CustomerPrePurchaseSurveyRepo
               nutritionValue: caloriePerMeal,
               customerNutritionNeed: {
                 connectOrCreate: {
-                  where: { label: 'calorie_per_meal' },
+                  where: { name: 'caloriePerMeal' },
                   create: {
-                    label: 'calorie_per_meal',
-                    description: 'calorie_per_meal',
+                    name: 'caloriePerMeal',
+                    label: 'Calorie Per Meal',
                   },
                 },
               },
@@ -153,6 +264,6 @@ export class CustomerPrePurchaseSurveyRepo
       update: {},
     });
 
-    return { customerId: customer.id };
+    return [{ customerId: customer.id }, null];
   }
 }
