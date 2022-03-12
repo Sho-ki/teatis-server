@@ -39,14 +39,14 @@ model Customers{
   intermediateCustomerAllergens IntermediateCustomerAllergen[]
   surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
   surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
-  customerProductDistance CustomerProductDistance[]
+  customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
   queuedShopifyOrder QueuedShopifyOrder[]
-  intermediateCustomerFlavorDislike IntermediateCustomerFlavorDislike[]
-  intermediateCustomerCategoryPreference IntermediateCustomerCategoryPreference[]
-  intermediateCustomerIngredientDislike IntermediateCustomerIngredientDislike[]
-  intermediateCustomerFoodType IntermediateCustomerFoodType[]
-  intermediateCustomerUnavailableCookingMethod IntermediateCustomerUnavailableCookingMethod[]
+  intermediateCustomerFlavorDislikes IntermediateCustomerFlavorDislike[]
+  intermediateCustomerCategoryPreferences IntermediateCustomerCategoryPreference[]
+  intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
+  intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
+  intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -111,8 +111,8 @@ model ProductFoodType{
   id            Int       @default(autoincrement()) @id
   label         String 
   name String @unique
-  intermediateCustomerFoodType IntermediateCustomerFoodType[]
-  intermediateProductFoodType IntermediateProductFoodType[]
+  intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
+  intermediateProductFoodTypes IntermediateProductFoodType[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -141,17 +141,17 @@ model Product{
   productFlavorId Int?
   productVendor ProductVendor? @relation(fields: [productVendorId], references: [id])
   productVendorId Int?
-  intermediateProductFoodType IntermediateProductFoodType[]
+  intermediateProductFoodTypes IntermediateProductFoodType[]
   intermediateProductIngredients IntermediateProductIngredient[]	
   intermediateProductAllergens IntermediateProductAllergen[]
-  intermediateProductCookingMethod IntermediateProductCookingMethod[]
+  intermediateProductCookingMethods IntermediateProductCookingMethod[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
   MSP Float?
   WSP Float?
   surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
-  customerProductDistance CustomerProductDistance[]
+  customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
   productImages ProductImage[]
   createdAt DateTime @default(now())
@@ -195,8 +195,8 @@ model ProductCookingMethod{
   id       Int         @default(autoincrement()) @id
   label String 
   name String @unique
-  intermediateProductCookingMethod IntermediateProductCookingMethod[]
-  intermediateCustomerUnavailableCookingMethod IntermediateCustomerUnavailableCookingMethod[]
+  intermediateProductCookingMethods IntermediateProductCookingMethod[]
+  intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -207,7 +207,7 @@ model ProductFlavor{
   label String 
   name String @unique
   products   Product[]
-  intermediateCustomerFlavorDislike IntermediateCustomerFlavorDislike[]
+  intermediateCustomerFlavorDislikes IntermediateCustomerFlavorDislike[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -240,7 +240,7 @@ model ProductCategory{
   name  String @unique
   src String?
   products   Product[]
-  intermediateCustomerCategoryPreference IntermediateCustomerCategoryPreference[]
+  intermediateCustomerCategoryPreferences IntermediateCustomerCategoryPreference[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -275,7 +275,7 @@ model ProductIngredient{
   label String 
   name String @unique
   intermediateProductIngredients IntermediateProductIngredient[]
-  intermediateCustomerIngredientDislike IntermediateCustomerIngredientDislike[]
+  intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -363,7 +363,7 @@ model Survey{
   id                              Int       @default(autoincrement()) @id
   name String @unique
   label String
-  intermediateSurveyQuestion IntermediateSurveyQuestion[]
+  intermediateSurveyQuestions IntermediateSurveyQuestion[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -391,7 +391,7 @@ model SurveyQuestion{
   placeholder String?
   surveyQuestionAnswerType SurveyQuestionAnswerType @relation(fields: [surveyQuestionAnswerTypeId], references: [id])
   surveyQuestionAnswerTypeId Int
-  intermediateSurveyQuestion IntermediateSurveyQuestion[]
+  intermediateSurveyQuestions IntermediateSurveyQuestion[]
   surveyQuestionOptions SurveyQuestionOption[]
   surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
   surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]

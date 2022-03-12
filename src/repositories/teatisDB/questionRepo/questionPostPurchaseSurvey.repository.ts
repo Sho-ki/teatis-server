@@ -46,7 +46,7 @@ export class QuestionPostPurchaseSurveyRepo
         id: true,
         name: true,
         label: true,
-        intermediateSurveyQuestion: {
+        intermediateSurveyQuestions: {
           select: {
             order: true,
             surveyQuestion: {
@@ -75,7 +75,7 @@ export class QuestionPostPurchaseSurveyRepo
       },
     });
     let surveyQuestions: GetSurveyQuestionsResSurveyQuestion[] = [];
-    for (let question of getSurveQuestionsRes.intermediateSurveyQuestion) {
+    for (let question of getSurveQuestionsRes.intermediateSurveyQuestions) {
       let surveyQuestion: GetSurveyQuestionsResSurveyQuestion = {
         id: question.surveyQuestion.id,
         name: question.surveyQuestion.name,

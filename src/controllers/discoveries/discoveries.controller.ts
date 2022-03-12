@@ -27,9 +27,14 @@ import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
   getPrePurchaseOptionsUsecase,
   getPrePurchaseOptionsUsecaseInterface,
-  getPrePurchaseOptionsUsecaseRes,
+  GetPrePurchaseOptionsUsecaseRes,
 } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
+import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
+import {
+  PostPrePurchaseSurveyUsecaseInterface,
+  PostPrePurchaseSurveyUsecaseRes,
+} from '../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 
 // /discovery
 @Controller('api/discovery')
@@ -45,10 +50,12 @@ export class DiscoveriesController {
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
     @Inject('getPrePurchaseOptionsUsecaseInterface')
-    private getPrePurchaseOptionsUsecase: getPrePurchaseOptionsUsecaseInterface, // private teatisJob: TeatisJobs,
+    private getPrePurchaseOptionsUsecase: getPrePurchaseOptionsUsecaseInterface,
+    @Inject('PostPrePurchaseSurveyUsecaseInterface')
+    private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface, // private teatisJob: TeatisJobs,
   ) {}
 
-  // /discovery
+  // GET: /discovery
   @Get()
   async createDiscovery(
     @Query() body: CreateDiscoveryInfoDto,
@@ -64,11 +71,26 @@ export class DiscoveriesController {
     return { recommendProductData };
   }
 
-  // /discovery/all-options
+  // POST: /discovery/pre-purchase-survey
+  @Post('pre-purchase-survey')
+  async postPrePurchaseSurvey(
+    @Body() body: PostPrePurchaseSurveyDto,
+    @Res() response: Response,
+  ): Promise<Response<PostPrePurchaseSurveyUsecaseRes | Error>> {
+    const [res, error] =
+      await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
+
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
+  }
+
+  // GET: /discovery/all-options
   @Get('pre-purchase-options')
   async getPrePurchaseOptions(
     @Res() response: Response,
-  ): Promise<Response<getPrePurchaseOptionsUsecaseRes | Error>> {
+  ): Promise<Response<GetPrePurchaseOptionsUsecaseRes | Error>> {
     const [res, error] =
       await this.getPrePurchaseOptionsUsecase.getPrePurchaseOptions();
 

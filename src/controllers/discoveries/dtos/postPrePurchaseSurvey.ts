@@ -17,7 +17,7 @@ export class PostPrePurchaseSurveyDto {
   age: number;
 
   @IsArray()
-  medicalConditions: string[];
+  medicalConditions: { name: string; label: string }[];
 
   @IsString()
   activeLevel: string;
@@ -32,20 +32,20 @@ export class PostPrePurchaseSurveyDto {
   mealsPerDay: number;
 
   @IsArray()
-  categoryPreferences: string[];
+  categoryPreferences: { name: string; label: string }[];
 
   @IsArray()
-  flavorDislikes: string[];
+  flavorDislikes: { name: string; label: string }[];
 
   @IsArray()
-  ingredientDislikes: string[];
+  ingredientDislikes: { name: string; label: string }[];
 
   @IsArray()
-  allergens: string[];
+  allergens: { name: string; label: string }[];
 
   @IsString()
   email: string;
 
   @IsArray()
-  unavailableCookingMethods: string[];
+  unavailableCookingMethods: { name: string; label: string }[];
 }

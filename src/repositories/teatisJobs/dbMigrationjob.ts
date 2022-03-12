@@ -401,7 +401,7 @@ export class TeatisJobs implements TeatisJobsInterface {
           intermediateCustomerMedicalConditions: {
             create: mediQuery,
           },
-          intermediateCustomerCategoryPreference: {
+          intermediateCustomerCategoryPreferences: {
             create: cateQuery,
           },
           intermediateCustomerNutritionNeeds: {
