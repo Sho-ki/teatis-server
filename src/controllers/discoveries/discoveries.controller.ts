@@ -32,7 +32,7 @@ import {
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 
 // /discovery
-@Controller('discovery')
+@Controller('api/discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
