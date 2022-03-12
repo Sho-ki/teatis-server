@@ -5,11 +5,11 @@ interface UpsertProductsArgs {
   skus: string[];
 }
 
-export interface UpsertProductsRes {
-  data: UpsertProductsResElement[];
+interface UpsertProductsRes {
+  data: UpsertProductsResData[];
 }
 
-interface UpsertProductsResElement {
+interface UpsertProductsResData {
   id: number;
   externalSku: string;
 }
@@ -106,7 +106,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
       values.push(`('${sku}', ${shipheroProviderId.id})`);
     }
 
-    let data: UpsertProductsResElement[] = await this.prisma.$queryRawUnsafe(`
+    let data: UpsertProductsResData[] = await this.prisma.$queryRawUnsafe(`
     WITH
     -- write the new values
     "newProduct"("externalSku","productProviderId") AS (
@@ -180,7 +180,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         null,
         {
           name: 'Internal Server Error',
-          message: `getOptions(${target})  failed`,
+          message: `Server Side Error: getOptions(${target}) failed`,
         },
       ];
     }

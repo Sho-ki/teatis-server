@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../../prisma.service';
 
@@ -12,12 +11,7 @@ interface DeleteCustomerBoxRes {
 
 interface UpdateCustomerBoxArgs {
   customerId: number;
-  dbProducts: UpdateCustomerBoxArgsElement[];
-}
-
-interface UpdateCustomerBoxArgsElement {
-  id: number;
-  externalSku: string;
+  dbProducts: { id: number; externalSku: string }[];
 }
 
 interface UpdateCustomerBoxRes {
@@ -48,14 +42,16 @@ export class CustomerUpdateCustomerBoxRepo
       where: { customerId },
     });
 
-    if (res?.count >= 0) {
-      return [{ deletedCount: res.count }, null];
-    } else {
+    if (!res) {
       return [
         null,
-        { name: 'Internal Server Error', message: 'deleteCustomerBox failed' },
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: deleteCustomerBox failed',
+        },
       ];
     }
+    return [{ deletedCount: res.count }, null];
   }
 
   async postCustomerBox({
@@ -72,7 +68,10 @@ export class CustomerUpdateCustomerBoxRepo
     } else {
       return [
         null,
-        { name: 'Internal Server Error', message: 'postCustomerBox failed' },
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: postCustomerBox failed',
+        },
       ];
     }
   }

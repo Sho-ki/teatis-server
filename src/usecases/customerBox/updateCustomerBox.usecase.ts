@@ -2,11 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
-import {
-  CustomerPostPurchaseSurveyRepoInterface,
-  GetCustomerProductFeedbackAnswersRes as TeatisDBGetCustomerProductFeedbackAnswersRes,
-  GetCustomerRes as TeatisDBGetCustomerRes,
-} from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { CustomerPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
 import { PostPurchaseSurvey } from 'src/domains/PostPurchaseSurvey';
 import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerUpdateCustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerUpdateCustomerBox.repository';

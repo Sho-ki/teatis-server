@@ -3,10 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostPostPurchaseSurveyDto } from 'src/controllers/discoveries/dtos/postPostPurchaseSurvey';
 import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
 import { QuestionPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
-import {
-  CustomerPostPurchaseSurveyRepoInterface,
-  GetAnswerCountRes as TeatisDBGetAnswerCount,
-} from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { CustomerPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
 
 export interface PostPostPurchaseSurveyUsecaseInterface {
   postPostPurchaseSurvey({
@@ -15,11 +12,8 @@ export interface PostPostPurchaseSurveyUsecaseInterface {
     shopifyOrderNumber,
     productId,
     questionCategory,
-    answerBool,
-    answerNumeric,
-    answerOptions,
-    answerSingleOptionId,
-    answerText,
+    surveyQuestionAnswerType,
+    answer,
     title,
     content,
     reason,
@@ -49,27 +43,24 @@ export class PostPostPurchaseSurveyUsecase
     shopifyOrderNumber,
     productId,
     questionCategory,
-    answerBool,
-    answerNumeric,
-    answerOptions,
-    answerSingleOptionId,
-    answerText,
+    surveyQuestionAnswerType,
+    answer,
     title,
     content,
     reason,
   }: PostPostPurchaseSurveyDto): Promise<[PostPostPurchaseSurveyRes, Error]> {
-    let { currentMaxAnswerCount }: TeatisDBGetAnswerCount =
+    let [answerCount, answerCountError] =
       await this.customerpostPurchaseSurveyRepo.getAnswerCount({ customerId });
-    if (!currentMaxAnswerCount) {
-      currentMaxAnswerCount = 1;
+    if (!answerCount.currentMaxAnswerCount) {
+      answerCount.currentMaxAnswerCount = 1;
     } else {
       let isNewSurveyAnswer =
         await this.customerpostPurchaseSurveyRepo.checkIsNewSurveyAnswer(
           shopifyOrderNumber,
-          currentMaxAnswerCount,
+          answerCount.currentMaxAnswerCount,
         );
       if (isNewSurveyAnswer) {
-        currentMaxAnswerCount += 1;
+        answerCount.currentMaxAnswerCount += 1;
       }
     }
 
@@ -81,15 +72,11 @@ export class PostPostPurchaseSurveyUsecase
             customerId,
             shopifyOrderNumber,
             productId,
-            answerBool,
-            answerNumeric,
-            answerOptions,
-            answerSingleOptionId,
-            answerText,
+            answer,
             title,
             content,
             reason,
-            currentMaxAnswerCount,
+            currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
           },
         );
       return [{ id: postProductFeedback.id }, null];

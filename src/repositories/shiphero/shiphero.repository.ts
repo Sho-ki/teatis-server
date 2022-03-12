@@ -17,25 +17,12 @@ interface GetLastOrderArgs {
   email: string;
 }
 
-export interface GetLastOrderRes {
-  products: GetLastOrderResElement[];
+interface GetLastOrderRes {
+  products: GetLastOrderResProduct[];
   orderNumber: string;
 }
 
-interface GetLastOrderResElement {
-  sku: string;
-}
-
-export interface GetVendorsRes {
-  vendors: Vendor[];
-}
-
-interface Vendor {
-  id: string;
-  name: string;
-}
-
-interface GetProductDetailArgs {
+interface GetLastOrderResProduct {
   sku: string;
 }
 
@@ -43,27 +30,9 @@ interface GetOrderByOrderNumberArgs {
   orderNumber: string;
 }
 
-export interface GetOrderByOrderNumberRes {
-  products: GetLastOrderResElement[];
+interface GetOrderByOrderNumberRes {
+  products: GetLastOrderResProduct[];
   orderNumber: string;
-}
-
-export interface GetProductDetailRes {
-  id: string;
-  name: string;
-  sku: string;
-  images: GetProductDetailImage[];
-  vendors: GetProductDetailVendor[];
-}
-
-interface GetProductDetailImage {
-  src: string;
-  position: number;
-}
-
-interface GetProductDetailVendor {
-  id: string;
-  sku: string;
 }
 
 const client = new GraphQLClient('https://public-api.shiphero.com/graphql', {
@@ -74,21 +43,11 @@ const client = new GraphQLClient('https://public-api.shiphero.com/graphql', {
 const sdk = getSdk(client);
 
 export interface ShipheroRepoInterface {
-  getLastOrder({
-    email,
-  }: GetLastOrderArgs): Promise<[GetLastOrderRes | null, Error | null]>;
-
-  getProductDetail({
-    sku,
-  }: GetProductDetailArgs): Promise<[GetProductDetailRes | null, Error | null]>;
-
-  getVendors(): Promise<[GetVendorsRes | null, Error | null]>;
+  getLastOrder({ email }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]>;
 
   getOrderByOrderNumber({
     orderNumber,
-  }: GetOrderByOrderNumberArgs): Promise<
-    [GetOrderByOrderNumberRes | null, Error | null]
-  >;
+  }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes, Error]>;
 }
 
 @Injectable()
@@ -113,19 +72,19 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         },
       ];
     }
-    let products: GetLastOrderResElement[] = [];
+    let products: GetLastOrderResProduct[] = [];
     for (let item of items) {
-      const itemNode = item?.node;
-      if (itemNode) {
-        if (itemNode.product.kit) {
-          const kitComponents = itemNode.product.kit_components;
-          for (let kitComponent of kitComponents) {
-            products.push({ sku: kitComponent.sku });
-          }
+      if (!item) {
+        continue;
+      }
+      const itemNode = item.node;
+      if (itemNode.product.kit) {
+        const kitComponents = itemNode.product.kit_components;
+        for (let kitComponent of kitComponents) {
+          products.push({ sku: kitComponent.sku });
         }
-        if (itemNode.sku && itemNode.product_name) {
-          products.push({ sku: itemNode.sku });
-        }
+      } else {
+        products.push({ sku: itemNode.sku });
       }
     }
     return [
@@ -136,36 +95,9 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       null,
     ];
   }
-
-  async getVendors(): Promise<[GetVendorsRes | null, Error | null]> {
-    let res = await sdk.getVendors();
-    const vendors = res?.vendors?.data?.edges;
-    if (!vendors) {
-      return [
-        null,
-        { name: 'Internal Server Error|null', message: 'getVendors failed' },
-      ];
-    }
-    let vendorSet: Vendor[] = [];
-    for (let vendor of vendors) {
-      const id = vendor?.node?.id;
-      const name = vendor?.node?.name;
-      if (id && name) {
-        vendorSet.push({ id, name });
-      }
-    }
-
-    return [
-      {
-        vendors: vendorSet,
-      },
-      null,
-    ];
-  }
-
   async getLastOrder({
     email,
-  }: GetLastOrderArgs): Promise<[GetLastOrderRes | null, Error | null]> {
+  }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]> {
     let res: GetLastOrderByEmailQuery = await sdk.getLastOrderByEmail({
       email,
     });
@@ -181,19 +113,19 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       ];
     }
 
-    let products: GetLastOrderResElement[] = [];
+    let products: GetLastOrderResProduct[] = [];
     for (let item of items) {
-      const itemNode = item?.node;
-      if (itemNode) {
-        if (itemNode.product.kit) {
-          const kitComponents = itemNode.product.kit_components;
-          for (let kitComponent of kitComponents) {
-            products.push({ sku: kitComponent.sku });
-          }
+      if (!item) {
+        continue;
+      }
+      const itemNode = item.node;
+      if (itemNode.product.kit) {
+        const kitComponents = itemNode.product.kit_components;
+        for (let kitComponent of kitComponents) {
+          products.push({ sku: kitComponent.sku });
         }
-        if (itemNode.sku && itemNode.product_name) {
-          products.push({ sku: itemNode.sku });
-        }
+      } else {
+        products.push({ sku: itemNode.sku });
       }
     }
 
@@ -201,64 +133,6 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       {
         orderNumber,
         products,
-      },
-      null,
-    ];
-  }
-
-  async getProductDetail({
-    sku,
-  }: GetProductDetailArgs): Promise<
-    [GetProductDetailRes | null, Error | null]
-  > {
-    const res: GetProductDetailQuery = await sdk.getProductDetail({
-      sku,
-    });
-    if (!res || !res.product || !res.product.data) {
-      return [
-        null,
-        { name: 'Internal Server Error', message: 'getProductDetail failed' },
-      ];
-    }
-    const { name, id, sku: productSku, images, vendors } = res.product.data;
-
-    if (!id || !name || !productSku || !vendors) {
-      return [
-        null,
-        {
-          name: 'Internal Server Error|null',
-          message: 'getProductDetail failed',
-        },
-      ];
-    }
-
-    let imageSet: GetProductDetailImage[] = [];
-    if (images) {
-      for (let image of images) {
-        const src = image?.src,
-          position = image?.position;
-        if (src && position) {
-          imageSet.push({ src, position });
-        }
-      }
-    }
-
-    let vendorSet: GetProductDetailVendor[] = [];
-    for (let vendor of vendors) {
-      const id = vendor?.vendor_id,
-        sku = vendor?.vendor_sku;
-      if (id && sku) {
-        vendorSet.push({ id, sku });
-      }
-    }
-
-    return [
-      {
-        id,
-        name,
-        sku: productSku,
-        images: imageSet,
-        vendors: vendorSet,
       },
       null,
     ];

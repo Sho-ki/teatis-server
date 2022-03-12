@@ -25,10 +25,10 @@ import { UpdateCustomerBoxTaskDto } from './dtos/updateCustomerBoxTask';
 import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
-  GetAllOptionsUsecase,
-  GetAllOptionsUsecaseInterface,
-  GetAllOptionsUsecaseRes,
-} from '@Usecases/prePurchaseSurvey/getAllOptions.usecase';
+  getPrePurchaseOptionsUsecase,
+  getPrePurchaseOptionsUsecaseInterface,
+  getPrePurchaseOptionsUsecaseRes,
+} from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 
 // /discovery
@@ -44,8 +44,8 @@ export class DiscoveriesController {
     private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecaseInterface,
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
-    @Inject('GetAllOptionsUsecaseInterface')
-    private getAllOptionsUsecase: GetAllOptionsUsecaseInterface, // private teatisJob: TeatisJobs,
+    @Inject('getPrePurchaseOptionsUsecaseInterface')
+    private getPrePurchaseOptionsUsecase: getPrePurchaseOptionsUsecaseInterface, // private teatisJob: TeatisJobs,
   ) {}
 
   // /discovery
@@ -66,10 +66,11 @@ export class DiscoveriesController {
 
   // /discovery/all-options
   @Get('pre-purchase-options')
-  async getAllOptions(
+  async getPrePurchaseOptions(
     @Res() response: Response,
-  ): Promise<Response<[GetAllOptionsUsecaseRes | Error]>> {
-    const [res, error] = await this.getAllOptionsUsecase.getAllOptions();
+  ): Promise<Response<getPrePurchaseOptionsUsecaseRes | Error>> {
+    const [res, error] =
+      await this.getPrePurchaseOptionsUsecase.getPrePurchaseOptions();
 
     if (error) {
       return response.status(500).send(error);

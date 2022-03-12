@@ -29,7 +29,7 @@ interface PrePurchaseSurveyAnswer {
   email?: string;
 }
 
-export interface UpsertCustomerRes {
+interface UpsertCustomerRes {
   customerId: number;
 }
 

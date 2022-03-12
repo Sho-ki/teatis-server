@@ -1,27 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Discoveries, Customers, prisma } from '@prisma/client';
 import { PrismaService } from '../../../prisma.service';
-
-// interface GetSurveyIdArgs {
-//   surveyName: string;
-// }
-
-// export interface GetSurveyIdRes {
-//   surveyId: number;
-// }
 
 interface GetSurveyQuestionsArgs {
   surveyName: string;
 }
 
-export interface GetSurveyQuestionsRes {
+interface GetSurveyQuestionsRes {
   id: number;
   name: string;
   labal: string;
-  surveyQuestions: GetSurveyQuestionsResElement[];
+  surveyQuestions: GetSurveyQuestionsResSurveyQuestion[];
 }
 
-interface GetSurveyQuestionsResElement {
+interface GetSurveyQuestionsResSurveyQuestion {
   id: number;
   name: string;
   label: string;
@@ -83,9 +74,9 @@ export class QuestionPostPurchaseSurveyRepo
         },
       },
     });
-    let surveyQuestions: GetSurveyQuestionsResElement[] = [];
+    let surveyQuestions: GetSurveyQuestionsResSurveyQuestion[] = [];
     for (let question of getSurveQuestionsRes.intermediateSurveyQuestion) {
-      let surveyQuestion: GetSurveyQuestionsResElement = {
+      let surveyQuestion: GetSurveyQuestionsResSurveyQuestion = {
         id: question.surveyQuestion.id,
         name: question.surveyQuestion.name,
         label: question.surveyQuestion.label,
@@ -117,52 +108,4 @@ export class QuestionPostPurchaseSurveyRepo
       null,
     ];
   }
-
-  // async getSurveyQuestions({
-  //   surveyId,
-  // }: GetSurveyQuestionsArgs): Promise<GetSurveyQuestionsRes[]> {
-  //   let surveQuestions = await this.prisma.surveyQuestion.findMany({
-  //     where: {
-  //       intermediateSurveyQuestion: { every: { surveyId } },
-  //     },
-  //     select: {
-  //       id: true,
-  //       name: true,
-  //       label: true,
-  //       questionCategoryId: true,
-  //       questionCategory: {
-  //         select: { label: true, name: true },
-  //       },
-  //       mustBeAnswered: true,
-  //       instruction: true,
-  //       placeholder: true,
-  //       surveyQuestionAnswerTypeId: true,
-  //       surveyQuestionAnswerType: { select: { name: true, label: true } },
-  //       surveyQuestionOptions: {
-  //         select: { label: true, id: true, name: true },
-  //       },
-  //     },
-  //   });
-  //   return surveQuestions.map((question) => {
-  //     return {
-  //       id: question.id,
-  //       name: question.name,
-  //       label: question.label,
-  //       questionCategory: {
-  //         id: question.questionCategoryId,
-  //         name: question.questionCategory.name,
-  //         label: question.questionCategory.label,
-  //       },
-  //       mustBeAnswered: question.mustBeAnswered,
-  //       instruction: question.instruction,
-  //       placeholder: question.placeholder,
-  //       surveyQuestionAnswerType: {
-  //         id: question.surveyQuestionAnswerTypeId,
-  //         name: question.surveyQuestionAnswerType.name,
-  //         label: question.surveyQuestionAnswerType.label,
-  //       },
-  //       surveyQuestionOptions: question.surveyQuestionOptions,
-  //     };
-  //   });
-  // }
 }

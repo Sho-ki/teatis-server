@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
 
-export interface GetAllOptionsUsecaseRes {
+export interface getPrePurchaseOptionsUsecaseRes {
   cookingMethod: Options[];
   allergen: Options[];
   ingredient: Options[];
@@ -18,18 +18,22 @@ interface Options {
   src?: string;
 }
 
-export interface GetAllOptionsUsecaseInterface {
-  getAllOptions(): Promise<[GetAllOptionsUsecaseRes, Error]>;
+export interface getPrePurchaseOptionsUsecaseInterface {
+  getPrePurchaseOptions(): Promise<[getPrePurchaseOptionsUsecaseRes, Error]>;
 }
 
 @Injectable()
-export class GetAllOptionsUsecase implements GetAllOptionsUsecaseInterface {
+export class getPrePurchaseOptionsUsecase
+  implements getPrePurchaseOptionsUsecaseInterface
+{
   constructor(
     @Inject('ProductGeneralRepoInterface')
     private readonly productGeneralRepo: ProductGeneralRepoInterface,
   ) {}
 
-  async getAllOptions(): Promise<[GetAllOptionsUsecaseRes, Error]> {
+  async getPrePurchaseOptions(): Promise<
+    [getPrePurchaseOptionsUsecaseRes, Error]
+  > {
     const [cookingMethods, getCookMethodsError] =
       await this.productGeneralRepo.getOptions({ target: 'cookingMethod' });
     if (getCookMethodsError) {

@@ -1,4 +1,4 @@
-export interface PostPurchaseSurvey {
+export class PostPurchaseSurvey {
   id: number;
   name: string;
   label: string;
@@ -31,7 +31,7 @@ export interface PostPurchaseSurvey {
   };
 }
 
-interface QuestionOption {
+class QuestionOption {
   id: number;
   name: string;
   label: string;

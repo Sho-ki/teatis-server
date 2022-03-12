@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../../prisma.service';
 
@@ -27,13 +26,15 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
       where: { email },
       select: { id: true, email: true },
     });
-    if (customer) {
-      return [{ id: customer.id, email: customer.email }, null];
-    } else {
+    if (!customer) {
       return [
         null,
-        { name: 'Internal Server Error', message: 'getCustomer failed' },
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getCustomer failed',
+        },
       ];
     }
+    return [{ id: customer.id, email: customer.email }, null];
   }
 }

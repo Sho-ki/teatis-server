@@ -15,7 +15,7 @@ import { UpdateCustomerBoxUsecase } from '@Usecases/customerBox/updateCustomerBo
 import { CustomerGeneralRepo } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerUpdateCustomerBoxRepo } from 'src/repositories/teatisDB/customerRepo/customerUpdateCustomerBox.repository';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
-import { GetAllOptionsUsecase } from '@Usecases/prePurchaseSurvey/getAllOptions.usecase';
+import { getPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
@@ -61,8 +61,8 @@ import { GetAllOptionsUsecase } from '@Usecases/prePurchaseSurvey/getAllOptions.
       useClass: GetRecommendProductsUsecase,
     },
     {
-      provide: 'GetAllOptionsUsecaseInterface',
-      useClass: GetAllOptionsUsecase,
+      provide: 'getPrePurchaseOptionsUsecaseInterface',
+      useClass: getPrePurchaseOptionsUsecase,
     },
     {
       provide: ' GetRecommendProductsUsecaseInterface',
