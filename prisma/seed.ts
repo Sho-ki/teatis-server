@@ -63,7 +63,7 @@ async function main() {
         answerType: 'text',
         answerTypeLabel: 'text',
         instruction: 'List as many as you can, separated by commas.',
-        order: 1,
+        order: 2,
       },
     },
     {
@@ -77,7 +77,7 @@ async function main() {
         categoryLabel: 'Product Feedback',
         answerType: 'numeric',
         answerTypeLabel: 'numeric',
-        order: 2,
+        order: 1,
       },
     },
   ];
@@ -222,8 +222,8 @@ async function main() {
   for (let category of categoryData.categories) {
     await prisma.productCategory.upsert({
       where: { name: category.name },
-      create: { name: category.name, label: category.label },
-      update: { name: category.name, label: category.label },
+      create: { name: category.name, label: category.label, src: category.src },
+      update: { name: category.name, label: category.label, src: category.src },
     });
   }
 

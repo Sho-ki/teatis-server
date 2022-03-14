@@ -132,6 +132,8 @@ model Product{
   id                  Int             @default(autoincrement()) @id
   name String?
   label String?
+  ingredientLabel String?
+  allergenLabel String?
   expertComment String?
   productProvider     ProductProvider @relation(fields: [productProviderId], references: [id])
   productProviderId  Int

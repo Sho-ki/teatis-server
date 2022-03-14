@@ -29,8 +29,16 @@
       "label": "Blueberries"
     },
     {
-      "name": "boneBroth",
-      "label": "Bone Broth"
+      "name": "chickenBroth",
+      "label": "Chicken Broth"
+    },
+    {
+      "name": "beefBroth",
+      "label": "Beef Broth"
+    },
+    {
+      "name": "porkBroth",
+      "label": "Pork Broth"
     },
     {
       "name": "brusselsSprouts",
@@ -41,8 +49,8 @@
       "label": "Butter"
     },
     {
-      "name": "cabbage",
-      "label": "Cabbage"
+      "name": "cabbages",
+      "label": "Cabbages"
     },
     {
       "name": "caneBerries",
@@ -57,8 +65,8 @@
       "label": "Cauliflower"
     },
     {
-      "name": "celery",
-      "label": "Celery"
+      "name": "celeries",
+      "label": "Celeries"
     },
     {
       "name": "cheese",
@@ -77,16 +85,16 @@
       "label": "Coconut Milk"
     },
     {
-      "name": "corn",
-      "label": "Corn"
+      "name": "corns",
+      "label": "Corns"
     },
     {
       "name": "cranberries",
       "label": "Cranberries"
     },
     {
-      "name": "cucumber",
-      "label": "Cucumber"
+      "name": "cucumbers",
+      "label": "Cucumbers"
     },
     {
       "name": "dates",
@@ -125,12 +133,12 @@
       "label": "Hot Peppers"
     },
     {
-      "name": "kale",
-      "label": "Kale"
+      "name": "kales",
+      "label": "Kales"
     },
     {
-      "name": "kiwi",
-      "label": "Kiwi"
+      "name": "kiwis",
+      "label": "Kiwis"
     },
     {
       "name": "leafyGreens",
@@ -193,8 +201,8 @@
       "label": "Peppers"
     },
     {
-      "name": "pineapple",
-      "label": "Pineapple"
+      "name": "pineapples",
+      "label": "Pineapples"
     },
     {
       "name": "pork",
@@ -205,16 +213,16 @@
       "label": "Potatoes"
     },
     {
-      "name": "pumpkin",
-      "label": "Pumpkin"
+      "name": "pumpkins",
+      "label": "Pumpkins"
     },
     {
       "name": "radishes",
       "label": "Radishes"
     },
     {
-      "name": "rhubarb",
-      "label": "Rhubarb"
+      "name": "rhubarbs",
+      "label": "Rhubarbs"
     },
     {
       "name": "rice",
@@ -225,8 +233,8 @@
       "label": "Salmon"
     },
     {
-      "name": "seed",
-      "label": "Seed"
+      "name": "seeds",
+      "label": "Seeds"
     },
     {
       "name": "spinach",
@@ -241,8 +249,8 @@
       "label": "Summer Squash"
     },
     {
-      "name": "sweetPotato",
-      "label": "Sweet Potato"
+      "name": "sweetPotatoes",
+      "label": "Sweet Potatoes"
     },
     {
       "name": "tofu",
@@ -269,8 +277,8 @@
       "label": "Turnips"
     },
     {
-      "name": "watermelon",
-      "label": "Watermelon"
+      "name": "watermelone",
+      "label": "Watermelone"
     },
     {
       "name": "wheat",
