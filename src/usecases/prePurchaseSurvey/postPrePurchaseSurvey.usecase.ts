@@ -70,18 +70,12 @@ export class PostPrePurchaseSurveyUsecase
       },
     );
 
-    // If approximateValue === 30 && highBloodPressure === true
-    //  set productId Moderate carb & Low sodium (6618823753783)
-    // If approximateValue === 30 && highBloodPressure === false
-    //  set productId Moderate carb (6618823458871)
-    // If approximateValue === 15)
-    //  set productId Low carb (6618822967351)
     const productId =
       approximateValue === 30
         ? isHighBloodPressure
-          ? 6618823753783
-          : 6618823458871
-        : 6618822967351;
+          ? 6618823753783 // Moderate carb & Low sodium
+          : 6618823458871 // Moderate carb
+        : 6618822967351; // Low carb
     return productId;
   }
 
