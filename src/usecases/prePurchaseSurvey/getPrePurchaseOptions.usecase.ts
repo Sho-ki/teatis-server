@@ -18,13 +18,13 @@ interface Options {
   src?: string;
 }
 
-export interface getPrePurchaseOptionsUsecaseInterface {
+export interface GetPrePurchaseOptionsUsecaseInterface {
   getPrePurchaseOptions(): Promise<[GetPrePurchaseOptionsUsecaseRes, Error]>;
 }
 
 @Injectable()
-export class getPrePurchaseOptionsUsecase
-  implements getPrePurchaseOptionsUsecaseInterface
+export class GetPrePurchaseOptionsUsecase
+  implements GetPrePurchaseOptionsUsecaseInterface
 {
   constructor(
     @Inject('ProductGeneralRepoInterface')

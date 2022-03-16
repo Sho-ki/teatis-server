@@ -11,7 +11,6 @@ interface UpsertCustomerArgs {
   medicalConditions: { name: string; label: string }[];
   activeLevel: string;
   A1c: string;
-  targetA1c: string;
   mealsPerDay: number;
   categoryPreferences: { name: string; label: string }[];
   flavorDislikes: { name: string; label: string }[];
@@ -43,7 +42,6 @@ export interface CustomerPrePurchaseSurveyRepoInterface {
     medicalConditions,
     activeLevel,
     A1c,
-    targetA1c,
     mealsPerDay,
     categoryPreferences,
     flavorDislikes,
@@ -77,7 +75,6 @@ export class CustomerPrePurchaseSurveyRepo
     medicalConditions,
     activeLevel,
     A1c,
-    targetA1c,
     mealsPerDay,
     categoryPreferences,
     flavorDislikes,
@@ -105,15 +102,6 @@ export class CustomerPrePurchaseSurveyRepo
         },
       },
       {
-        medicalConditionValue: targetA1c,
-        customerMedicalCondition: {
-          connectOrCreate: {
-            where: { name: 'targetA1c' },
-            create: { name: 'targetA1c', label: 'targetA1c' },
-          },
-        },
-      },
-      {
         medicalConditionValue: diabetes,
         customerMedicalCondition: {
           connectOrCreate: {
@@ -123,6 +111,7 @@ export class CustomerPrePurchaseSurveyRepo
         },
       },
     ];
+
     for (let medicalCondition of medicalConditions) {
       medicalConditionsQuery.push({
         medicalConditionValue: 'yes',
@@ -143,7 +132,7 @@ export class CustomerPrePurchaseSurveyRepo
     });
 
     if (checkIfExists) {
-      Promise.all([
+      await Promise.all([
         this.prisma.intermediateCustomerCategoryPreference.deleteMany({
           where: { customerId: checkIfExists.id },
         }),
