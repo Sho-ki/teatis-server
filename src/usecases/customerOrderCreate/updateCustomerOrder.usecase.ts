@@ -7,7 +7,7 @@ import { PostPurchaseSurvey } from 'src/domains/PostPurchaseSurvey';
 import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
 import { CustomerBox } from 'src/domains/CustomerBox';
-import { UpdateCustomerOrderDto } from 'src/controllers/discoveries/dtos/UpdateCustomerOrder';
+import { UpdateCustomerOrderDto } from 'src/controllers/discoveries/dtos/updateCustomerOrder';
 import { OrderQueueRepoInterface } from 'src/repositories/teatisDB/orderRepo/orderQueue.repository';
 import { Product } from 'src/domains/Product';
 

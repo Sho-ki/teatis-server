@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
-import { UpdateCustomerOrderDto } from './dtos/UpdateCustomerOrder';
+import { UpdateCustomerOrderDto } from './dtos/updateCustomerOrder';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
 import { GetPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
@@ -29,7 +29,7 @@ import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
 } from '../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderUsecaseInterface } from '../../usecases/customerOrderCreate/UpdateCustomerOrder.usecase';
+import { UpdateCustomerOrderUsecaseInterface } from '../../usecases/customerOrderCreate/updateCustomerOrder.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 

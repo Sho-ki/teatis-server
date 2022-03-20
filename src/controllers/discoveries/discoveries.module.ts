@@ -16,7 +16,7 @@ import { CustomerBoxRepo } from 'src/repositories/teatisDB/customerRepo/customer
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderUsecase } from '../../usecases/customerOrderCreate/UpdateCustomerOrder.usecase';
+import { UpdateCustomerOrderUsecase } from '../../usecases/customerOrderCreate/updateCustomerOrder.usecase';
 import { DeleteCustomerBoxUsecase } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 import { OrderQueueRepo } from '../../repositories/teatisDB/orderRepo/orderQueue.repository';
 
