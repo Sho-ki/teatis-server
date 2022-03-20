@@ -6,6 +6,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient, gql } from 'graphql-request';
+import { Product } from '../../domains/Product';
 
 import {
   GetLastOrderByEmailQuery,
@@ -18,12 +19,18 @@ interface GetLastOrderArgs {
 }
 
 interface GetLastOrderRes {
-  products: GetLastOrderResProduct[];
+  products: Pick<Product, 'sku'>[];
   orderNumber: string;
 }
 
-interface GetLastOrderResProduct {
-  sku: string;
+interface CreateOrderArgs {
+  orderId: string;
+  products: Pick<Product, 'sku'>[];
+  orderCount: number;
+}
+
+interface CreateOrderRes {
+  status: string;
 }
 
 interface GetOrderByOrderNumberArgs {
@@ -31,8 +38,16 @@ interface GetOrderByOrderNumberArgs {
 }
 
 interface GetOrderByOrderNumberRes {
-  products: GetLastOrderResProduct[];
+  products: Pick<Product, 'sku'>[];
   orderNumber: string;
+  orderId: string;
+}
+
+interface OrderProduct {
+  sku: string;
+  partner_line_item_id: string;
+  quantity: number;
+  price: string;
 }
 
 const endpoint = 'https://public-api.shiphero.com/graphql';
@@ -43,6 +58,12 @@ export interface ShipheroRepoInterface {
   getOrderByOrderNumber({
     orderNumber,
   }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes, Error]>;
+
+  updateOrder({
+    orderId,
+    products,
+    orderCount,
+  }: CreateOrderArgs): Promise<[CreateOrderRes, Error]>;
 }
 
 @Injectable()
@@ -62,7 +83,9 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       },
     );
 
-    const items = res?.orders?.data?.edges[0]?.node?.line_items?.edges;
+    const node = res?.orders?.data?.edges[0]?.node;
+    const items = node.line_items?.edges;
+    const orderId = node.id;
 
     if (!items) {
       return [
@@ -73,7 +96,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         },
       ];
     }
-    let products: GetLastOrderResProduct[] = [];
+    let products: Pick<Product, 'sku'>[] = [];
     for (let item of items) {
       if (!item) {
         continue;
@@ -92,6 +115,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       {
         orderNumber,
         products,
+        orderId,
       },
       null,
     ];
@@ -121,11 +145,12 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       ];
     }
 
-    let products: GetLastOrderResProduct[] = [];
+    let products: Pick<Product, 'sku'>[] = [];
     for (let item of items) {
       if (!item) {
         continue;
       }
+
       const itemNode = item.node;
       if (itemNode.product.kit) {
         const kitComponents = itemNode.product.kit_components;
@@ -144,5 +169,47 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       },
       null,
     ];
+  }
+
+  async updateOrder({
+    orderId,
+    products,
+    orderCount,
+  }: CreateOrderArgs): Promise<[CreateOrderRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
+    });
+
+    let orderProducts = '';
+    for (let product of products) {
+      orderProducts += String(`{
+        sku: "${product.sku}",
+        partner_line_item_id: "${product.sku}_${orderId}",
+        quantity: 1,
+        price: "0",
+     }, `);
+    }
+
+    const mutation = gql`
+    mutation {
+      order_add_line_items (
+        data: {	
+          order_id: "${orderId}"
+          line_items: [${orderProducts}]
+               
+        }
+      ) {
+        request_id
+      }
+    }
+  `;
+
+    const data = await client.request(mutation);
+
+    console.log('data', data);
+
+    return [{ status: 'Success' }, null];
   }
 }

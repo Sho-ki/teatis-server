@@ -4,10 +4,11 @@ import { PrismaService } from '../../../prisma.service';
 
 interface UpsertCustomerArgs {
   diabetes: string;
+  uuid: string;
   height: number;
   weight: number;
   age: number;
-  gender: string;
+  gender?: string;
   medicalConditions: { name: string; label: string }[];
   activeLevel: string;
   A1c: string;
@@ -30,10 +31,12 @@ interface UpsertCustomerArgs {
 
 interface UpsertCustomerRes {
   customerId: number;
+  customerUuid: string;
 }
 
 export interface CustomerPrePurchaseSurveyRepoInterface {
   upsertCustomer({
+    uuid,
     diabetes,
     gender,
     height, // in cm
@@ -67,6 +70,7 @@ export class CustomerPrePurchaseSurveyRepo
   constructor(private prisma: PrismaService) {}
 
   async upsertCustomer({
+    uuid,
     diabetes,
     gender,
     height, // in cm
@@ -156,13 +160,14 @@ export class CustomerPrePurchaseSurveyRepo
         }),
       ]);
     }
-
     let customer = await this.prisma.customers.upsert({
       where: { email },
       select: {
         id: true,
+        uuid: true,
       },
       create: {
+        uuid,
         email,
         age,
         gender,
@@ -567,6 +572,6 @@ export class CustomerPrePurchaseSurveyRepo
       },
     });
 
-    return [{ customerId: customer.id }, null];
+    return [{ customerId: customer.id, customerUuid: customer.uuid }, null];
   }
 }

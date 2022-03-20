@@ -9,15 +9,6 @@ export interface GetProductRes {
   id: number;
   title: string;
   sku: string;
-  vendor: string;
-  images: ProductImage[];
-  provider: string;
-}
-
-interface ProductImage {
-  position: number;
-  alt: string | null;
-  src: string;
 }
 
 export interface ShopifyRepoInterface {
@@ -40,20 +31,8 @@ export class ShopifyRepo implements ShopifyRepoInterface {
     let shopifyProduct: GetProductRes = {
       id: productId,
       title: response.data.product.title,
-      vendor: response.data.product.vendor,
-      images: [],
       sku: response.data.product.variants[0].sku,
-      provider: 'Shopify',
     };
-
-    response.data.product.images.forEach((image: Images) => {
-      const productImage: ProductImage = {
-        position: image.position,
-        alt: image.alt,
-        src: image.src,
-      };
-      shopifyProduct.images.push(productImage);
-    });
 
     return shopifyProduct;
   }

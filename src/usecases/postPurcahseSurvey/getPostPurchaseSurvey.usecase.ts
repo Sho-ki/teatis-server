@@ -5,20 +5,11 @@ import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRe
 import { QuestionPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
 import { CustomerPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
 import { PostPurchaseSurvey } from 'src/domains/PostPurchaseSurvey';
+import { Product } from '../../domains/Product';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   email: string;
   orderNumber?: string;
-}
-
-interface GetPostPurchaseSurveyProduct {
-  shopifyId?: number;
-  shipheroId?: string;
-  dbProductId?: number;
-  label: string;
-  sku: string;
-  vendor: string;
-  images: GetPostPurchaseSurveyImage[];
 }
 
 export interface GetPostPurchaseSurveyImage {
@@ -68,25 +59,31 @@ export class GetPostPurchaseSurveyUsecase
     if (getProductDetailError) {
       return [null, getProductDetailError];
     }
-    let detailedProductList: GetPostPurchaseSurveyProduct[] =
-      order.products.map((orderProduct) => {
-        let detailedProduct: GetPostPurchaseSurveyProduct;
-        productDetail.products.map(async (product) => {
-          if (!product.vendor) {
-            product.vendor = 'Teatis Meals';
-          }
-          if (orderProduct.sku === product.sku) {
-            detailedProduct = {
-              dbProductId: product.id,
-              sku: product.sku,
-              label: product.label,
-              images: product.images,
-              vendor: product.vendor,
-            };
-          }
-        });
-        return detailedProduct;
+    let detailedProductList: Pick<
+      Product,
+      'id' | 'sku' | 'label' | 'images' | 'vendor'
+    >[] = order.products.map((orderProduct) => {
+      let detailedProduct: Pick<
+        Product,
+        'id' | 'sku' | 'label' | 'images' | 'vendor'
+      >;
+      productDetail.products.map(async (product) => {
+        if (!product.vendor) {
+          product.vendor.label = 'Teatis Meal';
+          product.vendor.name = 'teatisMeal';
+        }
+        if (orderProduct.sku === product.sku) {
+          detailedProduct = {
+            id: product.id,
+            sku: product.sku,
+            label: product.label,
+            images: product.images,
+            vendor: product.vendor,
+          };
+        }
       });
+      return detailedProduct;
+    });
 
     const [postPurchaseSurveyQuestions, getpostPurchaseSurveyQuestionsError] =
       await this.questionPostPurchaseSurveyRepo.getSurveyQuestions({
@@ -145,7 +142,8 @@ export class GetPostPurchaseSurveyUsecase
             ...deepCopy,
             label: replacedLabel,
             product: {
-              id: product.dbProductId,
+              id: product.id,
+              sku: product.sku,
               label: product.label,
               vendor: product.vendor,
               images,

@@ -1,77 +1,61 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Post,
-  Query,
-  Redirect,
   Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 
-import { CreateDiscoveryInfoDto } from './dtos/createDiscovery';
-import { v4 as uuidv4 } from 'uuid';
 import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
-import { CreateOrderTaskDto } from './dtos/createOrderTask';
+import { UpdateCustomerOrderDto } from './dtos/UpdateCustomerOrder';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
 import { GetPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-import { GetRecommendProductsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 
-import { GetRecommendProductsUsecaseRes } from 'src/domains/prePurchaseSurvey/getRecommendProductsUsecaseRes';
-import { UpdateCustomerBoxTaskDto } from './dtos/updateCustomerBoxTask';
+import { UpdateCustomerBoxDto } from './dtos/updateCustomerBox';
 import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
-  getPrePurchaseOptionsUsecase,
-  getPrePurchaseOptionsUsecaseInterface,
+  GetPrePurchaseOptionsUsecaseInterface,
   GetPrePurchaseOptionsUsecaseRes,
 } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
-import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
+import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBoxUpdate/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
 import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
 } from '../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { UpdateCustomerOrderUsecaseInterface } from '../../usecases/customerOrderCreate/UpdateCustomerOrder.usecase';
+import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
+import { DeleteCustomerBoxUsecaseInterface } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 
-// /discovery
+// api/discovery
 @Controller('api/discovery')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    @Inject('GetRecommendProductsUsecaseInterface')
-    private getRecommendProductsUsecase: GetRecommendProductsUsecaseInterface,
     @Inject('GetPostPurchaseSurveyUsecaseInterface')
     private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecaseInterface,
     @Inject('PostPostPurchaseSurveyUsecaseInterface')
     private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecaseInterface,
+    @Inject('GetPrePurchaseOptionsUsecaseInterface')
+    private getPrePurchaseOptionsUsecase: GetPrePurchaseOptionsUsecaseInterface,
+    @Inject('PostPrePurchaseSurveyUsecaseInterface')
+    private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
-    @Inject('getPrePurchaseOptionsUsecaseInterface')
-    private getPrePurchaseOptionsUsecase: getPrePurchaseOptionsUsecaseInterface,
-    @Inject('PostPrePurchaseSurveyUsecaseInterface')
-    private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface, // private teatisJob: TeatisJobs,
+    @Inject('UpdateCustomerOrderUsecaseInterface')
+    private UpdateCustomerOrderUsecase: UpdateCustomerOrderUsecaseInterface,
+    @Inject('DeleteCustomerBoxUsecaseInterface')
+    private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
+    private teatisJob: TeatisJobs,
   ) {}
 
-  // GET: /discovery
-  @Get()
-  async createDiscovery(
-    @Query() body: CreateDiscoveryInfoDto,
-  ): Promise<GetRecommendProductsUsecaseRes> {
-    const typeformId = body.typeformId;
-    if (!typeformId) throw new Error('No typeformId is provided');
-    const { recommendProductData } = await this.getRecommendProductsUsecase
-      .getRecommendProducts({ typeformId })
-      .catch(() => {
-        throw new Error('Something went wrong');
-      });
-
-    return { recommendProductData };
-  }
-
-  // POST: /discovery/pre-purchase-survey
+  // POST: api/discovery/pre-purchase-survey
   @Post('pre-purchase-survey')
   async postPrePurchaseSurvey(
     @Body() body: PostPrePurchaseSurveyDto,
@@ -86,7 +70,7 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
-  // GET: /discovery/all-options
+  // GET: api/discovery/all-options
   @Get('pre-purchase-options')
   async getPrePurchaseOptions(
     @Res() response: Response,
@@ -100,7 +84,7 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
-  // GET: /discovery/post-purchase-survey
+  // GET: api/discovery/post-purchase-survey
   @Get('post-purchase-survey')
   async getPostPurchaseSurvey(
     @Body() body: GetPostPurchaseSurveyInfoDto,
@@ -122,7 +106,7 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
-  // POST: /discovery/post-purchase-survey
+  // POST: api/discovery/post-purchase-survey
   @Post('post-purchase-survey')
   async postPostPurchaseSurvey(
     @Body() body: PostPostPurchaseSurveyDto,
@@ -136,49 +120,49 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
-  // POST: /discovery/order-creation-webhook
-  @Post('order-creation-webhook')
-  getWebhook(@Body() body: CreateOrderTaskDto) {
-    console.log('start webhook');
-    setTimeout(() => {
-      console.log(body);
-    }, 20000);
-  }
-
-  // POST: /discovery/update-customer-box-webhook
-  @Post('update-customer-box-webhook')
-  async createCustomerBox(
-    @Body() body: UpdateCustomerBoxTaskDto,
+  // POST: api/discovery/delete-customer-box-webhook
+  @Delete('delete-customer-box-webhook')
+  async deleteCustomerBox(
+    @Body() body: DeleteCustomerBoxDto,
     @Res() response: Response,
-  ) {
-    const orderNumber = body.name;
-    const email = body.email;
-    const [res, error] = await this.updateCustomerBoxUsecase.updateCustomerBox({
-      orderNumber,
-      email,
-    });
+  ): Promise<Response<any | Error>> {
+    const [res, error] = await this.deleteCustomerBoxUsecase.deleteCustomerBox(
+      body,
+    );
     if (error) {
       return response.status(500).send(error);
     }
     return response.status(200).send(res);
   }
 
-  // POST: /discovery/typeform
-  @Get('typeform')
-  @Redirect()
-  redirectToTypeform() {
-    const uuid = uuidv4();
-    const TYPEFORM_URL_ID = process.env.TYPEFORM_URL_ID;
-    return {
-      url: `https://teatis.typeform.com/to/${TYPEFORM_URL_ID}#typeformid=${uuid}`,
-    };
+  // POST: api/discovery/order-creation-webhook
+  @Post('order-creation-webhook')
+  async createOrder(@Body() body: UpdateCustomerOrderDto) {
+    const [res, error] =
+      await this.UpdateCustomerOrderUsecase.UpdateCustomerOrder(body);
+  }
+
+  // POST: api/discovery/update-customer-box-webhook
+  @Post('update-customer-box-webhook')
+  async createCustomerBox(
+    @Body() body: UpdateCustomerBoxDto,
+    @Res() response: Response,
+  ) {
+    const [res, error] = await this.updateCustomerBoxUsecase.updateCustomerBox(
+      body,
+    );
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
-  // @Post('job')
-  // async dataMigrate() {
-  //   await this.teatisJob.databaseMigrate();
+  @Post('job')
+  async dataMigrate() {
+    // await this.teatisJob.databaseMigrate();
+    await this.teatisJob.addUUID();
 
-  //   return;
-  // }
+    return;
+  }
 }

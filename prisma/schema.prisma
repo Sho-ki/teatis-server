@@ -27,6 +27,7 @@ model Discoveries {
 
 model Customers{
   id                      Int             @default(autoincrement()) @id
+  uuid String? @unique
   email                   String @unique
   age Int?
   weightKg Float?

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Product } from '../../../domains/Product';
 import { PrismaService } from '../../../prisma.service';
 
 interface UpsertProductsArgs {
@@ -15,19 +16,18 @@ interface UpsertProductsResData {
 }
 
 interface GetProductsArgs {
-  products: { sku: string }[];
+  products: Pick<Product, 'sku'>[];
 }
 
 interface GetProductsRes {
-  products: GetProductsResElement[];
-}
-
-interface GetProductsResElement {
-  id: number;
-  sku: string;
-  label: string;
-  images?: { src: string; position: number }[];
-  vendor?: string;
+  products: Pick<Product, 'id' | 'sku' | 'label' | 'images' | 'vendor'>[];
+  //  {
+  //   id: number;
+  //   sku: string;
+  //   label: string;
+  //   images?: { src: string; position: number }[];
+  //   vendor?: string;
+  // }[];
 }
 
 interface GetOptionsArgs {
@@ -84,7 +84,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             id: product.id,
             sku: product.externalSku,
             images: product.productImages,
-            vendor: product.productVendor.label,
+            vendor: product.productVendor,
             label: product.label,
           };
         }),

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import { PrismaService } from '../../prisma.service';
+import { v4 as uuidv4 } from 'uuid';
 
 interface typeformTmp {
   diabetes: string;
@@ -40,11 +41,50 @@ interface setMedicalCondition {
 
 interface TeatisJobsInterface {
   databaseMigrate(): Promise<void>;
+  addUUID(): Promise<void>;
 }
 
 @Injectable()
 export class TeatisJobs implements TeatisJobsInterface {
   constructor(private prisma: PrismaService) {}
+
+  async addUUID(): Promise<void> {
+    // const prodict = await this.prisma.product.findMany({
+    //   select: {
+    //     id: true,
+    //     productCategoryId: true,
+    //     productFlavorId: true,
+    //     intermediateProductCookingMethods: {
+    //       select: {
+    //         productCookingMethodId: true,
+    //       },
+    //     },
+    //   },
+    // });
+    // console.log(
+    //   prodict.map((pro) => {
+    //     return {
+    //       id: pro.id,
+    //       categoryId: pro.productCategoryId,
+    //       flavorId: pro.productFlavorId,
+    //       cookingMethodsIds:
+    //         pro.intermediateProductCookingMethods.map((metho) => {
+    //           return metho.productCookingMethodId;
+    //         }) || null,
+    //     };
+    //   }),
+    // );
+    for (let i = 2000; i <= 3544; i++) {
+      const uuid = uuidv4();
+      const customer = await this.prisma.customers.update({
+        where: { id: i },
+        data: {
+          uuid,
+        },
+      });
+      console.log(customer);
+    }
+  }
 
   async databaseMigrate(): Promise<void> {
     const data = JSON.parse(fs.readFileSync('./defaultData/tmp.json', 'utf8'));

@@ -9,18 +9,24 @@ import { QuestionPostPurchaseSurveyRepo } from 'src/repositories/teatisDB/questi
 import { CustomerPostPurchaseSurveyRepo } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
 import { PostPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { ProductGeneralRepo } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
-import { GetRecommendProductsUsecase } from '@Usecases/prePurchaseSurvey/getRecommendProducts.usecase';
 import { ShipheroRepo } from 'src/repositories/shiphero/shiphero.repository';
-import { UpdateCustomerBoxUsecase } from '@Usecases/customerBox/updateCustomerBox.usecase';
+import { UpdateCustomerBoxUsecase } from '@Usecases/customerBoxUpdate/updateCustomerBox.usecase';
 import { CustomerGeneralRepo } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerUpdateCustomerBoxRepo } from 'src/repositories/teatisDB/customerRepo/customerUpdateCustomerBox.repository';
+import { CustomerBoxRepo } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
-import { getPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
+import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { UpdateCustomerOrderUsecase } from '../../usecases/customerOrderCreate/UpdateCustomerOrder.usecase';
+import { DeleteCustomerBoxUsecase } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
+import { OrderQueueRepo } from '../../repositories/teatisDB/orderRepo/orderQueue.repository';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'OrderQueueRepoInterface',
+      useClass: OrderQueueRepo,
+    },
     {
       provide: 'CustomerPrePurchaseSurveyRepoInterface',
       useClass: CustomerPrePurchaseSurveyRepo,
@@ -34,8 +40,8 @@ import { PostPrePurchaseSurveyUsecase } from '../../usecases/prePurchaseSurvey/p
       useClass: CustomerGeneralRepo,
     },
     {
-      provide: 'CustomerUpdateCustomerBoxRepoInterface',
-      useClass: CustomerUpdateCustomerBoxRepo,
+      provide: 'CustomerBoxRepoInterface',
+      useClass: CustomerBoxRepo,
     },
     {
       provide: 'ShipheroRepoInterface',
@@ -58,17 +64,10 @@ import { PostPrePurchaseSurveyUsecase } from '../../usecases/prePurchaseSurvey/p
       useClass: ShopifyRepo,
     },
     {
-      provide: 'GetRecommendProductsUsecaseInterface',
-      useClass: GetRecommendProductsUsecase,
+      provide: 'GetPrePurchaseOptionsUsecaseInterface',
+      useClass: GetPrePurchaseOptionsUsecase,
     },
-    {
-      provide: 'getPrePurchaseOptionsUsecaseInterface',
-      useClass: getPrePurchaseOptionsUsecase,
-    },
-    {
-      provide: ' GetRecommendProductsUsecaseInterface',
-      useClass: GetRecommendProductsUsecase,
-    },
+
     {
       provide: 'GetPostPurchaseSurveyUsecaseInterface',
       useClass: GetPostPurchaseSurveyUsecase,
@@ -84,6 +83,14 @@ import { PostPrePurchaseSurveyUsecase } from '../../usecases/prePurchaseSurvey/p
     {
       provide: 'PostPrePurchaseSurveyUsecaseInterface',
       useClass: PostPrePurchaseSurveyUsecase,
+    },
+    {
+      provide: 'UpdateCustomerOrderUsecaseInterface',
+      useClass: UpdateCustomerOrderUsecase,
+    },
+    {
+      provide: 'DeleteCustomerBoxUsecaseInterface',
+      useClass: DeleteCustomerBoxUsecase,
     },
 
     TeatisJobs,

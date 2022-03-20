@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   GetProductRes as ShopifyGetProductRes,
@@ -9,20 +10,12 @@ import { PostPrePurchaseSurveyDto } from '../../controllers/discoveries/dtos/pos
 
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
+  customerUuid: string;
   recommendProductData: {
     id: number;
     title: string;
-    vendor: string;
-    images?: PostPrePurchaseSurveyUsecaseImage[];
     sku: string;
-    provider: string;
   };
-}
-
-interface PostPrePurchaseSurveyUsecaseImage {
-  position: number;
-  alt?: string;
-  src: string;
 }
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
@@ -58,31 +51,11 @@ export class PostPrePurchaseSurveyUsecase
     private readonly customerPrePurchaseRepo: CustomerPrePurchaseSurveyRepoInterface,
   ) {}
 
-  private getMatchedProductId(
-    carbsPerMeal: number,
-    isHighBloodPressure: boolean,
-  ): number {
-    const goal = carbsPerMeal;
-    const approximateValuesList: number[] = [15, 30];
-    const approximateValue: number = approximateValuesList.reduce(
-      (prev, curr) => {
-        return Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev;
-      },
-    );
-
-    const productId =
-      approximateValue === 30
-        ? isHighBloodPressure
-          ? 6618823753783 // Moderate carb & Low sodium
-          : 6618823458871 // Moderate carb
-        : 6618822967351; // Low carb
-    return productId;
-  }
-
   private hasHighBloodPressure(
     medicalConditions: { name: string; label: string }[],
   ) {
     if (
+      medicalConditions &&
       medicalConditions.length > 0 &&
       medicalConditions.some((medicalCondition) => {
         return medicalCondition.name === 'highBloodPressure';
@@ -97,20 +70,20 @@ export class PostPrePurchaseSurveyUsecase
   // Step 3: Custom meal plan based on recommendations
   async postPrePurchaseSurvey({
     diabetes = 'unknown',
-    gender = 'female',
+    gender,
     height = 160, // in cm
-    weight = 80, // in kg
+    weight = 100, // in kg
     age = 50,
     activeLevel = 'notActive',
     A1c = 'unknown',
     mealsPerDay = 4,
-    medicalConditions,
-    categoryPreferences,
-    flavorDislikes,
-    ingredientDislikes,
-    allergens,
+    medicalConditions = [],
+    categoryPreferences = [],
+    flavorDislikes = [],
+    ingredientDislikes = [],
+    allergens = [],
     email,
-    unavailableCookingMethods,
+    unavailableCookingMethods = [],
   }: PostPrePurchaseSurveyDto): Promise<
     [PostPrePurchaseSurveyUsecaseRes, Error]
   > {
@@ -164,16 +137,18 @@ export class PostPrePurchaseSurveyUsecase
     const isHighBloodPressure: boolean =
       this.hasHighBloodPressure(medicalConditions);
 
-    const productId: number = this.getMatchedProductId(
-      carbsPerMeal,
-      isHighBloodPressure,
-    );
+    const productId: number = isHighBloodPressure
+      ? 6618823753783 //  Healthy carb & Low sodium
+      : 6618823458871; //  Healthy carb
 
     const recommendProductData: ShopifyGetProductRes =
       await this.shopifyRepo.getProduct({ productId });
 
+    const uuid = uuidv4();
+
     const [customer, customerError] =
       await this.customerPrePurchaseRepo.upsertCustomer({
+        uuid,
         diabetes,
         gender,
         height, // in cm
@@ -205,6 +180,7 @@ export class PostPrePurchaseSurveyUsecase
     return [
       {
         customerId: customer.customerId,
+        customerUuid: customer.customerUuid,
         recommendProductData,
       },
       null,

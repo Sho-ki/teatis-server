@@ -68,10 +68,16 @@ export class GetPrePurchaseOptionsUsecase
 
     return [
       {
-        unavailableCookingMethods: cookingMethods.option,
-        allergens: allergens.option,
+        unavailableCookingMethods: [
+          { id: 0, name: 'none', label: 'None' },
+          ...cookingMethods.option,
+        ],
+        allergens: [
+          { id: 0, name: 'none', label: 'None' },
+          ...allergens.option,
+        ],
         ingredientDislikes: ingredients.option,
-        foodType: foodTypes.option,
+        foodType: [{ id: 0, name: 'none', label: 'None' }, ...foodTypes.option],
         flavorDislikes: flavors.option,
         categoryPreferences: categories.option,
       },
