@@ -1,11 +1,4 @@
-import {
-  IsArray,
-  IsEmail,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsObject, IsString } from 'class-validator';
 
 export class UpdateCustomerOrderDto {
   @IsString()
