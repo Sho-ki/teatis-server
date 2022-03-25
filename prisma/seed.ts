@@ -63,7 +63,7 @@ async function main() {
         answerType: 'text',
         answerTypeLabel: 'text',
         instruction: 'List as many as you can, separated by commas.',
-        order: 2,
+        displayOrder: 2,
       },
     },
     {
@@ -77,7 +77,7 @@ async function main() {
         categoryLabel: 'Product Feedback',
         answerType: 'numeric',
         answerTypeLabel: 'numeric',
-        order: 1,
+        displayOrder: 1,
       },
     },
   ];
@@ -177,14 +177,14 @@ async function main() {
         },
       },
       create: {
-        order: surveyCreationItem.question.order,
+        displayOrder: surveyCreationItem.question.displayOrder,
         surveyId: surveyQuery.id,
         surveyQuestionId: questionQuery.id,
       },
       update: {
         surveyId: surveyQuery.id,
         surveyQuestionId: questionQuery.id,
-        order: surveyCreationItem.question.order,
+        displayOrder: surveyCreationItem.question.displayOrder,
       },
     });
   }

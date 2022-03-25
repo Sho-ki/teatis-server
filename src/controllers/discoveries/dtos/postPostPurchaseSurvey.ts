@@ -17,10 +17,7 @@ export class PostPostPurchaseSurveyDto {
   customerId: number;
 
   @IsString()
-  shopifyOrderNumber: string;
-
-  @IsString()
-  surveyQuestionAnswerType: string;
+  orderNumber: string;
 
   @IsObject()
   questionCategory: { id: number; label: string; name: string };

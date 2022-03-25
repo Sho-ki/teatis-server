@@ -26,7 +26,6 @@ interface GetLastOrderRes {
 interface CreateOrderArgs {
   orderId: string;
   products: Pick<Product, 'sku'>[];
-  orderCount: number;
 }
 
 interface CreateOrderRes {
@@ -43,16 +42,20 @@ interface GetOrderByOrderNumberRes {
   orderId: string;
 }
 
-interface OrderProduct {
+interface GetProductDetailArgs {
   sku: string;
-  partner_line_item_id: string;
-  quantity: number;
-  price: string;
+}
+interface GetProductDetailRes {
+  title: string;
+  products: Pick<Product, 'sku'>[];
 }
 
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepoInterface {
+  getKitComponents({
+    sku,
+  }: GetProductDetailArgs): Promise<[GetProductDetailRes, Error]>;
   getLastOrder({ email }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]>;
 
   getOrderByOrderNumber({
@@ -62,12 +65,42 @@ export interface ShipheroRepoInterface {
   updateOrder({
     orderId,
     products,
-    orderCount,
   }: CreateOrderArgs): Promise<[CreateOrderRes, Error]>;
 }
 
 @Injectable()
 export class ShipheroRepo implements ShipheroRepoInterface {
+  async getKitComponents({
+    sku,
+  }: GetProductDetailArgs): Promise<[GetProductDetailRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
+    });
+    const sdk = getSdk(client);
+
+    let res: GetProductDetailQuery = await sdk.getProductDetail({ sku });
+    const { kit_components, name } = res?.product?.data;
+    if (!kit_components || !name) {
+      return [
+        null,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getProductDetail failed',
+        },
+      ];
+    }
+    return [
+      {
+        title: name,
+        products: kit_components.map((component) => {
+          return { sku: component.sku };
+        }),
+      },
+      null,
+    ];
+  }
   async getOrderByOrderNumber({
     orderNumber,
   }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes, Error]> {
@@ -174,7 +207,6 @@ export class ShipheroRepo implements ShipheroRepoInterface {
   async updateOrder({
     orderId,
     products,
-    orderCount,
   }: CreateOrderArgs): Promise<[CreateOrderRes, Error]> {
     const client = new GraphQLClient(endpoint, {
       headers: {

@@ -9,10 +9,9 @@ export interface PostPostPurchaseSurveyUsecaseInterface {
   postPostPurchaseSurvey({
     id,
     customerId,
-    shopifyOrderNumber,
+    orderNumber,
     productId,
     questionCategory,
-    surveyQuestionAnswerType,
     answer,
     title,
     content,
@@ -40,46 +39,48 @@ export class PostPostPurchaseSurveyUsecase
   async postPostPurchaseSurvey({
     id,
     customerId,
-    shopifyOrderNumber,
+    orderNumber,
     productId,
     questionCategory,
-    surveyQuestionAnswerType,
     answer,
     title,
     content,
     reason,
   }: PostPostPurchaseSurveyDto): Promise<[PostPostPurchaseSurveyRes, Error]> {
-    let [answerCount, answerCountError] =
+    let [answerCountRes, answerCountError] =
       await this.customerpostPurchaseSurveyRepo.getAnswerCount({ customerId });
-    if (!answerCount.currentMaxAnswerCount) {
-      answerCount.currentMaxAnswerCount = 1;
+    if (answerCountError) {
+      return [null, answerCountError];
+    }
+    if (!answerCountRes.currentMaxAnswerCount) {
+      answerCountRes.currentMaxAnswerCount = 1;
     } else {
       let isNewSurveyAnswer =
         await this.customerpostPurchaseSurveyRepo.checkIsNewSurveyAnswer(
-          shopifyOrderNumber,
-          answerCount.currentMaxAnswerCount,
+          orderNumber,
+          answerCountRes.currentMaxAnswerCount,
         );
       if (isNewSurveyAnswer) {
-        answerCount.currentMaxAnswerCount += 1;
+        answerCountRes.currentMaxAnswerCount += 1;
       }
     }
 
     if (questionCategory.name === 'productFeedback') {
-      const [postProductFeedback, postProductFeedbackError] =
+      const [postProductFeedbackRes, postProductFeedbackError] =
         await this.customerpostPurchaseSurveyRepo.postPostPurchaseSurveyCustomerAnswerProductFeedback(
           {
             id,
             customerId,
-            shopifyOrderNumber,
+            orderNumber,
             productId,
             answer,
             title,
             content,
             reason,
-            currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
+            currentMaxAnswerCount: answerCountRes.currentMaxAnswerCount,
           },
         );
-      return [{ id: postProductFeedback.id }, null];
+      return [{ id: postProductFeedbackRes.id }, null];
     }
   }
 }

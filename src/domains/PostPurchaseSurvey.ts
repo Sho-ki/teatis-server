@@ -1,16 +1,20 @@
 export class PostPurchaseSurvey {
+  orderNumber: string;
+  customerId: number;
+  surveyQuestions: SurveyQuestions[];
+}
+
+export class SurveyQuestions {
   id: number;
   name: string;
   label: string;
-  order?: number;
-  questionCategory: { id: number; name: string; label: string };
+  category: string;
   mustBeAnswered: boolean;
   instruction?: string;
   placeholder?: string;
-
-  surveyQuestionAnswerType: { id: number; name: string; label: string };
-  surveyQuestionOptions?: QuestionOption[];
-  answer?: {
+  answerType: string;
+  options?: QuestionOption[];
+  answer: {
     text?: string;
     numeric?: number;
     singleOption?: QuestionOption;
@@ -20,9 +24,7 @@ export class PostPurchaseSurvey {
   reason?: string;
   title?: string;
   content?: string;
-  answerCount?: number;
-  shopifyOrderNumber?: string;
-  customerId: number;
+
   product?: {
     id: number;
     label: string;

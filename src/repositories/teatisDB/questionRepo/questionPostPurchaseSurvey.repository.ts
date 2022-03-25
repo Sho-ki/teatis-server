@@ -16,13 +16,12 @@ interface GetSurveyQuestionsResSurveyQuestion {
   id: number;
   name: string;
   label: string;
-  order?: number;
-  questionCategory: { id: number; name: string; label: string };
+  category: string;
   mustBeAnswered: boolean;
   instruction?: string;
   placeholder?: string;
-  surveyQuestionAnswerType: { id: number; name: string; label: string };
-  surveyQuestionOptions?: { id: number; name: string; label: string }[];
+  answerType: string;
+  options?: { id: number; name: string; label: string }[];
 }
 
 export interface QuestionPostPurchaseSurveyRepoInterface {
@@ -47,23 +46,21 @@ export class QuestionPostPurchaseSurveyRepo
         name: true,
         label: true,
         intermediateSurveyQuestions: {
+          orderBy: { displayOrder: 'asc' },
           select: {
-            order: true,
             surveyQuestion: {
               select: {
                 id: true,
                 name: true,
                 label: true,
-                questionCategoryId: true,
                 questionCategory: {
-                  select: { label: true, name: true },
+                  select: { name: true },
                 },
                 mustBeAnswered: true,
                 instruction: true,
                 placeholder: true,
-                surveyQuestionAnswerTypeId: true,
                 surveyQuestionAnswerType: {
-                  select: { name: true, label: true },
+                  select: { name: true },
                 },
                 surveyQuestionOptions: {
                   select: { label: true, id: true, name: true },
@@ -80,21 +77,14 @@ export class QuestionPostPurchaseSurveyRepo
         id: question.surveyQuestion.id,
         name: question.surveyQuestion.name,
         label: question.surveyQuestion.label,
-        order: question.order,
-        questionCategory: {
-          id: question.surveyQuestion.questionCategoryId,
-          name: question.surveyQuestion.questionCategory.name,
-          label: question.surveyQuestion.questionCategory.label,
-        },
+        category: question.surveyQuestion.questionCategory.name,
+
         mustBeAnswered: question.surveyQuestion.mustBeAnswered,
         instruction: question.surveyQuestion.instruction,
         placeholder: question.surveyQuestion.placeholder,
-        surveyQuestionAnswerType: {
-          id: question.surveyQuestion.surveyQuestionAnswerTypeId,
-          name: question.surveyQuestion.surveyQuestionAnswerType.name,
-          label: question.surveyQuestion.surveyQuestionAnswerType.label,
-        },
-        surveyQuestionOptions: question.surveyQuestion.surveyQuestionOptions,
+        answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
+
+        options: question.surveyQuestion.surveyQuestionOptions,
       };
       surveyQuestions.push(surveyQuestion);
     }

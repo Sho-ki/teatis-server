@@ -374,7 +374,7 @@ model Survey{
 model IntermediateSurveyQuestion{
   survey Survey @relation(fields: [surveyId], references: [id])
   surveyId Int
-  order Int?
+  displayOrder Int?
   surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
   surveyQuestionId Int
   createdAt DateTime  @default(now())
@@ -452,11 +452,11 @@ model SurveyQuestionAnswerServiceFeedback{
   title String?
   content String?
   answerCount Int?
-  shopifyOrderNumber String
+  orderNumber String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@unique([surveyQuestionId,shopifyOrderNumber], name: "CustomerSurveyQuestionServiceFeedbackIdentifier")
+  @@unique([surveyQuestionId,orderNumber], name: "CustomerSurveyQuestionServiceFeedbackIdentifier")
 }
 
 model IntermediateSurveyQuestionAnswerService{
@@ -488,11 +488,11 @@ model SurveyQuestionAnswerProductFeedback{
   answerCount Int?
   product Product @relation(fields: [productId], references: [id])
   productId Int
-  shopifyOrderNumber String
+  orderNumber String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@unique([surveyQuestionId,shopifyOrderNumber, productId], name: "CustomerSurveyQuestionProductFeedbackIdentifier")
+  @@unique([surveyQuestionId,orderNumber, productId], name: "CustomerSurveyQuestionProductFeedbackIdentifier")
 
 }
 
@@ -532,15 +532,17 @@ model CustomerBoxItems{
 
 model QueuedShopifyOrder {
   id  Int   @default(autoincrement()) @id
-  orderName String @unique
-  customer Customers @relation(fields: [customerId], references: [id])
   customerId Int
+  orderName String @unique
+  status QueueStatus @default(scheduled)
+  customer Customers @relation(fields: [customerId], references: [id])
   scheduledAt String
-  status QueueStatus @default(queue)
   completedAt String?
+  fulfilledAt String?
 }
 
 enum QueueStatus {
-  queue
-  complete
+  scheduled
+  completed
+  fullfilled
 }

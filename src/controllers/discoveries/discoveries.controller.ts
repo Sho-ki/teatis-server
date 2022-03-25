@@ -32,6 +32,8 @@ import {
 import { UpdateCustomerOrderUsecaseInterface } from '../../usecases/customerOrderCreate/updateCustomerOrder.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
+import { GetNextBoxUsecaseInterface } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
+import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
 
 // api/discovery
 @Controller('api/discovery')
@@ -49,9 +51,11 @@ export class DiscoveriesController {
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
     @Inject('UpdateCustomerOrderUsecaseInterface')
-    private UpdateCustomerOrderUsecase: UpdateCustomerOrderUsecaseInterface,
+    private updateCustomerOrderUsecase: UpdateCustomerOrderUsecaseInterface,
     @Inject('DeleteCustomerBoxUsecaseInterface')
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
+    @Inject('GetNextBoxUsecaseInterface')
+    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
     private teatisJob: TeatisJobs,
   ) {}
 
@@ -106,6 +110,22 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
+  // GET: api/discovery/next-box-survey
+  @Get('next-box-survey')
+  async getNextBoxSurvey(
+    @Body() body: GetNextBoxSurveyDto,
+    @Res() response: Response,
+  ): Promise<Response<any | Error>> {
+    const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey(
+      body,
+    );
+
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
+  }
+
   // POST: api/discovery/post-purchase-survey
   @Post('post-purchase-survey')
   async postPostPurchaseSurvey(
@@ -121,7 +141,7 @@ export class DiscoveriesController {
   }
 
   // POST: api/discovery/delete-customer-box-webhook
-  @Delete('delete-customer-box-webhook')
+  @Post('delete-customer-box-webhook')
   async deleteCustomerBox(
     @Body() body: DeleteCustomerBoxDto,
     @Res() response: Response,
@@ -135,11 +155,12 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
-  // POST: api/discovery/order-creation-webhook
-  @Post('order-creation-webhook')
+  // POST: api/discovery/order-update-webhook
+  @Post('order-update-webhook')
   async createOrder(@Body() body: UpdateCustomerOrderDto) {
+    console.log('bodybodybodybody', body);
     const [res, error] =
-      await this.UpdateCustomerOrderUsecase.UpdateCustomerOrder(body);
+      await this.updateCustomerOrderUsecase.updateCustomerOrder(body);
   }
 
   // POST: api/discovery/update-customer-box-webhook

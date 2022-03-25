@@ -19,10 +19,20 @@ import { PostPrePurchaseSurveyUsecase } from '../../usecases/prePurchaseSurvey/p
 import { UpdateCustomerOrderUsecase } from '../../usecases/customerOrderCreate/updateCustomerOrder.usecase';
 import { DeleteCustomerBoxUsecase } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 import { OrderQueueRepo } from '../../repositories/teatisDB/orderRepo/orderQueue.repository';
+import { GetNextBoxUsecase } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
+import { CustomerNextBoxSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'CustomerNextBoxSurveyRepoInterface',
+      useClass: CustomerNextBoxSurveyRepo,
+    },
+    {
+      provide: 'GetNextBoxUsecaseInterface',
+      useClass: GetNextBoxUsecase,
+    },
     {
       provide: 'OrderQueueRepoInterface',
       useClass: OrderQueueRepo,

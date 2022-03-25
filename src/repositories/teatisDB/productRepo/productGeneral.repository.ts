@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from '../../../domains/Product';
+import { Product, ProductAddOn, ProductImage } from '../../../domains/Product';
 import { PrismaService } from '../../../prisma.service';
 
 interface UpsertProductsArgs {
@@ -15,19 +15,19 @@ interface UpsertProductsResData {
   externalSku: string;
 }
 
-interface GetProductsArgs {
+interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
 }
 
-interface GetProductsRes {
-  products: Pick<Product, 'id' | 'sku' | 'label' | 'images' | 'vendor'>[];
-  //  {
-  //   id: number;
-  //   sku: string;
-  //   label: string;
-  //   images?: { src: string; position: number }[];
-  //   vendor?: string;
-  // }[];
+interface GetProductsBySkuRes {
+  products: Pick<
+    Product,
+    'id' | 'sku' | 'label' | 'images' | 'vendor' | 'expertComment'
+  >[];
+}
+
+interface GetAllProductsRes {
+  products: Omit<Product, 'nutritionFact' | 'expertComment'>[];
 }
 
 interface GetOptionsArgs {
@@ -38,7 +38,7 @@ interface GetOptionsRes<T> {
   option: T[];
 }
 
-interface GetOptionsElement {
+interface GetOption {
   id: number;
   name: string;
   label: string;
@@ -50,18 +50,21 @@ export interface ProductGeneralRepoInterface {
     skus,
   }: UpsertProductsArgs): Promise<[UpsertProductsRes, Error]>;
 
-  getProducts({ products }: GetProductsArgs): Promise<[GetProductsRes, Error]>;
+  getProductsBySku({
+    products,
+  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes, Error]>;
+  getAllProducts(): Promise<[GetAllProductsRes, Error]>;
   getOptions({
     target,
-  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOptionsElement>, Error]>;
+  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>, Error]>;
 }
 
 @Injectable()
 export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
-  async getProducts({
+  async getProductsBySku({
     products,
-  }: GetProductsArgs): Promise<[GetProductsRes, Error]> {
+  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes, Error]> {
     let productRes = await this.prisma.product.findMany({
       where: {
         OR: products.map((product) => {
@@ -70,9 +73,10 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
       },
       select: {
         id: true,
-        productVendor: { select: { name: true, label: true } },
+        productVendor: { select: { label: true } },
         externalSku: true,
-        productImages: { select: { src: true, position: true } },
+        productImages: { select: { id: true, src: true, position: true } },
+        expertComment: true,
         label: true,
       },
     });
@@ -84,14 +88,122 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             id: product.id,
             sku: product.externalSku,
             images: product.productImages,
-            vendor: product.productVendor,
+            vendor: product.productVendor.label,
             label: product.label,
+            expertComment: product.expertComment,
           };
         }),
       },
       null,
     ];
   }
+
+  async getAllProducts(): Promise<[GetAllProductsRes, Error]> {
+    const getAllProductsRes = await this.prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        label: true,
+        externalSku: true,
+        productVendor: { select: { label: true } },
+        productImages: { select: { id: true, position: true, src: true } },
+        productFlavor: { select: { id: true, name: true, label: true } },
+        productCategory: { select: { id: true, name: true, label: true } },
+        intermediateProductAllergens: {
+          select: {
+            productAllergen: { select: { id: true, name: true, label: true } },
+          },
+        },
+        intermediateProductFoodTypes: {
+          select: {
+            productFoodType: { select: { id: true, name: true, label: true } },
+          },
+        },
+        intermediateProductCookingMethods: {
+          select: {
+            productCookingMethod: {
+              select: { id: true, name: true, label: true },
+            },
+          },
+        },
+      },
+    });
+
+    return [
+      {
+        products: getAllProductsRes.map((product) => {
+          return {
+            id: product.id,
+            name: product.name,
+            label: product.label,
+            sku: product.externalSku,
+            vendor: product.productVendor.label,
+            images: product?.productImages
+              ? product.productImages.map((image): ProductImage => {
+                  return {
+                    id: image.id,
+                    position: image.position,
+                    src: image.src,
+                  };
+                })
+              : [],
+            flavor: product?.productFlavor?.id
+              ? {
+                  id: product.productFlavor.id,
+                  name: product.productFlavor.name,
+                  label: product.productFlavor.label,
+                }
+              : {},
+            category: product?.productCategory?.id
+              ? {
+                  id: product.productCategory.id,
+                  name: product.productCategory.name,
+                  label: product.productCategory.label,
+                }
+              : {},
+            allergens:
+              product.intermediateProductAllergens?.length > 0
+                ? product.intermediateProductAllergens.map(
+                    (allergen): ProductAddOn => {
+                      return {
+                        id: allergen.productAllergen.id,
+                        name: allergen.productAllergen.name,
+                        label: allergen.productAllergen.label,
+                      };
+                    },
+                  )
+                : [],
+            foodTypes:
+              product.intermediateProductFoodTypes?.length > 0
+                ? product.intermediateProductFoodTypes.map(
+                    (foodType): ProductAddOn => {
+                      return {
+                        id: foodType.productFoodType.id,
+                        name: foodType.productFoodType.name,
+                        label: foodType.productFoodType.label,
+                      };
+                    },
+                  )
+                : [],
+            cookingMethods:
+              product.intermediateProductCookingMethods?.length > 0
+                ? product.intermediateProductCookingMethods.map(
+                    (cookingMethod): ProductAddOn => {
+                      return {
+                        id: cookingMethod.productCookingMethod.id,
+                        name: cookingMethod.productCookingMethod.name,
+                        label: cookingMethod.productCookingMethod.label,
+                      };
+                    },
+                  )
+                : [],
+          };
+        }),
+      },
+      null,
+    ];
+  }
+
   async upsertProducts({
     skus,
   }: UpsertProductsArgs): Promise<[UpsertProductsRes, Error]> {
@@ -136,8 +248,8 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
 
   async getOptions({
     target,
-  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOptionsElement>, Error]> {
-    let getOptionsRes: GetOptionsElement[];
+  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>, Error]> {
+    let getOptionsRes: GetOption[];
     switch (target) {
       case 'cookingMethod':
         getOptionsRes = await this.prisma.productCookingMethod.findMany({

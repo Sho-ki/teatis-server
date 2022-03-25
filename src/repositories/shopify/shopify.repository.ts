@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { ShopifyGetCustomerRes, ShopifyGetProductRes } from './shopify';
 
 interface GetProductArgs {
   productId: number;
@@ -11,8 +12,18 @@ export interface GetProductRes {
   sku: string;
 }
 
+interface GetOrderCountArgs {
+  shopifyCustomerId: number;
+}
+interface GetOrderCountRes {
+  orderCount: number;
+}
+
 export interface ShopifyRepoInterface {
   getProduct({ productId }: GetProductArgs): Promise<GetProductRes>;
+  getOrderCount({
+    shopifyCustomerId,
+  }: GetOrderCountArgs): Promise<[GetOrderCountRes, Error]>;
 }
 
 @Injectable()
@@ -36,94 +47,29 @@ export class ShopifyRepo implements ShopifyRepoInterface {
 
     return shopifyProduct;
   }
-}
 
-interface ShopifyGetProductRes {
-  product: ProductContent;
-}
+  async getOrderCount({
+    shopifyCustomerId,
+  }: GetOrderCountArgs): Promise<[GetOrderCountRes, Error]> {
+    const getOrderCountRes = await axios.get<ShopifyGetCustomerRes>(
+      `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
+      {
+        auth: {
+          username: process.env.SHOPIFY_API_KEY,
+          password: process.env.SHOPIFY_API_PASSWORD,
+        },
+      },
+    );
+    if (!getOrderCountRes.data) {
+      return [
+        null,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getOrderCount failed',
+        },
+      ];
+    }
 
-interface ProductContent {
-  id: number;
-  title: string;
-  body_html: string;
-  vendor: string;
-  product_type: string;
-  created_at: string;
-  handle: string;
-  updated_at: string;
-  published_at: string;
-  template_suffix: string;
-  status: string;
-  published_scope: string;
-  tags: string;
-  admin_graphql_api_id: string;
-  variants: Variant[];
-  options: Option[];
-  images: Images[];
-  image: Image;
-}
-
-interface Variant {
-  id: number;
-  product_id: number;
-  title: string;
-  price: string;
-  sku: string;
-  position: number;
-  inventory_policy: string;
-  compare_at_price: string;
-  fulfillment_service: string;
-  inventory_management: string;
-  option1: string;
-  option2: any;
-  option3: any;
-  created_at: string;
-  updated_at: string;
-  taxable: boolean;
-  barcode: string;
-  grams: number;
-  image_id: any;
-  weight: number;
-  weight_unit: string;
-  inventory_item_id: number;
-  inventory_quantity: number;
-  old_inventory_quantity: number;
-  requires_shipping: boolean;
-  admin_graphql_api_id: string;
-}
-
-interface Option {
-  id: number;
-  product_id: number;
-  name: string;
-  position: number;
-  values: string[];
-}
-
-interface Images {
-  id: number;
-  product_id: number;
-  position: number;
-  created_at: string;
-  updated_at: string;
-  alt: any;
-  width: number;
-  height: number;
-  src: string;
-  variant_ids: any[];
-  admin_graphql_api_id: string;
-}
-
-interface Image {
-  id: number;
-  product_id: number;
-  position: number;
-  created_at: string;
-  updated_at: string;
-  alt: any;
-  width: number;
-  height: number;
-  src: string;
-  variant_ids: any[];
-  admin_graphql_api_id: string;
+    return [{ orderCount: getOrderCountRes.data.orders_count }, null];
+  }
 }

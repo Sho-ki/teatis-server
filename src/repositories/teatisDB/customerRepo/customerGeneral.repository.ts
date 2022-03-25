@@ -6,18 +6,117 @@ interface GetCustomerArgs {
   email: string;
 }
 
-export interface GetCustomerRes {
+interface GetCustomerRes {
   id: number;
   email: string;
 }
 
+interface GetCustomerPreferenceArgs {
+  type:
+    | 'flavorDislikes'
+    | 'allergens'
+    | 'unavailableCookingMethods'
+    | 'categoryLikes';
+  email: string;
+}
+
+interface GetCustomerPreferenceRes {
+  ids: number[];
+}
+
 export interface CustomerGeneralRepoInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes, Error]>;
+  getCustomerPreference({
+    email,
+  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes, Error]>;
 }
 
 @Injectable()
 export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
+
+  async getCustomerPreference({
+    email,
+    type,
+  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes, Error]> {
+    try {
+      let customerPreference: number[] = [];
+      switch (type) {
+        case 'flavorDislikes':
+          await this.prisma.intermediateCustomerFlavorDislike
+            .findMany({
+              where: { customer: { email } },
+              select: { productFlavorId: true },
+            })
+            .then((res) => {
+              customerPreference = res.map((flavor) => {
+                return flavor.productFlavorId;
+              });
+            })
+            .catch((e) => {
+              throw new Error(e);
+            });
+          break;
+        case 'allergens':
+          await this.prisma.intermediateCustomerAllergen
+            .findMany({
+              where: { customer: { email } },
+              select: { productAllergenId: true },
+            })
+            .then((res) => {
+              customerPreference = res.map((allergen) => {
+                return allergen.productAllergenId;
+              });
+            })
+            .catch((e) => {
+              throw new Error(e);
+            });
+          break;
+        case 'unavailableCookingMethods':
+          await this.prisma.intermediateCustomerUnavailableCookingMethod
+            .findMany({
+              where: { customer: { email } },
+              select: { productCookingMethodId: true },
+            })
+            .then((res) => {
+              customerPreference = res.map((coolingMethod) => {
+                return coolingMethod.productCookingMethodId;
+              });
+            })
+            .catch((e) => {
+              throw new Error(e);
+            });
+          break;
+        case 'categoryLikes':
+          await this.prisma.intermediateCustomerCategoryPreference
+            .findMany({
+              where: { customer: { email } },
+              select: { productCategoryId: true },
+            })
+            .then((res) => {
+              customerPreference = res.map((category) => {
+                return category.productCategoryId;
+              });
+            })
+            .catch((e) => {
+              throw new Error(e);
+            });
+          break;
+        default:
+          break;
+      }
+
+      return [{ ids: customerPreference }, null];
+    } catch (e) {
+      return [
+        null,
+        {
+          name: 'Internal Server Error',
+          message: `Backend Error: get${type} failed`,
+        },
+      ];
+    }
+  }
 
   async getCustomer({
     email,

@@ -1,9 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
-import { CustomerPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
-import { PostPurchaseSurvey } from 'src/domains/PostPurchaseSurvey';
 import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
 import { CustomerBox } from 'src/domains/CustomerBox';
@@ -21,8 +17,6 @@ export class UpdateCustomerBoxUsecase
   implements UpdateCustomerBoxUsecaseInterface
 {
   constructor(
-    @Inject('ShipheroRepoInterface')
-    private shipheroRepo: ShipheroRepoInterface,
     @Inject('CustomerGeneralRepoInterface')
     private customerGeneralRepo: CustomerGeneralRepoInterface,
     @Inject('CustomerBoxRepoInterface')
@@ -34,7 +28,7 @@ export class UpdateCustomerBoxUsecase
     email,
   }: UpdateCustomerBoxDto): Promise<[CustomerBox, Error]> {
     const [
-      [customer, customerError],
+      [getCustomerRes, getCustomerError],
       [deleteCustomerBoxRes, deleteCustomerBoxError],
     ] = await Promise.all([
       this.customerGeneralRepo.getCustomer({ email }),
@@ -43,15 +37,16 @@ export class UpdateCustomerBoxUsecase
       }),
     ]);
 
-    if (customerError) {
-      return [null, customerError];
-    } else if (deleteCustomerBoxError) {
+    if (getCustomerError) {
+      return [null, getCustomerError];
+    }
+    if (deleteCustomerBoxError) {
       return [null, deleteCustomerBoxError];
     }
 
     const [postCustomerBoxRes, postCustomerBoxError] =
       await this.customerBoxRepo.postCustomerBox({
-        customerId: customer.id,
+        customerId: getCustomerRes.id,
         products,
       });
 

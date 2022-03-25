@@ -1,17 +1,11 @@
 query getProductDetail ($sku:String!){
   product(sku:$sku) {
     data {
-      id
       name
       sku
-      images {
-        src
-        position
-      }
-      vendors {
-        vendor_id
-        vendor_sku
-      }
+		 kit_components {		
+            sku
+          }
     }
   }
 }

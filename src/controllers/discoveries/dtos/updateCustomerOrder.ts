@@ -5,7 +5,7 @@ export class UpdateCustomerOrderDto {
   name: string;
 
   @IsObject()
-  customer: { email: string; orders_count: number };
+  customer: { email: string; id: number };
 
   @IsArray()
   line_items: { product_id: number }[];

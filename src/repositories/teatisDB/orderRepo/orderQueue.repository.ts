@@ -1,60 +1,81 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { OrderQueue } from '../../../domains/OrderQueue';
 
 import { PrismaService } from '../../../prisma.service';
 
-interface PushOrderQueueArgs {
-  email: string;
+interface UpdateOrderQueueArgs {
+  customerId: number;
   orderNumber: string;
+  status: 'scheduled' | 'completed' | 'fullfilled';
 }
 
-interface PushOrderQueueRes {
+interface UpdateOrderQueueRes {
   id: number;
   customerId: number;
 }
 
 export interface OrderQueueRepoInterface {
-  pushOrderQueue({
-    email,
+  updateOrderQueue({
+    customerId,
     orderNumber,
-  }: PushOrderQueueArgs): Promise<[PushOrderQueueRes, Error]>;
+    status,
+  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes, Error]>;
 }
 
 @Injectable()
 export class OrderQueueRepo implements OrderQueueRepoInterface {
   constructor(private prisma: PrismaService) {}
 
-  async pushOrderQueue({
-    email,
+  async updateOrderQueue({
+    customerId,
     orderNumber,
-  }: PushOrderQueueArgs): Promise<[PushOrderQueueRes, Error]> {
-    let scheduleData = new Date();
-    scheduleData.setMinutes(scheduleData.getMinutes() + 3);
+    status,
+  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes, Error]> {
+    let actionDate = new Date();
+    if (status === 'scheduled') {
+      actionDate.setMinutes(actionDate.getMinutes() + 3);
+    }
+    let actionAt: Prisma.QueuedShopifyOrderUpdateInput;
+    if (status === 'completed') {
+      actionAt = { completedAt: actionDate.toISOString() };
+    } else if (status === 'fullfilled') {
+      actionAt = { fulfilledAt: actionDate.toISOString() };
+    }
 
-    const pushOrderQueueRes = await this.prisma.queuedShopifyOrder.upsert({
+    const updateOrderQueueRes = await this.prisma.queuedShopifyOrder.upsert({
       where: { orderName: orderNumber },
       create: {
-        scheduledAt: scheduleData.toISOString(),
-        status: 'queue',
+        scheduledAt: actionDate.toISOString(),
+        status,
         orderName: orderNumber,
-        customerId: (
-          await this.prisma.customers.findUnique({ where: { email } })
-        ).id,
+        customerId,
       },
-      update: {},
+
+      //     customerId: (
+      //       await this.prisma.customers.findUnique({ where: { email } })
+      //     ).id,
+      //   },
+      update: {
+        ...actionAt,
+        status,
+      },
     });
 
-    if (!pushOrderQueueRes) {
+    if (!updateOrderQueueRes) {
       return [
         null,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: pushOrderQueue() failed',
+          message: 'Server Side Error: updateOrderQueue() failed',
         },
       ];
     }
     return [
-      { id: pushOrderQueueRes.id, customerId: pushOrderQueueRes.customerId },
+      {
+        id: updateOrderQueueRes.id,
+        customerId: updateOrderQueueRes.customerId,
+      },
       null,
     ];
   }

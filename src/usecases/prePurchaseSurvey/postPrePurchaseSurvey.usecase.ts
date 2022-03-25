@@ -1,20 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  GetProductRes as ShopifyGetProductRes,
-  ShopifyRepoInterface,
-} from 'src/repositories/shopify/shopify.repository';
 import { CustomerPrePurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
 import { PostPrePurchaseSurveyDto } from '../../controllers/discoveries/dtos/postPrePurchaseSurvey';
+import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepoInterface } from '../../repositories/teatisDB/productRepo/productGeneral.repository';
+import { Product } from '../../domains/Product';
 
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
   customerUuid: string;
   recommendProductData: {
-    id: number;
     title: string;
-    sku: string;
+    products: Pick<
+      Product,
+      'id' | 'sku' | 'label' | 'images' | 'vendor' | 'expertComment'
+    >[];
   };
 }
 
@@ -45,10 +46,12 @@ export class PostPrePurchaseSurveyUsecase
   implements PostPrePurchaseSurveyUsecaseInterface
 {
   constructor(
-    @Inject('ShopifyRepoInterface')
-    private readonly shopifyRepo: ShopifyRepoInterface,
+    @Inject('ShipheroRepoInterface')
+    private readonly shipheroRepo: ShipheroRepoInterface,
     @Inject('CustomerPrePurchaseSurveyRepoInterface')
     private readonly customerPrePurchaseRepo: CustomerPrePurchaseSurveyRepoInterface,
+    @Inject('ProductGeneralRepoInterface')
+    private readonly productGeneralRepo: ProductGeneralRepoInterface,
   ) {}
 
   private hasHighBloodPressure(
@@ -137,16 +140,25 @@ export class PostPrePurchaseSurveyUsecase
     const isHighBloodPressure: boolean =
       this.hasHighBloodPressure(medicalConditions);
 
-    const productId: number = isHighBloodPressure
-      ? 6618823753783 //  Healthy carb & Low sodium
-      : 6618823458871; //  Healthy carb
+    const productSku: string = isHighBloodPressure
+      ? 'Teatis_Meal_Box_HCLS_Discovery_1st' //  Healthy carb & Low sodium
+      : 'Teatis_Meal_Box_HC_Discovery_1st'; //  Healthy carb
 
-    const recommendProductData: ShopifyGetProductRes =
-      await this.shopifyRepo.getProduct({ productId });
+    const [geKitComponentsRes, getKitComponentsError] =
+      await this.shipheroRepo.getKitComponents({ sku: productSku });
+    if (getKitComponentsError) {
+      return [null, getKitComponentsError];
+    }
+    const [getRecommentProductsRes, getRecommendProductsError] =
+      await this.productGeneralRepo.getProductsBySku({
+        products: geKitComponentsRes.products,
+      });
+    if (getRecommendProductsError) {
+      return [null, getRecommendProductsError];
+    }
 
     const uuid = uuidv4();
-
-    const [customer, customerError] =
+    const [upsertCustomerRes, upsertCustomerError] =
       await this.customerPrePurchaseRepo.upsertCustomer({
         uuid,
         diabetes,
@@ -173,15 +185,18 @@ export class PostPrePurchaseSurveyUsecase
         fatPerMeal,
         caloriePerMeal,
       });
-    if (customerError) {
-      return [null, customerError];
+    if (upsertCustomerError) {
+      return [null, upsertCustomerError];
     }
 
     return [
       {
-        customerId: customer.customerId,
-        customerUuid: customer.customerUuid,
-        recommendProductData,
+        customerId: upsertCustomerRes.customerId,
+        customerUuid: upsertCustomerRes.customerUuid,
+        recommendProductData: {
+          title: geKitComponentsRes.title,
+          products: getRecommentProductsRes.products,
+        },
       },
       null,
     ];

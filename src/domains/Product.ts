@@ -3,24 +3,27 @@ export class Product {
   name: string;
   label: string;
   sku: string;
-  vendor: ProductAddOn;
+  vendor: string;
   images: ProductImage[];
   flavor: ProductAddOn;
   category: ProductAddOn;
   allergens: ProductAddOn[];
   foodTypes: ProductAddOn[];
   cookingMethods: ProductAddOn[];
+  expertComment: string;
   nutritionFact: ProductNutrition;
 }
 
 export class ProductAddOn {
-  name: string;
-  label: string;
+  id?: number;
+  name?: string;
+  label?: string;
 }
 
 export class ProductImage {
-  src: string;
-  position: number;
+  id?: number;
+  src?: string;
+  position?: number;
 }
 
 export class ProductNutrition {

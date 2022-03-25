@@ -2656,6 +2656,7 @@ export type PurchaseOrder = {
   tax?: Maybe<Scalars['String']>;
   total_price?: Maybe<Scalars['String']>;
   tracking_number?: Maybe<Scalars['String']>;
+  tracking_numbers?: Maybe<PurchaseOrderTrackingNumberConnection>;
   vendor?: Maybe<Vendor>;
   vendor_id?: Maybe<Scalars['String']>;
   warehouse?: Maybe<Warehouse>;
@@ -2673,6 +2674,15 @@ export type PurchaseOrderAttachmentsArgs = {
 
 
 export type PurchaseOrderLine_ItemsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['String']>;
+};
+
+
+export type PurchaseOrderTracking_NumbersArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -2790,6 +2800,33 @@ export type PurchaseOrderQueryResult = {
   complexity?: Maybe<Scalars['Int']>;
   data?: Maybe<PurchaseOrder>;
   request_id?: Maybe<Scalars['String']>;
+};
+
+export type PurchaseOrderTrackingNumber = {
+  __typename?: 'PurchaseOrderTrackingNumber';
+  carrier_id?: Maybe<Scalars['String']>;
+  carrier_value?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['String']>;
+  legacy_id?: Maybe<Scalars['Int']>;
+  po_id?: Maybe<Scalars['String']>;
+  tracking_number?: Maybe<Scalars['String']>;
+};
+
+export type PurchaseOrderTrackingNumberConnection = {
+  __typename?: 'PurchaseOrderTrackingNumberConnection';
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<PurchaseOrderTrackingNumberEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+};
+
+/** A Relay edge containing a `PurchaseOrderTrackingNumber` and its cursor. */
+export type PurchaseOrderTrackingNumberEdge = {
+  __typename?: 'PurchaseOrderTrackingNumberEdge';
+  /** A cursor for use in pagination */
+  cursor: Scalars['String'];
+  /** The item at the end of the edge */
+  node?: Maybe<PurchaseOrderTrackingNumber>;
 };
 
 export type PurchaseOrdersQueryResult = {
@@ -3544,6 +3581,7 @@ export type ShippingPlan = {
   subtotal?: Maybe<Scalars['String']>;
   total_price?: Maybe<Scalars['String']>;
   tracking_number?: Maybe<Scalars['String']>;
+  tracking_numbers?: Maybe<ShippingPlanTrackingNumberConnection>;
   vendor_po_number?: Maybe<Scalars['String']>;
   warehouse?: Maybe<Warehouse>;
   warehouse_id?: Maybe<Scalars['String']>;
@@ -3570,6 +3608,15 @@ export type ShippingPlanPackagesArgs = {
 
 
 export type ShippingPlanPalletsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['String']>;
+};
+
+
+export type ShippingPlanTracking_NumbersArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -3714,6 +3761,33 @@ export type ShippingPlanQueryResult = {
   complexity?: Maybe<Scalars['Int']>;
   data?: Maybe<ShippingPlan>;
   request_id?: Maybe<Scalars['String']>;
+};
+
+export type ShippingPlanTrackingNumber = {
+  __typename?: 'ShippingPlanTrackingNumber';
+  carrier_id?: Maybe<Scalars['String']>;
+  carrier_value?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['String']>;
+  legacy_id?: Maybe<Scalars['Int']>;
+  po_id?: Maybe<Scalars['String']>;
+  tracking_number?: Maybe<Scalars['String']>;
+};
+
+export type ShippingPlanTrackingNumberConnection = {
+  __typename?: 'ShippingPlanTrackingNumberConnection';
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<ShippingPlanTrackingNumberEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+};
+
+/** A Relay edge containing a `ShippingPlanTrackingNumber` and its cursor. */
+export type ShippingPlanTrackingNumberEdge = {
+  __typename?: 'ShippingPlanTrackingNumberEdge';
+  /** A cursor for use in pagination */
+  cursor: Scalars['String'];
+  /** The item at the end of the edge */
+  node?: Maybe<ShippingPlanTrackingNumber>;
 };
 
 export type SubmitBillInput = {
@@ -4387,7 +4461,7 @@ export type GetProductDetailQueryVariables = Exact<{
 }>;
 
 
-export type GetProductDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, images?: Array<{ __typename?: 'ProductImage', src?: string | null, position?: number | null } | null> | null, vendors?: Array<{ __typename?: 'ProductVendor', vendor_id?: string | null, vendor_sku?: string | null } | null> | null } | null } | null };
+export type GetProductDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', data?: { __typename?: 'Product', name?: string | null, sku?: string | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null };
 
 export type GetVendorsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4485,16 +4559,10 @@ export const GetProductDetailDocument = gql`
     query getProductDetail($sku: String!) {
   product(sku: $sku) {
     data {
-      id
       name
       sku
-      images {
-        src
-        position
-      }
-      vendors {
-        vendor_id
-        vendor_sku
+      kit_components {
+        sku
       }
     }
   }
