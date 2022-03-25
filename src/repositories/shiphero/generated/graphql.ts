@@ -4461,7 +4461,7 @@ export type GetProductDetailQueryVariables = Exact<{
 }>;
 
 
-export type GetProductDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', data?: { __typename?: 'Product', name?: string | null, sku?: string | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null };
+export type GetProductDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null };
 
 export type GetVendorsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4559,6 +4559,7 @@ export const GetProductDetailDocument = gql`
     query getProductDetail($sku: String!) {
   product(sku: $sku) {
     data {
+      id
       name
       sku
       kit_components {

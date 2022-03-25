@@ -46,6 +46,7 @@ interface GetProductDetailArgs {
   sku: string;
 }
 interface GetProductDetailRes {
+  id: string;
   title: string;
   products: Pick<Product, 'sku'>[];
 }
@@ -81,7 +82,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     const sdk = getSdk(client);
 
     let res: GetProductDetailQuery = await sdk.getProductDetail({ sku });
-    const { kit_components, name } = res?.product?.data;
+    const { kit_components, name, id } = res?.product?.data;
     if (!kit_components || !name) {
       return [
         null,
@@ -93,6 +94,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     }
     return [
       {
+        id,
         title: name,
         products: kit_components.map((component) => {
           return { sku: component.sku };

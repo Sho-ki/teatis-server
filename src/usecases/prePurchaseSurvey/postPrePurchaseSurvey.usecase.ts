@@ -10,7 +10,8 @@ import { Product } from '../../domains/Product';
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
   customerUuid: string;
-  recommendProductData: {
+  recommendProduct: {
+    id: string;
     title: string;
     products: Pick<
       Product,
@@ -193,7 +194,8 @@ export class PostPrePurchaseSurveyUsecase
       {
         customerId: upsertCustomerRes.customerId,
         customerUuid: upsertCustomerRes.customerUuid,
-        recommendProductData: {
+        recommendProduct: {
+          id: geKitComponentsRes.id,
           title: geKitComponentsRes.title,
           products: getRecommentProductsRes.products,
         },

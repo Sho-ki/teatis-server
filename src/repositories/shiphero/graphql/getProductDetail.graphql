@@ -1,6 +1,7 @@
 query getProductDetail ($sku:String!){
   product(sku:$sku) {
     data {
+    id
       name
       sku
 		 kit_components {		
