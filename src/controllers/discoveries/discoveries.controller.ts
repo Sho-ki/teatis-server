@@ -34,6 +34,8 @@ import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
+import { GetFirstBoxProductsDto } from './dtos/getFirstBoxProducts';
+import { GetFirstBoxProductsUsecaseInterface } from '../../usecases/prePurchaseSurvey/getFirstBoxProducts.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -56,6 +58,8 @@ export class DiscoveriesController {
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
+    @Inject('GetFirstBoxProductsUsecaseInterface')
+    private getFirstBoxProductsUsecase: GetFirstBoxProductsUsecaseInterface,
     private teatisJob: TeatisJobs,
   ) {}
 
@@ -71,7 +75,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(201).send(res);
   }
 
   // GET: api/discovery/all-options
@@ -110,6 +114,21 @@ export class DiscoveriesController {
     return response.status(200).send(res);
   }
 
+  // GET: api/discovery/first-box-products
+  @Get('first-box-products')
+  async getFirstProducts(
+    @Body() body: GetFirstBoxProductsDto,
+    @Res() response: Response,
+  ): Promise<Response<any | Error>> {
+    const [res, error] =
+      await this.getFirstBoxProductsUsecase.getFirstBoxProducts(body);
+
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
+  }
+
   // GET: api/discovery/next-box-survey
   @Get('next-box-survey')
   async getNextBoxSurvey(
@@ -137,7 +156,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(201).send(res);
   }
 
   // POST: api/discovery/delete-customer-box-webhook
@@ -152,13 +171,12 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(201).send(res);
   }
 
   // POST: api/discovery/order-update-webhook
   @Post('order-update-webhook')
   async createOrder(@Body() body: UpdateCustomerOrderDto) {
-    console.log('bodybodybodybody', body);
     const [res, error] =
       await this.updateCustomerOrderUsecase.updateCustomerOrder(body);
   }
@@ -175,15 +193,15 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(201).send(res);
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
-  @Post('job')
-  async dataMigrate() {
-    // await this.teatisJob.databaseMigrate();
-    await this.teatisJob.addUUID();
+  // @Post('job')
+  // async dataMigrate() {
+  //   // await this.teatisJob.databaseMigrate();
+  //   await this.teatisJob.addUUID();
 
-    return;
-  }
+  //   return;
+  // }
 }

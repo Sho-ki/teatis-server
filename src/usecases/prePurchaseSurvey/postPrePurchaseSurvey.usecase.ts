@@ -10,14 +10,7 @@ import { Product } from '../../domains/Product';
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
   customerUuid: string;
-  recommendProduct: {
-    id: string;
-    title: string;
-    products: Pick<
-      Product,
-      'id' | 'sku' | 'label' | 'images' | 'vendor' | 'expertComment'
-    >[];
-  };
+  recommendProductId: string;
 }
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
@@ -194,11 +187,7 @@ export class PostPrePurchaseSurveyUsecase
       {
         customerId: upsertCustomerRes.customerId,
         customerUuid: upsertCustomerRes.customerUuid,
-        recommendProduct: {
-          id: geKitComponentsRes.id,
-          title: geKitComponentsRes.title,
-          products: getRecommentProductsRes.products,
-        },
+        recommendProductId: geKitComponentsRes.id,
       },
       null,
     ];

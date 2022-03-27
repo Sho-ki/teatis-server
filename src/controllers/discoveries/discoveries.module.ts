@@ -21,10 +21,15 @@ import { DeleteCustomerBoxUsecase } from '../../usecases/customerBoxUpdate/delet
 import { OrderQueueRepo } from '../../repositories/teatisDB/orderRepo/orderQueue.repository';
 import { GetNextBoxUsecase } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { CustomerNextBoxSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
+import { GetFirstBoxProductsUsecase } from '../../usecases/prePurchaseSurvey/getFirstBoxProducts.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'GetFirstBoxProductsUsecaseInterface',
+      useClass: GetFirstBoxProductsUsecase,
+    },
     {
       provide: 'CustomerNextBoxSurveyRepoInterface',
       useClass: CustomerNextBoxSurveyRepo,

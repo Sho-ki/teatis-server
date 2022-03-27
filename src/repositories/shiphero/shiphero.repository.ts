@@ -51,9 +51,20 @@ interface GetProductDetailRes {
   products: Pick<Product, 'sku'>[];
 }
 
+interface GetFirstBoxProductsArgs {
+  id: string;
+}
+
+interface GetFirstBoxProductsRes {
+  products: Pick<Product, 'sku'>[];
+}
+
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepoInterface {
+  getFirstBoxProducts({
+    id,
+  }: GetFirstBoxProductsArgs): Promise<[GetFirstBoxProductsRes, Error]>;
   getKitComponents({
     sku,
   }: GetProductDetailArgs): Promise<[GetProductDetailRes, Error]>;
@@ -71,6 +82,36 @@ export interface ShipheroRepoInterface {
 
 @Injectable()
 export class ShipheroRepo implements ShipheroRepoInterface {
+  async getFirstBoxProducts({
+    id,
+  }: GetFirstBoxProductsArgs): Promise<[GetFirstBoxProductsRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
+    });
+    const sdk = getSdk(client);
+
+    let res: GetProductDetailQuery = await sdk.getFirstBoxProducts({ id });
+    const kitComponents = res?.product?.data.kit_components;
+    if (!kitComponents) {
+      return [
+        null,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getProductDetail failed',
+        },
+      ];
+    }
+    return [
+      {
+        products: kitComponents.map((component) => {
+          return { sku: component.sku };
+        }),
+      },
+      null,
+    ];
+  }
   async getKitComponents({
     sku,
   }: GetProductDetailArgs): Promise<[GetProductDetailRes, Error]> {
@@ -241,8 +282,6 @@ export class ShipheroRepo implements ShipheroRepoInterface {
   `;
 
     const data = await client.request(mutation);
-
-    console.log('data', data);
 
     return [{ status: 'Success' }, null];
   }

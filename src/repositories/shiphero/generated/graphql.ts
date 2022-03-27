@@ -4463,6 +4463,13 @@ export type GetProductDetailQueryVariables = Exact<{
 
 export type GetProductDetailQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null };
 
+export type GetFirstBoxProductsQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetFirstBoxProductsQuery = { __typename?: 'Query', product?: { __typename?: 'ProductQueryResult', data?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null };
+
 export type GetVendorsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4569,6 +4576,20 @@ export const GetProductDetailDocument = gql`
   }
 }
     `;
+export const GetFirstBoxProductsDocument = gql`
+    query getFirstBoxProducts($id: String!) {
+  product(id: $id) {
+    data {
+      id
+      name
+      sku
+      kit_components {
+        sku
+      }
+    }
+  }
+}
+    `;
 export const GetVendorsDocument = gql`
     query getVendors {
   vendors {
@@ -4602,6 +4623,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getProductDetail(variables: GetProductDetailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductDetailQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetProductDetailQuery>(GetProductDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductDetail');
+    },
+    getFirstBoxProducts(variables: GetFirstBoxProductsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetFirstBoxProductsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetFirstBoxProductsQuery>(GetFirstBoxProductsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getFirstBoxProducts');
     },
     getVendors(variables?: GetVendorsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetVendorsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetVendorsQuery>(GetVendorsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getVendors');
