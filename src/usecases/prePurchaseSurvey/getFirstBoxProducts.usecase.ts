@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
-import { GetFirstBoxProductsDto } from '../../controllers/discoveries/dtos/getFirstBoxProducts';
 import { Product } from '../../domains/Product';
 import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
 
@@ -13,9 +12,9 @@ export interface GetFirstBoxProductsUsecaseRes {
 }
 
 export interface GetFirstBoxProductsUsecaseInterface {
-  getFirstBoxProducts({
-    id,
-  }: GetFirstBoxProductsDto): Promise<[GetFirstBoxProductsUsecaseRes, Error]>;
+  getFirstBoxProducts(
+    id: string,
+  ): Promise<[GetFirstBoxProductsUsecaseRes, Error]>;
 }
 
 @Injectable()
@@ -29,9 +28,9 @@ export class GetFirstBoxProductsUsecase
     private readonly shipheroRepo: ShipheroRepoInterface,
   ) {}
 
-  async getFirstBoxProducts({
-    id,
-  }: GetFirstBoxProductsDto): Promise<[GetFirstBoxProductsUsecaseRes, Error]> {
+  async getFirstBoxProducts(
+    id: string,
+  ): Promise<[GetFirstBoxProductsUsecaseRes, Error]> {
     const [getKitComponentsRes, getKitComponentsError] =
       await this.shipheroRepo.getFirstBoxProducts({ id });
 

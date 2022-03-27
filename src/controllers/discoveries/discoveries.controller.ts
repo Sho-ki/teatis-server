@@ -4,7 +4,9 @@ import {
   Delete,
   Get,
   Inject,
+  Param,
   Post,
+  Query,
   Res,
   UsePipes,
   ValidationPipe,
@@ -34,7 +36,6 @@ import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
-import { GetFirstBoxProductsDto } from './dtos/getFirstBoxProducts';
 import { GetFirstBoxProductsUsecaseInterface } from '../../usecases/prePurchaseSurvey/getFirstBoxProducts.usecase';
 
 // api/discovery
@@ -117,11 +118,11 @@ export class DiscoveriesController {
   // GET: api/discovery/first-box-products
   @Get('first-box-products')
   async getFirstProducts(
-    @Body() body: GetFirstBoxProductsDto,
+    @Query('id') id: string,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
     const [res, error] =
-      await this.getFirstBoxProductsUsecase.getFirstBoxProducts(body);
+      await this.getFirstBoxProductsUsecase.getFirstBoxProducts(id);
 
     if (error) {
       return response.status(500).send(error);
