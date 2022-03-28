@@ -19,8 +19,8 @@ export class PostPostPurchaseSurveyDto {
   @IsString()
   orderNumber: string;
 
-  @IsObject()
-  questionCategory: { id: number; label: string; name: string };
+  @IsString()
+  questionCategory: string;
 
   @IsObject()
   answer: {

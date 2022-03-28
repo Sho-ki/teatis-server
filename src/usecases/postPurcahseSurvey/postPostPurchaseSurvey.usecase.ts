@@ -65,7 +65,7 @@ export class PostPostPurchaseSurveyUsecase
       }
     }
 
-    if (questionCategory.name === 'productFeedback') {
+    if (questionCategory === 'productFeedback') {
       const [postProductFeedbackRes, postProductFeedbackError] =
         await this.customerpostPurchaseSurveyRepo.postPostPurchaseSurveyCustomerAnswerProductFeedback(
           {
