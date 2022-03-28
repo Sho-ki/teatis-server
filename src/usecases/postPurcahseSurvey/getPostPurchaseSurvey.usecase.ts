@@ -116,6 +116,8 @@ export class GetPostPurchaseSurveyUsecase
           multipleOptions: undefined,
           bool: undefined,
         },
+        instruction: undefined,
+        placeholder: undefined,
         reason: undefined,
         title: undefined,
         content: undefined,
@@ -170,7 +172,7 @@ export class GetPostPurchaseSurveyUsecase
         if (customerAnswer.productId === question?.product?.id) {
           question.reason = customerAnswer?.reason
             ? customerAnswer.reason
-            : null;
+            : undefined;
 
           if (customerAnswer.surveyQuestionId === question.id) {
             switch (question.answerType) {
