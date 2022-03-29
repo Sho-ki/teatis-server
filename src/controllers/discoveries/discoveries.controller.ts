@@ -96,7 +96,7 @@ export class DiscoveriesController {
   // GET: api/discovery/post-purchase-survey
   @Get('post-purchase-survey')
   async getPostPurchaseSurvey(
-    @Body() body: GetPostPurchaseSurveyInfoDto,
+    @Query() body: GetPostPurchaseSurveyInfoDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
     const email = body.email;
@@ -133,7 +133,7 @@ export class DiscoveriesController {
   // GET: api/discovery/next-box-survey
   @Get('next-box-survey')
   async getNextBoxSurvey(
-    @Body() body: GetNextBoxSurveyDto,
+    @Query() body: GetNextBoxSurveyDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
     const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey(
