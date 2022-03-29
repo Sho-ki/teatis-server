@@ -182,8 +182,8 @@ export class DiscoveriesController {
       await this.updateCustomerOrderUsecase.updateCustomerOrder(body);
   }
 
-  // POST: api/discovery/update-customer-box-webhook
-  @Post('update-customer-box-webhook')
+  // POST: api/discovery/update-customer-box
+  @Post('update-customer-box')
   async createCustomerBox(
     @Body() body: UpdateCustomerBoxDto,
     @Res() response: Response,
