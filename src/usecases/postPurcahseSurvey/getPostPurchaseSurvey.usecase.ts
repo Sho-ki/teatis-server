@@ -117,7 +117,7 @@ export class GetPostPurchaseSurveyUsecase
           multipleOptions: undefined,
           bool: undefined,
         },
-        responseId: uuidv4(),
+        responseId: undefined,
         instruction: undefined,
         placeholder: undefined,
         reason: undefined,
@@ -142,9 +142,11 @@ export class GetPostPurchaseSurveyUsecase
               });
             }
           }
+          personalizedQuestion.responseId = uuidv4();
           const deepCopy = JSON.parse(JSON.stringify(personalizedQuestion));
           personalizedPostPurchaseSurveyQuestions.surveyQuestions.push({
             ...deepCopy,
+
             label: replacedLabel,
             product: {
               id: product.id,
@@ -156,6 +158,7 @@ export class GetPostPurchaseSurveyUsecase
           });
         }
       } else {
+        personalizedQuestion.responseId = uuidv4();
         personalizedPostPurchaseSurveyQuestions.surveyQuestions.push(
           personalizedQuestion,
         );
