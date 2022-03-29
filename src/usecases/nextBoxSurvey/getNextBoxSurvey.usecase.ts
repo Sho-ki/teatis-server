@@ -17,7 +17,15 @@ import {
 interface GetNextBoxUsecaseRes {
   products: Pick<
     Product,
-    'id' | 'sku' | 'name' | 'label' | 'vendor' | 'images' | 'expertComment'
+    | 'id'
+    | 'sku'
+    | 'name'
+    | 'label'
+    | 'vendor'
+    | 'images'
+    | 'expertComment'
+    | 'ingredientLabel'
+    | 'allergenLabel'
   >[];
 }
 
@@ -206,7 +214,28 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
 
     for (let product of allProducts) {
       if (getNextWantRes.ids.includes(product.id)) {
-        nextBoxProducts.products.push(product);
+        const {
+          id,
+          sku,
+          name,
+          label,
+          vendor,
+          images,
+          expertComment,
+          ingredientLabel,
+          allergenLabel,
+        } = product;
+        nextBoxProducts.products.push({
+          id,
+          sku,
+          name,
+          label,
+          vendor,
+          images,
+          expertComment,
+          ingredientLabel,
+          allergenLabel,
+        });
         continue;
       }
       let shippableProduct: CustomerShippableProduct = {
@@ -236,7 +265,28 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     for (let product of allProducts) {
       for (let analyzedProduct of analyzedProductsRes.products) {
         if (product.id === analyzedProduct.product_id) {
-          nextBoxProducts.products.push(product);
+          const {
+            id,
+            sku,
+            name,
+            label,
+            vendor,
+            images,
+            expertComment,
+            ingredientLabel,
+            allergenLabel,
+          } = product;
+          nextBoxProducts.products.push({
+            id,
+            sku,
+            name,
+            label,
+            vendor,
+            images,
+            expertComment,
+            ingredientLabel,
+            allergenLabel,
+          });
         }
       }
     }

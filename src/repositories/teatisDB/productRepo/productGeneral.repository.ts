@@ -110,6 +110,8 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         productFlavor: { select: { id: true, name: true, label: true } },
         productCategory: { select: { id: true, name: true, label: true } },
         expertComment: true,
+        allergenLabel: true,
+        ingredientLabel: true,
         intermediateProductAllergens: {
           select: {
             productAllergen: { select: { id: true, name: true, label: true } },
@@ -138,6 +140,8 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             name: product.name,
             expertComment: product.expertComment,
             label: product.label,
+            ingredientLabel: product.ingredientLabel,
+            allergenLabel: product.allergenLabel,
             sku: product.externalSku,
             vendor: product.productVendor.label,
             images: product?.productImages

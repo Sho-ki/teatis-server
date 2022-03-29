@@ -4,10 +4,12 @@ export class Product {
   label: string;
   sku: string;
   vendor: string;
+  ingredientLabel: string;
   images: ProductImage[];
   flavor: ProductAddOn;
   category: ProductAddOn;
   allergens: ProductAddOn[];
+  allergenLabel: string;
   foodTypes: ProductAddOn[];
   cookingMethods: ProductAddOn[];
   expertComment: string;
