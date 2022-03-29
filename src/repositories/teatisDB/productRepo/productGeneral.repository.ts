@@ -27,7 +27,7 @@ interface GetProductsBySkuRes {
 }
 
 interface GetAllProductsRes {
-  products: Omit<Product, 'nutritionFact' | 'expertComment'>[];
+  products: Omit<Product, 'nutritionFact'>[];
 }
 
 interface GetOptionsArgs {
@@ -109,6 +109,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         productImages: { select: { id: true, position: true, src: true } },
         productFlavor: { select: { id: true, name: true, label: true } },
         productCategory: { select: { id: true, name: true, label: true } },
+        expertComment: true,
         intermediateProductAllergens: {
           select: {
             productAllergen: { select: { id: true, name: true, label: true } },
@@ -135,6 +136,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
           return {
             id: product.id,
             name: product.name,
+            expertComment: product.expertComment,
             label: product.label,
             sku: product.externalSku,
             vendor: product.productVendor.label,

@@ -8,11 +8,16 @@ import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/custom
 import { GetNextBoxSurveyDto } from '../../controllers/discoveries/dtos/getNextBoxSurvey';
 import { Product } from '../../domains/Product';
 import { CustomerNextBoxSurveyRepoInterface } from '../../repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
+import {
+  AnalyzePreferenceArgs,
+  AnalyzePreferenceRepoInterface,
+  CustomerShippableProduct,
+} from '../../repositories/dataAnalyze/dataAnalyzeRepo';
 
 interface GetNextBoxUsecaseRes {
   products: Pick<
     Product,
-    'id' | 'sku' | 'name' | 'label' | 'vendor' | 'images'
+    'id' | 'sku' | 'name' | 'label' | 'vendor' | 'images' | 'expertComment'
   >[];
 }
 
@@ -23,15 +28,24 @@ interface FilterProductsArgs {
     | 'unavailableCookingMethods'
     | 'unwant';
   customerFilter: { ids: number[] };
-  products: Omit<Product, 'nutritionFact' | 'expertComment'>[];
+  products: Omit<Product, 'nutritionFact'>[];
 }
 
-type CustomerShippableProducts = Pick<Product, 'id' | 'sku'> & {
-  flavorId: number;
-  categoryId: number;
-  cookingMethodIds: number[];
-  isSentLastTime: boolean;
-};
+// {
+//   "products": [
+//       {"product_id":1001, "product_sku":"sku_1001", "is_send_last_time":"true", "category_id": 10, "flavor_id": 30}
+//       , {"product_id":1002, "product_sku":"sku_1001","is_send_last_time":"true", "category_id": 11, "flavor_id": 31}
+//       , {"product_id":1003, "product_sku":"sku_1001", "is_send_last_time":"true", "category_id": 12, "flavor_id": 32}
+//    ]
+//   ,"necessary_responces": 15
+//   ,"user_fav_categories": [10, 20, 30]
+// }
+// type AnalyzePreferenceReq = Pick<Product, 'id' | 'sku'> & {
+//   flavorId: number;
+//   categoryId: number;
+//   cookingMethodIds: number[];
+//   isSentLastTime: boolean;
+// };
 
 export interface GetNextBoxUsecaseInterface {
   getNextBoxSurvey({
@@ -48,8 +62,8 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     private customerGeneralRepo: CustomerGeneralRepoInterface,
     @Inject('ProductGeneralRepoInterface')
     private productGeneralRepo: ProductGeneralRepoInterface,
-    @Inject('CustomerPostPurchaseSurveyRepoInterface')
-    private customerPostPurchaseSurveyRepo: CustomerPostPurchaseSurveyRepoInterface,
+    @Inject('AnalyzePreferenceRepoInterface')
+    private analyzePreferenceRepo: AnalyzePreferenceRepoInterface,
     @Inject('CustomerNextBoxSurveyRepoInterface')
     private customerNextBoxSurveyRepo: CustomerNextBoxSurveyRepoInterface,
   ) {}
@@ -58,9 +72,8 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     filterType,
     customerFilter,
     products,
-  }: FilterProductsArgs): Omit<Product, 'nutritionFact' | 'expertComment'>[] {
-    let filteredProducts: Omit<Product, 'nutritionFact' | 'expertComment'>[] =
-      products;
+  }: FilterProductsArgs): Omit<Product, 'nutritionFact'>[] {
+    let filteredProducts: Omit<Product, 'nutritionFact'>[] = products;
     filteredProducts = products.filter((product) => {
       switch (filterType) {
         case 'flavorDislikes':
@@ -92,7 +105,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
   async getNextBoxSurvey({
     email,
   }: GetNextBoxSurveyDto): Promise<[GetNextBoxUsecaseRes, Error]> {
-    let productCount = 15;
+    let productCount = 30;
     let [getAllProductsRes, getAllProductsError] =
       await this.productGeneralRepo.getAllProducts();
     if (getAllProductsError) {
@@ -146,6 +159,13 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
         products: allProducts,
       });
     }
+
+    const [customerCategoryLikes, customerCategoryLikesError] =
+      await this.customerGeneralRepo.getCustomerPreference({
+        email,
+        type: 'categoryLikes',
+      });
+
     const [getNextUnwantRes, getCustomerUnwantError] =
       await this.customerNextBoxSurveyRepo.getNextUnwant({ email });
 
@@ -177,29 +197,50 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
       productCount -= getNextWantRes.ids.length;
     }
 
-    let customerShippableProducts: CustomerShippableProducts[] = [];
+    let customerShippableProducts: AnalyzePreferenceArgs = {
+      necessary_responces: productCount,
+      products: [],
+      user_fav_categories: customerCategoryLikes.ids,
+    };
+    let nextBoxProducts: GetNextBoxUsecaseRes = { products: [] };
 
     for (let product of allProducts) {
-      let shippableProduct: CustomerShippableProducts = {
-        id: product.id,
-        sku: product.sku,
-        flavorId: product.flavor.id,
-        categoryId: product.category.id,
-        cookingMethodIds:
+      if (getNextWantRes.ids.includes(product.id)) {
+        nextBoxProducts.products.push(product);
+        continue;
+      }
+      let shippableProduct: CustomerShippableProduct = {
+        product_id: product.id,
+        product_sku: product.sku,
+        flavor_id: product.flavor.id,
+        category_id: product.category.id,
+        cooking_method_ids:
           product.cookingMethods.map((cookingMethod) => {
             return cookingMethod.id;
           }) || [],
-        isSentLastTime: false,
+        is_send_last_time: false,
       };
       for (let getLastOrderResProduct of getLastOrderRes.products) {
         if (product.sku === getLastOrderResProduct.sku) {
-          shippableProduct = { ...shippableProduct, isSentLastTime: true };
+          shippableProduct = { ...shippableProduct, is_send_last_time: true };
           break;
         }
       }
-      customerShippableProducts.push(shippableProduct);
+      customerShippableProducts.products.push(shippableProduct);
     }
 
-    return;
+    const [analyzedProductsRes, analyzedProductsError] =
+      await this.analyzePreferenceRepo.getAnalyzedProducts(
+        customerShippableProducts,
+      );
+    for (let product of allProducts) {
+      for (let analyzedProduct of analyzedProductsRes.products) {
+        if (product.id === analyzedProduct.product_id) {
+          nextBoxProducts.products.push(product);
+        }
+      }
+    }
+
+    return [nextBoxProducts, null];
   }
 }
