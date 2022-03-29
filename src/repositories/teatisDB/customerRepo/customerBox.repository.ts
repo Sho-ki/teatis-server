@@ -4,7 +4,7 @@ import { Product } from '../../../domains/Product';
 import { PrismaService } from '../../../prisma.service';
 
 interface DeleteCustomerBoxArgs {
-  email: string;
+  customerId: number;
 }
 interface DeleteCustomerBoxRes {
   deletedCount: number;
@@ -31,7 +31,7 @@ export interface CustomerBoxRepoInterface {
     email,
   }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes, Error]>;
   deleteCustomerBox({
-    email,
+    customerId,
   }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes, Error]>;
 
   postCustomerBox({
@@ -45,16 +45,11 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
   constructor(private prisma: PrismaService) {}
 
   async deleteCustomerBox({
-    email,
+    customerId,
   }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes, Error]> {
     let res = await this.prisma.customerBoxItems.deleteMany({
       where: {
-        customerId: (
-          await this.prisma.customers.findUnique({
-            where: { email },
-            select: { id: true },
-          })
-        ).id,
+        customerId,
       },
     });
 

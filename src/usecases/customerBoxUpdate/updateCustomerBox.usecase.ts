@@ -27,15 +27,13 @@ export class UpdateCustomerBoxUsecase
     products,
     email,
   }: UpdateCustomerBoxDto): Promise<[CustomerBox, Error]> {
-    const [
-      [getCustomerRes, getCustomerError],
-      [deleteCustomerBoxRes, deleteCustomerBoxError],
-    ] = await Promise.all([
-      this.customerGeneralRepo.getCustomer({ email }),
+    const [getCustomerRes, getCustomerError] =
+      await this.customerGeneralRepo.getCustomer({ email });
+
+    const [deleteCustomerBoxRes, deleteCustomerBoxError] =
       await this.customerBoxRepo.deleteCustomerBox({
-        email,
-      }),
-    ]);
+        customerId: getCustomerRes.id,
+      });
 
     if (getCustomerError) {
       return [null, getCustomerError];
