@@ -20,7 +20,7 @@ export class PostPostPurchaseSurveyDto {
   orderNumber: string;
 
   @IsString()
-  questionCategory: string;
+  responseId: string;
 
   @IsObject()
   answer: {

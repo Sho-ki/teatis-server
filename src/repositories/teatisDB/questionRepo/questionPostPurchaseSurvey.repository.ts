@@ -16,7 +16,6 @@ interface GetSurveyQuestionsResSurveyQuestion {
   id: number;
   name: string;
   label: string;
-  category: string;
   mustBeAnswered: boolean;
   instruction?: string;
   placeholder?: string;
@@ -77,8 +76,6 @@ export class QuestionPostPurchaseSurveyRepo
         id: question.surveyQuestion.id,
         name: question.surveyQuestion.name,
         label: question.surveyQuestion.label,
-        category: question.surveyQuestion.questionCategory.name,
-
         mustBeAnswered: question.surveyQuestion.mustBeAnswered,
         instruction: question.surveyQuestion.instruction,
         placeholder: question.surveyQuestion.placeholder,

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 
 import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
@@ -116,6 +117,7 @@ export class GetPostPurchaseSurveyUsecase
           multipleOptions: undefined,
           bool: undefined,
         },
+        responseId: uuidv4(),
         instruction: undefined,
         placeholder: undefined,
         reason: undefined,
@@ -159,7 +161,6 @@ export class GetPostPurchaseSurveyUsecase
         );
       }
     });
-
     for (let question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
       for (let customerAnswer of getCustomerAnswersRes.customerAnswers) {
         if (
@@ -167,12 +168,15 @@ export class GetPostPurchaseSurveyUsecase
           customerAnswer?.answer?.text
         ) {
           question.answer.text = customerAnswer.answer.text;
+          question.responseId = customerAnswer.responseId;
           break;
         }
         if (customerAnswer.productId === question?.product?.id) {
           question.reason = customerAnswer?.reason
             ? customerAnswer.reason
             : undefined;
+
+          question.responseId = customerAnswer.responseId;
 
           if (customerAnswer.surveyQuestionId === question.id) {
             switch (question.answerType) {

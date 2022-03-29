@@ -24,6 +24,7 @@ interface GetCustomerAnswersResCustomerAnswer {
     multipleOptionIds?: number[];
     bool?: boolean;
   };
+  responseId: string;
   reason?: string;
   title?: string;
   content?: string;
@@ -40,11 +41,12 @@ interface GetAnswerCountRes {
   currentMaxAnswerCount: number;
 }
 
-interface PostPostPurchaseSurveyCustomerAnswerProductFeedbackArgs {
+interface PostPostPurchaseSurveyCustomerAnswerArgs {
   id: number;
   customerId: number;
   orderNumber: string;
   productId: number;
+  responseId: string;
   answer: {
     text?: string;
     numeric?: number;
@@ -58,7 +60,7 @@ interface PostPostPurchaseSurveyCustomerAnswerProductFeedbackArgs {
   currentMaxAnswerCount: number;
 }
 
-interface PostPostPurchaseSurveyCustomerAnswerProductFeedbackRes {
+interface PostPostPurchaseSurveyCustomerAnswerRes {
   id: number;
 }
 
@@ -68,18 +70,19 @@ export interface CustomerPostPurchaseSurveyRepoInterface {
     orderNumber,
   }: GetCustomerAnswersArgs): Promise<[GetCustomerAnswersRes, Error]>;
 
-  postPostPurchaseSurveyCustomerAnswerProductFeedback({
+  postPostPurchaseSurveyCustomerAnswer({
     id,
     customerId,
     orderNumber,
+    responseId,
     productId,
     answer,
     title,
     content,
     reason,
     currentMaxAnswerCount,
-  }: PostPostPurchaseSurveyCustomerAnswerProductFeedbackArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerProductFeedbackRes, Error]
+  }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
+    [PostPostPurchaseSurveyCustomerAnswerRes, Error]
   >;
 
   getAnswerCount({
@@ -102,26 +105,22 @@ export class CustomerPostPurchaseSurveyRepo
     orderNumber: string,
     currentMaxAnswerCount: number,
   ): Promise<boolean> {
-    let count = await this.prisma.surveyQuestionAnswerProductFeedback.aggregate(
-      {
-        where: { orderNumber, answerCount: currentMaxAnswerCount },
-        _max: { answerCount: true },
-      },
-    );
+    let count = await this.prisma.surveyQuestionAnswer.aggregate({
+      where: { orderNumber, answerCount: currentMaxAnswerCount },
+      _max: { answerCount: true },
+    });
     return count._max.answerCount !== currentMaxAnswerCount;
   }
 
   async getAnswerCount({
     customerId,
   }: GetAnswerCountArgs): Promise<[GetAnswerCountRes, Error]> {
-    let count = await this.prisma.surveyQuestionAnswerProductFeedback.aggregate(
-      {
-        where: { customerId },
-        _max: {
-          answerCount: true,
-        },
+    let count = await this.prisma.surveyQuestionAnswer.aggregate({
+      where: { customerId },
+      _max: {
+        answerCount: true,
       },
-    );
+    });
 
     return [{ currentMaxAnswerCount: count._max.answerCount }, null];
   }
@@ -135,8 +134,8 @@ export class CustomerPostPurchaseSurveyRepo
       select: {
         id: true,
         email: true,
-        surveyQuestionAnswerProductFeedback: {
-          where: { orderNumber: orderNumber },
+        surveyQuestionAnswer: {
+          where: { orderNumber },
           select: {
             id: true,
             customerId: true,
@@ -151,6 +150,7 @@ export class CustomerPostPurchaseSurveyRepo
                 },
               },
             },
+            responseId: true,
             reason: true,
             title: true,
             content: true,
@@ -161,7 +161,6 @@ export class CustomerPostPurchaseSurveyRepo
         },
       },
     });
-
     if (!getCustomerRes) {
       return [
         null,
@@ -171,8 +170,9 @@ export class CustomerPostPurchaseSurveyRepo
         },
       ];
     }
+
     let customerAnswers: GetCustomerAnswersResCustomerAnswer[] = [];
-    for (let customerAnswer of getCustomerRes.surveyQuestionAnswerProductFeedback) {
+    for (let customerAnswer of getCustomerRes.surveyQuestionAnswer) {
       let answer: GetCustomerAnswersResCustomerAnswer = {
         id: customerAnswer.id,
         surveyQuestionId: customerAnswer.surveyQuestionId,
@@ -190,11 +190,12 @@ export class CustomerPostPurchaseSurveyRepo
               : [],
           bool: customerAnswer.answerBool,
         },
+        responseId: customerAnswer.responseId,
         reason: customerAnswer.reason,
         title: customerAnswer.title,
         content: customerAnswer.content,
         answerCount: customerAnswer.answerCount,
-        productId: customerAnswer.productId,
+        productId: customerAnswer?.productId,
         orderNumber: customerAnswer.orderNumber,
       };
       customerAnswers.push(answer);
@@ -206,26 +207,23 @@ export class CustomerPostPurchaseSurveyRepo
     ];
   }
 
-  async postPostPurchaseSurveyCustomerAnswerProductFeedback({
+  async postPostPurchaseSurveyCustomerAnswer({
     id,
     customerId,
     orderNumber,
+    responseId,
     productId,
     answer,
     title,
     content,
     reason,
     currentMaxAnswerCount,
-  }: PostPostPurchaseSurveyCustomerAnswerProductFeedbackArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerProductFeedbackRes, Error]
+  }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
+    [PostPostPurchaseSurveyCustomerAnswerRes, Error]
   > {
-    let prismaQuery: Prisma.SurveyQuestionAnswerProductFeedbackUpsertArgs = {
+    let prismaQuery: Prisma.SurveyQuestionAnswerUpsertArgs = {
       where: {
-        CustomerSurveyQuestionProductFeedbackIdentifier: {
-          orderNumber,
-          surveyQuestionId: id,
-          productId,
-        },
+        responseId,
       },
       create: undefined,
       update: undefined,
@@ -240,12 +238,15 @@ export class CustomerPostPurchaseSurveyRepo
           surveyQuestion: {
             connect: { id: id },
           },
-          product: {
-            connect: { id: productId },
-          },
+          product: productId
+            ? {
+                connect: { id: productId },
+              }
+            : {},
           answerOption: {
             connect: { id: answer.singleOption.id },
           },
+          responseId,
           title,
           content,
           reason,
@@ -259,12 +260,15 @@ export class CustomerPostPurchaseSurveyRepo
           surveyQuestion: {
             connect: { id: id },
           },
-          product: {
-            connect: { id: productId },
-          },
+          product: productId
+            ? {
+                connect: { id: productId },
+              }
+            : {},
           answerOption: {
             connect: { id: answer.singleOption.id },
           },
+          responseId,
           title,
           content,
           reason,
@@ -283,9 +287,12 @@ export class CustomerPostPurchaseSurveyRepo
             connect: { id: id },
           },
 
-          product: {
-            connect: { id: productId },
-          },
+          product: productId
+            ? {
+                connect: { id: productId },
+              }
+            : {},
+          responseId,
           title,
           content,
           reason,
@@ -307,6 +314,7 @@ export class CustomerPostPurchaseSurveyRepo
           product: {
             connect: { id: productId },
           },
+          responseId,
           title,
           content,
           reason,
@@ -331,12 +339,15 @@ export class CustomerPostPurchaseSurveyRepo
           surveyQuestion: {
             connect: { id: id },
           },
-          product: {
-            connect: { id: productId },
-          },
+          product: productId
+            ? {
+                connect: { id: productId },
+              }
+            : {},
           answerBool: answer.bool,
           answerNumeric: answer.numeric,
           answerText: answer.text,
+          responseId,
           title,
           content,
           reason,
@@ -350,12 +361,15 @@ export class CustomerPostPurchaseSurveyRepo
           surveyQuestion: {
             connect: { id: id },
           },
-          product: {
-            connect: { id: productId },
-          },
+          product: productId
+            ? {
+                connect: { id: productId },
+              }
+            : {},
           answerBool: answer.bool,
           answerNumeric: answer.numeric,
           answerText: answer.text,
+          responseId,
           title,
           content,
           reason,
@@ -365,9 +379,7 @@ export class CustomerPostPurchaseSurveyRepo
       };
     }
 
-    let res = await this.prisma.surveyQuestionAnswerProductFeedback.upsert(
-      prismaQuery,
-    );
+    let res = await this.prisma.surveyQuestionAnswer.upsert(prismaQuery);
 
     return [{ id: res.id }, null];
   }

@@ -11,7 +11,7 @@ export interface PostPostPurchaseSurveyUsecaseInterface {
     customerId,
     orderNumber,
     productId,
-    questionCategory,
+    responseId,
     answer,
     title,
     content,
@@ -41,8 +41,8 @@ export class PostPostPurchaseSurveyUsecase
     customerId,
     orderNumber,
     productId,
-    questionCategory,
     answer,
+    responseId,
     title,
     content,
     reason,
@@ -65,22 +65,21 @@ export class PostPostPurchaseSurveyUsecase
       }
     }
 
-    if (questionCategory === 'productFeedback') {
-      const [postProductFeedbackRes, postProductFeedbackError] =
-        await this.customerpostPurchaseSurveyRepo.postPostPurchaseSurveyCustomerAnswerProductFeedback(
-          {
-            id,
-            customerId,
-            orderNumber,
-            productId,
-            answer,
-            title,
-            content,
-            reason,
-            currentMaxAnswerCount: answerCountRes.currentMaxAnswerCount,
-          },
-        );
-      return [{ id: postProductFeedbackRes.id }, null];
-    }
+    const [postProductFeedbackRes, postProductFeedbackError] =
+      await this.customerpostPurchaseSurveyRepo.postPostPurchaseSurveyCustomerAnswer(
+        {
+          id,
+          customerId,
+          orderNumber,
+          responseId,
+          productId,
+          answer,
+          title,
+          content,
+          reason,
+          currentMaxAnswerCount: answerCountRes.currentMaxAnswerCount,
+        },
+      );
+    return [{ id: postProductFeedbackRes.id }, null];
   }
 }

@@ -36,15 +36,14 @@ export class CustomerNextBoxSurveyRepo
   async getNextWant({
     orderNumber,
   }: GetNextWantArgs): Promise<[GetNextWantRes, Error]> {
-    const getNextWantRes =
-      await this.prisma.surveyQuestionAnswerProductFeedback.findMany({
-        where: {
-          AND: [{ orderNumber }, { answerNumeric: 6 }],
-        },
-        select: {
-          product: { select: { id: true } },
-        },
-      });
+    const getNextWantRes = await this.prisma.surveyQuestionAnswer.findMany({
+      where: {
+        AND: [{ orderNumber }, { answerNumeric: 6 }],
+      },
+      select: {
+        product: { select: { id: true } },
+      },
+    });
     return [
       {
         ids: getNextWantRes.map((nextWant) => {
@@ -58,15 +57,14 @@ export class CustomerNextBoxSurveyRepo
   async getNextUnwant({
     email,
   }: GetNextUnwantArgs): Promise<[GetNextUnwantRes, Error]> {
-    const getNextUnwantRes =
-      await this.prisma.surveyQuestionAnswerProductFeedback.findMany({
-        where: {
-          AND: [{ customer: { email } }, { answerNumeric: 1 }],
-        },
-        select: {
-          product: { select: { id: true } },
-        },
-      });
+    const getNextUnwantRes = await this.prisma.surveyQuestionAnswer.findMany({
+      where: {
+        AND: [{ customer: { email } }, { answerNumeric: 1 }],
+      },
+      select: {
+        product: { select: { id: true } },
+      },
+    });
     return [
       {
         ids: getNextUnwantRes.map((nextUnwant) => {

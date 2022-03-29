@@ -38,8 +38,7 @@ model Customers{
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
   intermediateCustomerAllergens IntermediateCustomerAllergen[]
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
   customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
   queuedShopifyOrder QueuedShopifyOrder[]
@@ -153,7 +152,7 @@ model Product{
   upcCode  String?
   MSP Float?
   WSP Float?
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
   customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
   productImages ProductImage[]
@@ -396,8 +395,7 @@ model SurveyQuestion{
   surveyQuestionAnswerTypeId Int
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
   surveyQuestionOptions SurveyQuestionOption[]
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -426,9 +424,7 @@ model SurveyQuestionOption{
   name String
   surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
   surveyQuestionId Int
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
-  intermediateSurveyQuestionAnswerService IntermediateSurveyQuestionAnswerService[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
   intermediateSurveyQuestionAnswerProduct IntermediateSurveyQuestionAnswerProduct[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
@@ -436,43 +432,12 @@ model SurveyQuestionOption{
    @@unique([name, surveyQuestionId], name: "QuestionOptionIdentifier")
 }
 
-model SurveyQuestionAnswerServiceFeedback{
-  id  Int   @default(autoincrement()) @id
-  intermediateSurveyQuestionAnswerService IntermediateSurveyQuestionAnswerService[]
-  customer Customers @relation(fields: [customerId], references: [id])
-  customerId Int
-  surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
-  surveyQuestionId Int
-  answerOption SurveyQuestionOption? @relation(fields: [answerSingleOptionId], references: [id])
-  answerSingleOptionId Int?
-  answerNumeric Int?
-  answerText String?
-  answerBool Boolean?
-  reason String?
-  title String?
-  content String?
-  answerCount Int?
-  orderNumber String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt @default(now())
 
-  @@unique([surveyQuestionId,orderNumber], name: "CustomerSurveyQuestionServiceFeedbackIdentifier")
-}
 
-model IntermediateSurveyQuestionAnswerService{
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback @relation(fields: [surveyQuestionAnswerServiceFeedbackId], references: [id])
-  surveyQuestionAnswerServiceFeedbackId Int
-  surveyQuestionOption SurveyQuestionOption @relation(fields: [surveyQuestionOptionId], references: [id])
-  surveyQuestionOptionId Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt @default(now())
-
-  @@id([surveyQuestionAnswerServiceFeedbackId, surveyQuestionOptionId])
-}
-
-model SurveyQuestionAnswerProductFeedback{
+model SurveyQuestionAnswer{
   id  Int   @default(autoincrement()) @id
   intermediateSurveyQuestionAnswerProduct IntermediateSurveyQuestionAnswerProduct[]
+  responseId String? @unique
   customer Customers @relation(fields: [customerId], references: [id])
   customerId Int
   surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
@@ -486,25 +451,23 @@ model SurveyQuestionAnswerProductFeedback{
   title String?
   content String?
   answerCount Int?
-  product Product @relation(fields: [productId], references: [id])
-  productId Int
+  product Product? @relation(fields: [productId], references: [id])
+  productId Int?
   orderNumber String?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt @default(now())
-
-  @@unique([surveyQuestionId,orderNumber, productId], name: "CustomerSurveyQuestionProductFeedbackIdentifier")
+  updatedAt DateTime  @updatedAt @default(now()) 
 
 }
 
 model IntermediateSurveyQuestionAnswerProduct{
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback @relation(fields: [surveyQuestionAnswerProductFeedbackId], references: [id])
-  surveyQuestionAnswerProductFeedbackId Int
+  surveyQuestionAnswer SurveyQuestionAnswer @relation(fields: [surveyQuestionAnswerId], references: [id])
+  surveyQuestionAnswerId Int
   surveyQuestionOption SurveyQuestionOption @relation(fields: [surveyQuestionOptionId], references: [id])
   surveyQuestionOptionId Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@id([surveyQuestionAnswerProductFeedbackId, surveyQuestionOptionId])
+  @@id([surveyQuestionAnswerId, surveyQuestionOptionId])
 }
 
 model CustomerProductDistance{

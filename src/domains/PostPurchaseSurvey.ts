@@ -6,9 +6,9 @@ export class PostPurchaseSurvey {
 
 export class SurveyQuestions {
   id: number;
+  responseId: string;
   name: string;
   label: string;
-  category: string;
   mustBeAnswered: boolean;
   instruction?: string;
   placeholder?: string;
