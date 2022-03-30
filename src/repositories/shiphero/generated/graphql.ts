@@ -4437,10 +4437,10 @@ export type WebhooksQueryResultDataArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
-export type GetAllProductsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetProductInventryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllProductsQuery = { __typename?: 'Query', products?: { __typename?: 'ProductsQueryResult', data?: { __typename?: 'ProductConnection', edges: Array<{ __typename?: 'ProductEdge', node?: { __typename?: 'Product', id?: string | null, name?: string | null, sku?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null } | null> | null } | null } | null> } | null } | null };
+export type GetProductInventryQuery = { __typename?: 'Query', products?: { __typename?: 'ProductsQueryResult', data?: { __typename?: 'ProductConnection', edges: Array<{ __typename?: 'ProductEdge', node?: { __typename?: 'Product', sku?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null } | null> | null } | null } | null> } | null } | null };
 
 export type GetLastOrderByEmailQueryVariables = Exact<{
   email: Scalars['String'];
@@ -4476,14 +4476,12 @@ export type GetVendorsQueryVariables = Exact<{ [key: string]: never; }>;
 export type GetVendorsQuery = { __typename?: 'Query', vendors?: { __typename?: 'VendorsQueryResult', data?: { __typename?: 'VendorConnection', edges: Array<{ __typename?: 'VendorEdge', node?: { __typename?: 'Vendor', id?: string | null, name?: string | null } | null } | null> } | null } | null };
 
 
-export const GetAllProductsDocument = gql`
-    query getAllProducts {
+export const GetProductInventryDocument = gql`
+    query getProductInventry {
   products {
     data {
       edges {
         node {
-          id
-          name
           sku
           warehouse_products {
             on_hand
@@ -4612,8 +4610,8 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    getAllProducts(variables?: GetAllProductsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAllProductsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetAllProductsQuery>(GetAllProductsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getAllProducts');
+    getProductInventry(variables?: GetProductInventryQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductInventryQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventryQuery>(GetProductInventryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductInventry');
     },
     getLastOrderByEmail(variables: GetLastOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderByEmailQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderByEmailQuery>(GetLastOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderByEmail');

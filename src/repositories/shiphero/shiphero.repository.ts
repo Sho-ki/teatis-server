@@ -11,6 +11,7 @@ import { Product } from '../../domains/Product';
 import {
   GetLastOrderByEmailQuery,
   GetProductDetailQuery,
+  GetProductInventryQuery,
   getSdk,
 } from './generated/graphql';
 
@@ -59,6 +60,10 @@ interface GetFirstBoxProductsRes {
   products: Pick<Product, 'sku'>[];
 }
 
+interface GetNonInventryProductsRes {
+  skus: string[];
+}
+
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepoInterface {
@@ -70,6 +75,7 @@ export interface ShipheroRepoInterface {
   }: GetProductDetailArgs): Promise<[GetProductDetailRes, Error]>;
   getLastOrder({ email }: GetLastOrderArgs): Promise<[GetLastOrderRes, Error]>;
 
+  getNonInventryProducts(): Promise<[GetNonInventryProductsRes, Error]>;
   getOrderByOrderNumber({
     orderNumber,
   }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes, Error]>;
@@ -82,6 +88,38 @@ export interface ShipheroRepoInterface {
 
 @Injectable()
 export class ShipheroRepo implements ShipheroRepoInterface {
+  async getNonInventryProducts(): Promise<[GetNonInventryProductsRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
+      },
+    });
+    const sdk = getSdk(client);
+
+    let res: GetProductInventryQuery = await sdk.getProductInventry();
+    const allProducts = res?.products?.data?.edges;
+    if (!allProducts) {
+      return [
+        null,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getProductDetail failed',
+        },
+      ];
+    }
+    let nonInventrySkus: string[] = [];
+    for (let product of allProducts) {
+      if (product.node.warehouse_products[0].on_hand <= 5)
+        nonInventrySkus.push(product.node.sku);
+    }
+    return [
+      {
+        skus: nonInventrySkus,
+      },
+      null,
+    ];
+  }
+
   async getFirstBoxProducts({
     id,
   }: GetFirstBoxProductsArgs): Promise<[GetFirstBoxProductsRes, Error]> {

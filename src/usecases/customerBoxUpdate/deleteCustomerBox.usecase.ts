@@ -32,18 +32,20 @@ export class DeleteCustomerBoxUsecase
     email,
     name,
   }: DeleteCustomerBoxDto): Promise<[CustomerBox, Error]> {
-    const [deleteCustomerBoxRes, deleteCustomerBoxError] =
-      await this.customerBoxRepo.deleteCustomerBox({
-        email,
-      });
-    if (deleteCustomerBoxError) {
-      return [null, deleteCustomerBoxError];
-    }
     const [getCustomerRes, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({ email });
     if (getCustomerError) {
       return [null, getCustomerError];
     }
+
+    const [deleteCustomerBoxRes, deleteCustomerBoxError] =
+      await this.customerBoxRepo.deleteCustomerBox({
+        customerId: getCustomerRes.id,
+      });
+    if (deleteCustomerBoxError) {
+      return [null, deleteCustomerBoxError];
+    }
+
     const [shipOrderQueue, shipOrderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
         customerId: getCustomerRes.id,

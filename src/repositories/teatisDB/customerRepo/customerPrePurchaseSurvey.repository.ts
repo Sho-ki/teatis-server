@@ -160,6 +160,7 @@ export class CustomerPrePurchaseSurveyRepo
         }),
       ]);
     }
+
     let customer = await this.prisma.customers.upsert({
       where: { email },
       select: {

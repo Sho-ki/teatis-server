@@ -70,6 +70,6 @@ export class ShopifyRepo implements ShopifyRepoInterface {
       ];
     }
 
-    return [{ orderCount: getOrderCountRes.data.orders_count }, null];
+    return [{ orderCount: getOrderCountRes.data.customer.orders_count }, null];
   }
 }

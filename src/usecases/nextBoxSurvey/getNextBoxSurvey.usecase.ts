@@ -14,6 +14,10 @@ import {
   CustomerShippableProduct,
 } from '../../repositories/dataAnalyze/dataAnalyzeRepo';
 
+interface GetNextBoxUsecaseArgs extends GetNextBoxSurveyDto {
+  productCount: number;
+}
+
 interface GetNextBoxUsecaseRes {
   products: Pick<
     Product,
@@ -31,11 +35,12 @@ interface GetNextBoxUsecaseRes {
 
 interface FilterProductsArgs {
   filterType:
+    | 'inventry'
     | 'flavorDislikes'
     | 'allergens'
     | 'unavailableCookingMethods'
     | 'unwant';
-  customerFilter: { ids: number[] };
+  customerFilter: { ids?: number[]; skus?: string[] };
   products: Omit<Product, 'nutritionFact'>[];
 }
 
@@ -58,7 +63,8 @@ interface FilterProductsArgs {
 export interface GetNextBoxUsecaseInterface {
   getNextBoxSurvey({
     email,
-  }: GetNextBoxSurveyDto): Promise<[GetNextBoxUsecaseRes, Error]>;
+    productCount,
+  }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]>;
 }
 
 @Injectable()
@@ -84,6 +90,8 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     let filteredProducts: Omit<Product, 'nutritionFact'>[] = products;
     filteredProducts = products.filter((product) => {
       switch (filterType) {
+        case 'inventry':
+          return !customerFilter.skus.includes(product.sku);
         case 'flavorDislikes':
           return !customerFilter.ids.includes(product.flavor.id);
         case 'allergens':
@@ -112,14 +120,28 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
 
   async getNextBoxSurvey({
     email,
-  }: GetNextBoxSurveyDto): Promise<[GetNextBoxUsecaseRes, Error]> {
-    let productCount = 30;
+    productCount,
+  }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]> {
     let [getAllProductsRes, getAllProductsError] =
       await this.productGeneralRepo.getAllProducts();
     if (getAllProductsError) {
       return [null, getAllProductsError];
     }
     let allProducts = getAllProductsRes.products;
+
+    const [getNoInventryProductsRes, getNoInventryProductsError] =
+      await this.shipheroRepo.getNonInventryProducts();
+    if (getNoInventryProductsError) {
+      return [null, getNoInventryProductsError];
+    }
+    if (getNoInventryProductsRes.skus.length > 0) {
+      allProducts = this.filterProducts({
+        filterType: 'inventry',
+        customerFilter: getNoInventryProductsRes,
+        products: allProducts,
+      });
+    }
+
     const [customerFlavorDislikes, customerFlavorDislikesError] =
       await this.customerGeneralRepo.getCustomerPreference({
         email,

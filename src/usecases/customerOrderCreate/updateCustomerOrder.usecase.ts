@@ -12,6 +12,7 @@ import { OrderQueueRepoInterface } from 'src/repositories/teatisDB/orderRepo/ord
 import { Product } from 'src/domains/Product';
 import { OrderQueue } from '../../domains/OrderQueue';
 import { ShopifyRepoInterface } from '../../repositories/shopify/shopify.repository';
+import { GetNextBoxUsecaseInterface } from '../nextBoxSurvey/getNextBoxSurvey.usecase';
 
 export interface UpdateCustomerOrderUsecaseInterface {
   updateCustomerOrder({
@@ -36,6 +37,8 @@ export class UpdateCustomerOrderUsecase
     private customerGeneralRepo: CustomerGeneralRepoInterface,
     @Inject('ShopifyRepoInterface')
     private readonly shopifyRepo: ShopifyRepoInterface,
+    @Inject('GetNextBoxUsecaseInterface')
+    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
   ) {}
 
   async updateCustomerOrder({
@@ -64,20 +67,23 @@ export class UpdateCustomerOrderUsecase
       // Case 1-1: if healthy carb
       // Case 1-2: if low sodium
       // Case 2: if the second order but no post-purchase survey (no customer box products)
-      let orderProducts: Pick<Product, 'sku'>[];
+      let orderProducts: Pick<Product, 'sku'>[] = [];
 
       const [getOrderCountRes, getOrderCountError] =
         await this.shopifyRepo.getOrderCount({
           shopifyCustomerId: customer.id,
         });
-      if (getOrderCountRes.orderCount <= 0) {
+      if (getOrderCountError) {
+        return [null, getOrderCountError];
+      }
+      if (getOrderCountRes.orderCount <= 1) {
         const purchasedProducts = line_items.map((lineItem) => {
           return lineItem.product_id;
         });
         if (purchasedProducts.includes(6646306439223)) {
           let [kitComponents, getKitComponentsError] =
             await this.shipheroRepo.getKitComponents({
-              sku: 'Teatis_Meal_Box_HC_Discovery',
+              sku: 'Teatis_Meal_Box_HC_Discovery_1st',
             });
           if (getKitComponentsError) {
             return [null, getKitComponentsError];
@@ -87,7 +93,7 @@ export class UpdateCustomerOrderUsecase
         if (purchasedProducts.includes(6646305685559)) {
           let [kitComponents, getKitComponentsError] =
             await this.shipheroRepo.getKitComponents({
-              sku: 'Teatis_Meal_Box_HCLS_Discovery',
+              sku: 'Teatis_Meal_Box_HCLS_Discovery_1st',
             });
           if (getKitComponentsError) {
             return [null, getKitComponentsError];
@@ -104,12 +110,26 @@ export class UpdateCustomerOrderUsecase
         }
         if (getCustomerBoxProductsRes.products.length <= 0) {
           // analyze
+          const [nextBoxProductsRes, nextBoxProductsError] =
+            await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
+              email: customer.email,
+              productCount: 15,
+            });
+          orderProducts = nextBoxProductsRes.products.map((product) => {
+            return { sku: product.sku };
+          });
+          if (nextBoxProductsError) {
+            return [null, nextBoxProductsError];
+          }
+        } else {
+          orderProducts = getCustomerBoxProductsRes.products;
         }
 
-        orderProducts = getCustomerBoxProductsRes.products;
-
-        if (getOrderCountRes.orderCount === 1) {
-          orderProducts.push({ sku: '00000000000043' }); //  Diabetic Ankle Socks Single Pair
+        if (getOrderCountRes.orderCount === 2) {
+          orderProducts.push(
+            { sku: '00000000000043' },
+            { sku: '00000000000012' },
+          ); //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
         }
       }
 
@@ -128,7 +148,7 @@ export class UpdateCustomerOrderUsecase
       if (updateOrderError) {
         return [null, updateOrderError];
       }
-    }, 20000);
+    }, 40000);
 
     const [completeOrderQueueRes, completeOrderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({

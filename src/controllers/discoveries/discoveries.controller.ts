@@ -79,7 +79,7 @@ export class DiscoveriesController {
     return response.status(201).send(res);
   }
 
-  // GET: api/discovery/all-options
+  // GET: api/discovery/pre-purchase-options
   @Get('pre-purchase-options')
   async getPrePurchaseOptions(
     @Res() response: Response,
@@ -136,9 +136,10 @@ export class DiscoveriesController {
     @Query() body: GetNextBoxSurveyDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey(
-      body,
-    );
+    const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
+      email: body.email,
+      productCount: 30,
+    });
 
     if (error) {
       return response.status(500).send(error);
@@ -177,9 +178,16 @@ export class DiscoveriesController {
 
   // POST: api/discovery/order-update-webhook
   @Post('order-update-webhook')
-  async createOrder(@Body() body: UpdateCustomerOrderDto) {
+  async createOrder(
+    @Body() body: UpdateCustomerOrderDto,
+    @Res() response: Response,
+  ) {
     const [res, error] =
       await this.updateCustomerOrderUsecase.updateCustomerOrder(body);
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(201).send(res);
   }
 
   // POST: api/discovery/update-customer-box
