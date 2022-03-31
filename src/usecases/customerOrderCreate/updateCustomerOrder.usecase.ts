@@ -82,7 +82,7 @@ export class UpdateCustomerOrderUsecase
       const purchasedProducts = line_items.map((lineItem) => {
         return lineItem.product_id;
       });
-      if (purchasedProducts.includes(6646306439223)) {
+      if (purchasedProducts.includes(6618823458871)) {
         let [kitComponents, getKitComponentsError] =
           await this.shipheroRepo.getKitComponents({
             sku: 'Teatis_Meal_Box_HC_Discovery_1st',
@@ -92,7 +92,7 @@ export class UpdateCustomerOrderUsecase
         }
         orderProducts = kitComponents.products;
       }
-      if (purchasedProducts.includes(6646305685559)) {
+      if (purchasedProducts.includes(6618823753783)) {
         let [kitComponents, getKitComponentsError] =
           await this.shipheroRepo.getKitComponents({
             sku: 'Teatis_Meal_Box_HCLS_Discovery_1st',
