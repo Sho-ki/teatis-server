@@ -5,16 +5,16 @@
       "label": "Chocolate"
     },
     {
-      "name": "fruity",
-      "label": "Fruity"
+      "name": "mixedFruits",
+      "label": "Mixed Fruits"
     },
     {
-      "name": "chocolateMint",
-      "label": "Chocolate Mint"
+      "name": "mint",
+      "label": "Mint"
     },
     {
-      "name": "tea",
-      "label": "Tea"
+      "name": "englishBreakfastTea",
+      "label": "English Breakfast Tea"
     },
     {
       "name": "sesame",
@@ -25,16 +25,12 @@
       "label": "Matcha"
     },
     {
-      "name": "berry",
-      "label": "Berry"
+      "name": "blueBerry",
+      "label": "BlueBerry"
     },
     {
-      "name": "chocolateBanana",
-      "label": "Chocolate Banana"
-    },
-    {
-      "name": "maple",
-      "label": "Maple"
+      "name": "banana",
+      "label": "Banana"
     },
     {
       "name": "cinnamon",
@@ -61,28 +57,48 @@
       "label": "Peanut Butter"
     },
     {
-      "name": "chocolateBerry",
-      "label": "Chocolate Berry"
+      "name": "apple",
+      "label": "Apple"
     },
     {
-      "name": "salt",
-      "label": "Salt"
-    },
-    {
-      "name": "cacao",
-      "label": "Cacao"
+      "name": "salty",
+      "label": "Salty"
     },
     {
       "name": "turmeric",
       "label": "Turmeric"
     },
     {
-      "name": "spicy",
-      "label": "Spicy"
+      "name": "caramel",
+      "label": "Caramel"
     },
     {
-      "name": "bbq",
-      "label": "BBQ"
+      "name": "sour",
+      "label": "Sour"
+    },
+    {
+      "name": "chili",
+      "label": "Chili"
+    },
+    {
+      "name": "pumpkin",
+      "label": "Pumpkin"
+    },
+    {
+      "name": "mango",
+      "label": "Mango"
+    },
+    {
+      "name": "pizza",
+      "label": "Pizza"
+    },
+    {
+      "name": "strawberry",
+      "label": "Strawberry"
+    },
+    {
+      "name": "watermelon",
+      "label": "Watermelon"
     }
   ]
 }

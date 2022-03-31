@@ -27,6 +27,7 @@ model Discoveries {
 
 model Customers{
   id                      Int             @default(autoincrement()) @id
+  uuid String? @unique
   email                   String @unique
   age Int?
   weightKg Float?
@@ -37,16 +38,15 @@ model Customers{
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
   intermediateCustomerAllergens IntermediateCustomerAllergen[]
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
-  customerProductDistance CustomerProductDistance[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
+  customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
   queuedShopifyOrder QueuedShopifyOrder[]
-  intermediateCustomerFlavorDislike IntermediateCustomerFlavorDislike[]
-  intermediateCustomerCategoryPreference IntermediateCustomerCategoryPreference[]
-  intermediateCustomerIngredientDislike IntermediateCustomerIngredientDislike[]
-  intermediateCustomerFoodType IntermediateCustomerFoodType[]
-  intermediateCustomerUnavailableCookingMethod IntermediateCustomerUnavailableCookingMethod[]
+  intermediateCustomerFlavorDislikes IntermediateCustomerFlavorDislike[]
+  intermediateCustomerCategoryPreferences IntermediateCustomerCategoryPreference[]
+  intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
+  intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
+  intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -111,8 +111,8 @@ model ProductFoodType{
   id            Int       @default(autoincrement()) @id
   label         String 
   name String @unique
-  intermediateCustomerFoodType IntermediateCustomerFoodType[]
-  intermediateProductFoodType IntermediateProductFoodType[]
+  intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
+  intermediateProductFoodTypes IntermediateProductFoodType[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -132,6 +132,8 @@ model Product{
   id                  Int             @default(autoincrement()) @id
   name String?
   label String?
+  ingredientLabel String?
+  allergenLabel String?
   expertComment String?
   productProvider     ProductProvider @relation(fields: [productProviderId], references: [id])
   productProviderId  Int
@@ -141,17 +143,17 @@ model Product{
   productFlavorId Int?
   productVendor ProductVendor? @relation(fields: [productVendorId], references: [id])
   productVendorId Int?
-  intermediateProductFoodType IntermediateProductFoodType[]
+  intermediateProductFoodTypes IntermediateProductFoodType[]
   intermediateProductIngredients IntermediateProductIngredient[]	
   intermediateProductAllergens IntermediateProductAllergen[]
-  intermediateProductCookingMethod IntermediateProductCookingMethod[]
+  intermediateProductCookingMethods IntermediateProductCookingMethod[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
   MSP Float?
   WSP Float?
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
-  customerProductDistance CustomerProductDistance[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
+  customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
   productImages ProductImage[]
   createdAt DateTime @default(now())
@@ -195,8 +197,8 @@ model ProductCookingMethod{
   id       Int         @default(autoincrement()) @id
   label String 
   name String @unique
-  intermediateProductCookingMethod IntermediateProductCookingMethod[]
-  intermediateCustomerUnavailableCookingMethod IntermediateCustomerUnavailableCookingMethod[]
+  intermediateProductCookingMethods IntermediateProductCookingMethod[]
+  intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -207,7 +209,7 @@ model ProductFlavor{
   label String 
   name String @unique
   products   Product[]
-  intermediateCustomerFlavorDislike IntermediateCustomerFlavorDislike[]
+  intermediateCustomerFlavorDislikes IntermediateCustomerFlavorDislike[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -240,7 +242,7 @@ model ProductCategory{
   name  String @unique
   src String?
   products   Product[]
-  intermediateCustomerCategoryPreference IntermediateCustomerCategoryPreference[]
+  intermediateCustomerCategoryPreferences IntermediateCustomerCategoryPreference[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -275,7 +277,7 @@ model ProductIngredient{
   label String 
   name String @unique
   intermediateProductIngredients IntermediateProductIngredient[]
-  intermediateCustomerIngredientDislike IntermediateCustomerIngredientDislike[]
+  intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -363,7 +365,7 @@ model Survey{
   id                              Int       @default(autoincrement()) @id
   name String @unique
   label String
-  intermediateSurveyQuestion IntermediateSurveyQuestion[]
+  intermediateSurveyQuestions IntermediateSurveyQuestion[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -371,7 +373,7 @@ model Survey{
 model IntermediateSurveyQuestion{
   survey Survey @relation(fields: [surveyId], references: [id])
   surveyId Int
-  order Int?
+  displayOrder Int?
   surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
   surveyQuestionId Int
   createdAt DateTime  @default(now())
@@ -391,10 +393,9 @@ model SurveyQuestion{
   placeholder String?
   surveyQuestionAnswerType SurveyQuestionAnswerType @relation(fields: [surveyQuestionAnswerTypeId], references: [id])
   surveyQuestionAnswerTypeId Int
-  intermediateSurveyQuestion IntermediateSurveyQuestion[]
+  intermediateSurveyQuestions IntermediateSurveyQuestion[]
   surveyQuestionOptions SurveyQuestionOption[]
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -423,9 +424,7 @@ model SurveyQuestionOption{
   name String
   surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
   surveyQuestionId Int
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback[]
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback[]
-  intermediateSurveyQuestionAnswerService IntermediateSurveyQuestionAnswerService[]
+  surveyQuestionAnswer SurveyQuestionAnswer[]
   intermediateSurveyQuestionAnswerProduct IntermediateSurveyQuestionAnswerProduct[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
@@ -433,43 +432,12 @@ model SurveyQuestionOption{
    @@unique([name, surveyQuestionId], name: "QuestionOptionIdentifier")
 }
 
-model SurveyQuestionAnswerServiceFeedback{
-  id  Int   @default(autoincrement()) @id
-  intermediateSurveyQuestionAnswerService IntermediateSurveyQuestionAnswerService[]
-  customer Customers @relation(fields: [customerId], references: [id])
-  customerId Int
-  surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
-  surveyQuestionId Int
-  answerOption SurveyQuestionOption? @relation(fields: [answerSingleOptionId], references: [id])
-  answerSingleOptionId Int?
-  answerNumeric Int?
-  answerText String?
-  answerBool Boolean?
-  reason String?
-  title String?
-  content String?
-  answerCount Int?
-  shopifyOrderNumber String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt @default(now())
 
-  @@unique([surveyQuestionId,shopifyOrderNumber], name: "CustomerSurveyQuestionServiceFeedbackIdentifier")
-}
 
-model IntermediateSurveyQuestionAnswerService{
-  surveyQuestionAnswerServiceFeedback SurveyQuestionAnswerServiceFeedback @relation(fields: [surveyQuestionAnswerServiceFeedbackId], references: [id])
-  surveyQuestionAnswerServiceFeedbackId Int
-  surveyQuestionOption SurveyQuestionOption @relation(fields: [surveyQuestionOptionId], references: [id])
-  surveyQuestionOptionId Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt @default(now())
-
-  @@id([surveyQuestionAnswerServiceFeedbackId, surveyQuestionOptionId])
-}
-
-model SurveyQuestionAnswerProductFeedback{
+model SurveyQuestionAnswer{
   id  Int   @default(autoincrement()) @id
   intermediateSurveyQuestionAnswerProduct IntermediateSurveyQuestionAnswerProduct[]
+  responseId String? @unique
   customer Customers @relation(fields: [customerId], references: [id])
   customerId Int
   surveyQuestion SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
@@ -483,25 +451,23 @@ model SurveyQuestionAnswerProductFeedback{
   title String?
   content String?
   answerCount Int?
-  product Product @relation(fields: [productId], references: [id])
-  productId Int
-  shopifyOrderNumber String
+  product Product? @relation(fields: [productId], references: [id])
+  productId Int?
+  orderNumber String?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt @default(now())
-
-  @@unique([surveyQuestionId,shopifyOrderNumber, productId], name: "CustomerSurveyQuestionProductFeedbackIdentifier")
+  updatedAt DateTime  @updatedAt @default(now()) 
 
 }
 
 model IntermediateSurveyQuestionAnswerProduct{
-  surveyQuestionAnswerProductFeedback SurveyQuestionAnswerProductFeedback @relation(fields: [surveyQuestionAnswerProductFeedbackId], references: [id])
-  surveyQuestionAnswerProductFeedbackId Int
+  surveyQuestionAnswer SurveyQuestionAnswer @relation(fields: [surveyQuestionAnswerId], references: [id])
+  surveyQuestionAnswerId Int
   surveyQuestionOption SurveyQuestionOption @relation(fields: [surveyQuestionOptionId], references: [id])
   surveyQuestionOptionId Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@id([surveyQuestionAnswerProductFeedbackId, surveyQuestionOptionId])
+  @@id([surveyQuestionAnswerId, surveyQuestionOptionId])
 }
 
 model CustomerProductDistance{
@@ -529,15 +495,17 @@ model CustomerBoxItems{
 
 model QueuedShopifyOrder {
   id  Int   @default(autoincrement()) @id
-  orderName String @unique
-  customer Customers @relation(fields: [customerId], references: [id])
   customerId Int
+  orderName String @unique
+  status QueueStatus @default(scheduled)
+  customer Customers @relation(fields: [customerId], references: [id])
   scheduledAt String
-  status QueueStatus @default(queue)
-  completedAt String?
+  orderedAt String?
+  fulfilledAt String?
 }
 
 enum QueueStatus {
-  queue
-  complete
+  scheduled
+  ordered
+  fullfilled
 }

@@ -175,6 +175,34 @@
     {
       "name": "sevenSundays",
       "label": "Seven Sundays"
+    },
+    {
+      "name": "vermontSmokeAndCure",
+      "label": "Vermont Smoke and Cure"
+    },
+    {
+      "name": "zingBars",
+      "label": "Zing Bars"
+    },
+    {
+      "name": "larkEllenFarm",
+      "label": "Lark Ellen Farm"
+    },
+    {
+      "name": "weDoKeto",
+      "label": "WeDoKeto"
+    },
+    {
+      "name": "cavemanFoods",
+      "label": "Caveman Foods"
+    },
+    {
+      "name": "nuttyGirl",
+      "label": "Nutty Girl"
+    },
+    {
+      "name": "earnestEats",
+      "label": "Earnest Eats"
     }
   ]
 }

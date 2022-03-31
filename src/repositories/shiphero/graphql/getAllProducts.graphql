@@ -1,13 +1,12 @@
-query getAllProducts {
+query getProductInventry {
   products {
     data {
       edges {
         node {
-          id
-          name
           sku  
           warehouse_products {
             on_hand
+						
           }
         }
       }

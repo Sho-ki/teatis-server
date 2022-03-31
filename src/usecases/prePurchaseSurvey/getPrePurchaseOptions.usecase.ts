@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
 
-export interface getPrePurchaseOptionsUsecaseRes {
+export interface GetPrePurchaseOptionsUsecaseRes {
   unavailableCookingMethods: Options[];
   allergens: Options[];
   ingredientDislikes: Options[];
@@ -18,13 +18,13 @@ interface Options {
   src?: string;
 }
 
-export interface getPrePurchaseOptionsUsecaseInterface {
-  getPrePurchaseOptions(): Promise<[getPrePurchaseOptionsUsecaseRes, Error]>;
+export interface GetPrePurchaseOptionsUsecaseInterface {
+  getPrePurchaseOptions(): Promise<[GetPrePurchaseOptionsUsecaseRes, Error]>;
 }
 
 @Injectable()
-export class getPrePurchaseOptionsUsecase
-  implements getPrePurchaseOptionsUsecaseInterface
+export class GetPrePurchaseOptionsUsecase
+  implements GetPrePurchaseOptionsUsecaseInterface
 {
   constructor(
     @Inject('ProductGeneralRepoInterface')
@@ -32,7 +32,7 @@ export class getPrePurchaseOptionsUsecase
   ) {}
 
   async getPrePurchaseOptions(): Promise<
-    [getPrePurchaseOptionsUsecaseRes, Error]
+    [GetPrePurchaseOptionsUsecaseRes, Error]
   > {
     const [cookingMethods, getCookMethodsError] =
       await this.productGeneralRepo.getOptions({ target: 'cookingMethod' });
@@ -68,10 +68,16 @@ export class getPrePurchaseOptionsUsecase
 
     return [
       {
-        unavailableCookingMethods: cookingMethods.option,
-        allergens: allergens.option,
+        unavailableCookingMethods: [
+          { id: 0, name: 'none', label: 'None' },
+          ...cookingMethods.option,
+        ],
+        allergens: [
+          { id: 0, name: 'none', label: 'None' },
+          ...allergens.option,
+        ],
         ingredientDislikes: ingredients.option,
-        foodType: foodTypes.option,
+        foodType: [{ id: 0, name: 'none', label: 'None' }, ...foodTypes.option],
         flavorDislikes: flavors.option,
         categoryPreferences: categories.option,
       },

@@ -58,12 +58,12 @@ async function main() {
         label: 'What kind of product do you want to add to our line-up?',
         name: 'productLineUp',
         mustBeAnswered: false,
-        category: 'productFeedback',
-        categoryLabel: 'Product Feedback',
+        category: 'serviceFeedback',
+        categoryLabel: 'Service Feedback',
         answerType: 'text',
         answerTypeLabel: 'text',
         instruction: 'List as many as you can, separated by commas.',
-        order: 1,
+        displayOrder: 2,
       },
     },
     {
@@ -77,7 +77,7 @@ async function main() {
         categoryLabel: 'Product Feedback',
         answerType: 'numeric',
         answerTypeLabel: 'numeric',
-        order: 2,
+        displayOrder: 1,
       },
     },
   ];
@@ -177,14 +177,14 @@ async function main() {
         },
       },
       create: {
-        order: surveyCreationItem.question.order,
+        displayOrder: surveyCreationItem.question.displayOrder,
         surveyId: surveyQuery.id,
         surveyQuestionId: questionQuery.id,
       },
       update: {
         surveyId: surveyQuery.id,
         surveyQuestionId: questionQuery.id,
-        order: surveyCreationItem.question.order,
+        displayOrder: surveyCreationItem.question.displayOrder,
       },
     });
   }
@@ -222,8 +222,8 @@ async function main() {
   for (let category of categoryData.categories) {
     await prisma.productCategory.upsert({
       where: { name: category.name },
-      create: { name: category.name, label: category.label },
-      update: { name: category.name, label: category.label },
+      create: { name: category.name, label: category.label, src: category.src },
+      update: { name: category.name, label: category.label, src: category.src },
     });
   }
 

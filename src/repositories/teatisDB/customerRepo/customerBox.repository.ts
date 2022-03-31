@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Product } from '../../../domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 
@@ -9,37 +10,47 @@ interface DeleteCustomerBoxRes {
   deletedCount: number;
 }
 
+interface GetCustomerBoxProductsArgs {
+  email: string;
+}
+interface GetCustomerBoxProductsRes {
+  products: Pick<Product, 'sku'>[];
+}
+
 interface UpdateCustomerBoxArgs {
   customerId: number;
-  dbProducts: { id: number; externalSku: string }[];
+  products: Partial<Product>[];
 }
 
 interface UpdateCustomerBoxRes {
   postCount: number;
 }
 
-export interface CustomerUpdateCustomerBoxRepoInterface {
+export interface CustomerBoxRepoInterface {
+  getCustomerBoxProducts({
+    email,
+  }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes, Error]>;
   deleteCustomerBox({
     customerId,
   }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes, Error]>;
 
   postCustomerBox({
     customerId,
-    dbProducts,
+    products,
   }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes, Error]>;
 }
 
 @Injectable()
-export class CustomerUpdateCustomerBoxRepo
-  implements CustomerUpdateCustomerBoxRepoInterface
-{
+export class CustomerBoxRepo implements CustomerBoxRepoInterface {
   constructor(private prisma: PrismaService) {}
 
   async deleteCustomerBox({
     customerId,
   }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes, Error]> {
     let res = await this.prisma.customerBoxItems.deleteMany({
-      where: { customerId },
+      where: {
+        customerId,
+      },
     });
 
     if (!res) {
@@ -56,16 +67,15 @@ export class CustomerUpdateCustomerBoxRepo
 
   async postCustomerBox({
     customerId,
-    dbProducts,
+    products,
   }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes, Error]> {
     let res = await this.prisma.customerBoxItems.createMany({
-      data: dbProducts.map((dbProductId) => {
-        return { customerId, productId: dbProductId.id };
+      data: products.map((product) => {
+        return { customerId, productId: product.id };
       }),
     });
-    if (res?.count >= 0) {
-      return [{ postCount: res.count }, null];
-    } else {
+
+    if (!res.count) {
       return [
         null,
         {
@@ -74,5 +84,28 @@ export class CustomerUpdateCustomerBoxRepo
         },
       ];
     }
+    return [{ postCount: res.count }, null];
+  }
+
+  async getCustomerBoxProducts({
+    email,
+  }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes, Error]> {
+    const getCustomerBoxProductsRes = await this.prisma.customers.findUnique({
+      where: { email },
+      select: {
+        customerBoxItems: {
+          select: { product: true },
+        },
+      },
+    });
+
+    return [
+      {
+        products: getCustomerBoxProductsRes.customerBoxItems.map((boxItem) => {
+          return { sku: boxItem.product.externalSku };
+        }),
+      },
+      null,
+    ];
   }
 }

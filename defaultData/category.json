@@ -2,43 +2,83 @@
   "categories": [
     {
       "name": "mealShake",
-      "label": "Meal Shake"
+      "label": "Meal Shake",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/mealshake.jpg"
     },
     {
-      "name": "bar",
-      "label": "Bar"
+      "name": "proteinBar",
+      "label": "Protein Bar",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/proteinbar.jpg"
     },
     {
-      "name": "oatmeal",
-      "label": "Oatmeal"
+      "name": "oatBar",
+      "label": "Oat Bar",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/oatbar.jpg"
     },
     {
       "name": "cereal",
-      "label": "Cereal"
+      "label": "Cereal",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/cereal.jpg"
     },
     {
-      "name": "candy",
-      "label": "Candy"
+      "name": "gummy",
+      "label": "Gummy",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/gummy.jpg"
     },
     {
-      "name": "pancake",
-      "label": "Pancake"
+      "name": "sweets",
+      "label": "Sweets",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/sweets.jpg"
     },
     {
       "name": "chips",
-      "label": "Chips"
+      "label": "Chips",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/chips.jpg"
     },
     {
       "name": "soup",
-      "label": "Soup"
+      "label": "Soup",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/soup.jpg"
     },
     {
-      "name": "saltySnack",
-      "label": "Salty Snack"
+      "name": "jerky",
+      "label": "Jerky",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/jerky.jpg"
     },
     {
-      "name": "sweetSnack",
-      "label": "Sweet Snack"
+      "name": "beans&Ricebowl",
+      "label": "Beans & Rice Bowl",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/beans%26ricebowl.jpg"
+    },
+    {
+      "name": "granola",
+      "label": "Granola",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/granola.jpg"
+    },
+    {
+      "name": "brownie",
+      "label": "Brownie",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/brownie.jpg"
+    },
+    {
+      "name": "cookie",
+      "label": "Cookie",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/cookie.jpg"
+    },
+    {
+      "name": "puffs",
+      "label": "Puffs",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/puff.jpg"
+    },
+    {
+      "name": "saltedCrackers",
+      "label": "Salted Crackers",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/saltedcrackers.jpg"
+    },
+    {
+      "name": "oatmeal",
+      "label": "Oatmeal",
+      "src": "https://storage.googleapis.com/teatis-images/category_images/oatmeal.jpg"
     }
   ]
 }

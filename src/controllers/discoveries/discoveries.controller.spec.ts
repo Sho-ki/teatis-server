@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscoveriesController } from './discoveries.controller';
 import { Discoveries, Prisma } from '@prisma/client';
-import { GetRecommendProductsUsecase } from '../../useCases/prePurchaseSurvey/getRecommendProducts.usecase';
+import { PostPrePurchaseSurveyUsecase } from '../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 
 // TODO: fix test
 let fakeGetRecommendProductsInput = {
@@ -54,22 +54,22 @@ class MockedCustomerInformationRepo {
 
 describe('DiscoveriesController', () => {
   let controller: DiscoveriesController;
-  let getRecommendProductsUsecase: GetRecommendProductsUsecase;
+  let getRecommendProductsUsecase: PostPrePurchaseSurveyUsecase;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DiscoveriesController],
       providers: [
-        GetRecommendProductsUsecase,
+        PostPrePurchaseSurveyUsecase,
         {
-          provide: GetRecommendProductsUsecase,
+          provide: PostPrePurchaseSurveyUsecase,
           useValue: MockedRecommendProductsUsecase,
         },
       ],
     }).compile();
 
     controller = module.get<DiscoveriesController>(DiscoveriesController);
-    getRecommendProductsUsecase = module.get<GetRecommendProductsUsecase>(
-      GetRecommendProductsUsecase,
+    getRecommendProductsUsecase = module.get<PostPrePurchaseSurveyUsecase>(
+      PostPrePurchaseSurveyUsecase,
     );
   });
 

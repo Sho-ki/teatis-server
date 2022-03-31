@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import { PrismaService } from '../../prisma.service';
+import { v4 as uuidv4 } from 'uuid';
 
 interface typeformTmp {
   diabetes: string;
@@ -25,9 +26,9 @@ interface typeformTmp {
   allergies: string;
   mealShake: string;
   oatmeal: string;
-  bar: string;
+  oatBar: string;
+  proteinBar: string;
   cereal: string;
-  'Healthy snack': string;
   soup: string;
   'sweet or savory': string;
   email: string;
@@ -40,11 +41,50 @@ interface setMedicalCondition {
 
 interface TeatisJobsInterface {
   databaseMigrate(): Promise<void>;
+  addUUID(): Promise<void>;
 }
 
 @Injectable()
 export class TeatisJobs implements TeatisJobsInterface {
   constructor(private prisma: PrismaService) {}
+
+  async addUUID(): Promise<void> {
+    // const prodict = await this.prisma.product.findMany({
+    //   select: {
+    //     id: true,
+    //     productCategoryId: true,
+    //     productFlavorId: true,
+    //     intermediateProductCookingMethods: {
+    //       select: {
+    //         productCookingMethodId: true,
+    //       },
+    //     },
+    //   },
+    // });
+    // console.log(
+    //   prodict.map((pro) => {
+    //     return {
+    //       id: pro.id,
+    //       categoryId: pro.productCategoryId,
+    //       flavorId: pro.productFlavorId,
+    //       cookingMethodsIds:
+    //         pro.intermediateProductCookingMethods.map((metho) => {
+    //           return metho.productCookingMethodId;
+    //         }) || null,
+    //     };
+    //   }),
+    // );
+    for (let i = 2000; i <= 3544; i++) {
+      const uuid = uuidv4();
+      const customer = await this.prisma.customers.update({
+        where: { id: i },
+        data: {
+          uuid,
+        },
+      });
+      console.log(customer);
+    }
+  }
 
   async databaseMigrate(): Promise<void> {
     const data = JSON.parse(fs.readFileSync('./defaultData/tmp.json', 'utf8'));
@@ -174,15 +214,6 @@ export class TeatisJobs implements TeatisJobsInterface {
           },
         },
         {
-          medicalConditionValue: targetA1c,
-          customerMedicalCondition: {
-            connectOrCreate: {
-              where: { name: 'targetA1c' },
-              create: { name: 'targetA1c', label: 'targetA1c' },
-            },
-          },
-        },
-        {
           medicalConditionValue: diabetes,
           customerMedicalCondition: {
             connectOrCreate: {
@@ -207,11 +238,11 @@ export class TeatisJobs implements TeatisJobsInterface {
       let cateObj = {
         mealShake: cu.mealShake,
         oatmeal: cu.oatmeal,
-        bar: cu.bar,
+        oatBar: cu.oatBar,
+        proteinBar: cu.proteinBar,
         cereal: cu.cereal,
         soup: cu.soup,
       };
-
       let cateObjKeys = Object.keys(cateObj);
       let filteredCateArr = cateObjKeys.filter((key) => {
         return cateObj[key] !== '';
@@ -229,45 +260,17 @@ export class TeatisJobs implements TeatisJobsInterface {
         });
       }
 
-      if (cu['sweet or savory'] === 'Both') {
-        cateQuery.push(
-          {
-            productCategory: {
-              connectOrCreate: {
-                where: { name: 'saltySnack' },
-                create: { name: 'saltySnack', label: 'Salty Snack' },
-              },
-            },
-          },
-          {
-            productCategory: {
-              connectOrCreate: {
-                where: { name: 'sweetSnack' },
-                create: { name: 'sweetSnack', label: 'Sweet Snack' },
-              },
-            },
-          },
-        );
-      } else if (cu['sweet or savory'] === 'Savory') {
+      if (cu['sweet or savory'] === 'Sweet') {
         cateQuery.push({
           productCategory: {
             connectOrCreate: {
-              where: { name: 'saltySnack' },
-              create: { name: 'saltySnack', label: 'Salty Snack' },
-            },
-          },
-        });
-      } else if (cu['sweet or savory'] === 'Sweet') {
-        cateQuery.push({
-          productCategory: {
-            connectOrCreate: {
-              where: { name: 'sweetSnack' },
-              create: { name: 'sweetSnack', label: 'Sweet Snack' },
+              where: { name: 'sweets' },
+              create: { name: 'sweets', label: 'Sweets' },
             },
           },
         });
       }
-
+      console.log(cu.allergies);
       let alleQuery = [];
       if (
         cu.allergies.includes('tree nut') ||
@@ -385,11 +388,12 @@ export class TeatisJobs implements TeatisJobsInterface {
           },
         });
       }
-
+      const uuid = uuidv4();
       await this.prisma.customers.upsert({
         where: { email: cu.email },
         create: {
           email: cu.email,
+          uuid,
           age,
           gender,
           heightCm: height,
@@ -401,7 +405,7 @@ export class TeatisJobs implements TeatisJobsInterface {
           intermediateCustomerMedicalConditions: {
             create: mediQuery,
           },
-          intermediateCustomerCategoryPreference: {
+          intermediateCustomerCategoryPreferences: {
             create: cateQuery,
           },
           intermediateCustomerNutritionNeeds: {
