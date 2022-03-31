@@ -42,6 +42,7 @@ interface FilterProductsArgs {
     | 'unwant';
   customerFilter: { ids?: number[]; skus?: string[] };
   products: Omit<Product, 'nutritionFact'>[];
+  nextWantProducts?: number[];
 }
 
 // {
@@ -86,6 +87,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     filterType,
     customerFilter,
     products,
+    nextWantProducts,
   }: FilterProductsArgs): Omit<Product, 'nutritionFact'>[] {
     let filteredProducts: Omit<Product, 'nutritionFact'>[] = products;
     filteredProducts = products.filter((product) => {
@@ -93,23 +95,35 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
         case 'inventry':
           return !customerFilter.skus.includes(product.sku);
         case 'flavorDislikes':
-          return !customerFilter.ids.includes(product.flavor.id);
+          return (
+            !customerFilter.ids.includes(product.flavor.id) ||
+            nextWantProducts.includes(product.id)
+          );
         case 'allergens':
           for (let allergen of product.allergens) {
-            if (customerFilter.ids.includes(allergen.id)) {
+            if (
+              customerFilter.ids.includes(allergen.id) &&
+              !nextWantProducts.includes(product.id)
+            ) {
               return false;
             }
           }
           return true;
         case 'unavailableCookingMethods':
           for (let cookingMethod of product.cookingMethods) {
-            if (customerFilter.ids.includes(cookingMethod.id)) {
+            if (
+              customerFilter.ids.includes(cookingMethod.id) &&
+              !nextWantProducts.includes(product.id)
+            ) {
               return false;
             }
           }
           return true;
         case 'unwant':
-          return !customerFilter.ids.includes(product.id);
+          return (
+            !customerFilter.ids.includes(product.id) ||
+            nextWantProducts.includes(product.id)
+          );
         default:
           break;
       }
@@ -122,6 +136,24 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     email,
     productCount,
   }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]> {
+    const [getLastOrderRes, getLastOrderError] =
+      await this.shipheroRepo.getLastOrder({
+        email,
+      });
+    if (getLastOrderError) {
+      return [null, getLastOrderError];
+    }
+    const [getNextWantRes, getNextWantError] =
+      await this.customerNextBoxSurveyRepo.getNextWant({
+        orderNumber: getLastOrderRes.orderNumber,
+      });
+    if (getNextWantError) {
+      return [null, getNextWantError];
+    }
+    if (getNextWantRes.ids.length > 0) {
+      productCount -= getNextWantRes.ids.length;
+    }
+
     let [getAllProductsRes, getAllProductsError] =
       await this.productGeneralRepo.getAllProducts();
     if (getAllProductsError) {
@@ -155,6 +187,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
         filterType: 'flavorDislikes',
         customerFilter: customerFlavorDislikes,
         products: allProducts,
+        nextWantProducts: getNextWantRes.ids,
       });
     }
     const [customerAllergens, customerAllergensError] =
@@ -170,6 +203,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
         filterType: 'allergens',
         customerFilter: customerAllergens,
         products: allProducts,
+        nextWantProducts: getNextWantRes.ids,
       });
     }
     const [
@@ -187,6 +221,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
         filterType: 'unavailableCookingMethods',
         customerFilter: customerUnavailableCookingMethods,
         products: allProducts,
+        nextWantProducts: getNextWantRes.ids,
       });
     }
 
@@ -207,24 +242,8 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
         filterType: 'unwant',
         customerFilter: getNextUnwantRes,
         products: allProducts,
+        nextWantProducts: getNextWantRes.ids,
       });
-    }
-    const [getLastOrderRes, getLastOrderError] =
-      await this.shipheroRepo.getLastOrder({
-        email,
-      });
-    if (getLastOrderError) {
-      return [null, getLastOrderError];
-    }
-    const [getNextWantRes, getNextWantError] =
-      await this.customerNextBoxSurveyRepo.getNextWant({
-        orderNumber: getLastOrderRes.orderNumber,
-      });
-    if (getNextWantError) {
-      return [null, getNextWantError];
-    }
-    if (getNextWantRes.ids.length > 0) {
-      productCount -= getNextWantRes.ids.length;
     }
 
     let customerShippableProducts: AnalyzePreferenceArgs = {
@@ -247,7 +266,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
           ingredientLabel,
           allergenLabel,
         } = product;
-        nextBoxProducts.products.push({
+        nextBoxProducts.products.unshift({
           id,
           sku,
           name,
