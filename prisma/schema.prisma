@@ -500,12 +500,12 @@ model QueuedShopifyOrder {
   status QueueStatus @default(scheduled)
   customer Customers @relation(fields: [customerId], references: [id])
   scheduledAt String
-  completedAt String?
+  orderedAt String?
   fulfilledAt String?
 }
 
 enum QueueStatus {
   scheduled
-  completed
+  ordered
   fullfilled
 }

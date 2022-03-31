@@ -7,7 +7,7 @@ import { PrismaService } from '../../../prisma.service';
 interface UpdateOrderQueueArgs {
   customerId: number;
   orderNumber: string;
-  status: 'scheduled' | 'completed' | 'fullfilled';
+  status: 'scheduled' | 'ordered' | 'fullfilled';
 }
 
 interface UpdateOrderQueueRes {
@@ -37,8 +37,8 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
       actionDate.setMinutes(actionDate.getMinutes() + 3);
     }
     let actionAt: Prisma.QueuedShopifyOrderUpdateInput;
-    if (status === 'completed') {
-      actionAt = { completedAt: actionDate.toISOString() };
+    if (status === 'ordered') {
+      actionAt = { orderedAt: actionDate.toISOString() };
     } else if (status === 'fullfilled') {
       actionAt = { fulfilledAt: actionDate.toISOString() };
     }
