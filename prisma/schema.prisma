@@ -130,6 +130,7 @@ model IntermediateProductFoodType{
 
 model Product{
   id                  Int             @default(autoincrement()) @id
+  activeStatus  ActiveStatus? @default(active)
   name String?
   label String?
   ingredientLabel String?
@@ -159,6 +160,12 @@ model Product{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
+
+enum ActiveStatus {
+  active
+  inactive
+}
+
 
 model ProductImage{
   id  Int   @default(autoincrement()) @id

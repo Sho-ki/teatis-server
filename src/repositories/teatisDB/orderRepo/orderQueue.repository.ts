@@ -36,12 +36,6 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
     if (status === 'scheduled') {
       actionDate.setMinutes(actionDate.getMinutes() + 3);
     }
-    let actionAt: Prisma.QueuedShopifyOrderUpdateInput;
-    if (status === 'ordered') {
-      actionAt = { orderedAt: actionDate.toISOString() };
-    } else if (status === 'fullfilled') {
-      actionAt = { fulfilledAt: actionDate.toISOString() };
-    }
 
     const updateOrderQueueRes = await this.prisma.queuedShopifyOrder.upsert({
       where: { orderName: orderNumber },
@@ -52,14 +46,18 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
         customerId,
       },
 
-      //     customerId: (
-      //       await this.prisma.customers.findUnique({ where: { email } })
-      //     ).id,
-      //   },
-      update: {
-        ...actionAt,
-        status,
-      },
+      update:
+        status === 'fullfilled'
+          ? {
+              fulfilledAt: actionDate.toISOString(),
+              status,
+            }
+          : status === 'ordered'
+          ? {
+              orderedAt: actionDate.toISOString(),
+              status,
+            }
+          : {},
     });
 
     if (!updateOrderQueueRes) {
