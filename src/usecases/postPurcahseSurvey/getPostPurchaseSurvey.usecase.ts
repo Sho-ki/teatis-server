@@ -168,7 +168,7 @@ export class GetPostPurchaseSurveyUsecase
       for (let customerAnswer of getCustomerAnswersRes.customerAnswers) {
         if (
           question?.name === 'productLineUp' &&
-          customerAnswer?.answer?.text
+          customerAnswer?.answer?.text !== null
         ) {
           question.answer.text = customerAnswer.answer.text;
           question.responseId = customerAnswer.responseId;

@@ -27,6 +27,7 @@ interface GetLastOrderRes {
 interface CreateOrderArgs {
   orderId: string;
   products: Pick<Product, 'sku'>[];
+  orderNumber: string;
 }
 
 interface CreateOrderRes {
@@ -83,6 +84,7 @@ export interface ShipheroRepoInterface {
   updateOrder({
     orderId,
     products,
+    orderNumber,
   }: CreateOrderArgs): Promise<[CreateOrderRes, Error]>;
 }
 
@@ -288,6 +290,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
   async updateOrder({
     orderId,
     products,
+    orderNumber,
   }: CreateOrderArgs): Promise<[CreateOrderRes, Error]> {
     const client = new GraphQLClient(endpoint, {
       headers: {
@@ -299,7 +302,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     for (let product of products) {
       orderProducts += String(`{
         sku: "${product.sku}",
-        partner_line_item_id: "${product.sku}_${orderId}",
+        partner_line_item_id: "${product.sku}_${orderId}_${orderNumber}",
         quantity: 1,
         price: "0",
      }, `);

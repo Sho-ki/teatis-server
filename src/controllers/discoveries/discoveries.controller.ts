@@ -173,7 +173,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(200);
   }
 
   // POST: api/discovery/order-update-webhook
@@ -187,7 +187,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(200);
   }
 
   // POST: api/discovery/update-customer-box

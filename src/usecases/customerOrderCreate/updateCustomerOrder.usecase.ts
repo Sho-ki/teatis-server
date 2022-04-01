@@ -6,7 +6,7 @@ import { CustomerPostPurchaseSurveyRepoInterface } from 'src/repositories/teatis
 import { PostPurchaseSurvey } from 'src/domains/PostPurchaseSurvey';
 import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
-import { CustomerBox } from 'src/domains/CustomerBox';
+
 import { UpdateCustomerOrderDto } from 'src/controllers/discoveries/dtos/updateCustomerOrder';
 import { OrderQueueRepoInterface } from 'src/repositories/teatisDB/orderRepo/orderQueue.repository';
 import { Product } from 'src/domains/Product';
@@ -14,12 +14,15 @@ import { OrderQueue } from '../../domains/OrderQueue';
 import { ShopifyRepoInterface } from '../../repositories/shopify/shopify.repository';
 import { GetNextBoxUsecaseInterface } from '../nextBoxSurvey/getNextBoxSurvey.usecase';
 
+interface Status {
+  status: string;
+}
 export interface UpdateCustomerOrderUsecaseInterface {
   updateCustomerOrder({
     name,
     customer,
     line_items,
-  }: UpdateCustomerOrderDto): Promise<[CustomerBox, Error]>;
+  }: UpdateCustomerOrderDto): Promise<[Status, Error]>;
 }
 
 @Injectable()
@@ -47,7 +50,7 @@ export class UpdateCustomerOrderUsecase
     name,
     customer,
     line_items,
-  }: UpdateCustomerOrderDto): Promise<[CustomerBox, Error]> {
+  }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
     const [getCustomerRes, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({ email: customer.email });
     if (getCustomerError) {
@@ -63,25 +66,41 @@ export class UpdateCustomerOrderUsecase
     if (updateOrderQueueError) {
       return [null, updateOrderQueueError];
     }
-    await this.delay(20000);
+
+    await this.delay(7000);
     // Case 1: if the first order
     // Case 1-1: if healthy carb
     // Case 1-2: if low sodium
     // Case 2: if the second order but no post-purchase survey (no customer box products)
     let orderProducts: Pick<Product, 'sku'>[] = [];
+    const purchasedProducts = line_items.map((lineItem) => {
+      return lineItem.product_id;
+    });
+
+    const [order, orderError] = await this.shipheroRepo.getOrderByOrderNumber({
+      orderNumber: name,
+    });
+    if (orderError) {
+      throw [null, orderError];
+    }
+    if (order.products.length > 1) {
+      if (
+        purchasedProducts.includes(6618823458871) ||
+        purchasedProducts.includes(6618823753783)
+      ) {
+        return [{ status: 'success' }, null];
+      }
+    }
 
     const [getOrderCountRes, getOrderCountError] =
       await this.shopifyRepo.getOrderCount({
         shopifyCustomerId: customer.id,
       });
-
     if (getOrderCountError) {
       throw [null, getOrderCountError];
     }
+
     if (getOrderCountRes.orderCount <= 1) {
-      const purchasedProducts = line_items.map((lineItem) => {
-        return lineItem.product_id;
-      });
       if (purchasedProducts.includes(6618823458871)) {
         let [kitComponents, getKitComponentsError] =
           await this.shipheroRepo.getKitComponents({
@@ -135,17 +154,11 @@ export class UpdateCustomerOrderUsecase
       }
     }
 
-    const [order, orderError] = await this.shipheroRepo.getOrderByOrderNumber({
-      orderNumber: name,
-    });
-    if (orderError) {
-      throw [null, orderError];
-    }
-
     const [updateOrderRes, updateOrderError] =
       await this.shipheroRepo.updateOrder({
         orderId: order.orderId,
         products: orderProducts,
+        orderNumber: name,
       });
     if (updateOrderError) {
       throw [null, updateOrderError];
