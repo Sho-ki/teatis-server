@@ -26,6 +26,10 @@ interface GetProductsBySkuRes {
   >[];
 }
 
+interface GetAllProductsArgs {
+  medicalCondtions: { highBloodPressure: boolean; highCholesterol: boolean };
+}
+
 interface GetAllProductsRes {
   products: Omit<Product, 'nutritionFact'>[];
 }
@@ -53,7 +57,9 @@ export interface ProductGeneralRepoInterface {
   getProductsBySku({
     products,
   }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes, Error]>;
-  getAllProducts(): Promise<[GetAllProductsRes, Error]>;
+  getAllProducts({
+    medicalCondtions,
+  }: GetAllProductsArgs): Promise<[GetAllProductsRes, Error]>;
   getOptions({
     target,
   }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>, Error]>;
@@ -98,8 +104,16 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
     ];
   }
 
-  async getAllProducts(): Promise<[GetAllProductsRes, Error]> {
+  async getAllProducts({
+    medicalCondtions,
+  }: GetAllProductsArgs): Promise<[GetAllProductsRes, Error]> {
     const getAllProductsRes = await this.prisma.product.findMany({
+      where: {
+        activeStatus: 'active',
+        productNutritionFact: medicalCondtions.highBloodPressure
+          ? { sodiumMg: { lt: 500 } }
+          : {},
+      },
       select: {
         id: true,
         name: true,
