@@ -98,7 +98,14 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
         },
       },
     });
-
+    if (getCustomerBoxProductsRes.customerBoxItems.length <= 0) {
+      return [
+        {
+          products: [],
+        },
+        null,
+      ];
+    }
     return [
       {
         products: getCustomerBoxProductsRes.customerBoxItems.map((boxItem) => {

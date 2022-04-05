@@ -173,7 +173,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200);
+    return response.status(200).send({ status: res.status });
   }
 
   // POST: api/discovery/order-update-webhook
@@ -181,13 +181,13 @@ export class DiscoveriesController {
   async createOrder(
     @Body() body: UpdateCustomerOrderDto,
     @Res() response: Response,
-  ) {
+  ): Promise<Response<any | Error>> {
     const [res, error] =
       await this.updateCustomerOrderUsecase.updateCustomerOrder(body);
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200);
+    return response.status(200).send({ status: res.status });
   }
 
   // POST: api/discovery/update-customer-box
@@ -206,11 +206,11 @@ export class DiscoveriesController {
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
-  // @Post('job')
-  // async dataMigrate() {
-  //   await this.teatisJob.databaseMigrate();
-  //   // await this.teatisJob.addUUID();
+  @Post('job')
+  async dataMigrate() {
+    // await this.teatisJob.databaseMigrate();
+    await this.teatisJob.addUUID();
 
-  //   return;
-  // }
+    return;
+  }
 }

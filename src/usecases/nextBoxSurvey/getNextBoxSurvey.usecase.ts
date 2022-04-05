@@ -143,6 +143,13 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     if (getLastOrderError) {
       return [null, getLastOrderError];
     }
+
+    const [getCustomerConditionRes, getCustomerConditionError] =
+      await this.customerGeneralRepo.getCustomerCondition({ email });
+
+    if (getCustomerConditionError) {
+      return [null, getCustomerConditionError];
+    }
     const [getNextWantRes, getNextWantError] =
       await this.customerNextBoxSurveyRepo.getNextWant({
         orderNumber: getLastOrderRes.orderNumber,
@@ -155,11 +162,15 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     }
 
     let [getAllProductsRes, getAllProductsError] =
-      await this.productGeneralRepo.getAllProducts();
+      await this.productGeneralRepo.getAllProducts({
+        medicalCondtions: getCustomerConditionRes,
+      });
     if (getAllProductsError) {
       return [null, getAllProductsError];
     }
-    let allProducts = getAllProductsRes.products;
+    let allProducts = getAllProductsRes.products.sort(
+      () => Math.random() - 0.5,
+    );
 
     const [getNoInventryProductsRes, getNoInventryProductsError] =
       await this.shipheroRepo.getNonInventryProducts();
@@ -298,11 +309,11 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
       }
       customerShippableProducts.products.push(shippableProduct);
     }
-
     const [analyzedProductsRes, analyzedProductsError] =
       await this.analyzePreferenceRepo.getAnalyzedProducts(
         customerShippableProducts,
       );
+
     for (let product of allProducts) {
       for (let analyzedProduct of analyzedProductsRes.products) {
         if (product.id === analyzedProduct.product_id) {

@@ -81,8 +81,9 @@ export class UpdateCustomerOrderUsecase
       orderNumber: name,
     });
     if (orderError) {
-      throw [null, orderError];
+      return [null, orderError];
     }
+
     if (order.products.length > 1) {
       if (
         purchasedProducts.includes(6618823458871) ||
@@ -91,13 +92,12 @@ export class UpdateCustomerOrderUsecase
         return [{ status: 'success' }, null];
       }
     }
-
     const [getOrderCountRes, getOrderCountError] =
       await this.shopifyRepo.getOrderCount({
         shopifyCustomerId: customer.id,
       });
     if (getOrderCountError) {
-      throw [null, getOrderCountError];
+      return [null, getOrderCountError];
     }
 
     if (getOrderCountRes.orderCount <= 1) {
@@ -146,12 +146,8 @@ export class UpdateCustomerOrderUsecase
         orderProducts = getCustomerBoxProductsRes.products;
       }
 
-      if (getOrderCountRes.orderCount === 2) {
-        orderProducts.push(
-          { sku: '00000000000043' },
-          { sku: '00000000000012' },
-        ); //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
-      }
+      orderProducts.push({ sku: '00000000000043' }, { sku: '00000000000012' });
+      //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
     }
 
     const [updateOrderRes, updateOrderError] =

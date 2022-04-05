@@ -203,6 +203,26 @@
     {
       "name": "earnestEats",
       "label": "Earnest Eats"
+    },
+    {
+      "name": "tochiSnacks",
+      "label": "Tochi Snacks"
+    },
+    {
+      "name": "theWorthyCompany",
+      "label": "The Worthy Company"
+    },
+    {
+      "name": "rindSnacks",
+      "label": "RIND Snacks"
+    },
+    {
+      "name": "craizeCornInc",
+      "label": "Craize Corn INC"
+    },
+    {
+      "name": "favalicious",
+      "label": "Favalicious"
     }
   ]
 }

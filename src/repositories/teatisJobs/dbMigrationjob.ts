@@ -49,41 +49,20 @@ export class TeatisJobs implements TeatisJobsInterface {
   constructor(private prisma: PrismaService) {}
 
   async addUUID(): Promise<void> {
-    // const prodict = await this.prisma.product.findMany({
-    //   select: {
-    //     id: true,
-    //     productCategoryId: true,
-    //     productFlavorId: true,
-    //     intermediateProductCookingMethods: {
-    //       select: {
-    //         productCookingMethodId: true,
-    //       },
-    //     },
-    //   },
-    // });
-    // console.log(
-    //   prodict.map((pro) => {
-    //     return {
-    //       id: pro.id,
-    //       categoryId: pro.productCategoryId,
-    //       flavorId: pro.productFlavorId,
-    //       cookingMethodsIds:
-    //         pro.intermediateProductCookingMethods.map((metho) => {
-    //           return metho.productCookingMethodId;
-    //         }) || null,
-    //     };
-    //   }),
-    // );
-    for (let i = 2000; i <= 3544; i++) {
-      const uuid = uuidv4();
-      const customer = await this.prisma.customers.update({
-        where: { id: i },
-        data: {
-          uuid,
-        },
+    let count = 0;
+    const emailList = [];
+
+    console.log(emailList.length);
+    for (let email of emailList) {
+      const res = await this.prisma.customers.findUnique({
+        where: { email },
       });
-      console.log(customer);
+      if (!res?.email) {
+        count += 1;
+      }
+      console.log(email);
     }
+    console.log(count);
   }
 
   async databaseMigrate(): Promise<void> {

@@ -24,16 +24,58 @@ interface GetCustomerPreferenceRes {
   ids: number[];
 }
 
+interface GetCustomerMedicalConditionArgs {
+  email: string;
+}
+
+interface GetCustomerMedicalConditionRes {
+  highBloodPressure: boolean;
+  highCholesterol: boolean;
+}
+
 export interface CustomerGeneralRepoInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes, Error]>;
   getCustomerPreference({
     email,
   }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes, Error]>;
+  getCustomerCondition({
+    email,
+  }: GetCustomerMedicalConditionArgs): Promise<
+    [GetCustomerMedicalConditionRes, Error]
+  >;
 }
 
 @Injectable()
 export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
+  async getCustomerCondition({
+    email,
+  }: GetCustomerMedicalConditionArgs): Promise<
+    [GetCustomerMedicalConditionRes, Error]
+  > {
+    const getCustomerConditoinRes = await this.prisma.customers.findMany({
+      where: { email },
+      select: {
+        intermediateCustomerMedicalConditions: {
+          select: { customerMedicalCondition: { select: { name: true } } },
+        },
+      },
+    });
+    const allConditions =
+      getCustomerConditoinRes[0].intermediateCustomerMedicalConditions.map(
+        (condition) => {
+          return condition.customerMedicalCondition.name;
+        },
+      );
+
+    return [
+      {
+        highBloodPressure: allConditions.includes('highBloodPressure'),
+        highCholesterol: allConditions.includes('highCholesterol'),
+      },
+      null,
+    ];
+  }
 
   async getCustomerPreference({
     email,
