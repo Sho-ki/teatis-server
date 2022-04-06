@@ -7,7 +7,7 @@ import { PrismaService } from '../../../prisma.service';
 interface UpdateOrderQueueArgs {
   customerId: number;
   orderNumber: string;
-  status: 'scheduled' | 'ordered' | 'fullfilled';
+  status: 'scheduled' | 'ordered' | 'fulfilled';
 }
 
 interface UpdateOrderQueueRes {
@@ -47,7 +47,7 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
       },
 
       update:
-        status === 'fullfilled'
+        status === 'fulfilled'
           ? {
               fulfilledAt: actionDate.toISOString(),
               status,

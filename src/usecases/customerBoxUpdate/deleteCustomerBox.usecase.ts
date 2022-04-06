@@ -50,7 +50,7 @@ export class DeleteCustomerBoxUsecase
       await this.orderQueueRepo.updateOrderQueue({
         customerId: getCustomerRes.id,
         orderNumber: name,
-        status: 'fullfilled',
+        status: 'fulfilled',
       });
     if (shipOrderQueueError) {
       return [null, shipOrderQueueError];

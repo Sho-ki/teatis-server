@@ -515,4 +515,5 @@ enum QueueStatus {
   scheduled
   ordered
   fullfilled
+  fulfilled
 }

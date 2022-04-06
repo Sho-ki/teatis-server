@@ -200,10 +200,10 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     );
 
     const node = res?.orders?.data?.edges[0]?.node;
-    const items = node.line_items?.edges;
-    const orderId = node.id;
+    const items = node?.line_items?.edges;
+    const orderId = node?.id;
 
-    if (!items) {
+    if (!items || !node || !orderId) {
       return [
         null,
         {

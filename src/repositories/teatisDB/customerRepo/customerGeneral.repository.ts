@@ -61,12 +61,13 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         },
       },
     });
-    const allConditions =
-      getCustomerConditoinRes[0].intermediateCustomerMedicalConditions.map(
-        (condition) => {
-          return condition.customerMedicalCondition.name;
-        },
-      );
+    const allConditions = getCustomerConditoinRes[0]
+      ? getCustomerConditoinRes[0].intermediateCustomerMedicalConditions.map(
+          (condition) => {
+            return condition.customerMedicalCondition.name;
+          },
+        )
+      : [];
 
     return [
       {

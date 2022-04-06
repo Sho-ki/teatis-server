@@ -206,11 +206,11 @@ export class DiscoveriesController {
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
-  @Post('job')
-  async dataMigrate() {
-    // await this.teatisJob.databaseMigrate();
-    await this.teatisJob.addUUID();
+  // @Post('job')
+  // async dataMigrate() {
+  //   // await this.teatisJob.databaseMigrate();
+  //   await this.teatisJob.addUUID();
 
-    return;
-  }
+  //   return;
+  // }
 }
