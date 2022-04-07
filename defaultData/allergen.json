@@ -31,6 +31,10 @@
     {
       "name": "soybeans",
       "label": "Soybeans"
+    },
+    {
+      "name": "caffeine",
+      "label": "Caffeine"
     }
   ]
 }

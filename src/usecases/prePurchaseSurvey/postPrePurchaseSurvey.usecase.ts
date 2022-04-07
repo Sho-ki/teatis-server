@@ -13,6 +13,10 @@ export interface PostPrePurchaseSurveyUsecaseRes {
   recommendProductId: string;
 }
 
+interface PostPrePurchaseSurveyArgs extends PostPrePurchaseSurveyDto {
+  isAutoCreated: boolean;
+}
+
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
     diabetes,
@@ -30,7 +34,8 @@ export interface PostPrePurchaseSurveyUsecaseInterface {
     allergens,
     email,
     unavailableCookingMethods,
-  }: PostPrePurchaseSurveyDto): Promise<
+    isAutoCreated,
+  }: PostPrePurchaseSurveyArgs): Promise<
     [PostPrePurchaseSurveyUsecaseRes, Error]
   >;
 }
@@ -81,7 +86,8 @@ export class PostPrePurchaseSurveyUsecase
     allergens = [],
     email,
     unavailableCookingMethods = [],
-  }: PostPrePurchaseSurveyDto): Promise<
+    isAutoCreated = false,
+  }: PostPrePurchaseSurveyArgs): Promise<
     [PostPrePurchaseSurveyUsecaseRes, Error]
   > {
     //   Calculate Method: https://www.notion.so/teatis/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
@@ -178,6 +184,7 @@ export class PostPrePurchaseSurveyUsecase
         proteinPerMeal,
         fatPerMeal,
         caloriePerMeal,
+        isAutoCreated,
       });
     if (upsertCustomerError) {
       return [null, upsertCustomerError];

@@ -13,6 +13,7 @@ import { Product } from 'src/domains/Product';
 import { OrderQueue } from '../../domains/OrderQueue';
 import { ShopifyRepoInterface } from '../../repositories/shopify/shopify.repository';
 import { GetNextBoxUsecaseInterface } from '../nextBoxSurvey/getNextBoxSurvey.usecase';
+import { PostPrePurchaseSurveyUsecaseInterface } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 
 interface Status {
   status: string;
@@ -42,6 +43,8 @@ export class UpdateCustomerOrderUsecase
     private readonly shopifyRepo: ShopifyRepoInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
+    @Inject('PostPrePurchaseSurveyUsecaseInterface')
+    private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
   ) {}
 
   private delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -53,13 +56,19 @@ export class UpdateCustomerOrderUsecase
   }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
     const [getCustomerRes, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({ email: customer.email });
+    let customerId = getCustomerRes?.id;
     if (getCustomerError) {
-      return [null, getCustomerError];
+      const [upsertCustomerRes, upsertCustomerError] =
+        await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey({
+          email: customer.email,
+          isAutoCreated: true,
+        });
+      customerId = upsertCustomerRes.customerId;
     }
 
     const [updateOrderQueueRes, updateOrderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
-        customerId: getCustomerRes.id,
+        customerId,
         orderNumber: name,
         status: 'scheduled',
       });
@@ -162,7 +171,7 @@ export class UpdateCustomerOrderUsecase
 
     const [completeOrderQueueRes, completeOrderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
-        customerId: getCustomerRes.id,
+        customerId,
         orderNumber: name,
         status: 'ordered',
       });

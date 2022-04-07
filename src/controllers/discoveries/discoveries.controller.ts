@@ -71,7 +71,10 @@ export class DiscoveriesController {
     @Res() response: Response,
   ): Promise<Response<PostPrePurchaseSurveyUsecaseRes | Error>> {
     const [res, error] =
-      await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
+      await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey({
+        ...body,
+        isAutoCreated: false,
+      });
 
     if (error) {
       return response.status(500).send(error);

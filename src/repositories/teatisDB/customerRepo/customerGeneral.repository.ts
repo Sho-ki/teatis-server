@@ -168,7 +168,8 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
       where: { email },
       select: { id: true, email: true },
     });
-    if (!customer) {
+
+    if (!customer?.email || !customer?.id) {
       return [
         null,
         {

@@ -35,6 +35,7 @@ model Customers{
   gender String?
   activeLevel String?
   mealsPerDay Int?
+  isAutoCreated Boolean? 
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
   intermediateCustomerAllergens IntermediateCustomerAllergen[]

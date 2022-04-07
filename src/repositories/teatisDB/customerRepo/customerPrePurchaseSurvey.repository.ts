@@ -27,6 +27,7 @@ interface UpsertCustomerArgs {
   proteinPerMeal: number;
   fatPerMeal: number;
   caloriePerMeal: number;
+  isAutoCreated: boolean;
 }
 
 interface UpsertCustomerRes {
@@ -60,6 +61,7 @@ export interface CustomerPrePurchaseSurveyRepoInterface {
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
+    isAutoCreated,
   }: UpsertCustomerArgs): Promise<[UpsertCustomerRes, Error]>;
 }
 
@@ -94,6 +96,7 @@ export class CustomerPrePurchaseSurveyRepo
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
+    isAutoCreated,
   }: UpsertCustomerArgs): Promise<[UpsertCustomerRes, Error]> {
     let medicalConditionsQuery = [
       {
@@ -171,6 +174,7 @@ export class CustomerPrePurchaseSurveyRepo
         uuid,
         email,
         age,
+        isAutoCreated,
         gender,
         heightCm: height,
         weightKg: weight,
@@ -375,6 +379,7 @@ export class CustomerPrePurchaseSurveyRepo
         gender,
         heightCm: height,
         weightKg: weight,
+        isAutoCreated,
         activeLevel,
         mealsPerDay,
         intermediateCustomerCategoryPreferences:

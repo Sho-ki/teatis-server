@@ -97,8 +97,12 @@
       "label": "Strawberry"
     },
     {
-      "name": "watermelon",
-      "label": "Watermelon"
+      "name": "watermelone",
+      "label": "Watermelone"
+    },
+    {
+      "name": "coffee",
+      "label": "Coffee"
     }
   ]
 }
