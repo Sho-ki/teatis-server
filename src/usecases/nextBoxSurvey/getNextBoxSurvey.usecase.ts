@@ -136,6 +136,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
       { products: [], orderNumber: '' },
       null,
     ];
+    // When the first box, uuid would exist
     if (uuid) {
       const [getCustomerRes, getCustomerError] =
         await this.customerGeneralRepo.getCustomerByUuid({ uuid });

@@ -140,10 +140,11 @@ export class DiscoveriesController {
     @Query() body: GetNextBoxSurveyDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
+    const isFirstBox = body.uuid ? true : false;
     const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
       email: body.email,
       uuid: body.uuid,
-      productCount: 30,
+      productCount: isFirstBox ? 15 : 30,
     });
 
     if (error) {
