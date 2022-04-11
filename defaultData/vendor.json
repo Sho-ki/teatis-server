@@ -223,6 +223,10 @@
     {
       "name": "favalicious",
       "label": "Favalicious"
+    },
+    {
+      "name": "eatMoreBeans",
+      "label": "Eat More Beans"
     }
   ]
 }

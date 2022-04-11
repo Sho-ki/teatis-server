@@ -116,7 +116,7 @@ export class UpdateCustomerOrderUsecase
             sku: 'Teatis_Meal_Box_HC_Discovery_1st',
           });
         if (getKitComponentsError) {
-          throw [null, getKitComponentsError];
+          return [null, getKitComponentsError];
         }
         orderProducts = kitComponents.products;
       }
@@ -126,7 +126,7 @@ export class UpdateCustomerOrderUsecase
             sku: 'Teatis_Meal_Box_HCLS_Discovery_1st',
           });
         if (getKitComponentsError) {
-          throw [null, getKitComponentsError];
+          return [null, getKitComponentsError];
         }
         orderProducts = kitComponents.products;
       }
@@ -136,7 +136,7 @@ export class UpdateCustomerOrderUsecase
           email: customer.email,
         });
       if (getCustomerBoxProductsError) {
-        throw [null, getCustomerBoxProductsError];
+        return [null, getCustomerBoxProductsError];
       }
       if (getCustomerBoxProductsRes.products.length <= 0) {
         // analyze
@@ -149,7 +149,7 @@ export class UpdateCustomerOrderUsecase
           return { sku: product.sku };
         });
         if (nextBoxProductsError) {
-          throw [null, nextBoxProductsError];
+          return [null, nextBoxProductsError];
         }
       } else {
         orderProducts = getCustomerBoxProductsRes.products;
@@ -166,7 +166,7 @@ export class UpdateCustomerOrderUsecase
         orderNumber: name,
       });
     if (updateOrderError) {
-      throw [null, updateOrderError];
+      return [null, updateOrderError];
     }
 
     const [completeOrderQueueRes, completeOrderQueueError] =
@@ -176,7 +176,7 @@ export class UpdateCustomerOrderUsecase
         status: 'ordered',
       });
     if (completeOrderQueueError) {
-      throw [null, completeOrderQueueError];
+      return [null, completeOrderQueueError];
     }
 
     return [{ status: 'Success' }, null];

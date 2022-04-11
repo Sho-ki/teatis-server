@@ -103,6 +103,10 @@
     {
       "name": "coffee",
       "label": "Coffee"
+    },
+    {
+      "name": "coconut",
+      "label": "Coconut"
     }
   ]
 }

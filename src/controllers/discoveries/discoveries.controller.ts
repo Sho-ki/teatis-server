@@ -69,16 +69,16 @@ export class DiscoveriesController {
   async postPrePurchaseSurvey(
     @Body() body: PostPrePurchaseSurveyDto,
     @Res() response: Response,
-  ): Promise<Response<PostPrePurchaseSurveyUsecaseRes | Error>> {
+  ): Promise<Response<any | Error>> {
     const [res, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey({
         ...body,
         isAutoCreated: false,
       });
-
     if (error) {
       return response.status(500).send(error);
     }
+
     return response.status(201).send(res);
   }
 
@@ -93,6 +93,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
+
     return response.status(200).send(res);
   }
 
