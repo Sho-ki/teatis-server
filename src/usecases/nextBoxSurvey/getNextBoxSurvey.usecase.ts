@@ -5,8 +5,6 @@ import {
   ShipheroRepoInterface,
 } from '../../repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from '../../repositories/teatisDB/productRepo/productGeneral.repository';
-import { CustomerPostPurchaseSurveyRepoInterface } from '../../repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
-import { PostPurchaseSurvey } from '../../domains/PostPurchaseSurvey';
 import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { GetNextBoxSurveyDto } from '../../controllers/discoveries/dtos/getNextBoxSurvey';
 import { Product } from '../../domains/Product';
