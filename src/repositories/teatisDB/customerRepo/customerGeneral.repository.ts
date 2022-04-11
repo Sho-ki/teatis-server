@@ -11,15 +11,6 @@ interface GetCustomerRes {
   email: string;
 }
 
-interface GetCustomerByUuidArgs {
-  uuid: string;
-}
-
-interface GetCustomerByUuidRes {
-  id: number;
-  email: string;
-}
-
 interface GetCustomerPreferenceArgs {
   type:
     | 'flavorDislikes'
@@ -44,9 +35,6 @@ interface GetCustomerMedicalConditionRes {
 
 export interface CustomerGeneralRepoInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes, Error]>;
-  getCustomerByUuid({
-    uuid,
-  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes, Error]>;
   getCustomerPreference({
     email,
   }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes, Error]>;
@@ -60,26 +48,6 @@ export interface CustomerGeneralRepoInterface {
 @Injectable()
 export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
-  async getCustomerByUuid({
-    uuid,
-  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes, Error]> {
-    let customer = await this.prisma.customers.findUnique({
-      where: { uuid },
-      select: { id: true, email: true },
-    });
-
-    if (!customer?.email || !customer?.id) {
-      return [
-        null,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomerByUuid failed',
-        },
-      ];
-    }
-    return [{ id: customer.id, email: customer.email }, null];
-  }
-
   async getCustomerCondition({
     email,
   }: GetCustomerMedicalConditionArgs): Promise<

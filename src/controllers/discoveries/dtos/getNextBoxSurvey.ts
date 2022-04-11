@@ -1,11 +1,6 @@
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsEmail } from 'class-validator';
 
 export class GetNextBoxSurveyDto {
   @IsEmail()
-  @IsOptional()
-  email?: string;
-
-  @IsString()
-  @IsOptional()
-  uuid?: string;
+  email: string;
 }

@@ -145,6 +145,7 @@ export class DiscoveriesController {
       email: body.email,
       uuid: body.uuid,
       productCount: isFirstBox ? 15 : 30,
+
     });
 
     if (error) {
