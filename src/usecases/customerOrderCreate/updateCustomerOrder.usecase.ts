@@ -143,6 +143,7 @@ export class UpdateCustomerOrderUsecase
         const [nextBoxProductsRes, nextBoxProductsError] =
           await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
             email: customer.email,
+            uuid: undefined,
             productCount: 15,
           });
         orderProducts = nextBoxProductsRes.products.map((product) => {
