@@ -142,7 +142,6 @@ export class DiscoveriesController {
   ): Promise<Response<any | Error>> {
     const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
       email: body.email,
-      uuid: body.uuid,
       productCount: 30,
     });
 
