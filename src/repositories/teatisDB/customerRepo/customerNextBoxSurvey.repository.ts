@@ -6,7 +6,7 @@ interface GetNextWantArgs {
   orderNumber: string;
 }
 
-export interface GetNextWantRes {
+interface GetNextWantRes {
   ids: number[];
 }
 
@@ -46,7 +46,7 @@ export class CustomerNextBoxSurveyRepo
     });
     return [
       {
-        ids: getNextWantRes?.map((nextWant) => {
+        ids: getNextWantRes.map((nextWant) => {
           return nextWant.product.id;
         }),
       },

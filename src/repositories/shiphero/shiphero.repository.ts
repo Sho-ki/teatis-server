@@ -19,7 +19,7 @@ interface GetLastOrderArgs {
   email: string;
 }
 
-export interface GetLastOrderRes {
+interface GetLastOrderRes {
   products: Pick<Product, 'sku'>[];
   orderNumber: string;
 }
