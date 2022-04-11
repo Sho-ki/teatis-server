@@ -1,17 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import {
-  GetLastOrderRes,
-  ShipheroRepoInterface,
-} from '../../repositories/shiphero/shiphero.repository';
+import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from '../../repositories/teatisDB/productRepo/productGeneral.repository';
 import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { GetNextBoxSurveyDto } from '../../controllers/discoveries/dtos/getNextBoxSurvey';
 import { Product } from '../../domains/Product';
-import {
-  CustomerNextBoxSurveyRepoInterface,
-  GetNextWantRes,
-} from '../../repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
+import { CustomerNextBoxSurveyRepoInterface } from '../../repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 import {
   AnalyzePreferenceArgs,
   AnalyzePreferenceRepoInterface,
@@ -49,10 +43,25 @@ interface FilterProductsArgs {
   nextWantProducts?: number[];
 }
 
+// {
+//   "products": [
+//       {"product_id":1001, "product_sku":"sku_1001", "is_send_last_time":"true", "category_id": 10, "flavor_id": 30}
+//       , {"product_id":1002, "product_sku":"sku_1001","is_send_last_time":"true", "category_id": 11, "flavor_id": 31}
+//       , {"product_id":1003, "product_sku":"sku_1001", "is_send_last_time":"true", "category_id": 12, "flavor_id": 32}
+//    ]
+//   ,"necessary_responces": 15
+//   ,"user_fav_categories": [10, 20, 30]
+// }
+// type AnalyzePreferenceReq = Pick<Product, 'id' | 'sku'> & {
+//   flavorId: number;
+//   categoryId: number;
+//   cookingMethodIds: number[];
+//   isSentLastTime: boolean;
+// };
+
 export interface GetNextBoxUsecaseInterface {
   getNextBoxSurvey({
     email,
-    uuid,
     productCount,
   }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]>;
 }
@@ -123,9 +132,9 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
 
   async getNextBoxSurvey({
     email,
-    uuid,
     productCount,
   }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]> {
+
     let [getNextWantRes, getNextWantError]: [GetNextWantRes, Error] = [
       { ids: [] },
       null,
@@ -160,6 +169,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
       if (getNextWantRes.ids.length > 0) {
         productCount -= getNextWantRes.ids.length;
       }
+
     }
 
     const [getCustomerConditionRes, getCustomerConditionError] =
@@ -167,6 +177,16 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
 
     if (getCustomerConditionError) {
       return [null, getCustomerConditionError];
+    }
+    const [getNextWantRes, getNextWantError] =
+      await this.customerNextBoxSurveyRepo.getNextWant({
+        orderNumber: getLastOrderRes.orderNumber,
+      });
+    if (getNextWantError) {
+      return [null, getNextWantError];
+    }
+    if (getNextWantRes.ids.length > 0) {
+      productCount -= getNextWantRes.ids.length;
     }
 
     let [getAllProductsRes, getAllProductsError] =
@@ -179,21 +199,6 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     let allProducts = getAllProductsRes.products.sort(
       () => Math.random() - 0.5,
     );
-
-    const [getNextUnwantRes, getCustomerUnwantError] =
-      await this.customerNextBoxSurveyRepo.getNextUnwant({ email });
-
-    if (getCustomerUnwantError) {
-      return [null, getCustomerUnwantError];
-    }
-    if (getNextUnwantRes.ids.length > 0) {
-      allProducts = this.filterProducts({
-        filterType: 'unwant',
-        customerFilter: getNextUnwantRes,
-        products: allProducts,
-        nextWantProducts: getNextWantRes.ids,
-      });
-    }
 
     const [getNoInventryProductsRes, getNoInventryProductsError] =
       await this.shipheroRepo.getNonInventryProducts();
@@ -265,6 +270,21 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
         type: 'categoryLikes',
       });
 
+    const [getNextUnwantRes, getCustomerUnwantError] =
+      await this.customerNextBoxSurveyRepo.getNextUnwant({ email });
+
+    if (getCustomerUnwantError) {
+      return [null, getCustomerUnwantError];
+    }
+    if (getNextUnwantRes.ids.length > 0) {
+      allProducts = this.filterProducts({
+        filterType: 'unwant',
+        customerFilter: getNextUnwantRes,
+        products: allProducts,
+        nextWantProducts: getNextWantRes.ids,
+      });
+    }
+
     let customerShippableProducts: AnalyzePreferenceArgs = {
       necessary_responces: productCount,
       products: [],
@@ -309,7 +329,6 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
           }) || [],
         is_send_last_time: false,
       };
-
       for (let getLastOrderResProduct of getLastOrderRes.products) {
         if (product.sku === getLastOrderResProduct.sku) {
           shippableProduct = { ...shippableProduct, is_send_last_time: true };
