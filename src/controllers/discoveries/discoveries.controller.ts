@@ -36,7 +36,6 @@ import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
-import { GetFirstBoxProductsUsecaseInterface } from '../../usecases/prePurchaseSurvey/getFirstBoxProducts.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -59,8 +58,6 @@ export class DiscoveriesController {
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
-    @Inject('GetFirstBoxProductsUsecaseInterface')
-    private getFirstBoxProductsUsecase: GetFirstBoxProductsUsecaseInterface,
     private teatisJob: TeatisJobs,
   ) {}
 
@@ -112,21 +109,6 @@ export class DiscoveriesController {
         email,
         orderNumber,
       });
-
-    if (error) {
-      return response.status(500).send(error);
-    }
-    return response.status(200).send(res);
-  }
-
-  // GET: api/discovery/first-box-products
-  @Get('first-box-products')
-  async getFirstProducts(
-    @Query('id') id: string,
-    @Res() response: Response,
-  ): Promise<Response<any | Error>> {
-    const [res, error] =
-      await this.getFirstBoxProductsUsecase.getFirstBoxProducts(id);
 
     if (error) {
       return response.status(500).send(error);
