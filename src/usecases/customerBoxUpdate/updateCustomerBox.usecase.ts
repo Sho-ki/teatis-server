@@ -9,6 +9,7 @@ export interface UpdateCustomerBoxUsecaseInterface {
   updateCustomerBox({
     products,
     email,
+    uuid,
   }: UpdateCustomerBoxDto): Promise<[CustomerBox, Error]>;
 }
 
@@ -26,18 +27,20 @@ export class UpdateCustomerBoxUsecase
   async updateCustomerBox({
     products,
     email,
+    uuid,
   }: UpdateCustomerBoxDto): Promise<[CustomerBox, Error]> {
-    const [getCustomerRes, getCustomerError] =
-      await this.customerGeneralRepo.getCustomer({ email });
+    const [getCustomerRes, getCustomerError] = uuid
+      ? await this.customerGeneralRepo.getCustomerByUuid({ uuid })
+      : await this.customerGeneralRepo.getCustomer({ email });
+    if (getCustomerError) {
+      return [null, getCustomerError];
+    }
 
     const [deleteCustomerBoxRes, deleteCustomerBoxError] =
       await this.customerBoxRepo.deleteCustomerBox({
         customerId: getCustomerRes.id,
       });
 
-    if (getCustomerError) {
-      return [null, getCustomerError];
-    }
     if (deleteCustomerBoxError) {
       return [null, deleteCustomerBoxError];
     }

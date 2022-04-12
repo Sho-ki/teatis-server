@@ -321,19 +321,6 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       }
     }
   `;
-    console.log(`
-mutation {
-  order_add_line_items (
-    data: {	
-      order_id: "${orderId}"
-      line_items: [${orderProducts}]
-           
-    }
-  ) {
-    request_id
-  }
-}
-`);
     const data = await client.request(mutation);
 
     return [{ status: 'Success' }, null];

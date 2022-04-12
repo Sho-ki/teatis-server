@@ -31,37 +31,51 @@ export class GetPrePurchaseOptionsUsecase
     private readonly productGeneralRepo: ProductGeneralRepoInterface,
   ) {}
 
+  sortOptions(list: Options[]): Options[] {
+    list.sort((a, b) => {
+      if (a.name > b.name) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+    return list;
+  }
+
   async getPrePurchaseOptions(): Promise<
     [GetPrePurchaseOptionsUsecaseRes, Error]
   > {
-    const [cookingMethods, getCookMethodsError] =
-      await this.productGeneralRepo.getOptions({ target: 'cookingMethod' });
+    const [
+      [cookingMethods, getCookMethodsError],
+      [categories, getCategoriesError],
+      [flavors, getFlavorsError],
+      [foodTypes, getFoodTypesError],
+      [ingredients, getIngredientsError],
+      [allergens, getAllergensError],
+    ] = await Promise.all([
+      this.productGeneralRepo.getOptions({ target: 'cookingMethod' }),
+      this.productGeneralRepo.getOptions({ target: 'category' }),
+      this.productGeneralRepo.getOptions({ target: 'flavor' }),
+      this.productGeneralRepo.getOptions({ target: 'foodType' }),
+      this.productGeneralRepo.getOptions({ target: 'ingredient' }),
+      this.productGeneralRepo.getOptions({ target: 'allergen' }),
+    ]);
+
     if (getCookMethodsError) {
       return [null, getCookMethodsError];
     }
-    const [categories, getCategoriesError] =
-      await this.productGeneralRepo.getOptions({ target: 'category' });
     if (getCookMethodsError) {
       return [null, getCategoriesError];
     }
-    const [flavors, getFlavorsError] = await this.productGeneralRepo.getOptions(
-      { target: 'flavor' },
-    );
     if (getCookMethodsError) {
       return [null, getFlavorsError];
     }
-    const [foodTypes, getFoodTypesError] =
-      await this.productGeneralRepo.getOptions({ target: 'foodType' });
     if (getCookMethodsError) {
       return [null, getFoodTypesError];
     }
-    const [ingredients, getIngredientsError] =
-      await this.productGeneralRepo.getOptions({ target: 'ingredient' });
     if (getCookMethodsError) {
       return [null, getIngredientsError];
     }
-    const [allergens, getAllergensError] =
-      await this.productGeneralRepo.getOptions({ target: 'allergen' });
     if (getCookMethodsError) {
       return [null, getAllergensError];
     }
@@ -70,16 +84,19 @@ export class GetPrePurchaseOptionsUsecase
       {
         unavailableCookingMethods: [
           { id: 0, name: 'none', label: 'None' },
-          ...cookingMethods.option,
+          ...this.sortOptions(cookingMethods.option),
         ],
         allergens: [
           { id: 0, name: 'none', label: 'None' },
-          ...allergens.option,
+          ...this.sortOptions(allergens.option),
         ],
-        ingredientDislikes: ingredients.option,
-        foodType: [{ id: 0, name: 'none', label: 'None' }, ...foodTypes.option],
-        flavorDislikes: flavors.option,
-        categoryPreferences: categories.option,
+        ingredientDislikes: this.sortOptions(ingredients.option),
+        foodType: [
+          { id: 0, name: 'none', label: 'None' },
+          ...this.sortOptions(foodTypes.option),
+        ],
+        flavorDislikes: this.sortOptions(flavors.option),
+        categoryPreferences: this.sortOptions(categories.option),
       },
       null,
     ];
