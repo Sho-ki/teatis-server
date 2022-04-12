@@ -108,55 +108,38 @@ export class UpdateCustomerOrderUsecase
     if (getOrderCountError) {
       return [null, getOrderCountError];
     }
+    const [getCustomerBoxProductsRes, getCustomerBoxProductsError] =
+      await this.customerBoxRepo.getCustomerBoxProducts({
+        email: customer.email,
+      });
+    if (getCustomerBoxProductsError) {
+      return [null, getCustomerBoxProductsError];
+    }
 
-    if (getOrderCountRes.orderCount <= 1) {
-      if (purchasedProducts.includes(6618823458871)) {
-        let [kitComponents, getKitComponentsError] =
-          await this.shipheroRepo.getKitComponents({
-            sku: 'Teatis_Meal_Box_HC_Discovery_1st',
-          });
-        if (getKitComponentsError) {
-          return [null, getKitComponentsError];
-        }
-        orderProducts = kitComponents.products;
-      }
-      if (purchasedProducts.includes(6618823753783)) {
-        let [kitComponents, getKitComponentsError] =
-          await this.shipheroRepo.getKitComponents({
-            sku: 'Teatis_Meal_Box_HCLS_Discovery_1st',
-          });
-        if (getKitComponentsError) {
-          return [null, getKitComponentsError];
-        }
-        orderProducts = kitComponents.products;
+    if (!getCustomerBoxProductsRes.products.length) {
+      // analyze
+      const [nextBoxProductsRes, nextBoxProductsError] =
+        await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
+          email: customer.email,
+          productCount: 15,
+        });
+      orderProducts = nextBoxProductsRes.products.map((product) => {
+        return { sku: product.sku };
+      });
+      if (nextBoxProductsError) {
+        return [null, nextBoxProductsError];
       }
     } else {
-      const [getCustomerBoxProductsRes, getCustomerBoxProductsError] =
-        await this.customerBoxRepo.getCustomerBoxProducts({
-          email: customer.email,
-        });
-      if (getCustomerBoxProductsError) {
-        return [null, getCustomerBoxProductsError];
-      }
-      if (getCustomerBoxProductsRes.products.length <= 0) {
-        // analyze
-        const [nextBoxProductsRes, nextBoxProductsError] =
-          await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
-            email: customer.email,
-            productCount: 15,
-          });
-        orderProducts = nextBoxProductsRes.products.map((product) => {
-          return { sku: product.sku };
-        });
-        if (nextBoxProductsError) {
-          return [null, nextBoxProductsError];
-        }
-      } else {
-        orderProducts = getCustomerBoxProductsRes.products;
-      }
-
-      orderProducts.push({ sku: '00000000000043' }, { sku: '00000000000012' });
-      //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
+      orderProducts = getCustomerBoxProductsRes.products;
+      getOrderCountRes.orderCount <= 1
+        ? orderProducts.push(
+            { sku: '00000000000013' },
+            { sku: '00000000000012' },
+          ) //  Uprinting brochure and Uprinting designed boxes
+        : orderProducts.push(
+            { sku: '00000000000043' },
+            { sku: '00000000000012' },
+          ); //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
     }
 
     const [updateOrderRes, updateOrderError] =
