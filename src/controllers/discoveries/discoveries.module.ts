@@ -22,10 +22,15 @@ import { OrderQueueRepo } from '../../repositories/teatisDB/orderRepo/orderQueue
 import { GetNextBoxUsecase } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { CustomerNextBoxSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 import { AnalyzePreferenceRepo } from '../../repositories/dataAnalyze/dataAnalyzeRepo';
+import { GetNextBox } from '../../usecases/utils/nextBox';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'GetNextBoxInterface',
+      useClass: GetNextBox,
+    },
     {
       provide: 'AnalyzePreferenceRepoInterface',
       useClass: AnalyzePreferenceRepo,

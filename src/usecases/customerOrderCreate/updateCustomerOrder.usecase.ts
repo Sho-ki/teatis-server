@@ -14,6 +14,7 @@ import { OrderQueue } from '../../domains/OrderQueue';
 import { ShopifyRepoInterface } from '../../repositories/shopify/shopify.repository';
 import { GetNextBoxUsecaseInterface } from '../nextBoxSurvey/getNextBoxSurvey.usecase';
 import { PostPrePurchaseSurveyUsecaseInterface } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { GetNextBoxInterface } from '../utils/nextBox';
 
 interface Status {
   status: string;
@@ -41,8 +42,8 @@ export class UpdateCustomerOrderUsecase
     private customerGeneralRepo: CustomerGeneralRepoInterface,
     @Inject('ShopifyRepoInterface')
     private readonly shopifyRepo: ShopifyRepoInterface,
-    @Inject('GetNextBoxUsecaseInterface')
-    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
+    @Inject('GetNextBoxInterface')
+    private getNextBox: GetNextBoxInterface,
     @Inject('PostPrePurchaseSurveyUsecaseInterface')
     private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
   ) {}
@@ -119,7 +120,7 @@ export class UpdateCustomerOrderUsecase
     if (!getCustomerBoxProductsRes.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
-        await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
+        await this.getNextBox.getNextBoxSurvey({
           email: customer.email,
           productCount: 15,
         });
