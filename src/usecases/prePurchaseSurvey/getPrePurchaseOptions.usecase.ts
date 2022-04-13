@@ -96,7 +96,7 @@ export class GetPrePurchaseOptionsUsecase
           ...this.sortOptions(foodTypes.option),
         ],
         flavorDislikes: this.sortOptions(flavors.option),
-        categoryPreferences: this.sortOptions(categories.option),
+        categoryPreferences: categories.option,
       },
       null,
     ];
