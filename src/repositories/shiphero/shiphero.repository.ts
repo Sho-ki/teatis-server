@@ -217,13 +217,14 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       if (!item) {
         continue;
       }
+
       const itemNode = item.node;
-      if (itemNode.product.kit) {
+      if (itemNode.product.kit && itemNode.fulfillment_status === 'fulfilled') {
         const kitComponents = itemNode.product.kit_components;
         for (let kitComponent of kitComponents) {
           products.push({ sku: kitComponent.sku });
         }
-      } else {
+      } else if (itemNode.fulfillment_status === 'fulfilled') {
         products.push({ sku: itemNode.sku });
       }
     }
@@ -268,12 +269,15 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       }
 
       const itemNode = item?.node;
-      if (itemNode?.product?.kit) {
+      if (
+        itemNode?.product?.kit &&
+        itemNode.fulfillment_status === 'fulfilled'
+      ) {
         const kitComponents = itemNode.product.kit_components;
         for (let kitComponent of kitComponents) {
           products.push({ sku: kitComponent.sku });
         }
-      } else {
+      } else if (itemNode.fulfillment_status === 'fulfilled') {
         products.push({ sku: itemNode.sku });
       }
     }

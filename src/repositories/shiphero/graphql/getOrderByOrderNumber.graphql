@@ -13,6 +13,7 @@ query getOrderProductsByOrderNumber ($orderNumber:String!){
           line_items {
             edges {
               node {
+              fulfillment_status
                 product_name
                 sku
                 product{

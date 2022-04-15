@@ -4447,14 +4447,14 @@ export type GetLastOrderByEmailQueryVariables = Exact<{
 }>;
 
 
-export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', product_name?: string | null, sku?: string | null, quantity?: number | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetOrderProductsByOrderNumberQueryVariables = Exact<{
   orderNumber: Scalars['String'];
 }>;
 
 
-export type GetOrderProductsByOrderNumberQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', product_name?: string | null, sku?: string | null, quantity?: number | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetOrderProductsByOrderNumberQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetProductDetailQueryVariables = Exact<{
   sku: Scalars['String'];
@@ -4508,6 +4508,7 @@ export const GetLastOrderByEmailDocument = gql`
           line_items {
             edges {
               node {
+                fulfillment_status
                 product_name
                 sku
                 product {
@@ -4542,6 +4543,7 @@ export const GetOrderProductsByOrderNumberDocument = gql`
           line_items {
             edges {
               node {
+                fulfillment_status
                 product_name
                 sku
                 product {
