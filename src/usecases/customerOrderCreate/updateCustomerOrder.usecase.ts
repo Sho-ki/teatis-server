@@ -132,16 +132,13 @@ export class UpdateCustomerOrderUsecase
       }
     } else {
       orderProducts = getCustomerBoxProductsRes.products;
-      getOrderCountRes.orderCount <= 1
-        ? orderProducts.push(
-            { sku: '00000000000013' },
-            { sku: '00000000000012' },
-          ) //  Uprinting brochure and Uprinting designed boxes
-        : orderProducts.push(
-            { sku: '00000000000043' },
-            { sku: '00000000000012' },
-          ); //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
     }
+    getOrderCountRes.orderCount <= 1
+      ? orderProducts.push({ sku: '00000000000013' }, { sku: '00000000000012' }) //  Uprinting brochure and Uprinting designed boxes
+      : orderProducts.push(
+          { sku: '00000000000043' },
+          { sku: '00000000000012' },
+        ); //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
 
     const [updateOrderRes, updateOrderError] =
       await this.shipheroRepo.updateOrder({

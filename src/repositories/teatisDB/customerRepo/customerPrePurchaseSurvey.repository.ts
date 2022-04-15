@@ -102,18 +102,16 @@ export class CustomerPrePurchaseSurveyRepo
       {
         medicalConditionValue: A1c,
         customerMedicalCondition: {
-          connectOrCreate: {
-            where: { name: 'A1c' },
-            create: { name: 'A1c', label: 'A1c' },
+          connect: {
+            name: 'A1c',
           },
         },
       },
       {
         medicalConditionValue: diabetes,
         customerMedicalCondition: {
-          connectOrCreate: {
-            where: { name: 'diabetes' },
-            create: { name: 'diabetes', label: 'Diabetes' },
+          connect: {
+            name: 'diabetes',
           },
         },
       },
@@ -123,12 +121,8 @@ export class CustomerPrePurchaseSurveyRepo
       medicalConditionsQuery.push({
         medicalConditionValue: 'yes',
         customerMedicalCondition: {
-          connectOrCreate: {
-            where: { name: medicalCondition.name },
-            create: {
-              name: medicalCondition.name,
-              label: medicalCondition.label,
-            },
+          connect: {
+            name: medicalCondition.name,
           },
         },
       });
@@ -186,12 +180,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: categoryPreferences.map((categoryPreference) => {
                   return {
                     productCategory: {
-                      connectOrCreate: {
-                        where: { name: categoryPreference.name },
-                        create: {
-                          name: categoryPreference.name,
-                          label: categoryPreference.label,
-                        },
+                      connect: {
+                        name: categoryPreference.name,
                       },
                     },
                   };
@@ -204,12 +194,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: ingredientDislikes.map((ingredientDislike) => {
                   return {
                     productIngredient: {
-                      connectOrCreate: {
-                        where: { name: ingredientDislike.name },
-                        create: {
-                          name: ingredientDislike.name,
-                          label: ingredientDislike.label,
-                        },
+                      connect: {
+                        name: ingredientDislike.name,
                       },
                     },
                   };
@@ -223,12 +209,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: allergens.map((allergen) => {
                   return {
                     productAllergen: {
-                      connectOrCreate: {
-                        where: { name: allergen.name },
-                        create: {
-                          name: allergen.name,
-                          label: allergen.label,
-                        },
+                      connect: {
+                        name: allergen.name,
                       },
                     },
                   };
@@ -241,12 +223,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: flavorDislikes.map((flavorDislike) => {
                   return {
                     productFlavor: {
-                      connectOrCreate: {
-                        where: { name: flavorDislike.name },
-                        create: {
-                          name: flavorDislike.name,
-                          label: flavorDislike.label,
-                        },
+                      connect: {
+                        name: flavorDislike.name,
                       },
                     },
                   };
@@ -260,12 +238,8 @@ export class CustomerPrePurchaseSurveyRepo
                   (unavailableCookingMethod) => {
                     return {
                       productCookingMethod: {
-                        connectOrCreate: {
-                          where: { name: unavailableCookingMethod.name },
-                          create: {
-                            name: unavailableCookingMethod.name,
-                            label: unavailableCookingMethod.label,
-                          },
+                        connect: {
+                          name: unavailableCookingMethod.name,
                         },
                       },
                     };
@@ -281,93 +255,64 @@ export class CustomerPrePurchaseSurveyRepo
             {
               nutritionValue: BMR,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'BMR' },
-                  create: { label: 'BMR', name: 'BMR' },
+                connect: {
+                  name: 'BMR',
                 },
               },
             },
             {
               nutritionValue: carbsMacronutrients,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'carbsMacronutrients' },
-                  create: {
-                    label: 'Carbs Macronutrients',
-                    name: 'carbsMacronutrients',
-                  },
+                connect: {
+                  name: 'carbsMacronutrients',
                 },
               },
             },
             {
               nutritionValue: proteinMacronutrients,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'proteinMacronutrients' },
-                  create: {
-                    label: 'Protein Macronutrients',
-                    name: 'proteinMacronutrients',
-                  },
+                connect: {
+                  name: 'proteinMacronutrients',
                 },
               },
             },
             {
               nutritionValue: fatMacronutrients,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'fatMacronutrients' },
-                  create: {
-                    label: 'Fat Macronutrients',
-                    name: 'fatMacronutrients',
-                  },
+                connect: {
+                  name: 'fatMacronutrients',
                 },
               },
             },
             {
               nutritionValue: carbsPerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'carbsPerMeal' },
-                  create: {
-                    name: 'carbsPerMeal',
-                    label: 'Carbs Per Meal',
-                  },
+                connect: {
+                  name: 'carbsPerMeal',
                 },
               },
             },
             {
               nutritionValue: proteinPerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'proteinPerMeal' },
-                  create: {
-                    name: 'proteinPerMeal',
-                    label: 'Protein Per Meal',
-                  },
+                connect: {
+                  name: 'proteinPerMeal',
                 },
               },
             },
             {
               nutritionValue: fatPerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'fatPerMeal' },
-                  create: {
-                    name: 'fatPerMeal',
-                    label: 'Fat Per Meal',
-                  },
+                connect: {
+                  name: 'fatPerMeal',
                 },
               },
             },
             {
               nutritionValue: caloriePerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'caloriePerMeal' },
-                  create: {
-                    name: 'caloriePerMeal',
-                    label: 'Calorie Per Meal',
-                  },
+                connect: {
+                  name: 'caloriePerMeal',
                 },
               },
             },
@@ -388,12 +333,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: categoryPreferences.map((categoryPreference) => {
                   return {
                     productCategory: {
-                      connectOrCreate: {
-                        where: { name: categoryPreference.name },
-                        create: {
-                          name: categoryPreference.name,
-                          label: categoryPreference.label,
-                        },
+                      connect: {
+                        name: categoryPreference.name,
                       },
                     },
                   };
@@ -406,12 +347,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: ingredientDislikes.map((ingredientDislike) => {
                   return {
                     productIngredient: {
-                      connectOrCreate: {
-                        where: { name: ingredientDislike.name },
-                        create: {
-                          name: ingredientDislike.name,
-                          label: ingredientDislike.label,
-                        },
+                      connect: {
+                        name: ingredientDislike.name,
                       },
                     },
                   };
@@ -425,12 +362,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: allergens.map((allergen) => {
                   return {
                     productAllergen: {
-                      connectOrCreate: {
-                        where: { name: allergen.name },
-                        create: {
-                          name: allergen.name,
-                          label: allergen.label,
-                        },
+                      connect: {
+                        name: allergen.name,
                       },
                     },
                   };
@@ -443,12 +376,8 @@ export class CustomerPrePurchaseSurveyRepo
                 create: flavorDislikes.map((flavorDislike) => {
                   return {
                     productFlavor: {
-                      connectOrCreate: {
-                        where: { name: flavorDislike.name },
-                        create: {
-                          name: flavorDislike.name,
-                          label: flavorDislike.label,
-                        },
+                      connect: {
+                        name: flavorDislike.name,
                       },
                     },
                   };
@@ -462,12 +391,8 @@ export class CustomerPrePurchaseSurveyRepo
                   (unavailableCookingMethod) => {
                     return {
                       productCookingMethod: {
-                        connectOrCreate: {
-                          where: { name: unavailableCookingMethod.name },
-                          create: {
-                            name: unavailableCookingMethod.name,
-                            label: unavailableCookingMethod.label,
-                          },
+                        connect: {
+                          name: unavailableCookingMethod.name,
                         },
                       },
                     };
@@ -483,93 +408,64 @@ export class CustomerPrePurchaseSurveyRepo
             {
               nutritionValue: BMR,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'BMR' },
-                  create: { label: 'BMR', name: 'BMR' },
+                connect: {
+                  name: 'BMR',
                 },
               },
             },
             {
               nutritionValue: carbsMacronutrients,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'carbsMacronutrients' },
-                  create: {
-                    label: 'Carbs Macronutrients',
-                    name: 'carbsMacronutrients',
-                  },
+                connect: {
+                  name: 'carbsMacronutrients',
                 },
               },
             },
             {
               nutritionValue: proteinMacronutrients,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'proteinMacronutrients' },
-                  create: {
-                    label: 'Protein Macronutrients',
-                    name: 'proteinMacronutrients',
-                  },
+                connect: {
+                  name: 'proteinMacronutrients',
                 },
               },
             },
             {
               nutritionValue: fatMacronutrients,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'fatMacronutrients' },
-                  create: {
-                    label: 'Fat Macronutrients',
-                    name: 'fatMacronutrients',
-                  },
+                connect: {
+                  name: 'fatMacronutrients',
                 },
               },
             },
             {
               nutritionValue: carbsPerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'carbsPerMeal' },
-                  create: {
-                    name: 'carbsPerMeal',
-                    label: 'Carbs Per Meal',
-                  },
+                connect: {
+                  name: 'carbsPerMeal',
                 },
               },
             },
             {
               nutritionValue: proteinPerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'proteinPerMeal' },
-                  create: {
-                    name: 'proteinPerMeal',
-                    label: 'Protein Per Meal',
-                  },
+                connect: {
+                  name: 'proteinPerMeal',
                 },
               },
             },
             {
               nutritionValue: fatPerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'fatPerMeal' },
-                  create: {
-                    name: 'fatPerMeal',
-                    label: 'Fat Per Meal',
-                  },
+                connect: {
+                  name: 'fatPerMeal',
                 },
               },
             },
             {
               nutritionValue: caloriePerMeal,
               customerNutritionNeed: {
-                connectOrCreate: {
-                  where: { name: 'caloriePerMeal' },
-                  create: {
-                    name: 'caloriePerMeal',
-                    label: 'Calorie Per Meal',
-                  },
+                connect: {
+                  name: 'caloriePerMeal',
                 },
               },
             },
