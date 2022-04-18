@@ -218,12 +218,12 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         continue;
       }
       const itemNode = item.node;
-      if (itemNode.product.kit) {
+      if (itemNode.product.kit && itemNode.fulfillment_status !== 'canceled') {
         const kitComponents = itemNode.product.kit_components;
         for (let kitComponent of kitComponents) {
           products.push({ sku: kitComponent.sku });
         }
-      } else {
+      } else if (itemNode.fulfillment_status !== 'canceled') {
         products.push({ sku: itemNode.sku });
       }
     }
@@ -268,12 +268,15 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       }
 
       const itemNode = item?.node;
-      if (itemNode?.product?.kit) {
+      if (
+        itemNode?.product?.kit &&
+        itemNode.fulfillment_status !== 'canceled'
+      ) {
         const kitComponents = itemNode.product.kit_components;
         for (let kitComponent of kitComponents) {
           products.push({ sku: kitComponent.sku });
         }
-      } else {
+      } else if (itemNode.fulfillment_status !== 'canceled') {
         products.push({ sku: itemNode.sku });
       }
     }
