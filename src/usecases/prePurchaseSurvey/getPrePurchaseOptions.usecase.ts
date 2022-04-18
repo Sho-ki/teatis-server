@@ -6,7 +6,7 @@ export interface GetPrePurchaseOptionsUsecaseRes {
   unavailableCookingMethods: Options[];
   allergens: Options[];
   ingredientDislikes: Options[];
-  foodType: Options[];
+  // foodType: Options[];
   flavorDislikes: Options[];
   categoryPreferences: Options[];
 }
@@ -49,14 +49,14 @@ export class GetPrePurchaseOptionsUsecase
       [cookingMethods, getCookMethodsError],
       [categories, getCategoriesError],
       [flavors, getFlavorsError],
-      [foodTypes, getFoodTypesError],
+      // [foodTypes, getFoodTypesError],
       [ingredients, getIngredientsError],
       [allergens, getAllergensError],
     ] = await Promise.all([
       this.productGeneralRepo.getOptions({ target: 'cookingMethod' }),
       this.productGeneralRepo.getOptions({ target: 'category' }),
       this.productGeneralRepo.getOptions({ target: 'flavor' }),
-      this.productGeneralRepo.getOptions({ target: 'foodType' }),
+      // this.productGeneralRepo.getOptions({ target: 'foodType' }),
       this.productGeneralRepo.getOptions({ target: 'ingredient' }),
       this.productGeneralRepo.getOptions({ target: 'allergen' }),
     ]);
@@ -64,19 +64,19 @@ export class GetPrePurchaseOptionsUsecase
     if (getCookMethodsError) {
       return [null, getCookMethodsError];
     }
-    if (getCookMethodsError) {
+    if (getCategoriesError) {
       return [null, getCategoriesError];
     }
-    if (getCookMethodsError) {
+    if (getFlavorsError) {
       return [null, getFlavorsError];
     }
-    if (getCookMethodsError) {
-      return [null, getFoodTypesError];
-    }
-    if (getCookMethodsError) {
+    // if (getFoodTypesError) {
+    //   return [null, getFoodTypesError];
+    // }
+    if (getIngredientsError) {
       return [null, getIngredientsError];
     }
-    if (getCookMethodsError) {
+    if (getAllergensError) {
       return [null, getAllergensError];
     }
 
@@ -91,10 +91,10 @@ export class GetPrePurchaseOptionsUsecase
           ...this.sortOptions(allergens.option),
         ],
         ingredientDislikes: this.sortOptions(ingredients.option),
-        foodType: [
-          { id: 0, name: 'none', label: 'None' },
-          ...this.sortOptions(foodTypes.option),
-        ],
+        // foodType: [
+        //   { id: 0, name: 'none', label: 'None' },
+        //   ...this.sortOptions(foodTypes.option),
+        // ],
         flavorDislikes: this.sortOptions(flavors.option),
         categoryPreferences: categories.option,
       },
