@@ -217,6 +217,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       if (!item) {
         continue;
       }
+
       const itemNode = item.node;
       if (itemNode.product.kit && itemNode.fulfillment_status !== 'canceled') {
         const kitComponents = itemNode.product.kit_components;

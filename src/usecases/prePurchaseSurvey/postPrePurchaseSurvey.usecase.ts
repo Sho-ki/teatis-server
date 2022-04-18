@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { CustomerPrePurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
 import { PostPrePurchaseSurveyDto } from '../../controllers/discoveries/dtos/postPrePurchaseSurvey';
-import { ShipheroRepoInterface } from '../../repositories/shiphero/shiphero.repository';
 
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
@@ -43,8 +42,6 @@ export class PostPrePurchaseSurveyUsecase
   implements PostPrePurchaseSurveyUsecaseInterface
 {
   constructor(
-    @Inject('ShipheroRepoInterface')
-    private readonly shipheroRepo: ShipheroRepoInterface,
     @Inject('CustomerPrePurchaseSurveyRepoInterface')
     private readonly customerPrePurchaseRepo: CustomerPrePurchaseSurveyRepoInterface,
   ) {}
