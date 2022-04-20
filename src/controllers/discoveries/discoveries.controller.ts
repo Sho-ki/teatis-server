@@ -30,11 +30,11 @@ import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
 import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
-} from '../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderUsecaseInterface } from '../../usecases/customerOrderCreate/updateCustomerOrder.usecase';
+} from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { UpdateCustomerOrderUsecaseInterface } from '@Usecases/customerOrderCreate/updateCustomerOrder.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
-import { DeleteCustomerBoxUsecaseInterface } from '../../usecases/customerBoxUpdate/deleteCustomerBox.usecase';
-import { GetNextBoxUsecaseInterface } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
+import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBoxUpdate/deleteCustomerBox.usecase';
+import { GetNextBoxUsecaseInterface } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
 
 // api/discovery
@@ -57,9 +57,8 @@ export class DiscoveriesController {
     @Inject('DeleteCustomerBoxUsecaseInterface')
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
-    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
-  ) // private teatisJob: TeatisJobs,
-  {}
+    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface, // private teatisJob: TeatisJobs,
+  ) {}
 
   // POST: api/discovery/pre-purchase-survey
   @Post('pre-purchase-survey')

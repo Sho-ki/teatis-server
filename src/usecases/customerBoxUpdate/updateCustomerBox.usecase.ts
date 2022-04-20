@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
-import { Status } from 'src/domains/Status';
-import { UpdateCustomerBoxDto } from '../../controllers/discoveries/dtos/updateCustomerBox';
+import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
+import { Status } from '@Domains/Status';
+import { UpdateCustomerBoxDto } from '@Controllers/discoveries/dtos/updateCustomerBox';
 
 export interface UpdateCustomerBoxUsecaseInterface {
   updateCustomerBox({

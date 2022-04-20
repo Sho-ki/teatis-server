@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Product, ProductAddOn, ProductImage } from '../../../domains/Product';
+import { Product, ProductAddOn, ProductImage } from '@Domains/Product';
 import { PrismaService } from '../../../prisma.service';
 
 interface UpsertProductsArgs {
