@@ -3,26 +3,26 @@ import { Product } from '../../../domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 
-interface DeleteCustomerBoxArgs {
+export interface DeleteCustomerBoxArgs {
   customerId: number;
 }
-interface DeleteCustomerBoxRes {
+export interface DeleteCustomerBoxRes {
   deletedCount: number;
 }
 
-interface GetCustomerBoxProductsArgs {
+export interface GetCustomerBoxProductsArgs {
   email: string;
 }
-interface GetCustomerBoxProductsRes {
+export interface GetCustomerBoxProductsRes {
   products: Pick<Product, 'sku'>[];
 }
 
-interface UpdateCustomerBoxArgs {
+export interface UpdateCustomerBoxArgs {
   customerId: number;
   products: Partial<Product>[];
 }
 
-interface UpdateCustomerBoxRes {
+export interface UpdateCustomerBoxRes {
   postCount: number;
 }
 

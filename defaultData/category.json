@@ -6,14 +6,9 @@
       "src": "https://storage.googleapis.com/teatis-images/category_images/mealshake.jpg"
     },
     {
-      "name": "proteinBar",
-      "label": "Protein Bar",
+      "name": "proteinOatBar",
+      "label": "Protein/Oat Bar",
       "src": "https://storage.googleapis.com/teatis-images/category_images/proteinbar.jpg"
-    },
-    {
-      "name": "oatBar",
-      "label": "Oat Bar",
-      "src": "https://storage.googleapis.com/teatis-images/category_images/oatbar.jpg"
     },
     {
       "name": "cereal",
@@ -46,8 +41,8 @@
       "src": "https://storage.googleapis.com/teatis-images/category_images/jerky.jpg"
     },
     {
-      "name": "beans&RiceBowl",
-      "label": "Beans & Rice Bowl",
+      "name": "mealBowl",
+      "label": "Meal Bowl",
       "src": "https://storage.googleapis.com/teatis-images/category_images/beans%26ricebowl.jpg"
     },
     {
@@ -56,29 +51,25 @@
       "src": "https://storage.googleapis.com/teatis-images/category_images/granola.jpg"
     },
     {
-      "name": "brownie",
-      "label": "Brownie",
+      "name": "chocolate",
+      "label": "Chocolate",
       "src": "https://storage.googleapis.com/teatis-images/category_images/brownie.jpg"
     },
     {
-      "name": "cookie",
-      "label": "Cookie",
+      "name": "cookieBrownie",
+      "label": "Cookie/Brownie",
       "src": "https://storage.googleapis.com/teatis-images/category_images/cookie.jpg"
     },
-    {
-      "name": "puffs",
-      "label": "Puffs",
-      "src": "https://storage.googleapis.com/teatis-images/category_images/puff.jpg"
-    },
-    {
-      "name": "saltedCrackers",
-      "label": "Salted Crackers",
-      "src": "https://storage.googleapis.com/teatis-images/category_images/saltedcrackers.jpg"
-    },
+
     {
       "name": "oatmeal",
       "label": "Oatmeal",
       "src": "https://storage.googleapis.com/teatis-images/category_images/oatmeal.jpg"
+    },
+    {
+      "name": "readyToDrink",
+      "label": "Ready To Drink",
+      "src": "https://storage.googleapis.com/teatis-images/readyToDrinkCategory.jpg"
     }
   ]
 }

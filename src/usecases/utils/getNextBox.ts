@@ -22,7 +22,7 @@ interface GetNextBoxArgs extends GetNextBoxSurveyDto {
   productCount: number;
 }
 
-interface GetNextBoxRes {
+export interface GetNextBoxRes {
   products: Pick<
     Product,
     | 'id'

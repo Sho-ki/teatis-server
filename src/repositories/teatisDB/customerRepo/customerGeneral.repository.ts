@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../prisma.service';
 
-interface GetCustomerArgs {
+export interface GetCustomerArgs {
   email: string;
 }
 
-interface GetCustomerRes {
+export interface GetCustomerRes {
   id: number;
   email: string;
 }

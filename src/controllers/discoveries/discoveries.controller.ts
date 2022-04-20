@@ -20,7 +20,7 @@ import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSu
 
 import { UpdateCustomerBoxDto } from './dtos/updateCustomerBox';
 import { Response } from 'express';
-import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
+// import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
   GetPrePurchaseOptionsUsecaseInterface,
   GetPrePurchaseOptionsUsecaseRes,
@@ -58,8 +58,8 @@ export class DiscoveriesController {
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
-    private teatisJob: TeatisJobs,
-  ) {}
+  ) // private teatisJob: TeatisJobs,
+  {}
 
   // POST: api/discovery/pre-purchase-survey
   @Post('pre-purchase-survey')
@@ -127,7 +127,6 @@ export class DiscoveriesController {
       email: body.email,
       uuid: body.uuid,
       productCount: isFirstBox ? 15 : 30,
-
     });
 
     if (error) {

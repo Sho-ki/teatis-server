@@ -34,15 +34,21 @@ interface GetAllProductsRes {
   products: Omit<Product, 'nutritionFact'>[];
 }
 
-interface GetOptionsArgs {
-  target: string;
+export interface GetOptionsArgs {
+  target:
+    | 'cookingMethod'
+    | 'flavor'
+    | 'allergen'
+    | 'foodType'
+    | 'ingredient'
+    | 'category';
 }
 
-interface GetOptionsRes<T> {
+export interface GetOptionsRes<T> {
   option: T[];
 }
 
-interface GetOption {
+export interface GetOption {
   id: number;
   name: string;
   label: string;

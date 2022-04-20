@@ -14,11 +14,9 @@ import { OrderQueue } from '../../domains/OrderQueue';
 import { ShopifyRepoInterface } from '../../repositories/shopify/shopify.repository';
 import { GetNextBoxUsecaseInterface } from '../nextBoxSurvey/getNextBoxSurvey.usecase';
 import { PostPrePurchaseSurveyUsecaseInterface } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { GetNextBoxInterface } from '../utils/nextBox';
+import { GetNextBoxInterface } from '../utils/getNextBox';
+import { Status } from '../../domains/Status';
 
-interface Status {
-  status: string;
-}
 export interface UpdateCustomerOrderUsecaseInterface {
   updateCustomerOrder({
     name,
@@ -43,7 +41,7 @@ export class UpdateCustomerOrderUsecase
     @Inject('ShopifyRepoInterface')
     private readonly shopifyRepo: ShopifyRepoInterface,
     @Inject('GetNextBoxInterface')
-    private getNextBox: GetNextBoxInterface,
+    private nextBoxUtil: GetNextBoxInterface,
     @Inject('PostPrePurchaseSurveyUsecaseInterface')
     private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
   ) {}
@@ -65,6 +63,9 @@ export class UpdateCustomerOrderUsecase
           isAutoCreated: true,
         });
       customerId = upsertCustomerRes.customerId;
+      if (upsertCustomerError) {
+        return [null, upsertCustomerError];
+      }
     }
 
     const [updateOrderQueueRes, updateOrderQueueError] =
@@ -99,7 +100,7 @@ export class UpdateCustomerOrderUsecase
         purchasedProducts.includes(6618823458871) ||
         purchasedProducts.includes(6618823753783)
       ) {
-        return [{ status: 'success' }, null];
+        return [{ status: 'Success' }, null];
       }
     }
     const [getOrderCountRes, getOrderCountError] =
@@ -120,7 +121,7 @@ export class UpdateCustomerOrderUsecase
     if (!getCustomerBoxProductsRes.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
-        await this.getNextBox.getNextBoxSurvey({
+        await this.nextBoxUtil.getNextBoxSurvey({
           email: customer.email,
           productCount: 15,
         });
@@ -135,10 +136,7 @@ export class UpdateCustomerOrderUsecase
     }
     getOrderCountRes.orderCount <= 1
       ? orderProducts.push({ sku: '00000000000013' }, { sku: '00000000000012' }) //  Uprinting brochure and Uprinting designed boxes
-      : orderProducts.push(
-          { sku: '00000000000043' },
-          { sku: '00000000000012' },
-        ); //  Diabetic Ankle Socks Single Pair and Uprinting designed boxes
+      : orderProducts.push({ sku: '00000000000012' }); //   Uprinting designed boxes
 
     const [updateOrderRes, updateOrderError] =
       await this.shipheroRepo.updateOrder({
