@@ -3,9 +3,8 @@ import {
   GetOption,
   GetOptionsArgs,
   GetOptionsRes,
-  ProductGeneralRepo,
   ProductGeneralRepoInterface,
-} from '../../repositories/teatisDB/productRepo/productGeneral.repository';
+} from '@Repositories/teatisDB/productRepo/productGeneral.repository';
 import { GetPrePurchaseOptionsUsecase } from './getPrePurchaseOptions.usecase';
 
 describe('GetOptions', () => {

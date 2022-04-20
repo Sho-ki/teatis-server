@@ -1,27 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateCustomerOrderDto } from '../../controllers/discoveries/dtos/updateCustomerOrder';
-import { Status } from '../../domains/Status';
+import { Status } from '@Domains/Status';
 import {
   CreateOrderRes,
   GetOrderByOrderNumberRes,
   ShipheroRepoInterface,
-} from '../../repositories/shiphero/shiphero.repository';
+} from '@Repositories/shiphero/shiphero.repository';
 import {
   GetOrderCountRes,
   ShopifyRepoInterface,
-} from '../../repositories/shopify/shopify.repository';
+} from '@Repositories/shopify/shopify.repository';
 import {
   CustomerBoxRepoInterface,
   GetCustomerBoxProductsRes,
-} from '../../repositories/teatisDB/customerRepo/customerBox.repository';
+} from '@Repositories/teatisDB/customerRepo/customerBox.repository';
 import {
   CustomerGeneralRepoInterface,
   GetCustomerRes,
-} from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
+} from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
 import {
   OrderQueueRepoInterface,
   UpdateOrderQueueRes,
-} from '../../repositories/teatisDB/orderRepo/orderQueue.repository';
+} from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,

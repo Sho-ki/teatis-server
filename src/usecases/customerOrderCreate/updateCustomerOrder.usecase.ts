@@ -1,21 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
-import { CustomerPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
-import { PostPurchaseSurvey } from 'src/domains/PostPurchaseSurvey';
-import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
+import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
+import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
 
-import { UpdateCustomerOrderDto } from 'src/controllers/discoveries/dtos/updateCustomerOrder';
-import { OrderQueueRepoInterface } from 'src/repositories/teatisDB/orderRepo/orderQueue.repository';
+import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
+import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { Product } from 'src/domains/Product';
-import { OrderQueue } from '../../domains/OrderQueue';
-import { ShopifyRepoInterface } from '../../repositories/shopify/shopify.repository';
-import { GetNextBoxUsecaseInterface } from '../nextBoxSurvey/getNextBoxSurvey.usecase';
-import { PostPrePurchaseSurveyUsecaseInterface } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { GetNextBoxInterface } from '../utils/getNextBox';
-import { Status } from '../../domains/Status';
+import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
+import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
+import { Status } from '@Domains/Status';
 
 export interface UpdateCustomerOrderUsecaseInterface {
   updateCustomerOrder({

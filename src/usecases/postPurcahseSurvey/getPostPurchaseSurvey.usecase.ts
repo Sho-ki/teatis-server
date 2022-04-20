@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ShipheroRepoInterface } from 'src/repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepoInterface } from 'src/repositories/teatisDB/productRepo/productGeneral.repository';
-import { QuestionPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
-import { CustomerPostPurchaseSurveyRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
+import { QuestionPostPurchaseSurveyRepoInterface } from '@Repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
+import { CustomerPostPurchaseSurveyRepoInterface } from '@Repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
 import {
   PostPurchaseSurvey,
   SurveyQuestions,
 } from 'src/domains/PostPurchaseSurvey';
-import { Product } from '../../domains/Product';
+import { Product } from '@Domains/Product';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   email: string;

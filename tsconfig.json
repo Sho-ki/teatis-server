@@ -12,7 +12,9 @@
     "baseUrl": "./",
     "paths": {
       "@Usecases/*": ["src/usecases/*"],
-      
+      "@Domains/*": ["src/domains/*"],
+      "@Repositories/*": ["src/repositories/*"],
+      "@Controllers/*": ["src/controllers/*"],
     },
     "incremental": true,
     "skipLibCheck": true,

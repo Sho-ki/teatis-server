@@ -1,13 +1,7 @@
-// Get a customer's last order
-
-// Get a customer's order histories (get all the products that cannot be sent again, and be sent again)
-
-// Create an original box for a customer
-
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient, gql } from 'graphql-request';
-import { Product } from '../../domains/Product';
-import { Status } from '../../domains/Status';
+import { Product } from '@Domains/Product';
+import { Status } from '@Domains/Status';
 
 import {
   GetLastOrderByEmailQuery,
