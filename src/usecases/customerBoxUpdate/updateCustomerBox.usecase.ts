@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerGeneralRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
-import { CustomerBox } from 'src/domains/CustomerBox';
+import { Status } from 'src/domains/Status';
 import { UpdateCustomerBoxDto } from '../../controllers/discoveries/dtos/updateCustomerBox';
 
 export interface UpdateCustomerBoxUsecaseInterface {
@@ -10,7 +10,7 @@ export interface UpdateCustomerBoxUsecaseInterface {
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<[CustomerBox, Error]>;
+  }: UpdateCustomerBoxDto): Promise<[Status, Error]>;
 }
 
 @Injectable()
@@ -28,7 +28,7 @@ export class UpdateCustomerBoxUsecase
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<[CustomerBox, Error]> {
+  }: UpdateCustomerBoxDto): Promise<[Status, Error]> {
     const [getCustomerRes, getCustomerError] = uuid
       ? await this.customerGeneralRepo.getCustomerByUuid({ uuid })
       : await this.customerGeneralRepo.getCustomer({ email });

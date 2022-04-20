@@ -15,7 +15,7 @@ export interface GetProductRes {
 interface GetOrderCountArgs {
   shopifyCustomerId: number;
 }
-interface GetOrderCountRes {
+export interface GetOrderCountRes {
   orderCount: number;
 }
 

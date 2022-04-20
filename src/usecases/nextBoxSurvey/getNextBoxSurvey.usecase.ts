@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { GetNextBoxSurveyDto } from '../../controllers/discoveries/dtos/getNextBoxSurvey';
 import { Product } from '../../domains/Product';
-import { GetNextBoxInterface } from '../utils/nextBox';
+import { GetNextBoxInterface } from '../utils/getNextBox';
 
 interface GetNextBoxUsecaseArgs extends GetNextBoxSurveyDto {
   productCount: number;

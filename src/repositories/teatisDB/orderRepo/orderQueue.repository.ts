@@ -4,13 +4,13 @@ import { OrderQueue } from '../../../domains/OrderQueue';
 
 import { PrismaService } from '../../../prisma.service';
 
-interface UpdateOrderQueueArgs {
+export interface UpdateOrderQueueArgs {
   customerId: number;
   orderNumber: string;
   status: 'scheduled' | 'ordered' | 'fulfilled';
 }
 
-interface UpdateOrderQueueRes {
+export interface UpdateOrderQueueRes {
   id: number;
   customerId: number;
 }

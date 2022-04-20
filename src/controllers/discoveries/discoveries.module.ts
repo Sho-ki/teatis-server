@@ -22,7 +22,7 @@ import { OrderQueueRepo } from '../../repositories/teatisDB/orderRepo/orderQueue
 import { GetNextBoxUsecase } from '../../usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { CustomerNextBoxSurveyRepo } from '../../repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 import { AnalyzePreferenceRepo } from '../../repositories/dataAnalyze/dataAnalyzeRepo';
-import { GetNextBox } from '../../usecases/utils/nextBox';
+import { GetNextBox } from '../../usecases/utils/getNextBox';
 
 @Module({
   controllers: [DiscoveriesController],
@@ -113,7 +113,7 @@ import { GetNextBox } from '../../usecases/utils/nextBox';
       useClass: DeleteCustomerBoxUsecase,
     },
 
-    TeatisJobs,
+    // TeatisJobs,
     DiscoveriesController,
     PrismaService,
   ],

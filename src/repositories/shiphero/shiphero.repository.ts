@@ -7,6 +7,7 @@
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient, gql } from 'graphql-request';
 import { Product } from '../../domains/Product';
+import { Status } from '../../domains/Status';
 
 import {
   GetLastOrderByEmailQuery,
@@ -30,15 +31,13 @@ interface CreateOrderArgs {
   orderNumber: string;
 }
 
-interface CreateOrderRes {
-  status: string;
-}
+export interface CreateOrderRes extends Status {}
 
-interface GetOrderByOrderNumberArgs {
+export interface GetOrderByOrderNumberArgs {
   orderNumber: string;
 }
 
-interface GetOrderByOrderNumberRes {
+export interface GetOrderByOrderNumberRes {
   products: Pick<Product, 'sku'>[];
   orderNumber: string;
   orderId: string;

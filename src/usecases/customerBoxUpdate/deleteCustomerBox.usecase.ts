@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
-import { CustomerBox } from 'src/domains/CustomerBox';
+import { Status } from 'src/domains/Status';
 import { DeleteCustomerBoxDto } from '../../controllers/discoveries/dtos/deleteCustomerBox';
 import { OrderQueueRepoInterface } from '../../repositories/teatisDB/orderRepo/orderQueue.repository';
 import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
@@ -10,7 +10,7 @@ export interface DeleteCustomerBoxUsecaseInterface {
   deleteCustomerBox({
     email,
     name,
-  }: DeleteCustomerBoxDto): Promise<[CustomerBox, Error]>;
+  }: DeleteCustomerBoxDto): Promise<[Status, Error]>;
 }
 
 @Injectable()
@@ -31,7 +31,7 @@ export class DeleteCustomerBoxUsecase
   async deleteCustomerBox({
     email,
     name,
-  }: DeleteCustomerBoxDto): Promise<[CustomerBox, Error]> {
+  }: DeleteCustomerBoxDto): Promise<[Status, Error]> {
     const [getCustomerRes, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({ email });
     if (getCustomerError) {
