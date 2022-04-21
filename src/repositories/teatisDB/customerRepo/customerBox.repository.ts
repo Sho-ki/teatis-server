@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
+import { Prisma } from '@prisma/client';
 
 export interface DeleteCustomerBoxArgs {
   customerId: number;
@@ -29,15 +30,15 @@ export interface UpdateCustomerBoxRes {
 export interface CustomerBoxRepoInterface {
   getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes, Error]>;
+  }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes?, Error?]>;
   deleteCustomerBox({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes, Error]>;
+  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes?, Error?]>;
 
   postCustomerBox({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes, Error]>;
+  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes?, Error?]>;
 }
 
 @Injectable()
@@ -46,73 +47,89 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
 
   async deleteCustomerBox({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes, Error]> {
-    let res = await this.prisma.customerBoxItems.deleteMany({
-      where: {
-        customerId,
-      },
-    });
+  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes?, Error?]> {
+    try {
+      const res = await this.prisma.customerBoxItems.deleteMany({
+        where: {
+          customerId,
+        },
+      });
 
-    if (!res) {
+      return [{ deletedCount: res.count }];
+    } catch (e) {
       return [
-        null,
+        undefined,
         {
           name: 'Internal Server Error',
           message: 'Server Side Error: deleteCustomerBox failed',
         },
       ];
     }
-    return [{ deletedCount: res.count }, null];
   }
 
   async postCustomerBox({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes, Error]> {
-    let res = await this.prisma.customerBoxItems.createMany({
-      data: products.map((product) => {
-        return { customerId, productId: product.id };
-      }),
-    });
+  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes?, Error?]> {
+    try {
+      let data: Prisma.Enumerable<Prisma.CustomerBoxItemsCreateManyInput> = [];
+      for (let product of products) {
+        if (product?.id) data.push({ customerId, productId: product?.id });
+      }
+      const res = await this.prisma.customerBoxItems.createMany({
+        data,
+      });
 
-    if (!res.count) {
+      if (!res.count) {
+        throw new Error();
+      }
+      return [{ postCount: res.count }];
+    } catch (e) {
       return [
-        null,
+        undefined,
         {
           name: 'Internal Server Error',
           message: 'Server Side Error: postCustomerBox failed',
         },
       ];
     }
-    return [{ postCount: res.count }, null];
   }
 
   async getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes, Error]> {
-    const getCustomerBoxProductsRes = await this.prisma.customers.findUnique({
-      where: { email },
-      select: {
-        customerBoxItems: {
-          select: { product: true },
+  }: GetCustomerBoxProductsArgs): Promise<
+    [GetCustomerBoxProductsRes?, Error?]
+  > {
+    try {
+      const res = await this.prisma.customers.findUnique({
+        where: { email },
+        select: {
+          customerBoxItems: {
+            select: { product: true },
+          },
         },
-      },
-    });
-    if (getCustomerBoxProductsRes.customerBoxItems.length <= 0) {
+      });
+      if (!res?.customerBoxItems) {
+        throw new Error();
+      }
       return [
         {
-          products: [],
+          products:
+            res.customerBoxItems.length <= 0
+              ? []
+              : res.customerBoxItems.map((boxItem) => {
+                  return { sku: boxItem.product.externalSku };
+                }),
         },
-        null,
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getCustomerBoxProducts failed',
+        },
       ];
     }
-    return [
-      {
-        products: getCustomerBoxProductsRes.customerBoxItems.map((boxItem) => {
-          return { sku: boxItem.product.externalSku };
-        }),
-      },
-      null,
-    ];
   }
 }
