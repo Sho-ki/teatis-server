@@ -3065,6 +3065,7 @@ export type QueryProductsArgs = {
   created_from?: InputMaybe<Scalars['ISODateTime']>;
   created_to?: InputMaybe<Scalars['ISODateTime']>;
   customer_account_id?: InputMaybe<Scalars['String']>;
+  has_kits?: InputMaybe<Scalars['Boolean']>;
   sku?: InputMaybe<Scalars['String']>;
   updated_from?: InputMaybe<Scalars['ISODateTime']>;
   updated_to?: InputMaybe<Scalars['ISODateTime']>;
@@ -4442,12 +4443,19 @@ export type GetProductInventryQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetProductInventryQuery = { __typename?: 'Query', products?: { __typename?: 'ProductsQueryResult', data?: { __typename?: 'ProductConnection', edges: Array<{ __typename?: 'ProductEdge', node?: { __typename?: 'Product', sku?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null } | null> | null } | null } | null> } | null } | null };
 
+export type GetCustomerOrderByEmailQueryVariables = Exact<{
+  email: Scalars['String'];
+}>;
+
+
+export type GetCustomerOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+
 export type GetLastOrderByEmailQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
 
 
-export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetOrderProductsByOrderNumberQueryVariables = Exact<{
   orderNumber: Scalars['String'];
@@ -4492,19 +4500,16 @@ export const GetProductInventryDocument = gql`
   }
 }
     `;
-export const GetLastOrderByEmailDocument = gql`
-    query getLastOrderByEmail($email: String!) {
+export const GetCustomerOrderByEmailDocument = gql`
+    query getCustomerOrderByEmail($email: String!) {
   orders(email: $email) {
-    data(last: 1) {
+    data(last: 10) {
       edges {
         node {
-          id
           order_number
-          shop_name
           fulfillment_status
           order_date
           email
-          packing_note
           line_items {
             edges {
               node {
@@ -4517,7 +4522,38 @@ export const GetLastOrderByEmailDocument = gql`
                     sku
                   }
                 }
-                quantity
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const GetLastOrderByEmailDocument = gql`
+    query getLastOrderByEmail($email: String!) {
+  orders(email: $email) {
+    data(last: 1) {
+      edges {
+        node {
+          id
+          order_number
+          fulfillment_status
+          order_date
+          email
+          line_items {
+            edges {
+              node {
+                fulfillment_status
+                product_name
+                sku
+                product {
+                  kit
+                  kit_components {
+                    sku
+                  }
+                }
               }
             }
           }
@@ -4614,6 +4650,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     getProductInventry(variables?: GetProductInventryQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductInventryQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventryQuery>(GetProductInventryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductInventry');
+    },
+    getCustomerOrderByEmail(variables: GetCustomerOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetCustomerOrderByEmailQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetCustomerOrderByEmailQuery>(GetCustomerOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getCustomerOrderByEmail');
     },
     getLastOrderByEmail(variables: GetLastOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderByEmailQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderByEmailQuery>(GetLastOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderByEmail');

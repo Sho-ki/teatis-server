@@ -20,7 +20,7 @@ import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSu
 
 import { UpdateCustomerBoxDto } from './dtos/updateCustomerBox';
 import { Response } from 'express';
-// import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
+import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
   GetPrePurchaseOptionsUsecaseInterface,
   GetPrePurchaseOptionsUsecaseRes,
@@ -57,7 +57,8 @@ export class DiscoveriesController {
     @Inject('DeleteCustomerBoxUsecaseInterface')
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
-    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface, // private teatisJob: TeatisJobs,
+    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
+    private teatisJob: TeatisJobs,
   ) {}
 
   // POST: api/discovery/pre-purchase-survey
@@ -192,12 +193,23 @@ export class DiscoveriesController {
     return response.status(201).send(res);
   }
 
+  @Post('customer-cart')
+  async createCustomerCart(@Body() body: any, @Res() response: Response) {
+    const [res, error] = await this.updateCustomerBoxUsecase.updateCustomerBox(
+      body,
+    );
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(201).send(res);
+  }
+
   // When you migrate the data (Discoveries -> Customer etc...)
   // @Post('job')
   // async dataMigrate() {
   //   // await this.teatisJob.databaseMigrate();
-  //   await this.teatisJob.addUUID();
+  //   const res = await this.teatisJob.getCustomerBox();
 
-  //   return;
+  //   return res;
   // }
 }

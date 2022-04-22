@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import { PrismaService } from '../../prisma.service';
 import { v4 as uuidv4 } from 'uuid';
+import { ShipheroRepoInterface } from '../shiphero/shiphero.repository';
 
 interface typeformTmp {
   diabetes: string;
@@ -46,7 +47,70 @@ interface TeatisJobsInterface {
 
 @Injectable()
 export class TeatisJobs implements TeatisJobsInterface {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject('ShipheroRepoInterface')
+    private shipheroRepo: ShipheroRepoInterface,
+  ) {}
+
+  async getCustomerBox(): Promise<any> {
+    const customerPref = await this.prisma.customers.findMany({
+      where: {
+        OR: [
+          // email
+        ].map((email) => {
+          return { email };
+        }),
+      },
+      select: {
+        id: true,
+        email: true,
+        intermediateCustomerCategoryPreferences: {
+          select: { productCategory: { select: { name: true } } },
+        },
+      },
+    });
+
+    let customerInfo = [];
+    for (let customer of customerPref) {
+      const [dataSet, err] = await this.shipheroRepo.getCustomerOrders({
+        email: customer.email,
+      });
+
+      let orderInfo = [];
+      for (let orderData of dataSet.orders) {
+        const productBySku = await this.prisma.product.findMany({
+          where: {
+            OR: orderData.products.map((product) => {
+              return { externalSku: product.sku };
+            }),
+          },
+          select: { name: true, productCategory: { select: { name: true } } },
+        });
+        orderInfo.push({
+          shipDate: orderData.orderDate,
+          sentProducts: productBySku.map((product) => {
+            return {
+              name: product.name,
+              category: product.productCategory.name,
+            };
+          }),
+        });
+      }
+      let customerOrders = {
+        customerId: customer.id,
+        customerCategory: customer.intermediateCustomerCategoryPreferences.map(
+          (e) => {
+            return e.productCategory.name;
+          },
+        ),
+        ...orderInfo,
+      };
+      customerInfo.push(customerOrders);
+    }
+
+    return customerInfo;
+  }
 
   async addUUID(): Promise<void> {
     let count = 0;

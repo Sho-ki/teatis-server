@@ -109,7 +109,7 @@ import { GetNextBox } from '@Usecases/utils/getNextBox';
       useClass: DeleteCustomerBoxUsecase,
     },
 
-    // TeatisJobs,
+    TeatisJobs,
     DiscoveriesController,
     PrismaService,
   ],
