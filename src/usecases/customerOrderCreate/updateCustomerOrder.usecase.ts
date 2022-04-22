@@ -73,7 +73,7 @@ export class UpdateCustomerOrderUsecase
       return [null, updateOrderQueueError];
     }
 
-    await this.delay(7000);
+    // await this.delay(7000);
     // Case 1: if the first order
     // Case 1-1: if healthy carb
     // Case 1-2: if low sodium

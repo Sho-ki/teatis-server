@@ -19,6 +19,20 @@ export interface GetLastOrderRes {
   orderNumber: string;
 }
 
+interface GetCustomerOrdersArgs {
+  email: string;
+}
+
+export interface GetCustomerOrdersRes {
+  orders: CustomerOrders[];
+}
+
+interface CustomerOrders {
+  products: Pick<Product, 'sku'>[];
+  orderNumber: string;
+  orderDate: string;
+}
+
 interface CreateOrderArgs {
   orderId: string;
   products: Pick<Product, 'sku'>[];
@@ -79,6 +93,10 @@ export interface ShipheroRepoInterface {
     products,
     orderNumber,
   }: CreateOrderArgs): Promise<[CreateOrderRes, Error]>;
+
+  getCustomerOrders({
+    email,
+  }: GetCustomerOrdersArgs): Promise<[GetCustomerOrdersRes, Error]>;
 }
 
 @Injectable()
@@ -246,6 +264,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
 
     const node = res?.orders?.data?.edges[0]?.node;
     const orderNumber = node?.order_number;
+    const orderDate = node?.order_date;
     const items = node?.line_items?.edges;
 
     if (!node || !orderNumber || !items) {
@@ -275,13 +294,60 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       }
     }
 
-    return [
-      {
-        orderNumber,
-        products,
+    return [{ orderNumber, products }, null];
+  }
+
+  async getCustomerOrders({
+    email,
+  }: GetCustomerOrdersArgs): Promise<[GetCustomerOrdersRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        authorization: process.env.SHIPHERO_API_KEY,
       },
-      null,
-    ];
+    });
+    const sdk = getSdk(client);
+
+    let res: GetLastOrderByEmailQuery = await sdk.getCustomerOrderByEmail({
+      email,
+    });
+
+    let customerOrders: CustomerOrders[] = [];
+    for (let edge of res?.orders?.data?.edges) {
+      const node = edge?.node;
+      const orderNumber = node?.order_number;
+      const orderDate = node?.order_date;
+      const items = node?.line_items?.edges;
+
+      if (!node || !orderNumber || !items) {
+        return [
+          null,
+          { name: 'Internal Server Error', message: 'getLastOrder failed' },
+        ];
+      }
+
+      let products: Pick<Product, 'sku'>[] = [];
+      for (let item of items) {
+        if (!item) {
+          continue;
+        }
+
+        const itemNode = item?.node;
+        if (
+          itemNode?.product?.kit &&
+          itemNode.fulfillment_status !== 'canceled'
+        ) {
+          const kitComponents = itemNode.product.kit_components;
+          for (let kitComponent of kitComponents) {
+            products.push({ sku: kitComponent.sku });
+          }
+        } else if (itemNode.fulfillment_status !== 'canceled') {
+          products.push({ sku: itemNode.sku });
+        }
+      }
+      customerOrders.push({ products, orderNumber, orderDate });
+    }
+
+    return [{ orders: customerOrders }, null];
   }
 
   async updateOrder({
