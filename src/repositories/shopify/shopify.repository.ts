@@ -1,6 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { ShopifyGetCustomerRes, ShopifyGetProductRes } from './shopify';
+import { GraphQLClient } from 'graphql-request';
+import {
+  CreateCartMutation,
+  CreateCartMutationVariables,
+  getSdk,
+} from './generated/graphql';
+import {
+  ShopifyGetCustomerRes,
+  ShopifyGetProductRes,
+} from './shopify.interface';
 
 interface GetProductArgs {
   productId: number;
@@ -19,15 +28,56 @@ export interface GetOrderCountRes {
   orderCount: number;
 }
 
+interface CreateCartArgs {
+  email: string;
+  merchandiseId: string;
+  sellingPlanId: string;
+  uuid: string;
+}
+export interface CreateCartRes {
+  checkoutUrl: string;
+}
+
 export interface ShopifyRepoInterface {
   getProduct({ productId }: GetProductArgs): Promise<GetProductRes>;
   getOrderCount({
     shopifyCustomerId,
   }: GetOrderCountArgs): Promise<[GetOrderCountRes, Error]>;
+  createCart({
+    email,
+    merchandiseId,
+    sellingPlanId,
+    uuid,
+  }: CreateCartArgs): Promise<[CreateCartRes, Error]>;
 }
+
+const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
 
 @Injectable()
 export class ShopifyRepo implements ShopifyRepoInterface {
+  async createCart({
+    email,
+    merchandiseId,
+    sellingPlanId,
+    uuid,
+  }: CreateCartArgs): Promise<[CreateCartRes, Error]> {
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        'X-Shopify-Storefront-Access-Token': 'd710761c009d16ed459f7014d119093c',
+      },
+    });
+    const sdk = getSdk(client);
+
+    const res: CreateCartMutation = await sdk.CreateCart({
+      input: {
+        buyerIdentity: { email },
+        attributes: [{ key: 'uuid', value: uuid }],
+        lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
+      },
+    });
+    return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }, null];
+  }
+
   async getProduct({ productId }: GetProductArgs): Promise<GetProductRes> {
     const response = await axios.get<ShopifyGetProductRes>(
       `https://thetis-tea.myshopify.com/admin/api/2021-10/products/${productId}.json`,

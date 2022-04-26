@@ -42,6 +42,15 @@ interface GetCustomerMedicalConditionRes {
   highCholesterol: boolean;
 }
 
+interface UpdateEmailByUuidArgs {
+  uuid: string;
+  newEmail: string;
+}
+
+interface UpdateEmailByUuidRes {
+  id: number;
+}
+
 export interface CustomerGeneralRepoInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes, Error]>;
   getCustomerPreference({
@@ -55,11 +64,28 @@ export interface CustomerGeneralRepoInterface {
   getCustomerByUuid({
     uuid,
   }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes, Error]>;
+
+  updateEmailByUuid({
+    uuid,
+    newEmail,
+  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes, Error]>;
 }
 
 @Injectable()
 export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
+
+  async updateEmailByUuid({
+    uuid,
+    newEmail,
+  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes, Error]> {
+    const res = await this.prisma.customers.update({
+      where: { uuid },
+      data: { email: newEmail },
+    });
+    return [{ id: res.id }, null];
+  }
+
   async getCustomerByUuid({
     uuid,
   }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes, Error]> {

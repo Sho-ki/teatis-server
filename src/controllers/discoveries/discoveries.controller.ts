@@ -36,6 +36,8 @@ import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBoxUpdate/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
+import { CreateCartDto } from './dtos/createCart';
+import { CreateCustomerCartUsecaseInterface } from '../../usecases/customerCart/createCustomerCart.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -58,6 +60,8 @@ export class DiscoveriesController {
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
+    @Inject('CreateCustomerCartUsecaseInterface')
+    private createCustomerCartUsecase: CreateCustomerCartUsecaseInterface,
     private teatisJob: TeatisJobs,
   ) {}
 
@@ -193,15 +197,16 @@ export class DiscoveriesController {
     return response.status(201).send(res);
   }
 
-  @Post('customer-cart')
-  async createCustomerCart(@Body() body: any, @Res() response: Response) {
-    const [res, error] = await this.updateCustomerBoxUsecase.updateCustomerBox(
-      body,
-    );
+  @Post('create-cart')
+  async createCustomerCart(
+    @Body() body: CreateCartDto,
+    @Res() response: Response,
+  ) {
+    const [res, error] = await this.createCustomerCartUsecase.createCart(body);
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).redirect(res.checkoutUrl);
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)

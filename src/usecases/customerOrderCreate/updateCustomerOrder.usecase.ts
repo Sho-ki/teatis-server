@@ -47,22 +47,22 @@ export class UpdateCustomerOrderUsecase
     name,
     customer,
     line_items,
+    note_attributes,
   }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
     const [getCustomerRes, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({ email: customer.email });
     let customerId = getCustomerRes?.id;
     if (getCustomerError) {
-      const [upsertCustomerRes, upsertCustomerError] =
-        await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey({
-          email: customer.email,
-          isAutoCreated: true,
+      const [updateEmailRes, updateEmailError] =
+        await this.customerGeneralRepo.updateEmailByUuid({
+          uuid: note_attributes[0]?.value,
+          newEmail: customer.email,
         });
-      customerId = upsertCustomerRes.customerId;
-      if (upsertCustomerError) {
-        return [null, upsertCustomerError];
+      customerId = updateEmailRes.id;
+      if (updateEmailError) {
+        return [null, updateEmailError];
       }
     }
-
     const [updateOrderQueueRes, updateOrderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
         customerId,
