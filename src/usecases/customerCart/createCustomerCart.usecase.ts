@@ -13,7 +13,6 @@ interface CreateCustomerCartUsecaseRes {
 }
 export interface CreateCustomerCartUsecaseInterface {
   createCart({
-    email,
     merchandiseId,
     sellingPlanId,
     uuid,
@@ -32,13 +31,11 @@ export class CreateCustomerCartUsecase
   // need to delete CustomerBox every time products are shipped, since customers may not answer the next post-purchase-survey
   // which causes sending the same products as the previous order
   async createCart({
-    email,
     merchandiseId,
     sellingPlanId,
     uuid,
   }: CreateCartDto): Promise<[CreateCustomerCartUsecaseRes, Error]> {
     const [createCartRes, createCartError] = await this.ShopifyRepo.createCart({
-      email,
       merchandiseId,
       sellingPlanId,
       uuid,
