@@ -9,4 +9,7 @@ export class UpdateCustomerOrderDto {
 
   @IsArray()
   line_items: { product_id: number }[];
+
+  @IsArray()
+  note_attributes?: { key: string; value: string }[];
 }

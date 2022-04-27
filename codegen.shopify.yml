@@ -1,0 +1,13 @@
+overwrite: true
+schema: 
+  - "https://thetis-tea.myshopify.com/api/2022-01/graphql.json":
+      headers:
+        X-Shopify-Storefront-Access-Token: d710761c009d16ed459f7014d119093c
+documents: src/repositories/shopify/graphql/*.graphql
+generates:
+  src/repositories/shopify/generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"
+
