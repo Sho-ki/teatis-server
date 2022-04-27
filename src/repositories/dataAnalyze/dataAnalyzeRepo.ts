@@ -13,7 +13,7 @@ export interface CustomerShippableProduct {
   flavor_id: number;
   category_id: number;
   cooking_method_ids: number[];
-  is_sent_last_time: boolean;
+  is_sent: 0 | 1;
 }
 interface AnalyzePreferenceRes {
   is_success: string;

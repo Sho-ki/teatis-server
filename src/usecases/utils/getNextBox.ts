@@ -307,11 +307,11 @@ export class GetNextBox implements GetNextBoxInterface {
           product.cookingMethods.map((cookingMethod) => {
             return cookingMethod.id;
           }) || [],
-        is_sent_last_time: false,
+        is_sent: 0,
       };
       for (let getLastOrderResProduct of getLastOrderRes.products) {
         if (product.sku === getLastOrderResProduct.sku) {
-          shippableProduct = { ...shippableProduct, is_sent_last_time: true };
+          shippableProduct = { ...shippableProduct, is_sent: 1 };
           break;
         }
       }
