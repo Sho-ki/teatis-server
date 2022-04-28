@@ -1,4 +1,4 @@
-import { IsArray, IsObject, IsString } from 'class-validator';
+import { IsArray, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCustomerOrderDto {
   @IsString()
@@ -11,5 +11,6 @@ export class UpdateCustomerOrderDto {
   line_items: { product_id: number }[];
 
   @IsArray()
+  @IsOptional()
   note_attributes?: { key: string; value: string }[];
 }

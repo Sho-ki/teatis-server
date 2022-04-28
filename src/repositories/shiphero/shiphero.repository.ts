@@ -229,8 +229,8 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         continue;
       }
 
-      const itemNode = item.node;
-      if (itemNode.product.kit && itemNode.fulfillment_status !== 'canceled') {
+      const itemNode = item?.node;
+      if (itemNode.product?.kit && itemNode.fulfillment_status !== 'canceled') {
         const kitComponents = itemNode.product.kit_components;
         for (let kitComponent of kitComponents) {
           products.push({ sku: kitComponent.sku });
@@ -281,11 +281,8 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       }
 
       const itemNode = item?.node;
-      if (
-        itemNode?.product?.kit &&
-        itemNode.fulfillment_status !== 'canceled'
-      ) {
-        const kitComponents = itemNode.product.kit_components;
+      if (itemNode.product?.kit && itemNode.fulfillment_status !== 'canceled') {
+        const kitComponents = itemNode.product?.kit_components;
         for (let kitComponent of kitComponents) {
           products.push({ sku: kitComponent.sku });
         }
@@ -362,13 +359,15 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     });
 
     let orderProducts = '';
+    let ct = 1;
     for (let product of products) {
       orderProducts += String(`{
         sku: "${product.sku}",
-        partner_line_item_id: "${product.sku}_${orderId}_${orderNumber}",
+        partner_line_item_id: "${product.sku}_${orderNumber}_#${ct}",
         quantity: 1,
         price: "0",
      }, `);
+      ct++;
     }
 
     const mutation = gql`
