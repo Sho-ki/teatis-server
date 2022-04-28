@@ -130,8 +130,11 @@ export class UpdateCustomerOrderUsecase
       orderProducts = getCustomerBoxProductsRes.products;
     }
     getOrderCountRes.orderCount <= 1
-      ? orderProducts.push({ sku: '00000000000013' }, { sku: '00000000000012' }) //  Uprinting brochure and Uprinting designed boxes
-      : orderProducts.push({ sku: '00000000000012' }); //   Uprinting designed boxes
+      ? orderProducts.push(
+          { sku: 'NP-brochure-2022q1' },
+          { sku: 'NP-carton-lightblue' },
+        ) //  Uprinting brochure and Uprinting designed boxes
+      : orderProducts.push({ sku: 'NP-carton-lightblue' }); //   Uprinting designed boxes
 
     const [updateOrderRes, updateOrderError] =
       await this.shipheroRepo.updateOrder({
