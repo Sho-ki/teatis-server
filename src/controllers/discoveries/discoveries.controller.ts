@@ -206,7 +206,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).redirect(res.checkoutUrl);
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
