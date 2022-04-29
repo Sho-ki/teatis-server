@@ -10,6 +10,7 @@ import { ShopifyRepoInterface } from '../../repositories/shopify/shopify.reposit
 
 interface CreateCustomerCartUsecaseRes {
   checkoutUrl: string;
+  email: string;
 }
 export interface CreateCustomerCartUsecaseInterface {
   createCart({
@@ -26,6 +27,8 @@ export class CreateCustomerCartUsecase
   constructor(
     @Inject('ShopifyRepoInterface')
     private ShopifyRepo: ShopifyRepoInterface,
+    @Inject('CustomerGeneralRepoInterface')
+    private customerGeneralRepo: CustomerGeneralRepoInterface,
   ) {}
 
   // need to delete CustomerBox every time products are shipped, since customers may not answer the next post-purchase-survey
@@ -40,7 +43,20 @@ export class CreateCustomerCartUsecase
       sellingPlanId,
       uuid,
     });
+    if (createCartError) {
+      return [null, createCartError];
+    }
 
-    return [{ checkoutUrl: createCartRes.checkoutUrl }, null];
+    const [getCustomerRes, getCustomerError] =
+      await this.customerGeneralRepo.getCustomerByUuid({ uuid });
+
+    if (getCustomerError) {
+      return [null, getCustomerError];
+    }
+
+    return [
+      { checkoutUrl: createCartRes.checkoutUrl, email: getCustomerRes.email },
+      null,
+    ];
   }
 }
