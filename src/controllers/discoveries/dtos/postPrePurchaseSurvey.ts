@@ -23,7 +23,7 @@ export class PostPrePurchaseSurveyDto {
 
   @IsArray()
   @IsOptional()
-  medicalConditions?: { name: string; label: string }[];
+  medicalConditions?: { name: string; label?: string }[];
 
   @IsString()
   @IsOptional()
@@ -39,24 +39,24 @@ export class PostPrePurchaseSurveyDto {
 
   @IsArray()
   @IsOptional()
-  categoryPreferences?: { name: string; label: string }[];
+  categoryPreferences?: { name: string; label?: string }[];
 
   @IsArray()
   @IsOptional()
-  flavorDislikes?: { name: string; label: string }[];
+  flavorDislikes?: { name: string; label?: string }[];
 
   @IsArray()
   @IsOptional()
-  ingredientDislikes?: { name: string; label: string }[];
+  ingredientDislikes?: { name: string; label?: string }[];
 
   @IsArray()
   @IsOptional()
-  allergens?: { name: string; label: string }[];
+  allergens?: { name: string; label?: string }[];
 
   @IsString()
   email: string;
 
   @IsArray()
   @IsOptional()
-  unavailableCookingMethods?: { name: string; label: string }[];
+  unavailableCookingMethods?: { name: string; label?: string }[];
 }
