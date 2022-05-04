@@ -51,6 +51,18 @@ interface UpdateEmailByUuidRes {
   id: number;
 }
 
+interface GetCustomerNutritionArgs {
+  uuid: string;
+}
+
+interface GetCustomerNutritionRes {
+  carbsPerMeal: number;
+  proteinPerMeal: number;
+  fatPerMeal: number;
+  sodiumPerMeal: number;
+  caloriePerMeal: number;
+}
+
 export interface CustomerGeneralRepoInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes, Error]>;
   getCustomerPreference({
@@ -61,6 +73,9 @@ export interface CustomerGeneralRepoInterface {
   }: GetCustomerMedicalConditionArgs): Promise<
     [GetCustomerMedicalConditionRes, Error]
   >;
+  getCustomerNutrition({
+    uuid,
+  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes, Error]>;
   getCustomerByUuid({
     uuid,
   }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes, Error]>;
@@ -74,6 +89,67 @@ export interface CustomerGeneralRepoInterface {
 @Injectable()
 export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
+
+  async getCustomerNutrition({
+    uuid,
+  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes, Error]> {
+    const res = await this.prisma.customers.findUnique({
+      where: { uuid },
+      select: {
+        mealsPerDay: true,
+        intermediateCustomerMedicalConditions: {
+          select: { customerMedicalCondition: { select: { name: true } } },
+        },
+        intermediateCustomerNutritionNeeds: {
+          where: {
+            customerNutritionNeed: {
+              OR: [
+                { name: 'caloriePerMeal' },
+                { name: 'fatPerMeal' },
+                { name: 'proteinPerMeal' },
+                { name: 'carbsPerMeal' },
+              ],
+            },
+          },
+          select: {
+            nutritionValue: true,
+            customerNutritionNeed: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    const allConditions = res?.intermediateCustomerMedicalConditions
+      ? res.intermediateCustomerMedicalConditions.map(
+          ({ customerMedicalCondition }) => {
+            return customerMedicalCondition.name;
+          },
+        )
+      : [];
+    const sodiumPerMeal = allConditions.includes('highBloodPressure')
+      ? Math.round(1800 / (res?.mealsPerDay || 4))
+      : Math.round(2100 / (res?.mealsPerDay || 4));
+
+    let nutritions: GetCustomerNutritionRes = {
+      // Set the default values
+      carbsPerMeal: 50,
+      proteinPerMeal: 30,
+      fatPerMeal: 20,
+      caloriePerMeal: 400,
+      sodiumPerMeal,
+    };
+    for (let {
+      customerNutritionNeed,
+      nutritionValue,
+    } of res.intermediateCustomerNutritionNeeds) {
+      nutritions = {
+        ...nutritions,
+        [customerNutritionNeed.name]: nutritionValue,
+      };
+    }
+
+    return [nutritions, null];
+  }
 
   async updateEmailByUuid({
     uuid,

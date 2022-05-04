@@ -5,7 +5,7 @@ import { Product } from '@Domains/Product';
 import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
 
 interface GetNextBoxUsecaseArgs extends GetNextBoxSurveyDto {
-  productCount: number;
+  isFirstBox: boolean;
 }
 
 interface GetNextBoxUsecaseRes {
@@ -27,7 +27,7 @@ export interface GetNextBoxUsecaseInterface {
   getNextBoxSurvey({
     email,
     uuid,
-    productCount,
+    isFirstBox,
   }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]>;
 }
 
@@ -41,8 +41,10 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
   async getNextBoxSurvey({
     email,
     uuid,
-    productCount,
+    isFirstBox,
   }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]> {
+    const productCount = isFirstBox ? 15 : 30;
+
     const [getNextBoxProducts, getNextBoxProductsError] =
       await this.getNextBox.getNextBoxSurvey({ email, uuid, productCount });
 
