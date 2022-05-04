@@ -135,8 +135,7 @@ export class DiscoveriesController {
     const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
       email: body.email,
       uuid: body.uuid,
-      isFirstBox,
-      // productCount: isFirstBox ? 15 : 30,
+      productCount: isFirstBox ? 15 : 30,
     });
 
     if (error) {
