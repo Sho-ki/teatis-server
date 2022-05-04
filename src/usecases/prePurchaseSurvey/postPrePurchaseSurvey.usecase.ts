@@ -46,6 +46,28 @@ export class PostPrePurchaseSurveyUsecase
     private readonly customerPrePurchaseRepo: CustomerPrePurchaseSurveyRepoInterface,
   ) {}
 
+  outlierValidate(name: 'height' | 'weight' | 'age', value: number): number {
+    let max: number, min: number, defVal: number;
+    switch (name) {
+      case 'height':
+        max = 250;
+        min = 100;
+        defVal = 160;
+        break;
+      case 'weight':
+        max = 300;
+        min = 30;
+        defVal = 70;
+        break;
+      case 'age':
+        max = 100;
+        min = 10;
+        defVal = 50;
+        break;
+    }
+    return value > max ? defVal : value < min ? defVal : value;
+  }
+
   private getCustomerBoxType(medicalConditions: string[]): string {
     if (medicalConditions.length <= 0) {
       return 'HC'; // Healthy Carb
@@ -62,7 +84,7 @@ export class PostPrePurchaseSurveyUsecase
     diabetes = 'unknown',
     gender,
     height = 160, // in cm
-    weight = 100, // in kg
+    weight = 70, // in kg
     age = 50,
     activeLevel = 'notActive',
     A1c = 'unknown',
@@ -79,6 +101,10 @@ export class PostPrePurchaseSurveyUsecase
     [PostPrePurchaseSurveyUsecaseRes, Error]
   > {
     //   Calculate Method: https://www.notion.so/teatis/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
+    height = this.outlierValidate('height', height);
+    weight = this.outlierValidate('weight', weight);
+    age = this.outlierValidate('age', age);
+
     let BMR: number;
 
     if (gender === 'male') {

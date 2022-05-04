@@ -38,6 +38,8 @@ import { GetNextBoxUsecaseInterface } from '@Usecases/nextBoxSurvey/getNextBoxSu
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
 import { CreateCartDto } from './dtos/createCart';
 import { CreateCustomerCartUsecaseInterface } from '../../usecases/customerCart/createCustomerCart.usecase';
+import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
+import { GetCustomerNutritionUsecaseInterface } from '../../usecases/customerNutrition/getCustomerNutrition.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -62,6 +64,9 @@ export class DiscoveriesController {
     private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
     @Inject('CreateCustomerCartUsecaseInterface')
     private createCustomerCartUsecase: CreateCustomerCartUsecaseInterface,
+    @Inject('GetCustomerNutritionUsecaseInterface')
+    private getCustomerNutritionUsecase: GetCustomerNutritionUsecaseInterface,
+
     private teatisJob: TeatisJobs,
   ) {}
 
@@ -207,6 +212,20 @@ export class DiscoveriesController {
       return response.status(500).send(error);
     }
     return response.status(201).send(res);
+  }
+
+  // Get: api/discovery/customer-nutrition
+  @Get('customer-nutrition')
+  async getCustomerNutrition(
+    @Query() body: GetCustomerNutritionDto,
+    @Res() response: Response,
+  ) {
+    const [res, error] =
+      await this.getCustomerNutritionUsecase.getCustomerNutrition(body);
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
