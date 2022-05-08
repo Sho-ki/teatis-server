@@ -34,6 +34,7 @@ export interface GetNextBoxRes {
     | 'expertComment'
     | 'ingredientLabel'
     | 'allergenLabel'
+    | 'nutritionFact'
   >[];
 }
 
@@ -45,7 +46,7 @@ interface FilterProductsArgs {
     | 'unavailableCookingMethods'
     | 'unwant';
   customerFilter: { ids?: number[]; skus?: string[] };
-  products: Omit<Product, 'nutritionFact'>[];
+  products: Product[];
   nextWantProducts?: number[];
 }
 
@@ -77,8 +78,8 @@ export class GetNextBox implements GetNextBoxInterface {
     customerFilter,
     products,
     nextWantProducts,
-  }: FilterProductsArgs): Omit<Product, 'nutritionFact'>[] {
-    let filteredProducts: Omit<Product, 'nutritionFact'>[] = products;
+  }: FilterProductsArgs): Product[] {
+    let filteredProducts: Product[] = products;
     filteredProducts = products.filter((product) => {
       switch (filterType) {
         case 'inventry':
@@ -284,6 +285,7 @@ export class GetNextBox implements GetNextBoxInterface {
           expertComment,
           ingredientLabel,
           allergenLabel,
+          nutritionFact,
         } = product;
         nextBoxProducts.products.unshift({
           id,
@@ -295,6 +297,19 @@ export class GetNextBox implements GetNextBoxInterface {
           expertComment,
           ingredientLabel,
           allergenLabel,
+          nutritionFact: {
+            calorie: nutritionFact.calorie,
+            totalFat: nutritionFact.totalFat,
+            saturatedFat: nutritionFact.saturatedFat,
+            transFat: nutritionFact.transFat,
+            cholesterole: nutritionFact.cholesterole,
+            sodium: nutritionFact.sodium,
+            totalCarbohydrate: nutritionFact.totalCarbohydrate,
+            dietaryFiber: nutritionFact.dietaryFiber,
+            totalSugar: nutritionFact.totalSugar,
+            addedSugar: nutritionFact.addedSugar,
+            protein: nutritionFact.protein,
+          },
         });
         continue;
       }
@@ -335,6 +350,7 @@ export class GetNextBox implements GetNextBoxInterface {
             expertComment,
             ingredientLabel,
             allergenLabel,
+            nutritionFact,
           } = product;
           nextBoxProducts.products.push({
             id,
@@ -346,6 +362,19 @@ export class GetNextBox implements GetNextBoxInterface {
             expertComment,
             ingredientLabel,
             allergenLabel,
+            nutritionFact: {
+              calorie: nutritionFact.calorie,
+              totalFat: nutritionFact.totalFat,
+              saturatedFat: nutritionFact.saturatedFat,
+              transFat: nutritionFact.transFat,
+              cholesterole: nutritionFact.cholesterole,
+              sodium: nutritionFact.sodium,
+              totalCarbohydrate: nutritionFact.totalCarbohydrate,
+              dietaryFiber: nutritionFact.dietaryFiber,
+              totalSugar: nutritionFact.totalSugar,
+              addedSugar: nutritionFact.addedSugar,
+              protein: nutritionFact.protein,
+            },
           });
         }
       }

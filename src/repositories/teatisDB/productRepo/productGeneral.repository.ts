@@ -31,7 +31,7 @@ interface GetAllProductsArgs {
 }
 
 interface GetAllProductsRes {
-  products: Omit<Product, 'nutritionFact'>[];
+  products: Product[];
 }
 
 export interface GetOptionsArgs {
@@ -132,6 +132,21 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         expertComment: true,
         allergenLabel: true,
         ingredientLabel: true,
+        productNutritionFact: {
+          select: {
+            calories: true,
+            totalFatG: true,
+            saturatedFatG: true,
+            transFatG: true,
+            cholesteroleMg: true,
+            sodiumMg: true,
+            totalCarbohydrateG: true,
+            dietaryFiberG: true,
+            totalSugarG: true,
+            addedSugarG: true,
+            proteinG: true,
+          },
+        },
         intermediateProductAllergens: {
           select: {
             productAllergen: { select: { id: true, name: true, label: true } },
@@ -223,6 +238,21 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
                     },
                   )
                 : [],
+
+            nutritionFact: {
+              calorie: product?.productNutritionFact?.calories || 0,
+              totalFat: product?.productNutritionFact?.totalFatG || 0,
+              saturatedFat: product?.productNutritionFact?.saturatedFatG || 0,
+              transFat: product?.productNutritionFact?.transFatG || 0,
+              cholesterole: product?.productNutritionFact?.cholesteroleMg || 0,
+              sodium: product?.productNutritionFact?.sodiumMg || 0,
+              totalCarbohydrate:
+                product?.productNutritionFact?.totalCarbohydrateG || 0,
+              dietaryFiber: product?.productNutritionFact?.dietaryFiberG || 0,
+              totalSugar: product?.productNutritionFact?.totalSugarG || 0,
+              addedSugar: product?.productNutritionFact?.addedSugarG || 0,
+              protein: product?.productNutritionFact?.proteinG || 0,
+            },
           };
         }),
       },

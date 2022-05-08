@@ -29,6 +29,15 @@ export class ProductImage {
 }
 
 export class ProductNutrition {
-  calories: number;
-  // TODO: add nutritions
+  calorie: number;
+  totalFat: number;
+  saturatedFat: number;
+  transFat: number;
+  cholesterole: number;
+  sodium: number;
+  totalCarbohydrate: number;
+  dietaryFiber: number;
+  totalSugar: number;
+  addedSugar: number;
+  protein: number;
 }
