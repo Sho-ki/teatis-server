@@ -25,7 +25,7 @@ import {
   GetPrePurchaseOptionsUsecaseInterface,
   GetPrePurchaseOptionsUsecaseRes,
 } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
-import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBoxUpdate/updateCustomerBox.usecase';
+import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
 import {
   PostPrePurchaseSurveyUsecaseInterface,
@@ -33,7 +33,7 @@ import {
 } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { UpdateCustomerOrderUsecaseInterface } from '@Usecases/customerOrderCreate/updateCustomerOrder.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
-import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBoxUpdate/deleteCustomerBox.usecase';
+import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
 import { CreateCartDto } from './dtos/createCart';
