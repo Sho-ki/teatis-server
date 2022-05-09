@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
 import { Status } from 'src/domains/Status';
-import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
 import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
 
 export interface DeleteCustomerBoxUsecaseInterface {
   deleteCustomerBox({

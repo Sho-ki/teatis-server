@@ -9,21 +9,21 @@ import { CustomerPostPurchaseSurveyRepo } from '@Repositories/teatisDB/customerR
 import { PostPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { ProductGeneralRepo } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
 import { ShipheroRepo } from '@Repositories/shiphero/shiphero.repository';
-import { UpdateCustomerBoxUsecase } from '@Usecases/customerBoxUpdate/updateCustomerBox.usecase';
+import { UpdateCustomerBoxUsecase } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { CustomerGeneralRepo } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerBoxRepo } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
 import { TeatisJobs } from '@Repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { UpdateCustomerOrderUsecase } from '@Usecases/customerOrderCreate/updateCustomerOrder.usecase';
-import { DeleteCustomerBoxUsecase } from '@Usecases/customerBoxUpdate/deleteCustomerBox.usecase';
+import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { OrderQueueRepo } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { GetNextBoxUsecase } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { CustomerNextBoxSurveyRepo } from '@Repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 import { AnalyzePreferenceRepo } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
 import { GetNextBox } from '@Usecases/utils/getNextBox';
 import { CreateCustomerCartUsecase } from '@Usecases/customerCart/createCustomerCart.usecase';
-import { GetCustomerNutritionUsecase } from '../../usecases/customerNutrition/getCustomerNutrition.usecase';
+import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
