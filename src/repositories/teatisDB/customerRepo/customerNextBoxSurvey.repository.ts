@@ -21,7 +21,7 @@ interface GetNextUnwantRes {
 export interface CustomerNextBoxSurveyRepoInterface {
   getNextWant({
     orderNumber,
-  }: GetNextWantArgs): Promise<[GetNextWantRes, Error]>;
+  }: GetNextWantArgs): Promise<[GetNextWantRes?, Error?]>;
   getNextUnwant({
     email,
   }: GetNextUnwantArgs): Promise<[GetNextUnwantRes, Error]>;
@@ -35,43 +35,66 @@ export class CustomerNextBoxSurveyRepo
 
   async getNextWant({
     orderNumber,
-  }: GetNextWantArgs): Promise<[GetNextWantRes, Error]> {
-    const getNextWantRes = await this.prisma.surveyQuestionAnswer.findMany({
-      where: {
-        AND: [{ orderNumber }, { answerNumeric: 6 }],
-      },
-      select: {
-        product: { select: { id: true } },
-      },
-    });
-    return [
-      {
-        ids: getNextWantRes?.map((nextWant) => {
-          return nextWant.product.id;
-        }),
-      },
-      null,
-    ];
+  }: GetNextWantArgs): Promise<[GetNextWantRes?, Error?]> {
+    try {
+      const res = await this.prisma.surveyQuestionAnswer.findMany({
+        where: {
+          AND: [{ orderNumber }, { answerNumeric: 6 }],
+        },
+        select: {
+          product: { select: { id: true } },
+        },
+      });
+      return [
+        {
+          ids: res.length
+            ? res.map((nextWant) => {
+                return nextWant.product.id;
+              })
+            : [],
+        },
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getNextWant failed',
+        },
+      ];
+    }
   }
 
   async getNextUnwant({
     email,
   }: GetNextUnwantArgs): Promise<[GetNextUnwantRes, Error]> {
-    const getNextUnwantRes = await this.prisma.surveyQuestionAnswer.findMany({
-      where: {
-        AND: [{ customer: { email } }, { answerNumeric: 1 }],
-      },
-      select: {
-        product: { select: { id: true } },
-      },
-    });
-    return [
-      {
-        ids: getNextUnwantRes.map((nextUnwant) => {
-          return nextUnwant.product.id;
-        }),
-      },
-      null,
-    ];
+    try {
+      const res = await this.prisma.surveyQuestionAnswer.findMany({
+        where: {
+          AND: [{ customer: { email } }, { answerNumeric: 1 }],
+        },
+        select: {
+          product: { select: { id: true } },
+        },
+      });
+      return [
+        {
+          ids: res.length
+            ? res.map((nextUnwant) => {
+                return nextUnwant.product.id;
+              })
+            : [],
+        },
+        null,
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getNextUnwant failed',
+        },
+      ];
+    }
   }
 }

@@ -248,7 +248,7 @@ export class GetNextBox implements GetNextBoxInterface {
     const [customerCategoryLikes, customerCategoryLikesError] =
       await this.customerGeneralRepo.getCustomerPreference({
         email,
-        type: 'categoryLikes',
+        type: 'categoryPreferences',
       });
 
     const [getNextUnwantRes, getCustomerUnwantError] =

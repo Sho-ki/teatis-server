@@ -16,7 +16,7 @@ interface GetCustomerPreferenceArgs {
     | 'flavorDislikes'
     | 'allergens'
     | 'unavailableCookingMethods'
-    | 'categoryLikes';
+    | 'categoryPreferences';
   email: string;
 }
 
@@ -64,26 +64,26 @@ interface GetCustomerNutritionRes {
 }
 
 export interface CustomerGeneralRepoInterface {
-  getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes, Error]>;
+  getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes?, Error?]>;
   getCustomerPreference({
     email,
-  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes, Error]>;
+  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes?, Error?]>;
   getCustomerCondition({
     email,
   }: GetCustomerMedicalConditionArgs): Promise<
-    [GetCustomerMedicalConditionRes, Error]
+    [GetCustomerMedicalConditionRes?, Error?]
   >;
   getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes, Error]>;
+  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes?, Error?]>;
   getCustomerByUuid({
     uuid,
-  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes, Error]>;
+  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes?, Error?]>;
 
   updateEmailByUuid({
     uuid,
     newEmail,
-  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes, Error]>;
+  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes?, Error?]>;
 }
 
 @Injectable()
@@ -92,129 +92,161 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
 
   async getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes, Error]> {
-    const res = await this.prisma.customers.findUnique({
-      where: { uuid },
-      select: {
-        mealsPerDay: true,
-        intermediateCustomerMedicalConditions: {
-          select: { customerMedicalCondition: { select: { name: true } } },
-        },
-        intermediateCustomerNutritionNeeds: {
-          where: {
-            customerNutritionNeed: {
-              OR: [
-                { name: 'caloriePerMeal' },
-                { name: 'fatPerMeal' },
-                { name: 'proteinPerMeal' },
-                { name: 'carbsPerMeal' },
-              ],
+  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes?, Error?]> {
+    try {
+      const res = await this.prisma.customers.findUnique({
+        where: { uuid },
+        select: {
+          mealsPerDay: true,
+          intermediateCustomerMedicalConditions: {
+            select: { customerMedicalCondition: { select: { name: true } } },
+          },
+          intermediateCustomerNutritionNeeds: {
+            where: {
+              customerNutritionNeed: {
+                OR: [
+                  { name: 'caloriePerMeal' },
+                  { name: 'fatPerMeal' },
+                  { name: 'proteinPerMeal' },
+                  { name: 'carbsPerMeal' },
+                ],
+              },
+            },
+            select: {
+              nutritionValue: true,
+              customerNutritionNeed: { select: { name: true } },
             },
           },
-          select: {
-            nutritionValue: true,
-            customerNutritionNeed: { select: { name: true } },
-          },
         },
-      },
-    });
+      });
 
-    const allConditions = res?.intermediateCustomerMedicalConditions
-      ? res.intermediateCustomerMedicalConditions.map(
-          ({ customerMedicalCondition }) => {
-            return customerMedicalCondition.name;
-          },
-        )
-      : [];
-    const sodiumPerMeal = allConditions.includes('highBloodPressure')
-      ? Math.round(1800 / (res?.mealsPerDay || 4))
-      : Math.round(2100 / (res?.mealsPerDay || 4));
+      const allConditions = res?.intermediateCustomerMedicalConditions
+        ? res.intermediateCustomerMedicalConditions.map(
+            ({ customerMedicalCondition }) => {
+              return customerMedicalCondition.name;
+            },
+          )
+        : [];
+      const sodiumPerMeal = allConditions.includes('highBloodPressure')
+        ? Math.round(1800 / (res?.mealsPerDay || 4))
+        : Math.round(2100 / (res?.mealsPerDay || 4));
 
-    let nutritions: GetCustomerNutritionRes = {
-      // Set the default values
-      carbsPerMeal: 50,
-      proteinPerMeal: 30,
-      fatPerMeal: 20,
-      caloriePerMeal: 400,
-      sodiumPerMeal,
-    };
-    for (let {
-      customerNutritionNeed,
-      nutritionValue,
-    } of res.intermediateCustomerNutritionNeeds) {
-      nutritions = {
-        ...nutritions,
-        [customerNutritionNeed.name]: nutritionValue,
+      let nutritions: GetCustomerNutritionRes = {
+        // Set the default values
+        carbsPerMeal: 50,
+        proteinPerMeal: 30,
+        fatPerMeal: 20,
+        caloriePerMeal: 400,
+        sodiumPerMeal,
       };
-    }
+      for (let {
+        customerNutritionNeed,
+        nutritionValue,
+      } of res.intermediateCustomerNutritionNeeds) {
+        nutritions = {
+          ...nutritions,
+          [customerNutritionNeed.name]: nutritionValue,
+        };
+      }
 
-    return [nutritions, null];
+      return [nutritions];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getCustomerNutrition failed',
+        },
+      ];
+    }
   }
 
   async updateEmailByUuid({
     uuid,
     newEmail,
-  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes, Error]> {
-    const res = await this.prisma.customers.update({
-      where: { uuid },
-      data: { email: newEmail },
-    });
-    return [{ id: res.id }, null];
+  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes?, Error?]> {
+    try {
+      const res = await this.prisma.customers.update({
+        where: { uuid },
+        data: { email: newEmail },
+      });
+      return [{ id: res.id }];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: updateEmailByUuid failed',
+        },
+      ];
+    }
   }
 
   async getCustomerByUuid({
     uuid,
-  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes, Error]> {
-    let customer = await this.prisma.customers.findUnique({
-      where: { uuid },
-      select: { id: true, email: true },
-    });
+  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes?, Error?]> {
+    try {
+      const res = await this.prisma.customers.findUnique({
+        where: { uuid },
+        select: { id: true, email: true },
+      });
 
-    if (!customer?.email || !customer?.id) {
+      if (!res.email || !res.id) {
+        throw new Error();
+      }
+      return [{ id: res.id, email: res.email }];
+    } catch (e) {
       return [
-        null,
+        undefined,
         {
           name: 'Internal Server Error',
           message: 'Server Side Error: getCustomerByUuid failed',
         },
       ];
     }
-    return [{ id: customer.id, email: customer.email }, null];
   }
   async getCustomerCondition({
     email,
   }: GetCustomerMedicalConditionArgs): Promise<
-    [GetCustomerMedicalConditionRes, Error]
+    [GetCustomerMedicalConditionRes?, Error?]
   > {
-    const getCustomerConditoinRes = await this.prisma.customers.findMany({
-      where: { email },
-      select: {
-        intermediateCustomerMedicalConditions: {
-          select: { customerMedicalCondition: { select: { name: true } } },
-        },
-      },
-    });
-    const allConditions = getCustomerConditoinRes[0]
-      ? getCustomerConditoinRes[0].intermediateCustomerMedicalConditions.map(
-          (condition) => {
-            return condition.customerMedicalCondition.name;
+    try {
+      const res = await this.prisma.customers.findUnique({
+        where: { email },
+        select: {
+          intermediateCustomerMedicalConditions: {
+            select: { customerMedicalCondition: { select: { name: true } } },
           },
-        )
-      : [];
+        },
+      });
+      const allConditions =
+        res.intermediateCustomerMedicalConditions.length > 0
+          ? res.intermediateCustomerMedicalConditions.map((condition) => {
+              return condition.customerMedicalCondition.name;
+            })
+          : [];
 
-    return [
-      {
-        highBloodPressure: allConditions.includes('highBloodPressure'),
-        highCholesterol: allConditions.includes('highCholesterol'),
-      },
-      null,
-    ];
+      return [
+        {
+          highBloodPressure: allConditions.includes('highBloodPressure'),
+          highCholesterol: allConditions.includes('highCholesterol'),
+        },
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getCustomerCondition failed',
+        },
+      ];
+    }
   }
 
   async getCustomerPreference({
     email,
     type,
-  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes, Error]> {
+  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes?, Error?]> {
     try {
       let customerPreference: number[] = [];
       switch (type) {
@@ -225,12 +257,14 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
               select: { productFlavorId: true },
             })
             .then((res) => {
-              customerPreference = res.map((flavor) => {
-                return flavor.productFlavorId;
-              });
+              customerPreference = res.length
+                ? res.map((flavor) => {
+                    return flavor.productFlavorId;
+                  })
+                : [];
             })
             .catch((e) => {
-              throw new Error(e);
+              throw new Error();
             });
           break;
         case 'allergens':
@@ -240,12 +274,14 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
               select: { productAllergenId: true },
             })
             .then((res) => {
-              customerPreference = res.map((allergen) => {
-                return allergen.productAllergenId;
-              });
+              customerPreference = res.length
+                ? res.map((allergen) => {
+                    return allergen.productAllergenId;
+                  })
+                : [];
             })
             .catch((e) => {
-              throw new Error(e);
+              throw new Error();
             });
           break;
         case 'unavailableCookingMethods':
@@ -255,40 +291,44 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
               select: { productCookingMethodId: true },
             })
             .then((res) => {
-              customerPreference = res.map((coolingMethod) => {
-                return coolingMethod.productCookingMethodId;
-              });
+              customerPreference = res.length
+                ? res.map((coolingMethod) => {
+                    return coolingMethod.productCookingMethodId;
+                  })
+                : [];
             })
             .catch((e) => {
-              throw new Error(e);
+              throw new Error();
             });
           break;
-        case 'categoryLikes':
+        case 'categoryPreferences':
           await this.prisma.intermediateCustomerCategoryPreference
             .findMany({
               where: { customer: { email } },
               select: { productCategoryId: true },
             })
             .then((res) => {
-              customerPreference = res.map((category) => {
-                return category.productCategoryId;
-              });
+              customerPreference = res.length
+                ? res.map((category) => {
+                    return category.productCategoryId;
+                  })
+                : [];
             })
             .catch((e) => {
-              throw new Error(e);
+              throw new Error();
             });
           break;
         default:
           break;
       }
 
-      return [{ ids: customerPreference }, null];
+      return [{ ids: customerPreference }];
     } catch (e) {
       return [
-        null,
+        undefined,
         {
           name: 'Internal Server Error',
-          message: `Backend Error: get${type} failed`,
+          message: `Server Side Error: get${type} failed`,
         },
       ];
     }
@@ -296,13 +336,18 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
 
   async getCustomer({
     email,
-  }: GetCustomerArgs): Promise<[GetCustomerRes, Error]> {
-    let customer = await this.prisma.customers.findUnique({
-      where: { email },
-      select: { id: true, email: true },
-    });
+  }: GetCustomerArgs): Promise<[GetCustomerRes?, Error?]> {
+    try {
+      const res = await this.prisma.customers.findUnique({
+        where: { email },
+        select: { id: true, email: true },
+      });
 
-    if (!customer?.email || !customer?.id) {
+      if (!res?.email || !res?.id) {
+        throw new Error();
+      }
+      return [{ id: res.id, email: res.email }, null];
+    } catch (e) {
       return [
         null,
         {
@@ -311,6 +356,5 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         },
       ];
     }
-    return [{ id: customer.id, email: customer.email }, null];
   }
 }

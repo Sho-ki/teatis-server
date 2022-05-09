@@ -109,17 +109,16 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
           },
         },
       });
-      if (!res?.customerBoxItems) {
+      if (!res.customerBoxItems) {
         throw new Error();
       }
       return [
         {
-          products:
-            res.customerBoxItems.length <= 0
-              ? []
-              : res.customerBoxItems.map((boxItem) => {
-                  return { sku: boxItem.product.externalSku };
-                }),
+          products: !res.customerBoxItems.length
+            ? []
+            : res.customerBoxItems.map((boxItem) => {
+                return { sku: boxItem.product.externalSku };
+              }),
         },
       ];
     } catch (e) {
