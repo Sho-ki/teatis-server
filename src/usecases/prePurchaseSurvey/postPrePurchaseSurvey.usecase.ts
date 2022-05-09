@@ -125,23 +125,23 @@ export class PostPrePurchaseSurveyUsecase
       case 'veryActive':
         carbsMacronutrients = Math.round((BMR * 0.45) / 4);
         proteinMacronutrients = Math.round((BMR * 0.35) / 4);
-        fatMacronutrients = Math.round((BMR * 0.2) / 4);
+        fatMacronutrients = Math.round((BMR * 0.2) / 9);
         break;
       case 'moderatelyActive':
         carbsMacronutrients = Math.round((BMR * 0.4) / 4);
         proteinMacronutrients = Math.round((BMR * 0.35) / 4);
-        fatMacronutrients = Math.round((BMR * 0.25) / 4);
+        fatMacronutrients = Math.round((BMR * 0.25) / 9);
         break;
       case 'notActive':
         carbsMacronutrients = Math.round((BMR * 0.35) / 4);
         proteinMacronutrients = Math.round((BMR * 0.35) / 4);
-        fatMacronutrients = Math.round((BMR * 0.3) / 4);
+        fatMacronutrients = Math.round((BMR * 0.3) / 9);
         break;
       default:
         // if no answer
         carbsMacronutrients = Math.round((BMR * 0.4) / 4);
         proteinMacronutrients = Math.round((BMR * 0.35) / 4);
-        fatMacronutrients = Math.round((BMR * 0.25) / 4);
+        fatMacronutrients = Math.round((BMR * 0.25) / 9);
         break;
     }
 
