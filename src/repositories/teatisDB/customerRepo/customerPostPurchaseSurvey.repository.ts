@@ -68,7 +68,7 @@ export interface CustomerPostPurchaseSurveyRepoInterface {
   getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<[GetCustomerAnswersRes, Error]>;
+  }: GetCustomerAnswersArgs): Promise<[GetCustomerAnswersRes?, Error?]>;
 
   postPostPurchaseSurveyCustomerAnswer({
     id,
@@ -82,12 +82,12 @@ export interface CustomerPostPurchaseSurveyRepoInterface {
     reason,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerRes, Error]
+    [PostPostPurchaseSurveyCustomerAnswerRes?, Error?]
   >;
 
   getAnswerCount({
     customerId,
-  }: GetAnswerCountArgs): Promise<[GetAnswerCountRes, Error]>;
+  }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]>;
 
   checkIsNewSurveyAnswer(
     orderNumber: string,
@@ -114,97 +114,110 @@ export class CustomerPostPurchaseSurveyRepo
 
   async getAnswerCount({
     customerId,
-  }: GetAnswerCountArgs): Promise<[GetAnswerCountRes, Error]> {
-    let count = await this.prisma.surveyQuestionAnswer.aggregate({
-      where: { customerId },
-      _max: {
-        answerCount: true,
-      },
-    });
+  }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]> {
+    try {
+      const count = await this.prisma.surveyQuestionAnswer.aggregate({
+        where: { customerId },
+        _max: {
+          answerCount: true,
+        },
+      });
 
-    return [{ currentMaxAnswerCount: count._max.answerCount }, null];
+      return [{ currentMaxAnswerCount: count._max.answerCount }];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getAnswerCount failed',
+        },
+      ];
+    }
   }
 
   async getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<[GetCustomerAnswersRes, Error]> {
-    let getCustomerRes = await this.prisma.customers.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        surveyQuestionAnswer: {
-          where: { orderNumber },
-          select: {
-            id: true,
-            customerId: true,
-            surveyQuestionId: true,
-            answerText: true,
-            answerNumeric: true,
-            answerBool: true,
-            intermediateSurveyQuestionAnswerProduct: {
-              select: {
-                surveyQuestionOption: {
-                  select: { label: true, id: true, name: true },
+  }: GetCustomerAnswersArgs): Promise<[GetCustomerAnswersRes?, Error?]> {
+    try {
+      let getCustomerRes = await this.prisma.customers.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          surveyQuestionAnswer: {
+            where: { orderNumber },
+            select: {
+              id: true,
+              customerId: true,
+              surveyQuestionId: true,
+              answerText: true,
+              answerNumeric: true,
+              answerBool: true,
+              intermediateSurveyQuestionAnswerProduct: {
+                select: {
+                  surveyQuestionOption: {
+                    select: { label: true, id: true, name: true },
+                  },
                 },
               },
+              responseId: true,
+              reason: true,
+              title: true,
+              content: true,
+              answerCount: true,
+              productId: true,
+              orderNumber: true,
             },
-            responseId: true,
-            reason: true,
-            title: true,
-            content: true,
-            answerCount: true,
-            productId: true,
-            orderNumber: true,
           },
         },
-      },
-    });
-    if (!getCustomerRes) {
+      });
+      if (!getCustomerRes) {
+        throw new Error();
+      }
+
+      let customerAnswers: GetCustomerAnswersResCustomerAnswer[] = [];
+      for (let customerAnswer of getCustomerRes.surveyQuestionAnswer) {
+        let answer: GetCustomerAnswersResCustomerAnswer = {
+          id: customerAnswer.id,
+          surveyQuestionId: customerAnswer.surveyQuestionId,
+          answer: {
+            text: customerAnswer.answerText,
+            numeric: customerAnswer.answerNumeric,
+            singleOptionId: customerAnswer.surveyQuestionId,
+            multipleOptionIds:
+              customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
+                ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
+                    (option) => {
+                      return option.surveyQuestionOption.id;
+                    },
+                  )
+                : [],
+            bool: customerAnswer.answerBool,
+          },
+          responseId: customerAnswer.responseId,
+          reason: customerAnswer.reason,
+          title: customerAnswer.title,
+          content: customerAnswer.content,
+          answerCount: customerAnswer.answerCount,
+          productId: customerAnswer?.productId,
+          orderNumber: customerAnswer.orderNumber,
+        };
+        customerAnswers.push(answer);
+      }
+
+      return [
+        { id: getCustomerRes.id, email: getCustomerRes.email, customerAnswers },
+      ];
+    } catch (e) {
       return [
         null,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomer failed',
+          message: 'Server Side Error: getCustomerAnswers failed',
         },
       ];
     }
-
-    let customerAnswers: GetCustomerAnswersResCustomerAnswer[] = [];
-    for (let customerAnswer of getCustomerRes.surveyQuestionAnswer) {
-      let answer: GetCustomerAnswersResCustomerAnswer = {
-        id: customerAnswer.id,
-        surveyQuestionId: customerAnswer.surveyQuestionId,
-        answer: {
-          text: customerAnswer.answerText,
-          numeric: customerAnswer.answerNumeric,
-          singleOptionId: customerAnswer.surveyQuestionId,
-          multipleOptionIds:
-            customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
-              ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
-                  (option) => {
-                    return option.surveyQuestionOption.id;
-                  },
-                )
-              : [],
-          bool: customerAnswer.answerBool,
-        },
-        responseId: customerAnswer.responseId,
-        reason: customerAnswer.reason,
-        title: customerAnswer.title,
-        content: customerAnswer.content,
-        answerCount: customerAnswer.answerCount,
-        productId: customerAnswer?.productId,
-        orderNumber: customerAnswer.orderNumber,
-      };
-      customerAnswers.push(answer);
-    }
-
-    return [
-      { id: getCustomerRes.id, email: getCustomerRes.email, customerAnswers },
-      null,
-    ];
   }
 
   async postPostPurchaseSurveyCustomerAnswer({
@@ -219,168 +232,178 @@ export class CustomerPostPurchaseSurveyRepo
     reason,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerRes, Error]
+    [PostPostPurchaseSurveyCustomerAnswerRes?, Error?]
   > {
-    let prismaQuery: Prisma.SurveyQuestionAnswerUpsertArgs = {
-      where: {
-        responseId,
-      },
-      create: undefined,
-      update: undefined,
-    };
-    if (answer.singleOption) {
-      prismaQuery = {
-        ...prismaQuery,
-        create: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
-          product: productId
-            ? {
-                connect: { id: productId },
-              }
-            : {},
-          answerOption: {
-            connect: { id: answer.singleOption.id },
-          },
+    try {
+      let prismaQuery: Prisma.SurveyQuestionAnswerUpsertArgs = {
+        where: {
           responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
         },
-        update: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
-          product: productId
-            ? {
-                connect: { id: productId },
-              }
-            : {},
-          answerOption: {
-            connect: { id: answer.singleOption.id },
-          },
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
-        },
+        create: undefined,
+        update: undefined,
       };
-    } else if (answer.multipleOptions) {
-      prismaQuery = {
-        ...prismaQuery,
-        create: {
-          customer: {
-            connect: { id: customerId },
+      if (answer.singleOption) {
+        prismaQuery = {
+          ...prismaQuery,
+          create: {
+            customer: {
+              connect: { id: customerId },
+            },
+            surveyQuestion: {
+              connect: { id: id },
+            },
+            product: productId
+              ? {
+                  connect: { id: productId },
+                }
+              : {},
+            answerOption: {
+              connect: { id: answer.singleOption.id },
+            },
+            responseId,
+            title,
+            content,
+            reason,
+            orderNumber,
+            answerCount: currentMaxAnswerCount,
           },
-          surveyQuestion: {
-            connect: { id: id },
+          update: {
+            customer: {
+              connect: { id: customerId },
+            },
+            surveyQuestion: {
+              connect: { id: id },
+            },
+            product: productId
+              ? {
+                  connect: { id: productId },
+                }
+              : {},
+            answerOption: {
+              connect: { id: answer.singleOption.id },
+            },
+            responseId,
+            title,
+            content,
+            reason,
+            orderNumber,
+            answerCount: currentMaxAnswerCount,
           },
+        };
+      } else if (answer.multipleOptions) {
+        prismaQuery = {
+          ...prismaQuery,
+          create: {
+            customer: {
+              connect: { id: customerId },
+            },
+            surveyQuestion: {
+              connect: { id: id },
+            },
 
-          product: productId
-            ? {
-                connect: { id: productId },
-              }
-            : {},
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
-          intermediateSurveyQuestionAnswerProduct: {
-            create: answer.multipleOptions.map((option) => {
-              return { surveyQuestionOptionId: option.id };
-            }),
+            product: productId
+              ? {
+                  connect: { id: productId },
+                }
+              : {},
+            responseId,
+            title,
+            content,
+            reason,
+            orderNumber,
+            answerCount: currentMaxAnswerCount,
+            intermediateSurveyQuestionAnswerProduct: {
+              create: answer.multipleOptions.map((option) => {
+                return { surveyQuestionOptionId: option.id };
+              }),
+            },
           },
+          update: {
+            customer: {
+              connect: { id: customerId },
+            },
+            surveyQuestion: {
+              connect: { id: id },
+            },
+            product: {
+              connect: { id: productId },
+            },
+            responseId,
+            title,
+            content,
+            reason,
+            orderNumber,
+            answerCount: currentMaxAnswerCount,
+            // intermediateSurveyQuestionAnswerProduct: {
+            //   // needs to be updated
+            //   deleteMany: {},
+            //   connectOrCreate: answerOptions.map((option) => {
+            //     return { surveyQuestionOptionId: option.id, };
+            //   }),
+            // },
+          },
+        };
+      } else {
+        prismaQuery = {
+          ...prismaQuery,
+          create: {
+            customer: {
+              connect: { id: customerId },
+            },
+            surveyQuestion: {
+              connect: { id: id },
+            },
+            product: productId
+              ? {
+                  connect: { id: productId },
+                }
+              : {},
+            answerBool: answer.bool,
+            answerNumeric: answer.numeric,
+            answerText: answer.text,
+            responseId,
+            title,
+            content,
+            reason,
+            orderNumber,
+            answerCount: currentMaxAnswerCount,
+          },
+          update: {
+            customer: {
+              connect: { id: customerId },
+            },
+            surveyQuestion: {
+              connect: { id: id },
+            },
+            product: productId
+              ? {
+                  connect: { id: productId },
+                }
+              : {},
+            answerBool: answer.bool,
+            answerNumeric: answer.numeric,
+            answerText: answer.text,
+            responseId,
+            title,
+            content,
+            reason,
+            orderNumber,
+            answerCount: currentMaxAnswerCount,
+          },
+        };
+      }
+
+      const res = await this.prisma.surveyQuestionAnswer.upsert(prismaQuery);
+
+      return [{ id: res.id }];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getCustomerAnswers failed',
         },
-        update: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
-          product: {
-            connect: { id: productId },
-          },
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
-          // intermediateSurveyQuestionAnswerProduct: {
-          //   // needs to be updated
-          //   deleteMany: {},
-          //   connectOrCreate: answerOptions.map((option) => {
-          //     return { surveyQuestionOptionId: option.id, };
-          //   }),
-          // },
-        },
-      };
-    } else {
-      prismaQuery = {
-        ...prismaQuery,
-        create: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
-          product: productId
-            ? {
-                connect: { id: productId },
-              }
-            : {},
-          answerBool: answer.bool,
-          answerNumeric: answer.numeric,
-          answerText: answer.text,
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
-        },
-        update: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
-          product: productId
-            ? {
-                connect: { id: productId },
-              }
-            : {},
-          answerBool: answer.bool,
-          answerNumeric: answer.numeric,
-          answerText: answer.text,
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
-        },
-      };
+      ];
     }
-
-    let res = await this.prisma.surveyQuestionAnswer.upsert(prismaQuery);
-
-    return [{ id: res.id }, null];
   }
 }
