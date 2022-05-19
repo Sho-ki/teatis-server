@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { assert } from 'console';
+import { Customer } from '@Domains/Customer';
+import { ProductNutrition } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
+import { Preference } from '@Domains/Preference';
+import { Nutrition } from '@Domains/Nutrition';
+import { MedicalCondition } from '@Domains/MedicalCondition';
 
 export interface GetCustomerArgs {
-  email: string;
-}
-
-export interface GetCustomerRes {
-  id: number;
   email: string;
 }
 
@@ -20,26 +21,12 @@ interface GetCustomerPreferenceArgs {
   email: string;
 }
 
-interface GetCustomerPreferenceRes {
-  ids: number[];
-}
-
 interface GetCustomerByUuidArgs {
   uuid: string;
 }
 
-interface GetCustomerByUuidRes {
-  id: number;
-  email: string;
-}
-
 interface GetCustomerMedicalConditionArgs {
   email: string;
-}
-
-interface GetCustomerMedicalConditionRes {
-  highBloodPressure: boolean;
-  highCholesterol: boolean;
 }
 
 interface UpdateEmailByUuidArgs {
@@ -47,43 +34,29 @@ interface UpdateEmailByUuidArgs {
   newEmail: string;
 }
 
-interface UpdateEmailByUuidRes {
-  id: number;
-}
-
 interface GetCustomerNutritionArgs {
   uuid: string;
 }
 
-interface GetCustomerNutritionRes {
-  carbsPerMeal: number;
-  proteinPerMeal: number;
-  fatPerMeal: number;
-  sodiumPerMeal: number;
-  caloriePerMeal: number;
-}
-
 export interface CustomerGeneralRepoInterface {
-  getCustomer({ email }: GetCustomerArgs): Promise<[GetCustomerRes?, Error?]>;
+  getCustomer({ email }: GetCustomerArgs): Promise<[Customer?, Error?]>;
   getCustomerPreference({
     email,
-  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes?, Error?]>;
+  }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]>;
   getCustomerCondition({
     email,
-  }: GetCustomerMedicalConditionArgs): Promise<
-    [GetCustomerMedicalConditionRes?, Error?]
-  >;
+  }: GetCustomerMedicalConditionArgs): Promise<[MedicalCondition?, Error?]>;
   getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes?, Error?]>;
+  }: GetCustomerNutritionArgs): Promise<[Nutrition?, Error?]>;
   getCustomerByUuid({
     uuid,
-  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes?, Error?]>;
+  }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]>;
 
   updateEmailByUuid({
     uuid,
     newEmail,
-  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes?, Error?]>;
+  }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]>;
 }
 
 @Injectable()
@@ -92,9 +65,9 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
 
   async getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[GetCustomerNutritionRes?, Error?]> {
+  }: GetCustomerNutritionArgs): Promise<[Nutrition?, Error?]> {
     try {
-      const res = await this.prisma.customers.findUnique({
+      const response = await this.prisma.customers.findUnique({
         where: { uuid },
         select: {
           mealsPerDay: true,
@@ -120,18 +93,18 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         },
       });
 
-      const allConditions = res?.intermediateCustomerMedicalConditions
-        ? res.intermediateCustomerMedicalConditions.map(
+      const allConditions = response?.intermediateCustomerMedicalConditions
+        ? response.intermediateCustomerMedicalConditions.map(
             ({ customerMedicalCondition }) => {
               return customerMedicalCondition.name;
             },
           )
         : [];
       const sodiumPerMeal = allConditions.includes('highBloodPressure')
-        ? Math.round(1800 / (res?.mealsPerDay || 4))
-        : Math.round(2100 / (res?.mealsPerDay || 4));
+        ? Math.round(1800 / (response?.mealsPerDay || 4))
+        : Math.round(2100 / (response?.mealsPerDay || 4));
 
-      let nutritions: GetCustomerNutritionRes = {
+      let nutritions: Nutrition = {
         // Set the default values
         carbsPerMeal: 50,
         proteinPerMeal: 30,
@@ -139,10 +112,14 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         caloriePerMeal: 400,
         sodiumPerMeal,
       };
+
+      if (!response?.intermediateCustomerNutritionNeeds) {
+        throw new Error();
+      }
       for (let {
         customerNutritionNeed,
         nutritionValue,
-      } of res.intermediateCustomerNutritionNeeds) {
+      } of response?.intermediateCustomerNutritionNeeds) {
         nutritions = {
           ...nutritions,
           [customerNutritionNeed.name]: nutritionValue,
@@ -164,13 +141,14 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   async updateEmailByUuid({
     uuid,
     newEmail,
-  }: UpdateEmailByUuidArgs): Promise<[UpdateEmailByUuidRes?, Error?]> {
+  }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]> {
     try {
-      const res = await this.prisma.customers.update({
+      const response = await this.prisma.customers.update({
         where: { uuid },
         data: { email: newEmail },
+        select: { id: true },
       });
-      return [{ id: res.id }];
+      return [{ id: response.id, email: newEmail, uuid }];
     } catch (e) {
       return [
         undefined,
@@ -184,17 +162,17 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
 
   async getCustomerByUuid({
     uuid,
-  }: GetCustomerByUuidArgs): Promise<[GetCustomerByUuidRes?, Error?]> {
+  }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]> {
     try {
-      const res = await this.prisma.customers.findUnique({
+      const response = await this.prisma.customers.findUnique({
         where: { uuid },
-        select: { id: true, email: true },
+        select: { id: true, email: true, uuid: true },
       });
 
-      if (!res.email || !res.id) {
+      if (!response?.email || !response?.id || !response.uuid) {
         throw new Error();
       }
-      return [{ id: res.id, email: res.email }];
+      return [{ id: response.id, email: response.email, uuid: response.uuid }];
     } catch (e) {
       return [
         undefined,
@@ -207,9 +185,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   }
   async getCustomerCondition({
     email,
-  }: GetCustomerMedicalConditionArgs): Promise<
-    [GetCustomerMedicalConditionRes?, Error?]
-  > {
+  }: GetCustomerMedicalConditionArgs): Promise<[MedicalCondition?, Error?]> {
     try {
       const res = await this.prisma.customers.findUnique({
         where: { email },
@@ -219,12 +195,13 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
           },
         },
       });
-      const allConditions =
-        res.intermediateCustomerMedicalConditions.length > 0
-          ? res.intermediateCustomerMedicalConditions.map((condition) => {
-              return condition.customerMedicalCondition.name;
-            })
-          : [];
+      const customerConditions = res?.intermediateCustomerMedicalConditions;
+      // assert(customerConditions !== undefined)
+      const allConditions = customerConditions.length
+        ? customerConditions.map((condition) => {
+            return condition.customerMedicalCondition.name;
+          })
+        : [];
 
       return [
         {
@@ -246,7 +223,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
   async getCustomerPreference({
     email,
     type,
-  }: GetCustomerPreferenceArgs): Promise<[GetCustomerPreferenceRes?, Error?]> {
+  }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]> {
     try {
       let customerPreference: number[] = [];
       switch (type) {
@@ -256,9 +233,9 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
               where: { customer: { email } },
               select: { productFlavorId: true },
             })
-            .then((res) => {
-              customerPreference = res.length
-                ? res.map((flavor) => {
+            .then((response) => {
+              customerPreference = response.length
+                ? response.map((flavor) => {
                     return flavor.productFlavorId;
                   })
                 : [];
@@ -273,9 +250,9 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
               where: { customer: { email } },
               select: { productAllergenId: true },
             })
-            .then((res) => {
-              customerPreference = res.length
-                ? res.map((allergen) => {
+            .then((response) => {
+              customerPreference = response.length
+                ? response.map((allergen) => {
                     return allergen.productAllergenId;
                   })
                 : [];
@@ -290,10 +267,10 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
               where: { customer: { email } },
               select: { productCookingMethodId: true },
             })
-            .then((res) => {
-              customerPreference = res.length
-                ? res.map((coolingMethod) => {
-                    return coolingMethod.productCookingMethodId;
+            .then((response) => {
+              customerPreference = response.length
+                ? response.map((cookingMethod) => {
+                    return cookingMethod.productCookingMethodId;
                   })
                 : [];
             })
@@ -307,9 +284,9 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
               where: { customer: { email } },
               select: { productCategoryId: true },
             })
-            .then((res) => {
-              customerPreference = res.length
-                ? res.map((category) => {
+            .then((response) => {
+              customerPreference = response.length
+                ? response.map((category) => {
                     return category.productCategoryId;
                   })
                 : [];
@@ -322,7 +299,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
           break;
       }
 
-      return [{ ids: customerPreference }];
+      return [{ id: customerPreference }];
     } catch (e) {
       return [
         undefined,
@@ -334,22 +311,20 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
     }
   }
 
-  async getCustomer({
-    email,
-  }: GetCustomerArgs): Promise<[GetCustomerRes?, Error?]> {
+  async getCustomer({ email }: GetCustomerArgs): Promise<[Customer?, Error?]> {
     try {
-      const res = await this.prisma.customers.findUnique({
+      const response = await this.prisma.customers.findUnique({
         where: { email },
-        select: { id: true, email: true },
+        select: { id: true, email: true, uuid: true },
       });
 
-      if (!res?.email || !res?.id) {
+      if (!response?.email || !response?.id || response?.uuid) {
         throw new Error();
       }
-      return [{ id: res.id, email: res.email }, null];
+      return [{ id: response.id, email: response.email, uuid: response.uuid }];
     } catch (e) {
       return [
-        null,
+        undefined,
         {
           name: 'Internal Server Error',
           message: 'Server Side Error: getCustomer failed',

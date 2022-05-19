@@ -47,7 +47,7 @@ export class CreateCustomerCartUsecase
       return [null, createCartError];
     }
 
-    const [getCustomerRes, getCustomerError] =
+    const [Customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
@@ -55,7 +55,7 @@ export class CreateCustomerCartUsecase
     }
 
     return [
-      { checkoutUrl: createCartRes.checkoutUrl, email: getCustomerRes.email },
+      { checkoutUrl: createCartRes.checkoutUrl, email: Customer.email },
       null,
     ];
   }

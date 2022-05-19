@@ -55,12 +55,12 @@ export class PostPostPurchaseSurveyUsecase
     if (!answerCountRes.currentMaxAnswerCount) {
       answerCountRes.currentMaxAnswerCount = 1;
     } else {
-      let isNewSurveyAnswer =
-        await this.customerpostPurchaseSurveyRepo.checkIsNewSurveyAnswer(
+      const [checkIsNewSurveyAnswer, checkIsNewSurveyAnswerError] =
+        await this.customerpostPurchaseSurveyRepo.checkIsNewSurveyAnswer({
           orderNumber,
-          answerCountRes.currentMaxAnswerCount,
-        );
-      if (isNewSurveyAnswer) {
+          currentMaxAnswerCount: answerCountRes.currentMaxAnswerCount,
+        });
+      if (checkIsNewSurveyAnswer.isNewSurveyAnswer) {
         answerCountRes.currentMaxAnswerCount += 1;
       }
     }

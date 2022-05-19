@@ -469,7 +469,7 @@ export class CustomerPrePurchaseSurveyRepo
         },
       });
 
-      return [{ customerId: customer.id, customerUuid: customer.uuid }];
+      return [{ customerId: customer.id, customerUuid: uuid }];
     } catch (e) {
       return [
         undefined,

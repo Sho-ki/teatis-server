@@ -31,13 +31,13 @@ export class GetCustomerNutritionUsecase
   }: GetCustomerNutritionDto): Promise<
     [GetCustomerNutritionUsecaseRes, Error]
   > {
-    const [getCustomerNutritionRes, getCustomerNutritionError] =
+    const [Nutrition, getCustomerNutritionError] =
       await this.customerGeneralRepo.getCustomerNutrition({ uuid });
 
     if (getCustomerNutritionError) {
       return [null, getCustomerNutritionError];
     }
 
-    return [getCustomerNutritionRes, null];
+    return [Nutrition, null];
   }
 }

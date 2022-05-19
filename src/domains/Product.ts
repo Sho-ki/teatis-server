@@ -3,7 +3,40 @@ export class Product {
   name: string;
   label: string;
   sku: string;
+}
+
+export class DisplayProduct extends Product {
+  expertComment: string;
+  ingredientLabel: string;
+  images: ProductImage[];
+  allergenLabel: string;
+  nutritionFact: ProductNutrition;
   vendor: string;
+}
+
+export class AnalyzeProduct extends Product {
+  vendor: string;
+  flavor: ProductAddOn;
+  category: ProductAddOn;
+  allergens: ProductAddOn[];
+  cookingMethods: ProductAddOn[];
+}
+
+export class DisplayAnalyzeProduct extends Product {
+  expertComment: string;
+  ingredientLabel: string;
+  images: ProductImage[];
+  allergenLabel: string;
+  nutritionFact: ProductNutrition;
+  vendor: string;
+  flavor: ProductAddOn;
+  category: ProductAddOn;
+  allergens: ProductAddOn[];
+  cookingMethods: ProductAddOn[];
+}
+
+export class FullProduct extends Product {
+  expertComment: string;
   ingredientLabel: string;
   images: ProductImage[];
   flavor: ProductAddOn;
@@ -12,7 +45,6 @@ export class Product {
   allergenLabel: string;
   foodTypes: ProductAddOn[];
   cookingMethods: ProductAddOn[];
-  expertComment: string;
   nutritionFact: ProductNutrition;
 }
 

@@ -38,15 +38,14 @@ export interface CreateCartRes {
 }
 
 export interface ShopifyRepoInterface {
-  getProduct({ productId }: GetProductArgs): Promise<GetProductRes>;
   getOrderCount({
     shopifyCustomerId,
-  }: GetOrderCountArgs): Promise<[GetOrderCountRes, Error]>;
+  }: GetOrderCountArgs): Promise<[GetOrderCountRes?, Error?]>;
   createCart({
     merchandiseId,
     sellingPlanId,
     uuid,
-  }: CreateCartArgs): Promise<[CreateCartRes, Error]>;
+  }: CreateCartArgs): Promise<[CreateCartRes?, Error?]>;
 }
 
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
@@ -57,65 +56,63 @@ export class ShopifyRepo implements ShopifyRepoInterface {
     merchandiseId,
     sellingPlanId,
     uuid,
-  }: CreateCartArgs): Promise<[CreateCartRes, Error]> {
-    const client = new GraphQLClient(endpoint, {
-      headers: {
-        'X-Shopify-Storefront-Access-Token': 'd710761c009d16ed459f7014d119093c',
-      },
-    });
-    const sdk = getSdk(client);
-
-    const res: CreateCartMutation = await sdk.CreateCart({
-      input: {
-        attributes: [{ key: 'uuid', value: uuid }],
-        lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
-      },
-    });
-    return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }, null];
-  }
-
-  async getProduct({ productId }: GetProductArgs): Promise<GetProductRes> {
-    const response = await axios.get<ShopifyGetProductRes>(
-      `https://thetis-tea.myshopify.com/admin/api/2021-10/products/${productId}.json`,
-      {
-        auth: {
-          username: process.env.SHOPIFY_API_KEY,
-          password: process.env.SHOPIFY_API_PASSWORD,
+  }: CreateCartArgs): Promise<[CreateCartRes?, Error?]> {
+    try {
+      const client = new GraphQLClient(endpoint, {
+        headers: {
+          'X-Shopify-Storefront-Access-Token':
+            'd710761c009d16ed459f7014d119093c',
         },
-      },
-    );
+      });
+      const sdk = getSdk(client);
 
-    let shopifyProduct: GetProductRes = {
-      id: productId,
-      title: response.data.product.title,
-      sku: response.data.product.variants[0].sku,
-    };
-
-    return shopifyProduct;
+      const res: CreateCartMutation = await sdk.CreateCart({
+        input: {
+          attributes: [{ key: 'uuid', value: uuid }],
+          lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
+        },
+      });
+      if (!res?.cartCreate?.cart?.checkoutUrl) {
+        throw new Error();
+      }
+      return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: createCart failed',
+        },
+      ];
+    }
   }
 
   async getOrderCount({
     shopifyCustomerId,
-  }: GetOrderCountArgs): Promise<[GetOrderCountRes, Error]> {
-    const getOrderCountRes = await axios.get<ShopifyGetCustomerRes>(
-      `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
-      {
-        auth: {
-          username: process.env.SHOPIFY_API_KEY,
-          password: process.env.SHOPIFY_API_PASSWORD,
+  }: GetOrderCountArgs): Promise<[GetOrderCountRes?, Error?]> {
+    try {
+      const res = await axios.get<ShopifyGetCustomerRes>(
+        `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
+        {
+          auth: {
+            username: process.env.SHOPIFY_API_KEY as string,
+            password: process.env.SHOPIFY_API_PASSWORD as string,
+          },
         },
-      },
-    );
-    if (!getOrderCountRes.data) {
+      );
+      if (!res?.data?.customer?.orders_count) {
+        throw new Error();
+      }
+
+      return [{ orderCount: res.data.customer.orders_count }];
+    } catch (e) {
       return [
-        null,
+        undefined,
         {
           name: 'Internal Server Error',
           message: 'Server Side Error: getOrderCount failed',
         },
       ];
     }
-
-    return [{ orderCount: getOrderCountRes.data.customer.orders_count }, null];
   }
 }

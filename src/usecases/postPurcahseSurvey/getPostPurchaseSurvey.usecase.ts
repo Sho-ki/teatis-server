@@ -9,7 +9,7 @@ import {
   PostPurchaseSurvey,
   SurveyQuestions,
 } from 'src/domains/PostPurchaseSurvey';
-import { Product } from '@Domains/Product';
+import { DisplayProduct, Product } from '@Domains/Product';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   email: string;
@@ -60,14 +60,14 @@ export class GetPostPurchaseSurveyUsecase
       return [null, getProductDetailError];
     }
     let detailedProductList: Pick<
-      Product,
+      DisplayProduct,
       'id' | 'sku' | 'label' | 'images' | 'vendor'
     >[] = getOrderRes.products.map((orderProduct) => {
       let detailedProduct: Pick<
-        Product,
+        DisplayProduct,
         'id' | 'sku' | 'label' | 'images' | 'vendor'
       >;
-      getProductDetailRes.products.map(async (product) => {
+      getProductDetailRes.products.map((product) => {
         if (!product.vendor) {
           product.vendor = 'Teatis Meal';
         }

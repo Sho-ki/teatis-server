@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { GetNextBoxSurveyDto } from '@Controllers/discoveries/dtos/getNextBoxSurvey';
-import { Product } from '@Domains/Product';
+import { DisplayProduct, Product } from '@Domains/Product';
 import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
 
 interface GetNextBoxUsecaseArgs extends GetNextBoxSurveyDto {
@@ -9,18 +9,7 @@ interface GetNextBoxUsecaseArgs extends GetNextBoxSurveyDto {
 }
 
 interface GetNextBoxUsecaseRes {
-  products: Pick<
-    Product,
-    | 'id'
-    | 'sku'
-    | 'name'
-    | 'label'
-    | 'vendor'
-    | 'images'
-    | 'expertComment'
-    | 'ingredientLabel'
-    | 'allergenLabel'
-  >[];
+  products: DisplayProduct[];
 }
 
 export interface GetNextBoxUsecaseInterface {

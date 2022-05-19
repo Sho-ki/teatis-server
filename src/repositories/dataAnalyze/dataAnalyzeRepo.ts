@@ -12,8 +12,7 @@ export interface CustomerShippableProduct {
   product_sku: string;
   flavor_id: number;
   category_id: number;
-  cooking_method_ids: number[];
-  is_sent: 0 | 1;
+  is_sent_1: 0 | 1;
 }
 interface AnalyzePreferenceRes {
   is_success: string;
@@ -28,19 +27,29 @@ export interface AnalyzePreferenceRepoInterface {
     products,
     necessary_responces,
     user_fav_categories,
-  }: AnalyzePreferenceArgs): Promise<[AnalyzePreferenceRes, Error]>;
+  }: AnalyzePreferenceArgs): Promise<[AnalyzePreferenceRes?, Error?]>;
 }
 
 @Injectable()
 export class AnalyzePreferenceRepo implements AnalyzePreferenceRepoInterface {
   async getAnalyzedProducts(
     data: AnalyzePreferenceArgs,
-  ): Promise<[AnalyzePreferenceRes, Error]> {
-    const response = await axios.post<AnalyzePreferenceRes>(
-      `https://us-central1-teatis-discovery.cloudfunctions.net/product_distribution_optimizer`,
-      data,
-    );
+  ): Promise<[AnalyzePreferenceRes?, Error?]> {
+    try {
+      const response = await axios.post<AnalyzePreferenceRes>(
+        `https://us-central1-teatis-discovery.cloudfunctions.net/product_distribution_optimizer`,
+        data,
+      );
 
-    return [response.data, null];
+      return [response.data];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getAnalyzedProducts failed',
+        },
+      ];
+    }
   }
 }
