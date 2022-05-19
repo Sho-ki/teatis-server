@@ -18,7 +18,7 @@ export interface OrderQueueRepoInterface {
     customerId,
     orderNumber,
     status,
-  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes, Error]>;
+  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes?, Error?]>;
 }
 
 @Injectable()
@@ -29,50 +29,53 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
     customerId,
     orderNumber,
     status,
-  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes, Error]> {
-    let actionDate = new Date();
-    if (status === 'scheduled') {
-      actionDate.setMinutes(actionDate.getMinutes() + 3);
-    }
+  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes?, Error?]> {
+    try {
+      let actionDate = new Date();
+      if (status === 'scheduled') {
+        actionDate.setMinutes(actionDate.getMinutes() + 3);
+      }
 
-    const updateOrderQueueRes = await this.prisma.queuedShopifyOrder.upsert({
-      where: { orderName: orderNumber },
-      create: {
-        scheduledAt: actionDate.toISOString(),
-        status,
-        orderName: orderNumber,
-        customerId,
-      },
+      const updateOrderQueueRes = await this.prisma.queuedShopifyOrder.upsert({
+        where: { orderName: orderNumber },
+        create: {
+          scheduledAt: actionDate.toISOString(),
+          status,
+          orderName: orderNumber,
+          customerId,
+        },
 
-      update:
-        status === 'fulfilled'
-          ? {
-              fulfilledAt: actionDate.toISOString(),
-              status,
-            }
-          : status === 'ordered'
-          ? {
-              orderedAt: actionDate.toISOString(),
-              status,
-            }
-          : {},
-    });
+        update:
+          status === 'fulfilled'
+            ? {
+                fulfilledAt: actionDate.toISOString(),
+                status,
+              }
+            : status === 'ordered'
+            ? {
+                orderedAt: actionDate.toISOString(),
+                status,
+              }
+            : {},
+      });
 
-    if (!updateOrderQueueRes) {
+      if (!updateOrderQueueRes) {
+        throw new Error();
+      }
       return [
-        null,
+        {
+          id: updateOrderQueueRes.id,
+          customerId: updateOrderQueueRes.customerId,
+        },
+      ];
+    } catch (e) {
+      return [
+        undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: updateOrderQueue() failed',
+          message: 'Server Side Error: updateOrderQueue failed',
         },
       ];
     }
-    return [
-      {
-        id: updateOrderQueueRes.id,
-        customerId: updateOrderQueueRes.customerId,
-      },
-      null,
-    ];
   }
 }

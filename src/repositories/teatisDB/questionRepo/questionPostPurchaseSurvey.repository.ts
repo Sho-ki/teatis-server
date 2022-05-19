@@ -8,7 +8,7 @@ interface GetSurveyQuestionsArgs {
 interface GetSurveyQuestionsRes {
   id: number;
   name: string;
-  labal: string;
+  label: string;
   surveyQuestions: GetSurveyQuestionsResSurveyQuestion[];
 }
 
@@ -26,7 +26,7 @@ interface GetSurveyQuestionsResSurveyQuestion {
 export interface QuestionPostPurchaseSurveyRepoInterface {
   getSurveyQuestions({
     surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[GetSurveyQuestionsRes, Error]>;
+  }: GetSurveyQuestionsArgs): Promise<[GetSurveyQuestionsRes?, Error?]>;
 }
 
 @Injectable()
@@ -37,62 +37,80 @@ export class QuestionPostPurchaseSurveyRepo
 
   async getSurveyQuestions({
     surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[GetSurveyQuestionsRes, Error]> {
-    const getSurveQuestionsRes = await this.prisma.survey.findUnique({
-      where: { name: surveyName },
-      select: {
-        id: true,
-        name: true,
-        label: true,
-        intermediateSurveyQuestions: {
-          orderBy: { displayOrder: 'asc' },
-          select: {
-            surveyQuestion: {
-              select: {
-                id: true,
-                name: true,
-                label: true,
-                questionCategory: {
-                  select: { name: true },
-                },
-                mustBeAnswered: true,
-                instruction: true,
-                placeholder: true,
-                surveyQuestionAnswerType: {
-                  select: { name: true },
-                },
-                surveyQuestionOptions: {
-                  select: { label: true, id: true, name: true },
+  }: GetSurveyQuestionsArgs): Promise<[GetSurveyQuestionsRes?, Error?]> {
+    try {
+      const res = await this.prisma.survey.findUnique({
+        where: { name: surveyName },
+        select: {
+          id: true,
+          name: true,
+          label: true,
+          intermediateSurveyQuestions: {
+            orderBy: { displayOrder: 'asc' },
+            select: {
+              surveyQuestion: {
+                select: {
+                  id: true,
+                  name: true,
+                  label: true,
+                  questionCategory: {
+                    select: { name: true },
+                  },
+                  mustBeAnswered: true,
+                  instruction: true,
+                  placeholder: true,
+                  surveyQuestionAnswerType: {
+                    select: { name: true },
+                  },
+                  surveyQuestionOptions: {
+                    select: { label: true, id: true, name: true },
+                  },
                 },
               },
             },
           },
         },
-      },
-    });
-    let surveyQuestions: GetSurveyQuestionsResSurveyQuestion[] = [];
-    for (let question of getSurveQuestionsRes.intermediateSurveyQuestions) {
-      let surveyQuestion: GetSurveyQuestionsResSurveyQuestion = {
-        id: question.surveyQuestion.id,
-        name: question.surveyQuestion.name,
-        label: question.surveyQuestion.label,
-        mustBeAnswered: question.surveyQuestion.mustBeAnswered,
-        instruction: question.surveyQuestion.instruction,
-        placeholder: question.surveyQuestion.placeholder,
-        answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
+      });
+      let surveyQuestions: GetSurveyQuestionsResSurveyQuestion[] = [];
+      for (let question of res?.intermediateSurveyQuestions || []) {
+        let surveyQuestion: GetSurveyQuestionsResSurveyQuestion = {
+          id: question.surveyQuestion.id,
+          name: question.surveyQuestion.name,
+          label: question.surveyQuestion.label,
+          mustBeAnswered: question.surveyQuestion.mustBeAnswered,
+          instruction: question.surveyQuestion.instruction || '',
+          placeholder: question.surveyQuestion.placeholder || '',
+          answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
 
-        options: question.surveyQuestion.surveyQuestionOptions,
+          options: question.surveyQuestion.surveyQuestionOptions,
+        };
+        surveyQuestions.push(surveyQuestion);
+      }
+
+      const { id, name, label } = res as {
+        id: number;
+        name: string;
+        label: string;
       };
-      surveyQuestions.push(surveyQuestion);
+      if (!id || !name || !label) {
+        throw new Error();
+      }
+      return [
+        {
+          id,
+          name,
+          label,
+          surveyQuestions,
+        },
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getSurveyQuestions failed',
+        },
+      ];
     }
-    return [
-      {
-        id: getSurveQuestionsRes.id,
-        name: getSurveQuestionsRes.name,
-        labal: getSurveQuestionsRes.label,
-        surveyQuestions,
-      },
-      null,
-    ];
   }
 }

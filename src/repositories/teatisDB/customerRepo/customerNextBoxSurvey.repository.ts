@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Product } from '../../../domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 
@@ -6,25 +7,13 @@ interface GetNextWantArgs {
   orderNumber: string;
 }
 
-export interface GetNextWantRes {
-  ids: number[];
-}
-
 interface GetNextUnwantArgs {
   email: string;
 }
 
-interface GetNextUnwantRes {
-  ids: number[];
-}
-
 export interface CustomerNextBoxSurveyRepoInterface {
-  getNextWant({
-    orderNumber,
-  }: GetNextWantArgs): Promise<[GetNextWantRes?, Error?]>;
-  getNextUnwant({
-    email,
-  }: GetNextUnwantArgs): Promise<[GetNextUnwantRes, Error]>;
+  getNextWant({ orderNumber }: GetNextWantArgs): Promise<[Product[]?, Error?]>;
+  getNextUnwant({ email }: GetNextUnwantArgs): Promise<[Product[]?, Error?]>;
 }
 
 @Injectable()
@@ -35,25 +24,29 @@ export class CustomerNextBoxSurveyRepo
 
   async getNextWant({
     orderNumber,
-  }: GetNextWantArgs): Promise<[GetNextWantRes?, Error?]> {
+  }: GetNextWantArgs): Promise<[Product[]?, Error?]> {
     try {
-      const res = await this.prisma.surveyQuestionAnswer.findMany({
+      const response = await this.prisma.surveyQuestionAnswer.findMany({
         where: {
           AND: [{ orderNumber }, { answerNumeric: 6 }],
         },
         select: {
-          product: { select: { id: true } },
+          product: {
+            select: { id: true, name: true, label: true, externalSku: true },
+          },
         },
       });
-      return [
-        {
-          ids: res.length
-            ? res.map((nextWant) => {
-                return nextWant.product.id;
-              })
-            : [],
-        },
-      ];
+      const nextWantProducts: Product[] = response.length
+        ? response.map(({ product }) => {
+            return {
+              id: product.id,
+              name: product.name,
+              sku: product.externalSku,
+              label: product.label,
+            };
+          })
+        : [];
+      return [nextWantProducts];
     } catch (e) {
       return [
         undefined,
@@ -67,26 +60,29 @@ export class CustomerNextBoxSurveyRepo
 
   async getNextUnwant({
     email,
-  }: GetNextUnwantArgs): Promise<[GetNextUnwantRes, Error]> {
+  }: GetNextUnwantArgs): Promise<[Product[]?, Error?]> {
     try {
-      const res = await this.prisma.surveyQuestionAnswer.findMany({
+      const response = await this.prisma.surveyQuestionAnswer.findMany({
         where: {
           AND: [{ customer: { email } }, { answerNumeric: 1 }],
         },
         select: {
-          product: { select: { id: true } },
+          product: {
+            select: { id: true, label: true, externalSku: true, name: true },
+          },
         },
       });
-      return [
-        {
-          ids: res.length
-            ? res.map((nextUnwant) => {
-                return nextUnwant.product.id;
-              })
-            : [],
-        },
-        null,
-      ];
+      const nextUnwantProducts: Product[] = response.length
+        ? response.map(({ product }) => {
+            return {
+              id: product.id,
+              name: product.name,
+              sku: product.externalSku,
+              label: product.label,
+            };
+          })
+        : [];
+      return [nextUnwantProducts];
     } catch (e) {
       return [
         undefined,

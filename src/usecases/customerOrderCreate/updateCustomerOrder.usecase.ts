@@ -49,9 +49,9 @@ export class UpdateCustomerOrderUsecase
     line_items,
     note_attributes,
   }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
-    const [getCustomerRes, getCustomerError] =
+    const [Customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({ email: customer.email });
-    let customerId = getCustomerRes?.id;
+    let customerId = Customer?.id;
     if (getCustomerError) {
       const [updateEmailRes, updateEmailError] =
         await this.customerGeneralRepo.updateEmailByUuid({

@@ -16,6 +16,7 @@
       "@Repositories/*": ["src/repositories/*"],
       "@Controllers/*": ["src/controllers/*"],
     },
+    // "strict": true,
     "incremental": true,
     "skipLibCheck": true,
     "strictBindCallApply": false,

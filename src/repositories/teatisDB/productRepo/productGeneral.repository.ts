@@ -1,19 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Product, ProductAddOn, ProductImage } from '@Domains/Product';
+import {
+  DisplayAnalyzeProduct,
+  DisplayProduct,
+  Product,
+  ProductAddOn,
+  ProductImage,
+} from '@Domains/Product';
 import { PrismaService } from '../../../prisma.service';
-
-interface UpsertProductsArgs {
-  skus: string[];
-}
-
-interface UpsertProductsRes {
-  data: UpsertProductsResData[];
-}
-
-interface UpsertProductsResData {
-  id: number;
-  externalSku: string;
-}
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -21,17 +14,13 @@ interface GetProductsBySkuArgs {
 
 interface GetProductsBySkuRes {
   products: Pick<
-    Product,
+    DisplayProduct,
     'id' | 'sku' | 'label' | 'images' | 'vendor' | 'expertComment'
   >[];
 }
 
 interface GetAllProductsArgs {
   medicalCondtions: { highBloodPressure: boolean; highCholesterol: boolean };
-}
-
-interface GetAllProductsRes {
-  products: Product[];
 }
 
 export interface GetOptionsArgs {
@@ -52,23 +41,19 @@ export interface GetOption {
   id: number;
   name: string;
   label: string;
-  src?: string;
+  src?: string | null;
 }
 
 export interface ProductGeneralRepoInterface {
-  upsertProducts({
-    skus,
-  }: UpsertProductsArgs): Promise<[UpsertProductsRes, Error]>;
-
   getProductsBySku({
     products,
-  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes, Error]>;
+  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes?, Error?]>;
   getAllProducts({
     medicalCondtions,
-  }: GetAllProductsArgs): Promise<[GetAllProductsRes, Error]>;
+  }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]>;
   getOptions({
     target,
-  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>, Error]>;
+  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>?, Error?]>;
 }
 
 @Injectable()
@@ -76,109 +61,122 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
   async getProductsBySku({
     products,
-  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes, Error]> {
-    let productRes = await this.prisma.product.findMany({
-      where: {
-        OR: products.map((product) => {
-          return { externalSku: product.sku };
-        }),
-      },
-      select: {
-        id: true,
-        productVendor: { select: { label: true } },
-        externalSku: true,
-        productImages: { select: { id: true, src: true, position: true } },
-        expertComment: true,
-        label: true,
-      },
-    });
+  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes?, Error?]> {
+    try {
+      const res = await this.prisma.product.findMany({
+        where: {
+          OR: products.map((product) => {
+            return { externalSku: product.sku };
+          }),
+        },
+        select: {
+          id: true,
+          productVendor: { select: { label: true } },
+          externalSku: true,
+          productImages: { select: { id: true, src: true, position: true } },
+          expertComment: true,
+          label: true,
+        },
+      });
 
-    return [
-      {
-        products: productRes.map((product) => {
-          return {
-            id: product.id,
-            sku: product.externalSku,
-            images: product.productImages,
-            vendor: product.productVendor.label,
-            label: product.label,
-            expertComment: product.expertComment,
-          };
-        }),
-      },
-      null,
-    ];
+      return [
+        {
+          products: res.map((product) => {
+            return {
+              id: product.id,
+              sku: product.externalSku,
+              images: product.productImages,
+              vendor: product?.productVendor?.label || '',
+              label: product.label || '',
+              expertComment: product.expertComment || '',
+            };
+          }),
+        },
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getProductsBySku failed',
+        },
+      ];
+    }
   }
 
   async getAllProducts({
     medicalCondtions,
-  }: GetAllProductsArgs): Promise<[GetAllProductsRes, Error]> {
-    const getAllProductsRes = await this.prisma.product.findMany({
-      where: {
-        activeStatus: 'active',
-        productNutritionFact: medicalCondtions.highBloodPressure
-          ? { sodiumMg: { lt: 500 } }
-          : {},
-      },
-      select: {
-        id: true,
-        name: true,
-        label: true,
-        externalSku: true,
-        productVendor: { select: { label: true } },
-        productImages: { select: { id: true, position: true, src: true } },
-        productFlavor: { select: { id: true, name: true, label: true } },
-        productCategory: { select: { id: true, name: true, label: true } },
-        expertComment: true,
-        allergenLabel: true,
-        ingredientLabel: true,
-        productNutritionFact: {
-          select: {
-            calories: true,
-            totalFatG: true,
-            saturatedFatG: true,
-            transFatG: true,
-            cholesteroleMg: true,
-            sodiumMg: true,
-            totalCarbohydrateG: true,
-            dietaryFiberG: true,
-            totalSugarG: true,
-            addedSugarG: true,
-            proteinG: true,
-          },
+  }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]> {
+    try {
+      const res = await this.prisma.product.findMany({
+        where: {
+          activeStatus: 'active',
+          productNutritionFact: medicalCondtions.highBloodPressure
+            ? { sodiumMg: { lt: 500 } }
+            : {},
         },
-        intermediateProductAllergens: {
-          select: {
-            productAllergen: { select: { id: true, name: true, label: true } },
+        select: {
+          id: true,
+          name: true,
+          label: true,
+          externalSku: true,
+          productVendor: { select: { label: true } },
+          productImages: { select: { id: true, position: true, src: true } },
+          productFlavor: { select: { id: true, name: true, label: true } },
+          productCategory: { select: { id: true, name: true, label: true } },
+          expertComment: true,
+          allergenLabel: true,
+          ingredientLabel: true,
+          productNutritionFact: {
+            select: {
+              calories: true,
+              totalFatG: true,
+              saturatedFatG: true,
+              transFatG: true,
+              cholesteroleMg: true,
+              sodiumMg: true,
+              totalCarbohydrateG: true,
+              dietaryFiberG: true,
+              totalSugarG: true,
+              addedSugarG: true,
+              proteinG: true,
+            },
           },
-        },
-        intermediateProductFoodTypes: {
-          select: {
-            productFoodType: { select: { id: true, name: true, label: true } },
+          intermediateProductAllergens: {
+            select: {
+              productAllergen: {
+                select: { id: true, name: true, label: true },
+              },
+            },
           },
-        },
-        intermediateProductCookingMethods: {
-          select: {
-            productCookingMethod: {
-              select: { id: true, name: true, label: true },
+          intermediateProductFoodTypes: {
+            select: {
+              productFoodType: {
+                select: { id: true, name: true, label: true },
+              },
+            },
+          },
+          intermediateProductCookingMethods: {
+            select: {
+              productCookingMethod: {
+                select: { id: true, name: true, label: true },
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    return [
-      {
-        products: getAllProductsRes.map((product) => {
+      return [
+        res.map((product) => {
           return {
             id: product.id,
-            name: product.name,
-            expertComment: product.expertComment,
-            label: product.label,
-            ingredientLabel: product.ingredientLabel,
-            allergenLabel: product.allergenLabel,
+            name: product?.name || '',
+            expertComment: product?.expertComment || '',
+            label: product?.label || '',
+            ingredientLabel: product?.ingredientLabel || '',
+            allergenLabel: product?.allergenLabel || '',
             sku: product.externalSku,
-            vendor: product.productVendor.label,
+            vendor: product?.productVendor?.label || '',
             images: product?.productImages
               ? product.productImages.map((image): ProductImage => {
                   return {
@@ -255,104 +253,73 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             },
           };
         }),
-      },
-      null,
-    ];
-  }
-
-  async upsertProducts({
-    skus,
-  }: UpsertProductsArgs): Promise<[UpsertProductsRes, Error]> {
-    const shipheroProviderId = await this.prisma.productProvider.upsert({
-      where: { provider: 'shiphero' },
-      create: { provider: 'shiphero' },
-      update: { provider: 'shiphero' },
-    });
-
-    const values = [];
-    for (let sku of skus) {
-      values.push(`('${sku}', ${shipheroProviderId.id})`);
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getAllProducts failed',
+        },
+      ];
     }
-
-    let data: UpsertProductsResData[] = await this.prisma.$queryRawUnsafe(`
-    WITH
-    -- write the new values
-    "newProduct"("externalSku","productProviderId") AS (
-      VALUES ${values.join(',')}
-    ),
-    -- update existing rows
-    upsert AS (
-      UPDATE "Product"
-      SET "externalSku"="newProduct"."externalSku", "productProviderId"="newProduct"."productProviderId"
-      FROM "newProduct" WHERE "Product"."externalSku" = "newProduct"."externalSku"
-      RETURNING "Product".id, "Product"."externalSku"
-    ), 
-    "insertNonExist" AS(
-        -- insert missing rows
-        INSERT INTO "Product" ("externalSku","productProviderId")
-        SELECT  "newProduct"."externalSku", "newProduct"."productProviderId" FROM "newProduct" 
-        WHERE "newProduct"."externalSku" NOT IN (
-          SELECT "externalSku" FROM upsert
-        )
-      RETURNING "Product".id, "Product"."externalSku"
-    )
-    SELECT upsert.* from upsert UNION ALL SELECT "insertNonExist".* from "insertNonExist"
-  ;
-    `);
-    return [{ data }, null];
   }
 
   async getOptions({
     target,
-  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>, Error]> {
-    let getOptionsRes: GetOption[];
-    switch (target) {
-      case 'cookingMethod':
-        getOptionsRes = await this.prisma.productCookingMethod.findMany({
-          select: { id: true, name: true, label: true },
-        });
-        break;
-      case 'flavor':
-        getOptionsRes = await this.prisma.productFlavor.findMany({
-          select: { id: true, name: true, label: true },
-        });
-        break;
-      case 'category':
-        getOptionsRes = await this.prisma.productCategory.findMany({
-          select: { id: true, name: true, label: true, src: true },
-        });
+  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>?, Error?]> {
+    try {
+      let getOptionsRes: GetOption[] = [];
+      switch (target) {
+        case 'cookingMethod':
+          getOptionsRes = await this.prisma.productCookingMethod.findMany({
+            select: { id: true, name: true, label: true },
+          });
+          break;
+        case 'flavor':
+          getOptionsRes = await this.prisma.productFlavor.findMany({
+            select: { id: true, name: true, label: true },
+          });
+          break;
+        case 'category':
+          getOptionsRes = await this.prisma.productCategory.findMany({
+            select: { id: true, name: true, label: true, src: true },
+          });
 
-        break;
-      case 'foodType':
-        getOptionsRes = await this.prisma.productFoodType.findMany({
-          select: { id: true, name: true, label: true },
-        });
-        break;
-      case 'allergen':
-        getOptionsRes = await this.prisma.productAllergen.findMany({
-          select: { id: true, name: true, label: true },
-        });
+          break;
+        case 'foodType':
+          getOptionsRes = await this.prisma.productFoodType.findMany({
+            select: { id: true, name: true, label: true },
+          });
+          break;
+        case 'allergen':
+          getOptionsRes = await this.prisma.productAllergen.findMany({
+            select: { id: true, name: true, label: true },
+          });
 
-        break;
-      case 'ingredient':
-        getOptionsRes = await this.prisma.productIngredient.findMany({
-          select: { id: true, name: true, label: true },
-        });
-        break;
-      default:
-        break;
-    }
+          break;
+        case 'ingredient':
+          getOptionsRes = await this.prisma.productIngredient.findMany({
+            select: { id: true, name: true, label: true },
+          });
+          break;
+        default:
+          break;
+      }
 
-    if (getOptionsRes.length <= 0) {
+      if (getOptionsRes.length <= 0) {
+        throw new Error();
+      }
+
+      return [{ option: getOptionsRes }];
+    } catch (e) {
       return [
-        null,
+        undefined,
         {
           name: 'Internal Server Error',
-          message: `Server Side Error: getOptions(${target}) failed`,
+          message: 'Server Side Error: getOptions failed',
         },
       ];
     }
-
-    return [{ option: getOptionsRes }, null];
   }
 }

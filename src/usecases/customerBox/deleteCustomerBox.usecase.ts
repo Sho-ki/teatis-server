@@ -32,7 +32,7 @@ export class DeleteCustomerBoxUsecase
     email,
     name,
   }: DeleteCustomerBoxDto): Promise<[Status, Error]> {
-    const [getCustomerRes, getCustomerError] =
+    const [Customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({ email });
     if (getCustomerError) {
       return [null, getCustomerError];
@@ -40,7 +40,7 @@ export class DeleteCustomerBoxUsecase
 
     const [deleteCustomerBoxRes, deleteCustomerBoxError] =
       await this.customerBoxRepo.deleteCustomerBox({
-        customerId: getCustomerRes.id,
+        customerId: Customer.id,
       });
     if (deleteCustomerBoxError) {
       return [null, deleteCustomerBoxError];
@@ -48,7 +48,7 @@ export class DeleteCustomerBoxUsecase
 
     const [shipOrderQueue, shipOrderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
-        customerId: getCustomerRes.id,
+        customerId: Customer.id,
         orderNumber: name,
         status: 'fulfilled',
       });

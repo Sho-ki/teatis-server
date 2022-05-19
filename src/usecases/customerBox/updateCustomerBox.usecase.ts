@@ -29,7 +29,7 @@ export class UpdateCustomerBoxUsecase
     email,
     uuid,
   }: UpdateCustomerBoxDto): Promise<[Status, Error]> {
-    const [getCustomerRes, getCustomerError] = uuid
+    const [Customer, getCustomerError] = uuid
       ? await this.customerGeneralRepo.getCustomerByUuid({ uuid })
       : await this.customerGeneralRepo.getCustomer({ email });
     if (getCustomerError) {
@@ -38,7 +38,7 @@ export class UpdateCustomerBoxUsecase
 
     const [deleteCustomerBoxRes, deleteCustomerBoxError] =
       await this.customerBoxRepo.deleteCustomerBox({
-        customerId: getCustomerRes.id,
+        customerId: Customer.id,
       });
 
     if (deleteCustomerBoxError) {
@@ -47,7 +47,7 @@ export class UpdateCustomerBoxUsecase
 
     const [postCustomerBoxRes, postCustomerBoxError] =
       await this.customerBoxRepo.postCustomerBox({
-        customerId: getCustomerRes.id,
+        customerId: Customer.id,
         products,
       });
 

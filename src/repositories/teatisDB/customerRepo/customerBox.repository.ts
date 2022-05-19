@@ -109,7 +109,7 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
           },
         },
       });
-      if (!res.customerBoxItems) {
+      if (!res?.customerBoxItems) {
         throw new Error();
       }
       return [

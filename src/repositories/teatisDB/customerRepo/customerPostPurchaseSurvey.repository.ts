@@ -64,6 +64,15 @@ interface PostPostPurchaseSurveyCustomerAnswerRes {
   id: number;
 }
 
+interface CheckIsNewSurveyAnswerArgs {
+  orderNumber: string;
+  currentMaxAnswerCount: number;
+}
+
+interface CheckIsNewSurveyAnswerRes {
+  isNewSurveyAnswer: boolean;
+}
+
 export interface CustomerPostPurchaseSurveyRepoInterface {
   getCustomerAnswers({
     email,
@@ -89,10 +98,10 @@ export interface CustomerPostPurchaseSurveyRepoInterface {
     customerId,
   }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]>;
 
-  checkIsNewSurveyAnswer(
-    orderNumber: string,
-    currentMaxAnswerCount: number,
-  ): Promise<boolean>;
+  checkIsNewSurveyAnswer({
+    orderNumber,
+    currentMaxAnswerCount,
+  }: CheckIsNewSurveyAnswerArgs): Promise<[CheckIsNewSurveyAnswerRes?, Error?]>;
 }
 
 @Injectable()
@@ -101,29 +110,49 @@ export class CustomerPostPurchaseSurveyRepo
 {
   constructor(private prisma: PrismaService) {}
 
-  async checkIsNewSurveyAnswer(
-    orderNumber: string,
-    currentMaxAnswerCount: number,
-  ): Promise<boolean> {
-    let count = await this.prisma.surveyQuestionAnswer.aggregate({
-      where: { orderNumber, answerCount: currentMaxAnswerCount },
-      _max: { answerCount: true },
-    });
-    return count._max.answerCount !== currentMaxAnswerCount;
+  async checkIsNewSurveyAnswer({
+    orderNumber,
+    currentMaxAnswerCount,
+  }: CheckIsNewSurveyAnswerArgs): Promise<
+    [CheckIsNewSurveyAnswerRes?, Error?]
+  > {
+    try {
+      const count = await this.prisma.surveyQuestionAnswer.aggregate({
+        where: { orderNumber, answerCount: currentMaxAnswerCount },
+        _max: { answerCount: true },
+      });
+      return [
+        { isNewSurveyAnswer: count._max.answerCount !== currentMaxAnswerCount },
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: checkIsNewSurveyAnswer failed',
+        },
+      ];
+    }
   }
 
   async getAnswerCount({
     customerId,
   }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]> {
     try {
-      const count = await this.prisma.surveyQuestionAnswer.aggregate({
+      const res = await this.prisma.surveyQuestionAnswer.aggregate({
         where: { customerId },
         _max: {
           answerCount: true,
         },
       });
-
-      return [{ currentMaxAnswerCount: count._max.answerCount }];
+      const currentMaxAnswerCount = res?._max?.answerCount;
+      if (
+        currentMaxAnswerCount === undefined ||
+        currentMaxAnswerCount === null
+      ) {
+        throw new Error();
+      }
+      return [{ currentMaxAnswerCount }];
     } catch (e) {
       return [
         undefined,
