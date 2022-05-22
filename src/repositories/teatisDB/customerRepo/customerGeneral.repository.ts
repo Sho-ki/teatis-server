@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { assert } from 'console';
 import { Customer } from '@Domains/Customer';
-import { ProductNutrition } from '@Domains/Product';
+import { NutritionFact } from '@Domains/NutritionFact';
 
 import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
-import { Nutrition } from '@Domains/Nutrition';
+import { NutritionNeed } from '@Domains/NutritionNeed';
 import { MedicalCondition } from '@Domains/MedicalCondition';
 
 export interface GetCustomerArgs {
@@ -48,7 +48,7 @@ export interface CustomerGeneralRepoInterface {
   }: GetCustomerMedicalConditionArgs): Promise<[MedicalCondition?, Error?]>;
   getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[Nutrition?, Error?]>;
+  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]>;
   getCustomerByUuid({
     uuid,
   }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]>;
@@ -65,7 +65,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
 
   async getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[Nutrition?, Error?]> {
+  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]> {
     try {
       const response = await this.prisma.customers.findUnique({
         where: { uuid },
@@ -104,7 +104,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         ? Math.round(1800 / (response?.mealsPerDay || 4))
         : Math.round(2100 / (response?.mealsPerDay || 4));
 
-      let nutritions: Nutrition = {
+      let nutritions: NutritionNeed = {
         // Set the default values
         carbsPerMeal: 50,
         proteinPerMeal: 30,

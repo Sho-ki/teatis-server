@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import {
-  GetLastOrderRes,
-  ShipheroRepoInterface,
-} from '@Repositories/shiphero/shiphero.repository';
+import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
 import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { GetNextBoxSurveyDto } from '@Controllers/discoveries/dtos/getNextBoxSurvey';
@@ -18,6 +15,7 @@ import {
   AnalyzePreferenceRepoInterface,
   CustomerShippableProduct,
 } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
+import { CustomerOrder } from '../../domains/CustomerOrder';
 
 interface GetNextBoxArgs extends GetNextBoxSurveyDto {
   productCount: number;
@@ -120,8 +118,8 @@ export class GetNextBox implements GetNextBoxInterface {
       undefined,
       undefined,
     ];
-    let [getLastOrderRes, getLastOrderError]: [GetLastOrderRes, Error] = [
-      { products: [], orderNumber: '' },
+    let [LastOrder, getLastOrderError]: [CustomerOrder, Error] = [
+      { products: [], orderNumber: '', orderDate: '', orderId: '' },
       null,
     ];
     // When the first box, uuid would exist
@@ -133,16 +131,15 @@ export class GetNextBox implements GetNextBoxInterface {
       }
       email = Customer.email;
     } else if (email) {
-      [getLastOrderRes, getLastOrderError] =
-        await this.shipheroRepo.getLastOrder({
-          email,
-        });
+      [LastOrder, getLastOrderError] = await this.shipheroRepo.getLastOrder({
+        email,
+      });
       if (getLastOrderError) {
         return [null, getLastOrderError];
       }
       [NextWantProducts, getNextWantError] =
         await this.customerNextBoxSurveyRepo.getNextWant({
-          orderNumber: getLastOrderRes.orderNumber,
+          orderNumber: LastOrder.orderNumber,
         });
       if (getNextWantError) {
         return [null, getNextWantError];
@@ -279,7 +276,10 @@ export class GetNextBox implements GetNextBoxInterface {
     let nextBoxProducts: GetNextBoxRes = { products: [] };
 
     for (let product of allProducts) {
-      if (NextWantProducts.some((nextWant) => nextWant.id === product.id)) {
+      if (
+        NextWantProducts &&
+        NextWantProducts.some((nextWant) => nextWant.id === product.id)
+      ) {
         const {
           id,
           sku,
@@ -325,7 +325,7 @@ export class GetNextBox implements GetNextBoxInterface {
         category_id: product.category.id,
         is_sent_1: 0,
       };
-      for (let lastSentProduct of getLastOrderRes.products) {
+      for (let lastSentProduct of LastOrder.products) {
         if (product.sku === lastSentProduct.sku) {
           shippableProduct = { ...shippableProduct, is_sent_1: 1 };
           break;

@@ -44,7 +44,7 @@ export class GetPostPurchaseSurveyUsecase
   }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]> {
     // Get last order products from shiphero
 
-    const [getOrderRes, getOrderError] = orderNumber
+    const [Order, getOrderError] = orderNumber
       ? await this.shipheroRepo.getOrderByOrderNumber({ orderNumber })
       : await this.shipheroRepo.getLastOrder({ email });
 
@@ -53,7 +53,7 @@ export class GetPostPurchaseSurveyUsecase
     }
     const [getProductDetailRes, getProductDetailError] =
       await this.productGeneralRepo.getProductsBySku({
-        products: getOrderRes.products,
+        products: Order.products,
       });
 
     if (getProductDetailError) {
@@ -62,7 +62,7 @@ export class GetPostPurchaseSurveyUsecase
     let detailedProductList: Pick<
       DisplayProduct,
       'id' | 'sku' | 'label' | 'images' | 'vendor'
-    >[] = getOrderRes.products.map((orderProduct) => {
+    >[] = Order.products.map((orderProduct) => {
       let detailedProduct: Pick<
         DisplayProduct,
         'id' | 'sku' | 'label' | 'images' | 'vendor'
@@ -95,14 +95,14 @@ export class GetPostPurchaseSurveyUsecase
     const [getCustomerAnswersRes, getCustomerAnswersError] =
       await this.customerPostPurchaseSurveyRepo.getCustomerAnswers({
         email,
-        orderNumber: getOrderRes.orderNumber,
+        orderNumber: Order.orderNumber,
       });
     if (getCustomerAnswersError) {
       return [null, getCustomerAnswersError];
     }
 
     let personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
-      orderNumber: getOrderRes.orderNumber,
+      orderNumber: Order.orderNumber,
       customerId: getCustomerAnswersRes.id,
       surveyQuestions: [],
     };

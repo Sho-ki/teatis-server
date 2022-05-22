@@ -83,14 +83,14 @@ export class UpdateCustomerOrderUsecase
       return lineItem.product_id;
     });
 
-    const [order, orderError] = await this.shipheroRepo.getOrderByOrderNumber({
+    const [Order, orderError] = await this.shipheroRepo.getOrderByOrderNumber({
       orderNumber: name,
     });
     if (orderError) {
       return [null, orderError];
     }
 
-    if (order.products.length > 1) {
+    if (Order.products.length > 1) {
       if (
         purchasedProducts.includes(6618823458871) ||
         purchasedProducts.includes(6618823753783)
@@ -105,7 +105,7 @@ export class UpdateCustomerOrderUsecase
     if (getOrderCountError) {
       return [null, getOrderCountError];
     }
-    const [getCustomerBoxProductsRes, getCustomerBoxProductsError] =
+    const [Products, getCustomerBoxProductsError] =
       await this.customerBoxRepo.getCustomerBoxProducts({
         email: customer.email,
       });
@@ -113,7 +113,7 @@ export class UpdateCustomerOrderUsecase
       return [null, getCustomerBoxProductsError];
     }
 
-    if (!getCustomerBoxProductsRes.products.length) {
+    if (!Products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.nextBoxUtil.getNextBoxSurvey({
@@ -127,7 +127,7 @@ export class UpdateCustomerOrderUsecase
         return [null, nextBoxProductsError];
       }
     } else {
-      orderProducts = getCustomerBoxProductsRes.products;
+      orderProducts = Products;
     }
     getOrderCountRes.orderCount <= 1
       ? orderProducts.push(
@@ -136,9 +136,9 @@ export class UpdateCustomerOrderUsecase
         ) //  Uprinting brochure and Uprinting designed boxes
       : orderProducts.push({ sku: 'NP-carton-lightblue' }); //   Uprinting designed boxes
 
-    const [updateOrderRes, updateOrderError] =
+    const [UpdatedOrder, updateOrderError] =
       await this.shipheroRepo.updateOrder({
-        orderId: order.orderId,
+        orderId: Order.orderId,
         products: orderProducts,
         orderNumber: name,
       });

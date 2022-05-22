@@ -1,36 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient, gql } from 'graphql-request';
 import { Product } from '@Domains/Product';
-import { Status } from '@Domains/Status';
 
 import {
   GetLastOrderByEmailQuery,
-  GetProductDetailQuery,
   GetProductInventryQuery,
   getSdk,
 } from './generated/graphql';
+import { CustomerOrder } from '@Domains/CustomerOrder';
 
 interface GetLastOrderArgs {
   email: string;
 }
 
-export interface GetLastOrderRes {
-  products: Pick<Product, 'sku'>[];
-  orderNumber: string;
-}
-
 interface GetCustomerOrdersArgs {
   email: string;
-}
-
-export interface GetCustomerOrdersRes {
-  orders: CustomerOrders[];
-}
-
-interface CustomerOrders {
-  products: Pick<Product, 'sku'>[];
-  orderNumber: string;
-  orderDate: string;
 }
 
 interface CreateOrderArgs {
@@ -39,66 +23,29 @@ interface CreateOrderArgs {
   orderNumber: string;
 }
 
-export interface UpdateOrderRes extends Status {}
-
 export interface GetOrderByOrderNumberArgs {
   orderNumber: string;
-}
-
-export interface GetOrderByOrderNumberRes {
-  products: Pick<Product, 'sku'>[];
-  orderNumber: string;
-  orderId: string;
-}
-
-interface GetProductDetailArgs {
-  sku: string;
-}
-interface GetProductDetailRes {
-  id: string;
-  title: string;
-  products: Pick<Product, 'sku'>[];
-}
-
-interface GetFirstBoxProductsArgs {
-  id: string;
-}
-
-interface GetFirstBoxProductsRes {
-  products: Pick<Product, 'sku'>[];
-}
-
-interface GetNonInventryProductsRes {
-  skus: string[];
 }
 
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepoInterface {
-  getFirstBoxProducts({
-    id,
-  }: GetFirstBoxProductsArgs): Promise<[GetFirstBoxProductsRes?, Error?]>;
-  getKitComponents({
-    sku,
-  }: GetProductDetailArgs): Promise<[GetProductDetailRes?, Error?]>;
-  getLastOrder({
-    email,
-  }: GetLastOrderArgs): Promise<[GetLastOrderRes?, Error?]>;
+  getLastOrder({ email }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]>;
 
   getNonInventryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]>;
   getOrderByOrderNumber({
     orderNumber,
-  }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes?, Error?]>;
+  }: GetOrderByOrderNumberArgs): Promise<[CustomerOrder?, Error?]>;
 
   updateOrder({
     orderId,
     products,
     orderNumber,
-  }: CreateOrderArgs): Promise<[UpdateOrderRes?, Error?]>;
+  }: CreateOrderArgs): Promise<[CustomerOrder?, Error?]>;
 
   getCustomerOrders({
     email,
-  }: GetCustomerOrdersArgs): Promise<[GetCustomerOrdersRes?, Error?]>;
+  }: GetCustomerOrdersArgs): Promise<[CustomerOrder[]?, Error?]>;
 }
 
 @Injectable()
@@ -138,81 +85,9 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     }
   }
 
-  async getFirstBoxProducts({
-    id,
-  }: GetFirstBoxProductsArgs): Promise<[GetFirstBoxProductsRes?, Error?]> {
-    try {
-      const client = new GraphQLClient(endpoint, {
-        headers: {
-          authorization: process.env.SHIPHERO_API_KEY,
-        } as HeadersInit,
-      });
-      const sdk = getSdk(client);
-
-      const res: GetProductDetailQuery = await sdk.getFirstBoxProducts({ id });
-      const kitComponents = res?.product?.data?.kit_components;
-      if (!kitComponents) {
-        throw new Error();
-      }
-
-      return [
-        {
-          products: kitComponents.map((component: { sku: string }) => {
-            return { sku: component.sku };
-          }),
-        },
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getFirstBoxProducts failed',
-        },
-      ];
-    }
-  }
-  async getKitComponents({
-    sku,
-  }: GetProductDetailArgs): Promise<[GetProductDetailRes?, Error?]> {
-    try {
-      const client = new GraphQLClient(endpoint, {
-        headers: {
-          authorization: process.env.SHIPHERO_API_KEY,
-        } as HeadersInit,
-      });
-      const sdk = getSdk(client);
-
-      const res: GetProductDetailQuery = await sdk.getProductDetail({ sku });
-      const productData = res?.product?.data;
-      const name = productData?.name;
-      const id = productData?.id;
-      const kitComponents = productData?.kit_components;
-      if (!kitComponents || !name || !id) {
-        throw new Error();
-      }
-      return [
-        {
-          id,
-          title: name,
-          products: kitComponents.map((component: { sku: string }) => {
-            return { sku: component.sku };
-          }),
-        },
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getKitComponents failed',
-        },
-      ];
-    }
-  }
   async getOrderByOrderNumber({
     orderNumber,
-  }: GetOrderByOrderNumberArgs): Promise<[GetOrderByOrderNumberRes?, Error?]> {
+  }: GetOrderByOrderNumberArgs): Promise<[CustomerOrder?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
         headers: {
@@ -228,6 +103,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       const node = res?.orders?.data?.edges[0]?.node;
       const items = node?.line_items?.edges;
       const orderId = node?.id;
+      const orderDate = node?.order_date;
 
       if (!items || !node || !orderId) {
         throw new Error();
@@ -261,6 +137,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
           orderNumber,
           products,
           orderId,
+          orderDate,
         },
       ];
     } catch (e) {
@@ -275,7 +152,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
   }
   async getLastOrder({
     email,
-  }: GetLastOrderArgs): Promise<[GetLastOrderRes?, Error?]> {
+  }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
         headers: {
@@ -291,6 +168,8 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       const node = res?.orders?.data?.edges[0]?.node;
       const orderNumber = node?.order_number;
       const items = node?.line_items?.edges;
+      const orderId = node?.id;
+      const orderDate = node?.order_date;
 
       if (!node || !orderNumber || !items) {
         throw new Error();
@@ -321,7 +200,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         }
       }
 
-      return [{ orderNumber, products }];
+      return [{ orderNumber, products, orderDate, orderId }];
     } catch (e) {
       return [
         undefined,
@@ -335,7 +214,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
 
   async getCustomerOrders({
     email,
-  }: GetCustomerOrdersArgs): Promise<[GetCustomerOrdersRes?, Error?]> {
+  }: GetCustomerOrdersArgs): Promise<[CustomerOrder[]?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
         headers: {
@@ -348,10 +227,11 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         email,
       });
 
-      let customerOrders: CustomerOrders[] = [];
+      let customerOrders: CustomerOrder[] = [];
       for (let edge of res?.orders?.data?.edges || []) {
         const node = edge?.node;
         const orderNumber = node?.order_number;
+        const orderId = node?.id;
         const orderDate = node?.order_date;
         const items = node?.line_items?.edges;
 
@@ -383,10 +263,10 @@ export class ShipheroRepo implements ShipheroRepoInterface {
             products.push({ sku: itemNode.sku });
           }
         }
-        customerOrders.push({ products, orderNumber, orderDate });
+        customerOrders.push({ products, orderNumber, orderDate, orderId });
       }
 
-      return [{ orders: customerOrders }];
+      return [customerOrders];
     } catch (e) {
       return [
         undefined,
@@ -402,7 +282,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     orderId,
     products,
     orderNumber,
-  }: CreateOrderArgs): Promise<[UpdateOrderRes?, Error?]> {
+  }: CreateOrderArgs): Promise<[CustomerOrder?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
         headers: {
@@ -437,7 +317,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
   `;
       await client.request(mutation);
 
-      return [{ status: 'Success' }];
+      return [{ orderId, orderNumber, products }];
     } catch (e) {
       return [
         undefined,

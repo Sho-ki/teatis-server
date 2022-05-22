@@ -1,3 +1,5 @@
+import { NutritionFact } from './NutritionFact';
+
 export class Product {
   id: number;
   name: string;
@@ -10,7 +12,7 @@ export class DisplayProduct extends Product {
   ingredientLabel: string;
   images: ProductImage[];
   allergenLabel: string;
-  nutritionFact: ProductNutrition;
+  nutritionFact: NutritionFact;
   vendor: string;
 }
 
@@ -22,17 +24,23 @@ export class AnalyzeProduct extends Product {
   cookingMethods: ProductAddOn[];
 }
 
-export class DisplayAnalyzeProduct extends Product {
-  expertComment: string;
-  ingredientLabel: string;
-  images: ProductImage[];
-  allergenLabel: string;
-  nutritionFact: ProductNutrition;
-  vendor: string;
+export class DisplayAnalyzeProduct
+  implements Product, DisplayProduct, Omit<AnalyzeProduct, 'vendor'>
+{
+  id: number;
+  name: string;
+  label: string;
+  sku: string;
   flavor: ProductAddOn;
   category: ProductAddOn;
   allergens: ProductAddOn[];
   cookingMethods: ProductAddOn[];
+  expertComment: string;
+  ingredientLabel: string;
+  images: ProductImage[];
+  allergenLabel: string;
+  nutritionFact: NutritionFact;
+  vendor: string;
 }
 
 export class FullProduct extends Product {
@@ -45,7 +53,7 @@ export class FullProduct extends Product {
   allergenLabel: string;
   foodTypes: ProductAddOn[];
   cookingMethods: ProductAddOn[];
-  nutritionFact: ProductNutrition;
+  nutritionFact: NutritionFact;
 }
 
 export class ProductAddOn {
@@ -58,18 +66,4 @@ export class ProductImage {
   id?: number;
   src?: string;
   position?: number;
-}
-
-export class ProductNutrition {
-  calorie: number;
-  totalFat: number;
-  saturatedFat: number;
-  transFat: number;
-  cholesterole: number;
-  sodium: number;
-  totalCarbohydrate: number;
-  dietaryFiber: number;
-  totalSugar: number;
-  addedSugar: number;
-  protein: number;
 }

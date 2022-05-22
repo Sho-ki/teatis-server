@@ -78,7 +78,7 @@ export class TeatisJobs implements TeatisJobsInterface {
       });
 
       let orderInfo = [];
-      for (let orderData of dataSet.orders) {
+      for (let orderData of dataSet) {
         const productBySku = await this.prisma.product.findMany({
           where: {
             OR: orderData.products.map((product) => {

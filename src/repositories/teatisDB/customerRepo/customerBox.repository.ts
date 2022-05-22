@@ -3,19 +3,14 @@ import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 import { Prisma } from '@prisma/client';
+import { Customer } from '../../../domains/Customer';
 
 export interface DeleteCustomerBoxArgs {
   customerId: number;
 }
-export interface DeleteCustomerBoxRes {
-  deletedCount: number;
-}
 
 export interface GetCustomerBoxProductsArgs {
   email: string;
-}
-export interface GetCustomerBoxProductsRes {
-  products: Pick<Product, 'sku'>[];
 }
 
 export interface UpdateCustomerBoxArgs {
@@ -23,22 +18,18 @@ export interface UpdateCustomerBoxArgs {
   products: Partial<Product>[];
 }
 
-export interface UpdateCustomerBoxRes {
-  postCount: number;
-}
-
 export interface CustomerBoxRepoInterface {
   getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes?, Error?]>;
+  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]>;
   deleteCustomerBox({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes?, Error?]>;
+  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]>;
 
   postCustomerBox({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes?, Error?]>;
+  }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]>;
 }
 
 @Injectable()
@@ -47,15 +38,15 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
 
   async deleteCustomerBox({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes?, Error?]> {
+  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]> {
     try {
-      const res = await this.prisma.customerBoxItems.deleteMany({
+      await this.prisma.customerBoxItems.deleteMany({
         where: {
           customerId,
         },
       });
 
-      return [{ deletedCount: res.count }];
+      return;
     } catch (e) {
       return [
         undefined,
@@ -70,20 +61,31 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
   async postCustomerBox({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes?, Error?]> {
+  }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]> {
     try {
       let data: Prisma.Enumerable<Prisma.CustomerBoxItemsCreateManyInput> = [];
       for (let product of products) {
         if (product?.id) data.push({ customerId, productId: product?.id });
       }
-      const res = await this.prisma.customerBoxItems.createMany({
+      const createCustomerBox = await this.prisma.customerBoxItems.createMany({
         data,
       });
 
-      if (!res.count) {
+      if (!createCustomerBox.count) {
         throw new Error();
       }
-      return [{ postCount: res.count }];
+
+      const customerProducts = await this.prisma.product.findMany({
+        where: { OR: products },
+        select: { id: true, externalSku: true, name: true, label: true },
+      });
+
+      const productsRes: Product[] = customerProducts.map(
+        ({ id, externalSku, name, label }) => {
+          return { id, name, label, sku: externalSku };
+        },
+      );
+      return [productsRes];
     } catch (e) {
       return [
         undefined,
@@ -97,9 +99,7 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
 
   async getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<
-    [GetCustomerBoxProductsRes?, Error?]
-  > {
+  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]> {
     try {
       const res = await this.prisma.customers.findUnique({
         where: { email },
@@ -112,15 +112,17 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
       if (!res?.customerBoxItems) {
         throw new Error();
       }
-      return [
-        {
-          products: !res.customerBoxItems.length
-            ? []
-            : res.customerBoxItems.map((boxItem) => {
-                return { sku: boxItem.product.externalSku };
-              }),
-        },
-      ];
+      const products: Product[] = !res.customerBoxItems.length
+        ? []
+        : res.customerBoxItems.map((boxItem) => {
+            return {
+              sku: boxItem.product.externalSku,
+              id: boxItem.product.id,
+              name: boxItem.product.name,
+              label: boxItem.product.label,
+            };
+          });
+      return [products];
     } catch (e) {
       return [
         undefined,
