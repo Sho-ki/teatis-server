@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { GraphQLClient } from 'graphql-request';
+import { CustomerOrderCount } from '../../domains/CustomerOrderCount';
 import {
   CreateCartMutation,
   CreateCartMutationVariables,
@@ -24,9 +25,6 @@ export interface GetProductRes {
 interface GetOrderCountArgs {
   shopifyCustomerId: number;
 }
-export interface GetOrderCountRes {
-  orderCount: number;
-}
 
 interface CreateCartArgs {
   merchandiseId: string;
@@ -40,7 +38,7 @@ export interface CreateCartRes {
 export interface ShopifyRepoInterface {
   getOrderCount({
     shopifyCustomerId,
-  }: GetOrderCountArgs): Promise<[GetOrderCountRes?, Error?]>;
+  }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]>;
   createCart({
     merchandiseId,
     sellingPlanId,
@@ -89,7 +87,7 @@ export class ShopifyRepo implements ShopifyRepoInterface {
 
   async getOrderCount({
     shopifyCustomerId,
-  }: GetOrderCountArgs): Promise<[GetOrderCountRes?, Error?]> {
+  }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]> {
     try {
       const res = await axios.get<ShopifyGetCustomerRes>(
         `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
@@ -100,11 +98,13 @@ export class ShopifyRepo implements ShopifyRepoInterface {
           },
         },
       );
-      if (!res?.data?.customer?.orders_count) {
+      const orderCount = res?.data?.customer?.orders_count;
+      const email = res?.data?.customer?.email;
+      if (!orderCount || !email) {
         throw new Error();
       }
 
-      return [{ orderCount: res.data.customer.orders_count }];
+      return [{ orderCount: orderCount, email }];
     } catch (e) {
       return [
         undefined,
