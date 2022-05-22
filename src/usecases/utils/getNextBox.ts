@@ -15,7 +15,7 @@ import {
   AnalyzePreferenceRepoInterface,
   CustomerShippableProduct,
 } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
-import { CustomerOrder } from '../../domains/CustomerOrder';
+import { CustomerOrder } from '@Domains/CustomerOrder';
 
 interface GetNextBoxArgs extends GetNextBoxSurveyDto {
   productCount: number;

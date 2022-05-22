@@ -3,7 +3,6 @@ import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 import { Prisma } from '@prisma/client';
-import { Customer } from '../../../domains/Customer';
 
 export interface DeleteCustomerBoxArgs {
   customerId: number;

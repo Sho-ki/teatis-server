@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { assert } from 'console';
 import { Customer } from '@Domains/Customer';
-import { NutritionFact } from '@Domains/NutritionFact';
 
 import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
