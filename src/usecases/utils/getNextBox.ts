@@ -287,9 +287,9 @@ export class GetNextBox implements GetNextBoxInterface {
     let customerShippableProducts: AnalyzePreferenceArgs = {
       necessary_responces: productCount,
       products: [],
-      user_fav_categories: CustomerCategoryPreferences.id || [
-        7, 15, 17, 18, 19, 6, 4, 3, 13, 25, 11, 26, 14, 10,
-      ], // when nothing is selected, choose all the categories
+      user_fav_categories: CustomerCategoryPreferences.id.length
+        ? CustomerCategoryPreferences.id
+        : [7, 15, 17, 18, 19, 6, 4, 3, 13, 25, 11, 26, 14, 10], // when nothing is selected, choose all the categories
     };
     let nextBoxProducts: GetNextBoxRes = { products: [] };
 
@@ -358,6 +358,9 @@ export class GetNextBox implements GetNextBoxInterface {
       await this.analyzePreferenceRepo.getAnalyzedProducts(
         customerShippableProducts,
       );
+    if (analyzedProductsError) {
+      return [null, analyzedProductsError];
+    }
 
     for (let product of allProducts) {
       for (let analyzedProduct of analyzedProductsRes.products) {
