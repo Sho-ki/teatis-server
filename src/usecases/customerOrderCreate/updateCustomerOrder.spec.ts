@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateCustomerOrderDto } from '../../controllers/discoveries/dtos/updateCustomerOrder';
 import { Status } from '@Domains/Status';
 import {
-  CreateOrderRes,
   GetOrderByOrderNumberRes,
   ShipheroRepoInterface,
 } from '@Repositories/shiphero/shiphero.repository';
@@ -14,10 +13,7 @@ import {
   CustomerBoxRepoInterface,
   GetCustomerBoxProductsRes,
 } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
-import {
-  CustomerGeneralRepoInterface,
-  GetCustomerRes,
-} from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
 import {
   OrderQueueRepoInterface,
   UpdateOrderQueueRes,

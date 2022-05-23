@@ -18,6 +18,7 @@ import {
   AnalyzePreferenceRepoInterface,
   CustomerShippableProduct,
 } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
+import { AverageScores } from '../../domains/AverageScores';
 
 interface GetNextBoxArgs extends GetNextBoxSurveyDto {
   productCount: number;
@@ -124,6 +125,10 @@ export class GetNextBox implements GetNextBoxInterface {
       { products: [], orderNumber: '' },
       null,
     ];
+    let [Scores, getAverageScoresError]: [AverageScores?, Error?] = [
+      undefined,
+      undefined,
+    ];
     // When the first box, uuid would exist
     if (uuid) {
       const [Customer, getCustomerError] =
@@ -133,19 +138,27 @@ export class GetNextBox implements GetNextBoxInterface {
       }
       email = Customer.email;
     } else if (email) {
-      [getLastOrderRes, getLastOrderError] =
-        await this.shipheroRepo.getLastOrder({
+      [
+        [getLastOrderRes, getLastOrderError],
+        [NextWantProducts, getNextWantError],
+        [Scores, getAverageScoresError],
+      ] = await Promise.all([
+        this.shipheroRepo.getLastOrder({
           email,
-        });
+        }),
+        this.customerNextBoxSurveyRepo.getNextWant({
+          orderNumber: getLastOrderRes.orderNumber,
+        }),
+        this.customerNextBoxSurveyRepo.getAverageScores({ email }),
+      ]);
       if (getLastOrderError) {
         return [null, getLastOrderError];
       }
-      [NextWantProducts, getNextWantError] =
-        await this.customerNextBoxSurveyRepo.getNextWant({
-          orderNumber: getLastOrderRes.orderNumber,
-        });
       if (getNextWantError) {
         return [null, getNextWantError];
+      }
+      if (getAverageScoresError) {
+        return [null, getAverageScoresError];
       }
       if (NextWantProducts.length > 0) {
         productCount -= NextWantProducts.length;
@@ -274,12 +287,17 @@ export class GetNextBox implements GetNextBoxInterface {
     let customerShippableProducts: AnalyzePreferenceArgs = {
       necessary_responces: productCount,
       products: [],
-      user_fav_categories: CustomerCategoryPreferences.id,
+      user_fav_categories: CustomerCategoryPreferences.id || [
+        7, 15, 17, 18, 19, 6, 4, 3, 13, 25, 11, 26, 14, 10,
+      ], // when nothing is selected, choose all the categories
     };
     let nextBoxProducts: GetNextBoxRes = { products: [] };
 
     for (let product of allProducts) {
-      if (NextWantProducts.some((nextWant) => nextWant.id === product.id)) {
+      if (
+        NextWantProducts &&
+        NextWantProducts.some((nextWant) => nextWant.id === product.id)
+      ) {
         const {
           id,
           sku,
@@ -324,6 +342,9 @@ export class GetNextBox implements GetNextBoxInterface {
         flavor_id: product.flavor.id,
         category_id: product.category.id,
         is_sent_1: 0,
+        avg_flavor_score: Scores?.flavorLikesAverages[product.flavor.id] || 5,
+        avg_category_score:
+          Scores?.categoryLikesAverages[product.category.id] || 5,
       };
       for (let lastSentProduct of getLastOrderRes.products) {
         if (product.sku === lastSentProduct.sku) {
