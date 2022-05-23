@@ -17,7 +17,7 @@ export interface CustomerShippableProduct {
   avg_flavor_score: number;
 }
 interface AnalyzePreferenceRes {
-  is_success: string;
+  is_success: 'true' | 'false';
   products: {
     product_id: number;
     product_sku: string;
