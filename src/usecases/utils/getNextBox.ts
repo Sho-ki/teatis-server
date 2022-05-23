@@ -283,9 +283,10 @@ export class GetNextBox implements GetNextBoxInterface {
         nextWantProducts: NextWantProducts,
       });
     }
+    const allCategories = [18, 19, 7, 15, 17, 6, 4, 3, 13, 25, 11, 26, 14, 10];
     const favoriteCategories = CustomerCategoryPreferences.id.length
       ? CustomerCategoryPreferences.id
-      : [7, 15, 17, 18, 19, 6, 4, 3, 13, 25, 11, 26, 14, 10]; // when nothing is selected, choose all the categories
+      : allCategories; // when nothing is selected, choose all the categories
     let customerShippableProducts: AnalyzePreferenceArgs = {
       necessary_responces: productCount,
       products: [],
@@ -354,14 +355,24 @@ export class GetNextBox implements GetNextBoxInterface {
       }
       customerShippableProducts.products.push(shippableProduct);
     }
-    const [analyzedProductsRes, analyzedProductsError] =
+    let [analyzedProductsRes, analyzedProductsError] =
       await this.analyzePreferenceRepo.getAnalyzedProducts(
         customerShippableProducts,
       );
+    if (analyzedProductsRes.is_success === 'false') {
+      customerShippableProducts.user_fav_categories.push(
+        allCategories[0], // Chocolate
+        allCategories[1], // Cookie/Brownie
+        allCategories[2], // Meal Shake
+      );
+      [analyzedProductsRes, analyzedProductsError] =
+        await this.analyzePreferenceRepo.getAnalyzedProducts(
+          customerShippableProducts,
+        );
+    }
     if (analyzedProductsError) {
       return [null, analyzedProductsError];
     }
-
     for (let product of allProducts) {
       for (let analyzedProduct of analyzedProductsRes.products) {
         if (product.id === analyzedProduct.product_id) {
