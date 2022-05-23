@@ -51,7 +51,7 @@ export class GetPostPurchaseSurveyUsecase
     if (getOrderError) {
       return [null, getOrderError];
     }
-    const [getProductDetailRes, getProductDetailError] =
+    const [DisplayProducts, getProductDetailError] =
       await this.productGeneralRepo.getProductsBySku({
         products: Order.products,
       });
@@ -67,7 +67,7 @@ export class GetPostPurchaseSurveyUsecase
         DisplayProduct,
         'id' | 'sku' | 'label' | 'images' | 'vendor'
       >;
-      getProductDetailRes.products.map((product) => {
+      DisplayProducts.map((product) => {
         if (!product.vendor) {
           product.vendor = 'Teatis Meal';
         }
@@ -92,7 +92,7 @@ export class GetPostPurchaseSurveyUsecase
       return [null, getPostPurchaseQuestionsError];
     }
 
-    const [getCustomerAnswersRes, getCustomerAnswersError] =
+    const [CustomerAnswer, getCustomerAnswersError] =
       await this.customerPostPurchaseSurveyRepo.getCustomerAnswers({
         email,
         orderNumber: Order.orderNumber,
@@ -103,7 +103,7 @@ export class GetPostPurchaseSurveyUsecase
 
     let personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
       orderNumber: Order.orderNumber,
-      customerId: getCustomerAnswersRes.id,
+      customerId: CustomerAnswer.id,
       surveyQuestions: [],
     };
     getPostPurchaseQuestionsRes.surveyQuestions.map((question) => {
@@ -165,7 +165,7 @@ export class GetPostPurchaseSurveyUsecase
       }
     });
     for (let question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
-      for (let customerAnswer of getCustomerAnswersRes.customerAnswers) {
+      for (let customerAnswer of CustomerAnswer.customerAnswers) {
         if (
           question?.name === 'productLineUp' &&
           customerAnswer?.answer?.text !== null

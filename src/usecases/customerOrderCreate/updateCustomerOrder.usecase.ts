@@ -63,7 +63,7 @@ export class UpdateCustomerOrderUsecase
         return [null, updateEmailError];
       }
     }
-    const [updateOrderQueueRes, updateOrderQueueError] =
+    const [OrderQueue, updateOrderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
         customerId,
         orderNumber: name,

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { OrderQueue } from '../../../domains/OrderQueue';
 
 import { PrismaService } from '../../../prisma.service';
 
@@ -8,17 +9,12 @@ export interface UpdateOrderQueueArgs {
   status: 'scheduled' | 'ordered' | 'fulfilled';
 }
 
-export interface UpdateOrderQueueRes {
-  id: number;
-  customerId: number;
-}
-
 export interface OrderQueueRepoInterface {
   updateOrderQueue({
     customerId,
     orderNumber,
     status,
-  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes?, Error?]>;
+  }: UpdateOrderQueueArgs): Promise<[OrderQueue?, Error?]>;
 }
 
 @Injectable()
@@ -29,7 +25,7 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
     customerId,
     orderNumber,
     status,
-  }: UpdateOrderQueueArgs): Promise<[UpdateOrderQueueRes?, Error?]> {
+  }: UpdateOrderQueueArgs): Promise<[OrderQueue?, Error?]> {
     try {
       let actionDate = new Date();
       if (status === 'scheduled') {
@@ -64,8 +60,9 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
       }
       return [
         {
-          id: updateOrderQueueRes.id,
           customerId: updateOrderQueueRes.customerId,
+          status,
+          orderNumber,
         },
       ];
     } catch (e) {

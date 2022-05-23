@@ -1,35 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { Answer } from '../../../domains/Answer';
+import { CustomerAnswer } from '../../../domains/CustomerAnswer';
 
 import { PrismaService } from '../../../prisma.service';
 
 interface GetCustomerAnswersArgs {
   email: string;
-  orderNumber: string;
-}
-
-interface GetCustomerAnswersRes {
-  id: number;
-  email: string;
-  customerAnswers?: GetCustomerAnswersResCustomerAnswer[];
-}
-
-interface GetCustomerAnswersResCustomerAnswer {
-  id: number;
-  surveyQuestionId: number;
-  answer?: {
-    text?: string;
-    numeric?: number;
-    singleOptionId?: number;
-    multipleOptionIds?: number[];
-    bool?: boolean;
-  };
-  responseId: string;
-  reason?: string;
-  title?: string;
-  content?: string;
-  answerCount: number;
-  productId?: number;
   orderNumber: string;
 }
 
@@ -77,7 +54,7 @@ export interface CustomerPostPurchaseSurveyRepoInterface {
   getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<[GetCustomerAnswersRes?, Error?]>;
+  }: GetCustomerAnswersArgs): Promise<[CustomerAnswer?, Error?]>;
 
   postPostPurchaseSurveyCustomerAnswer({
     id,
@@ -167,13 +144,14 @@ export class CustomerPostPurchaseSurveyRepo
   async getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<[GetCustomerAnswersRes?, Error?]> {
+  }: GetCustomerAnswersArgs): Promise<[CustomerAnswer?, Error?]> {
     try {
       let getCustomerRes = await this.prisma.customers.findUnique({
         where: { email },
         select: {
           id: true,
           email: true,
+          uuid: true,
           surveyQuestionAnswer: {
             where: { orderNumber },
             select: {
@@ -205,9 +183,9 @@ export class CustomerPostPurchaseSurveyRepo
         throw new Error();
       }
 
-      let customerAnswers: GetCustomerAnswersResCustomerAnswer[] = [];
+      let customerAnswers: Answer[] = [];
       for (let customerAnswer of getCustomerRes.surveyQuestionAnswer) {
-        let answer: GetCustomerAnswersResCustomerAnswer = {
+        let answer: Answer = {
           id: customerAnswer.id,
           surveyQuestionId: customerAnswer.surveyQuestionId,
           answer: {
@@ -236,7 +214,12 @@ export class CustomerPostPurchaseSurveyRepo
       }
 
       return [
-        { id: getCustomerRes.id, email: getCustomerRes.email, customerAnswers },
+        {
+          id: getCustomerRes.id,
+          email: getCustomerRes.email,
+          uuid: getCustomerRes.uuid,
+          customerAnswers,
+        },
       ];
     } catch (e) {
       return [

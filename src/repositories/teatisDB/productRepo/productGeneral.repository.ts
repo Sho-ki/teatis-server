@@ -12,13 +12,6 @@ interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
 }
 
-interface GetProductsBySkuRes {
-  products: Pick<
-    DisplayProduct,
-    'id' | 'sku' | 'label' | 'images' | 'vendor' | 'expertComment'
-  >[];
-}
-
 interface GetAllProductsArgs {
   medicalCondtions: { highBloodPressure: boolean; highCholesterol: boolean };
 }
@@ -47,7 +40,7 @@ export interface GetOption {
 export interface ProductGeneralRepoInterface {
   getProductsBySku({
     products,
-  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes?, Error?]>;
+  }: GetProductsBySkuArgs): Promise<[DisplayProduct[]?, Error?]>;
   getAllProducts({
     medicalCondtions,
   }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]>;
@@ -61,7 +54,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
   async getProductsBySku({
     products,
-  }: GetProductsBySkuArgs): Promise<[GetProductsBySkuRes?, Error?]> {
+  }: GetProductsBySkuArgs): Promise<[DisplayProduct[]?, Error?]> {
     try {
       const res = await this.prisma.product.findMany({
         where: {
@@ -76,23 +69,40 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
           productImages: { select: { id: true, src: true, position: true } },
           expertComment: true,
           label: true,
+          name: true,
+          productNutritionFact: true,
+          ingredientLabel: true,
+          allergenLabel: true,
         },
       });
 
-      return [
-        {
-          products: res.map((product) => {
-            return {
-              id: product.id,
-              sku: product.externalSku,
-              images: product.productImages,
-              vendor: product?.productVendor?.label || '',
-              label: product.label || '',
-              expertComment: product.expertComment || '',
-            };
-          }),
-        },
-      ];
+      const displayProducts: DisplayProduct[] = res.map((product) => {
+        return {
+          id: product.id,
+          sku: product.externalSku,
+          images: product.productImages,
+          vendor: product?.productVendor?.label || '',
+          label: product.label || '',
+          expertComment: product.expertComment || '',
+          name: product.name,
+          ingredientLabel: product.ingredientLabel,
+          allergenLabel: product.allergenLabel,
+          nutritionFact: {
+            calorie: product.productNutritionFact.calories,
+            totalFat: product.productNutritionFact.totalFatG,
+            saturatedFat: product.productNutritionFact.saturatedFatG,
+            transFat: product.productNutritionFact.transFatG,
+            cholesterole: product.productNutritionFact.cholesteroleMg,
+            sodium: product.productNutritionFact.sodiumMg,
+            totalCarbohydrate: product.productNutritionFact.totalCarbohydrateG,
+            dietaryFiber: product.productNutritionFact.dietaryFiberG,
+            totalSugar: product.productNutritionFact.totalSugarG,
+            addedSugar: product.productNutritionFact.addedSugarG,
+            protein: product.productNutritionFact.proteinG,
+          },
+        };
+      });
+      return [displayProducts];
     } catch (e) {
       return [
         undefined,

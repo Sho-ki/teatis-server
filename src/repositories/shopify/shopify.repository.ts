@@ -1,26 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { GraphQLClient } from 'graphql-request';
-import { CustomerOrderCount } from '../../domains/CustomerOrderCount';
+import { Cart } from '@Domains/Cart';
+import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import {
   CreateCartMutation,
   CreateCartMutationVariables,
   getSdk,
 } from './generated/graphql';
-import {
-  ShopifyGetCustomerRes,
-  ShopifyGetProductRes,
-} from './shopify.interface';
-
-interface GetProductArgs {
-  productId: number;
-}
-
-export interface GetProductRes {
-  id: number;
-  title: string;
-  sku: string;
-}
+import { ShopifyGetCustomerRes } from './shopify.interface';
 
 interface GetOrderCountArgs {
   shopifyCustomerId: number;
@@ -31,9 +19,6 @@ interface CreateCartArgs {
   sellingPlanId: string;
   uuid: string;
 }
-export interface CreateCartRes {
-  checkoutUrl: string;
-}
 
 export interface ShopifyRepoInterface {
   getOrderCount({
@@ -43,7 +28,7 @@ export interface ShopifyRepoInterface {
     merchandiseId,
     sellingPlanId,
     uuid,
-  }: CreateCartArgs): Promise<[CreateCartRes?, Error?]>;
+  }: CreateCartArgs): Promise<[Cart?, Error?]>;
 }
 
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
@@ -54,7 +39,7 @@ export class ShopifyRepo implements ShopifyRepoInterface {
     merchandiseId,
     sellingPlanId,
     uuid,
-  }: CreateCartArgs): Promise<[CreateCartRes?, Error?]> {
+  }: CreateCartArgs): Promise<[Cart?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
         headers: {

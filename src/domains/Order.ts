@@ -1,5 +1,5 @@
 export class Order {
   orderNumber: string;
-  orderId: string;
+  orderId?: string;
   orderDate?: string;
 }
