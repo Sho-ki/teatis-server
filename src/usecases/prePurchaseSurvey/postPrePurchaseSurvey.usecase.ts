@@ -150,7 +150,7 @@ export class PostPrePurchaseSurveyUsecase
     const CUSTOMER_BOX_TYPE = this.getCustomerBoxType(MEDICAL_CONDITIONS);
 
     const uuid = uuidv4();
-    const [Customer, upsertCustomerError] =
+    const [customer, upsertCustomerError] =
       await this.customerPrePurchaseRepo.upsertCustomer({
         uuid,
         diabetes,
@@ -183,8 +183,8 @@ export class PostPrePurchaseSurveyUsecase
 
     return [
       {
-        customerId: Customer.id,
-        customerUuid: Customer.uuid,
+        customerId: customer.id,
+        customerUuid: customer.uuid,
         recommendBoxType: CUSTOMER_BOX_TYPE,
       },
       null,

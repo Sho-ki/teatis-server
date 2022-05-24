@@ -1,9 +1,6 @@
 import { Order } from './Order';
 import { Product } from './Product';
 
-export class CustomerOrder implements Order {
-  orderDate?: string;
+export interface CustomerOrder extends Order {
   products: Pick<Product, 'sku'>[];
-  orderNumber: string;
-  orderId: string;
 }

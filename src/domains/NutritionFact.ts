@@ -1,4 +1,4 @@
-export class NutritionFact {
+export interface NutritionFact {
   calorie: number;
   totalFat: number;
   saturatedFat: number;

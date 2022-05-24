@@ -21,11 +21,11 @@ export interface CustomerBoxRepoInterface {
   getCustomerBoxProducts({
     email,
   }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]>;
-  deleteCustomerBox({
+  deleteCustomerBoxProduct({
     customerId,
   }: DeleteCustomerBoxArgs): Promise<[void?, Error?]>;
 
-  postCustomerBox({
+  postCustomerBoxProduct({
     customerId,
     products,
   }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]>;
@@ -35,7 +35,7 @@ export interface CustomerBoxRepoInterface {
 export class CustomerBoxRepo implements CustomerBoxRepoInterface {
   constructor(private prisma: PrismaService) {}
 
-  async deleteCustomerBox({
+  async deleteCustomerBoxProduct({
     customerId,
   }: DeleteCustomerBoxArgs): Promise<[void?, Error?]> {
     try {
@@ -51,13 +51,13 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: deleteCustomerBox failed',
+          message: 'Server Side Error: deleteCustomerBoxProduct failed',
         },
       ];
     }
   }
 
-  async postCustomerBox({
+  async postCustomerBoxProduct({
     customerId,
     products,
   }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]> {
@@ -90,7 +90,7 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: postCustomerBox failed',
+          message: 'Server Side Error: postCustomerBoxProduct failed',
         },
       ];
     }

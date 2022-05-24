@@ -1,4 +1,4 @@
-export class NutritionNeed {
+export interface NutritionNeed {
   carbsPerMeal: number;
   proteinPerMeal: number;
   fatPerMeal: number;

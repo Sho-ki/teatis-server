@@ -1,6 +1,6 @@
 import { Order } from './Order';
 
-export class OrderQueue extends Order {
+export interface OrderQueue extends Order {
   customerId: number;
   status: 'scheduled' | 'ordered' | 'fulfilled';
 }

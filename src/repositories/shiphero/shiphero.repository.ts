@@ -30,14 +30,16 @@ export interface GetOrderByOrderNumberArgs {
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepoInterface {
-  getLastOrder({ email }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]>;
+  getLastCustomerOrder({
+    email,
+  }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]>;
 
-  getNonInventryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]>;
-  getOrderByOrderNumber({
+  getNoInventryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]>;
+  getCustomerOrderByOrderNumber({
     orderNumber,
   }: GetOrderByOrderNumberArgs): Promise<[CustomerOrder?, Error?]>;
 
-  updateOrder({
+  updateCustomerOrder({
     orderId,
     products,
     orderNumber,
@@ -50,7 +52,7 @@ export interface ShipheroRepoInterface {
 
 @Injectable()
 export class ShipheroRepo implements ShipheroRepoInterface {
-  async getNonInventryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]> {
+  async getNoInventryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
         headers: {
@@ -79,13 +81,13 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getNonInventryProducts failed',
+          message: 'Server Side Error: getNoInventryProducts failed',
         },
       ];
     }
   }
 
-  async getOrderByOrderNumber({
+  async getCustomerOrderByOrderNumber({
     orderNumber,
   }: GetOrderByOrderNumberArgs): Promise<[CustomerOrder?, Error?]> {
     try {
@@ -145,12 +147,12 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getOrderByOrderNumber failed',
+          message: 'Server Side Error: getCustomerOrderByOrderNumber failed',
         },
       ];
     }
   }
-  async getLastOrder({
+  async getLastCustomerOrder({
     email,
   }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]> {
     try {
@@ -206,7 +208,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getLastOrder failed',
+          message: 'Server Side Error: getLastCustomerOrder failed',
         },
       ];
     }
@@ -278,7 +280,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
     }
   }
 
-  async updateOrder({
+  async updateCustomerOrder({
     orderId,
     products,
     orderNumber,
@@ -323,7 +325,7 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: updateOrder failed',
+          message: 'Server Side Error: updateCustomerOrder failed',
         },
       ];
     }

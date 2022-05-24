@@ -1,13 +1,13 @@
 import { NutritionFact } from './NutritionFact';
 
-export class Product {
+export interface Product {
   id: number;
   name: string;
   label: string;
   sku: string;
 }
 
-export class DisplayProduct extends Product {
+export interface DisplayProduct extends Product {
   expertComment: string;
   ingredientLabel: string;
   images: ProductImage[];
@@ -16,7 +16,7 @@ export class DisplayProduct extends Product {
   vendor: string;
 }
 
-export class AnalyzeProduct extends Product {
+export interface AnalyzeProduct extends Product {
   vendor: string;
   flavor: ProductAddOn;
   category: ProductAddOn;
@@ -24,26 +24,12 @@ export class AnalyzeProduct extends Product {
   cookingMethods: ProductAddOn[];
 }
 
-export class DisplayAnalyzeProduct
-  implements Product, DisplayProduct, Omit<AnalyzeProduct, 'vendor'>
-{
-  id: number;
-  name: string;
-  label: string;
-  sku: string;
-  flavor: ProductAddOn;
-  category: ProductAddOn;
-  allergens: ProductAddOn[];
-  cookingMethods: ProductAddOn[];
-  expertComment: string;
-  ingredientLabel: string;
-  images: ProductImage[];
-  allergenLabel: string;
-  nutritionFact: NutritionFact;
-  vendor: string;
-}
+export interface DisplayAnalyzeProduct
+  extends Product,
+    DisplayProduct,
+    Omit<AnalyzeProduct, 'vendor'> {}
 
-export class FullProduct extends Product {
+export interface FullProduct extends Product {
   expertComment: string;
   ingredientLabel: string;
   images: ProductImage[];
@@ -56,13 +42,13 @@ export class FullProduct extends Product {
   nutritionFact: NutritionFact;
 }
 
-export class ProductAddOn {
+export interface ProductAddOn {
   id?: number;
   name?: string;
   label?: string;
 }
 
-export class ProductImage {
+export interface ProductImage {
   id?: number;
   src?: string;
   position?: number;

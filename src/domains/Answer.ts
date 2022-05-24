@@ -1,4 +1,4 @@
-export class Answer {
+export interface Answer {
   id: number;
   surveyQuestionId: number;
   answer?: {

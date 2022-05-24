@@ -44,16 +44,16 @@ export class GetPostPurchaseSurveyUsecase
   }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]> {
     // Get last order products from shiphero
 
-    const [Order, getOrderError] = orderNumber
-      ? await this.shipheroRepo.getOrderByOrderNumber({ orderNumber })
-      : await this.shipheroRepo.getLastOrder({ email });
+    const [customerOrder, getOrderError] = orderNumber
+      ? await this.shipheroRepo.getCustomerOrderByOrderNumber({ orderNumber })
+      : await this.shipheroRepo.getLastCustomerOrder({ email });
 
     if (getOrderError) {
       return [null, getOrderError];
     }
-    const [DisplayProducts, getProductDetailError] =
+    const [displayProducts, getProductDetailError] =
       await this.productGeneralRepo.getProductsBySku({
-        products: Order.products,
+        products: customerOrder.products,
       });
 
     if (getProductDetailError) {
@@ -62,12 +62,12 @@ export class GetPostPurchaseSurveyUsecase
     let detailedProductList: Pick<
       DisplayProduct,
       'id' | 'sku' | 'label' | 'images' | 'vendor'
-    >[] = Order.products.map((orderProduct) => {
+    >[] = customerOrder.products.map((orderProduct) => {
       let detailedProduct: Pick<
         DisplayProduct,
         'id' | 'sku' | 'label' | 'images' | 'vendor'
       >;
-      DisplayProducts.map((product) => {
+      displayProducts.map((product) => {
         if (!product.vendor) {
           product.vendor = 'Teatis Meal';
         }
@@ -84,7 +84,7 @@ export class GetPostPurchaseSurveyUsecase
       return detailedProduct;
     });
 
-    const [getPostPurchaseQuestionsRes, getPostPurchaseQuestionsError] =
+    const [surveyQuestion, getPostPurchaseQuestionsError] =
       await this.questionPostPurchaseSurveyRepo.getSurveyQuestions({
         surveyName: 'post-purchase',
       });
@@ -92,21 +92,21 @@ export class GetPostPurchaseSurveyUsecase
       return [null, getPostPurchaseQuestionsError];
     }
 
-    const [CustomerAnswer, getCustomerAnswersError] =
+    const [customerAnswer, getCustomerAnswersError] =
       await this.customerPostPurchaseSurveyRepo.getCustomerAnswers({
         email,
-        orderNumber: Order.orderNumber,
+        orderNumber: customerOrder.orderNumber,
       });
     if (getCustomerAnswersError) {
       return [null, getCustomerAnswersError];
     }
 
     let personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
-      orderNumber: Order.orderNumber,
-      customerId: CustomerAnswer.id,
+      orderNumber: customerOrder.orderNumber,
+      customerId: customerAnswer.id,
       surveyQuestions: [],
     };
-    getPostPurchaseQuestionsRes.surveyQuestions.map((question) => {
+    surveyQuestion.surveyQuestions.map((question) => {
       let personalizedQuestion: SurveyQuestions;
       personalizedQuestion = {
         ...question,
@@ -165,48 +165,48 @@ export class GetPostPurchaseSurveyUsecase
       }
     });
     for (let question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
-      for (let customerAnswer of CustomerAnswer.customerAnswers) {
+      for (let customerAns of customerAnswer.customerAnswers) {
         if (
           question?.name === 'productLineUp' &&
-          customerAnswer?.answer?.text !== null
+          customerAns?.answer?.text !== null
         ) {
-          question.answer.text = customerAnswer.answer.text;
-          question.responseId = customerAnswer.responseId;
+          question.answer.text = customerAns.answer.text;
+          question.responseId = customerAns.responseId;
           break;
         }
-        if (customerAnswer.productId === question?.product?.id) {
-          question.reason = customerAnswer?.reason
-            ? customerAnswer.reason
+        if (customerAns.productId === question?.product?.id) {
+          question.reason = customerAns?.reason
+            ? customerAns.reason
             : undefined;
 
-          question.responseId = customerAnswer.responseId;
+          question.responseId = customerAns.responseId;
 
-          if (customerAnswer.surveyQuestionId === question.id) {
+          if (customerAns.surveyQuestionId === question.id) {
             switch (question.answerType) {
               case 'boolean':
-                question.answer.bool = customerAnswer.answer.bool;
+                question.answer.bool = customerAns.answer.bool;
                 break;
               case 'numeric':
-                question.answer.numeric = customerAnswer.answer.numeric;
+                question.answer.numeric = customerAns.answer.numeric;
                 break;
               case 'text':
-                question.answer.text = customerAnswer.answer.text;
+                question.answer.text = customerAns.answer.text;
                 break;
               case 'singleAnswer':
                 question.answer.singleOption = {
-                  id: customerAnswer.answer.singleOptionId,
+                  id: customerAns.answer.singleOptionId,
                   name: question.options.find((option) => {
-                    return option.id === customerAnswer.answer.singleOptionId;
+                    return option.id === customerAns.answer.singleOptionId;
                   }).name,
                   label: question.options.find((option) => {
-                    return option.id === customerAnswer.answer.singleOptionId;
+                    return option.id === customerAns.answer.singleOptionId;
                   }).label,
                 };
                 break;
               case 'multipleAnswer':
                 question.answer.multipleOptions =
                   question.answer.multipleOptions.filter((option) => {
-                    return customerAnswer.answer.multipleOptionIds.includes(
+                    return customerAns.answer.multipleOptionIds.includes(
                       option.id,
                     );
                   });

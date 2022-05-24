@@ -47,21 +47,21 @@ export class PostPostPurchaseSurveyUsecase
     content,
     reason,
   }: PostPostPurchaseSurveyDto): Promise<[PostPostPurchaseSurveyRes, Error]> {
-    let [answerCountRes, answerCountError] =
+    let [answerCount, answerCountError] =
       await this.customerpostPurchaseSurveyRepo.getAnswerCount({ customerId });
     if (answerCountError) {
       return [null, answerCountError];
     }
-    if (!answerCountRes.currentMaxAnswerCount) {
-      answerCountRes.currentMaxAnswerCount = 1;
+    if (!answerCount.currentMaxAnswerCount) {
+      answerCount.currentMaxAnswerCount = 1;
     } else {
       const [checkIsNewSurveyAnswer, checkIsNewSurveyAnswerError] =
         await this.customerpostPurchaseSurveyRepo.checkIsNewSurveyAnswer({
           orderNumber,
-          currentMaxAnswerCount: answerCountRes.currentMaxAnswerCount,
+          currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
         });
       if (checkIsNewSurveyAnswer.isNewSurveyAnswer) {
-        answerCountRes.currentMaxAnswerCount += 1;
+        answerCount.currentMaxAnswerCount += 1;
       }
     }
 
@@ -77,7 +77,7 @@ export class PostPostPurchaseSurveyUsecase
           title,
           content,
           reason,
-          currentMaxAnswerCount: answerCountRes.currentMaxAnswerCount,
+          currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
         },
       );
     return [{ id: postProductFeedbackRes.id }, null];

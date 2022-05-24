@@ -1,3 +1,3 @@
-export class Cart {
+export interface Cart {
   checkoutUrl: string;
 }

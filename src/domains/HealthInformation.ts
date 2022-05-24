@@ -1,1 +1,1 @@
-class HealthInformation {}
+interface HealthInformation {}

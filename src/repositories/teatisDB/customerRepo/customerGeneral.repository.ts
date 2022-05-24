@@ -5,6 +5,7 @@ import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { MedicalCondition } from '@Domains/MedicalCondition';
+import { CustomerMedicalCondition } from '../../../domains/CustomerMedicalCondition';
 
 export interface GetCustomerArgs {
   email: string;
@@ -41,9 +42,11 @@ export interface CustomerGeneralRepoInterface {
   getCustomerPreference({
     email,
   }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]>;
-  getCustomerCondition({
+  getCustomerMedicalCondition({
     email,
-  }: GetCustomerMedicalConditionArgs): Promise<[MedicalCondition?, Error?]>;
+  }: GetCustomerMedicalConditionArgs): Promise<
+    [CustomerMedicalCondition?, Error?]
+  >;
   getCustomerNutrition({
     uuid,
   }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]>;
@@ -51,7 +54,7 @@ export interface CustomerGeneralRepoInterface {
     uuid,
   }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]>;
 
-  updateEmailByUuid({
+  updateCustomerEmailByUuid({
     uuid,
     newEmail,
   }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]>;
@@ -136,7 +139,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
     }
   }
 
-  async updateEmailByUuid({
+  async updateCustomerEmailByUuid({
     uuid,
     newEmail,
   }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]> {
@@ -152,7 +155,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: updateEmailByUuid failed',
+          message: 'Server Side Error: updateCustomerEmailByUuid failed',
         },
       ];
     }
@@ -181,20 +184,27 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
       ];
     }
   }
-  async getCustomerCondition({
+  async getCustomerMedicalCondition({
     email,
-  }: GetCustomerMedicalConditionArgs): Promise<[MedicalCondition?, Error?]> {
+  }: GetCustomerMedicalConditionArgs): Promise<
+    [CustomerMedicalCondition?, Error?]
+  > {
     try {
       const res = await this.prisma.customers.findUnique({
         where: { email },
         select: {
+          id: true,
+          uuid: true,
           intermediateCustomerMedicalConditions: {
             select: { customerMedicalCondition: { select: { name: true } } },
           },
         },
       });
+      const { id, uuid } = res;
       const customerConditions = res?.intermediateCustomerMedicalConditions;
-      // assert(customerConditions !== undefined)
+      if (customerConditions === undefined || !id || !uuid) {
+        throw new Error();
+      }
       const allConditions = customerConditions.length
         ? customerConditions.map((condition) => {
             return condition.customerMedicalCondition.name;
@@ -205,6 +215,9 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         {
           highBloodPressure: allConditions.includes('highBloodPressure'),
           highCholesterol: allConditions.includes('highCholesterol'),
+          id,
+          email,
+          uuid,
         },
       ];
     } catch (e) {
@@ -212,7 +225,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomerCondition failed',
+          message: 'Server Side Error: getCustomerMedicalCondition failed',
         },
       ];
     }
