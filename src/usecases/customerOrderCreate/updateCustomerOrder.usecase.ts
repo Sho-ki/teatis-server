@@ -89,7 +89,6 @@ export class UpdateCustomerOrderUsecase
     if (orderError) {
       return [null, orderError];
     }
-
     if (order.products.length > 1) {
       if (
         purchasedProducts.includes(6618823458871) ||
@@ -131,9 +130,10 @@ export class UpdateCustomerOrderUsecase
     }
     getOrderCountRes.orderCount <= 1
       ? orderProducts.push(
-          { sku: 'NP-brochure-2022q1' },
-          { sku: 'NP-carton-lightblue' },
-        ) //  Uprinting brochure and Uprinting designed boxes
+          { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
+          { sku: 'NP-carton-lightblue' }, // Uprinting designed boxes
+          { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
+        )
       : orderProducts.push({ sku: 'NP-carton-lightblue' }); //   Uprinting designed boxes
 
     const [updateOrderRes, updateOrderError] =
