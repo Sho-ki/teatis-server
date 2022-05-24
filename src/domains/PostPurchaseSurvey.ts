@@ -1,10 +1,10 @@
-export class PostPurchaseSurvey {
+export interface PostPurchaseSurvey {
   orderNumber: string;
   customerId: number;
   surveyQuestions: SurveyQuestions[];
 }
 
-export class SurveyQuestions {
+export interface SurveyQuestions {
   id: number;
   responseId: string;
   name: string;
@@ -33,7 +33,7 @@ export class SurveyQuestions {
   };
 }
 
-class QuestionOption {
+interface QuestionOption {
   id: number;
   name: string;
   label: string;

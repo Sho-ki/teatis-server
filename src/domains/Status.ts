@@ -1,3 +1,3 @@
-export class Status {
+export interface Status {
   status: 'Success' | 'Failed';
 }

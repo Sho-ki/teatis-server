@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateCustomerOrderDto } from '../../controllers/discoveries/dtos/updateCustomerOrder';
 import { Status } from '@Domains/Status';
+
 import {
   GetOrderByOrderNumberRes,
   ShipheroRepoInterface,
@@ -27,6 +28,12 @@ import {
   UpdateCustomerOrderUsecase,
   UpdateCustomerOrderUsecaseInterface,
 } from './updateCustomerOrder.usecase';
+import { Customer } from '@Domains/Customer';
+import { OrderQueue } from '@Domains/OrderQueue';
+import { CustomerOrder } from '@Domains/CustomerOrder';
+import { Order } from '@Domains/Order';
+import { Product } from '@Domains/Product';
+import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderUsecaseInterface;
@@ -41,46 +48,45 @@ describe('GetOptions', () => {
   beforeEach(async () => {
     MockedCustomerGeneralRepo = {
       getCustomer: () =>
-        Promise.resolve<[GetCustomerRes, Error]>([
-          { id: 1, email: 'teatis@teatis.com' },
-          null,
+        Promise.resolve<[Customer?, Error?]>([
+          { id: 1, email: 'teatis@teatis.com', uuid: '12345657' },
         ]),
     };
     MockedOrderQueueRepo = {
       updateOrderQueue: () =>
-        Promise.resolve<[UpdateOrderQueueRes, Error]>([
-          { id: 1, customerId: 1 },
-          null,
+        Promise.resolve<[OrderQueue?, Error?]>([
+          { customerId: 1, status: 'fulfilled', orderNumber: '12345' },
         ]),
     };
     MockedShipheroRepo = {
       getOrderByOrderNumber: () =>
-        Promise.resolve<[GetOrderByOrderNumberRes, Error]>([
+        Promise.resolve<[CustomerOrder?, Error?]>([
           {
             products: [{ sku: '987654321' }],
             orderNumber: '12345',
             orderId: '123',
           },
-          null,
         ]),
       updateOrder: () =>
-        Promise.resolve<[CreateOrderRes, Error]>([
+        Promise.resolve<[CustomerOrder?, Error?]>([
           {
-            status: 'Success',
+            orderNumber: '12345',
+            orderId: '123',
+            products: [{ sku: '987654321' }],
           },
-          null,
         ]),
     };
     MockedCustomerBoxRepo = {
       getCustomerBoxProducts: () =>
-        Promise.resolve<[GetCustomerBoxProductsRes, Error]>([
-          { products: [{ sku: '987654321' }] },
-          null,
+        Promise.resolve<[Product[]?, Error?]>([
+          [{ sku: '987654321', id: 1, name: 'test', label: 'Test' }],
         ]),
     };
     MockedShopifyRepo = {
       getOrderCount: () =>
-        Promise.resolve<[GetOrderCountRes, Error]>([{ orderCount: 1 }, null]),
+        Promise.resolve<[CustomerOrderCount?, Error?]>([
+          { orderCount: 1, email: 'test@test.com' },
+        ]),
     };
 
     MockedNextBoxUtil = {
@@ -171,7 +177,7 @@ describe('GetOptions', () => {
 
   it('Order is already updated', async () => {
     MockedShipheroRepo.getOrderByOrderNumber = () =>
-      Promise.resolve<[GetOrderByOrderNumberRes, Error]>([
+      Promise.resolve<[CustomerOrder, Error]>([
         {
           orderNumber: '1234',
           orderId: '12345',
@@ -190,8 +196,8 @@ describe('GetOptions', () => {
 
   it('Customer has not answered the Post-Purchase survey', async () => {
     MockedCustomerBoxRepo.getCustomerBoxProducts = () =>
-      Promise.resolve<[GetCustomerBoxProductsRes, Error]>([
-        { products: [] },
+      Promise.resolve<[Product[], Error]>([
+        [{ id: 1, name: 'test', label: 'Test', sku: '123' }],
         null,
       ]);
     const [res, error] = await usecase.updateCustomerOrder({

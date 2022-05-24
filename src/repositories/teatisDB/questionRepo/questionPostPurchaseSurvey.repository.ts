@@ -1,32 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { Question } from '@Domains/Question';
+import { SurveyQuestion } from '@Domains/SurveyQuestion';
 import { PrismaService } from '../../../prisma.service';
 
 interface GetSurveyQuestionsArgs {
   surveyName: string;
 }
 
-interface GetSurveyQuestionsRes {
-  id: number;
-  name: string;
-  label: string;
-  surveyQuestions: GetSurveyQuestionsResSurveyQuestion[];
-}
-
-interface GetSurveyQuestionsResSurveyQuestion {
-  id: number;
-  name: string;
-  label: string;
-  mustBeAnswered: boolean;
-  instruction?: string;
-  placeholder?: string;
-  answerType: string;
-  options?: { id: number; name: string; label: string }[];
-}
-
 export interface QuestionPostPurchaseSurveyRepoInterface {
   getSurveyQuestions({
     surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[GetSurveyQuestionsRes?, Error?]>;
+  }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]>;
 }
 
 @Injectable()
@@ -37,7 +21,7 @@ export class QuestionPostPurchaseSurveyRepo
 
   async getSurveyQuestions({
     surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[GetSurveyQuestionsRes?, Error?]> {
+  }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]> {
     try {
       const res = await this.prisma.survey.findUnique({
         where: { name: surveyName },
@@ -71,9 +55,9 @@ export class QuestionPostPurchaseSurveyRepo
           },
         },
       });
-      let surveyQuestions: GetSurveyQuestionsResSurveyQuestion[] = [];
+      let surveyQuestions: Question[] = [];
       for (let question of res?.intermediateSurveyQuestions || []) {
-        let surveyQuestion: GetSurveyQuestionsResSurveyQuestion = {
+        let surveyQuestion: Question = {
           id: question.surveyQuestion.id,
           name: question.surveyQuestion.name,
           label: question.surveyQuestion.label,

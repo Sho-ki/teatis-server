@@ -29,30 +29,30 @@ export class UpdateCustomerBoxUsecase
     email,
     uuid,
   }: UpdateCustomerBoxDto): Promise<[Status, Error]> {
-    const [Customer, getCustomerError] = uuid
+    const [customer, getCustomerError] = uuid
       ? await this.customerGeneralRepo.getCustomerByUuid({ uuid })
       : await this.customerGeneralRepo.getCustomer({ email });
     if (getCustomerError) {
       return [null, getCustomerError];
     }
 
-    const [deleteCustomerBoxRes, deleteCustomerBoxError] =
-      await this.customerBoxRepo.deleteCustomerBox({
-        customerId: Customer.id,
+    const [_product, deleteCustomerBoxProductError] =
+      await this.customerBoxRepo.deleteCustomerBoxProduct({
+        customerId: customer.id,
       });
 
-    if (deleteCustomerBoxError) {
-      return [null, deleteCustomerBoxError];
+    if (deleteCustomerBoxProductError) {
+      return [null, deleteCustomerBoxProductError];
     }
 
-    const [postCustomerBoxRes, postCustomerBoxError] =
-      await this.customerBoxRepo.postCustomerBox({
-        customerId: Customer.id,
+    const [product, postCustomerBoxProductError] =
+      await this.customerBoxRepo.postCustomerBoxProduct({
+        customerId: customer.id,
         products,
       });
 
-    if (postCustomerBoxError) {
-      return [null, postCustomerBoxError];
+    if (postCustomerBoxProductError) {
+      return [null, postCustomerBoxProductError];
     }
 
     return [

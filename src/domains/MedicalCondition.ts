@@ -1,4 +1,4 @@
-export class MedicalCondition {
+export interface MedicalCondition {
   highBloodPressure: boolean;
   highCholesterol: boolean;
 }

@@ -38,7 +38,7 @@ export class CreateCustomerCartUsecase
     sellingPlanId,
     uuid,
   }: CreateCartDto): Promise<[CreateCustomerCartUsecaseRes, Error]> {
-    const [createCartRes, createCartError] = await this.ShopifyRepo.createCart({
+    const [cart, createCartError] = await this.ShopifyRepo.createCart({
       merchandiseId,
       sellingPlanId,
       uuid,
@@ -47,16 +47,13 @@ export class CreateCustomerCartUsecase
       return [null, createCartError];
     }
 
-    const [Customer, getCustomerError] =
+    const [customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [null, getCustomerError];
     }
 
-    return [
-      { checkoutUrl: createCartRes.checkoutUrl, email: Customer.email },
-      null,
-    ];
+    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, null];
   }
 }

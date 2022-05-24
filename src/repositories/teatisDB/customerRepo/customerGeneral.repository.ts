@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { assert } from 'console';
 import { Customer } from '@Domains/Customer';
-import { ProductNutrition } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
-import { Nutrition } from '@Domains/Nutrition';
-import { MedicalCondition } from '@Domains/MedicalCondition';
+import { NutritionNeed } from '@Domains/NutritionNeed';
+import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 
 export interface GetCustomerArgs {
   email: string;
@@ -43,17 +41,19 @@ export interface CustomerGeneralRepoInterface {
   getCustomerPreference({
     email,
   }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]>;
-  getCustomerCondition({
+  getCustomerMedicalCondition({
     email,
-  }: GetCustomerMedicalConditionArgs): Promise<[MedicalCondition?, Error?]>;
+  }: GetCustomerMedicalConditionArgs): Promise<
+    [CustomerMedicalCondition?, Error?]
+  >;
   getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[Nutrition?, Error?]>;
+  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]>;
   getCustomerByUuid({
     uuid,
   }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]>;
 
-  updateEmailByUuid({
+  updateCustomerEmailByUuid({
     uuid,
     newEmail,
   }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]>;
@@ -65,7 +65,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
 
   async getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[Nutrition?, Error?]> {
+  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]> {
     try {
       const response = await this.prisma.customers.findUnique({
         where: { uuid },
@@ -104,7 +104,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         ? Math.round(1800 / (response?.mealsPerDay || 4))
         : Math.round(2100 / (response?.mealsPerDay || 4));
 
-      let nutritions: Nutrition = {
+      let nutritions: NutritionNeed = {
         // Set the default values
         carbsPerMeal: 50,
         proteinPerMeal: 30,
@@ -138,7 +138,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
     }
   }
 
-  async updateEmailByUuid({
+  async updateCustomerEmailByUuid({
     uuid,
     newEmail,
   }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]> {
@@ -154,7 +154,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: updateEmailByUuid failed',
+          message: 'Server Side Error: updateCustomerEmailByUuid failed',
         },
       ];
     }
@@ -183,20 +183,27 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
       ];
     }
   }
-  async getCustomerCondition({
+  async getCustomerMedicalCondition({
     email,
-  }: GetCustomerMedicalConditionArgs): Promise<[MedicalCondition?, Error?]> {
+  }: GetCustomerMedicalConditionArgs): Promise<
+    [CustomerMedicalCondition?, Error?]
+  > {
     try {
       const res = await this.prisma.customers.findUnique({
         where: { email },
         select: {
+          id: true,
+          uuid: true,
           intermediateCustomerMedicalConditions: {
             select: { customerMedicalCondition: { select: { name: true } } },
           },
         },
       });
+      const { id, uuid } = res;
       const customerConditions = res?.intermediateCustomerMedicalConditions;
-      // assert(customerConditions !== undefined)
+      if (customerConditions === undefined || !id || !uuid) {
+        throw new Error();
+      }
       const allConditions = customerConditions.length
         ? customerConditions.map((condition) => {
             return condition.customerMedicalCondition.name;
@@ -207,6 +214,9 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         {
           highBloodPressure: allConditions.includes('highBloodPressure'),
           highCholesterol: allConditions.includes('highCholesterol'),
+          id,
+          email,
+          uuid,
         },
       ];
     } catch (e) {
@@ -214,7 +224,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomerCondition failed',
+          message: 'Server Side Error: getCustomerMedicalCondition failed',
         },
       ];
     }

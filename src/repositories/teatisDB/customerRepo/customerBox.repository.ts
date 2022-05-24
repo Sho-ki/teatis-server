@@ -7,15 +7,9 @@ import { Prisma } from '@prisma/client';
 export interface DeleteCustomerBoxArgs {
   customerId: number;
 }
-export interface DeleteCustomerBoxRes {
-  deletedCount: number;
-}
 
 export interface GetCustomerBoxProductsArgs {
   email: string;
-}
-export interface GetCustomerBoxProductsRes {
-  products: Pick<Product, 'sku'>[];
 }
 
 export interface UpdateCustomerBoxArgs {
@@ -23,73 +17,80 @@ export interface UpdateCustomerBoxArgs {
   products: Partial<Product>[];
 }
 
-export interface UpdateCustomerBoxRes {
-  postCount: number;
-}
-
 export interface CustomerBoxRepoInterface {
   getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<[GetCustomerBoxProductsRes?, Error?]>;
-  deleteCustomerBox({
+  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]>;
+  deleteCustomerBoxProduct({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes?, Error?]>;
+  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]>;
 
-  postCustomerBox({
+  postCustomerBoxProduct({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes?, Error?]>;
+  }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]>;
 }
 
 @Injectable()
 export class CustomerBoxRepo implements CustomerBoxRepoInterface {
   constructor(private prisma: PrismaService) {}
 
-  async deleteCustomerBox({
+  async deleteCustomerBoxProduct({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[DeleteCustomerBoxRes?, Error?]> {
+  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]> {
     try {
-      const res = await this.prisma.customerBoxItems.deleteMany({
+      await this.prisma.customerBoxItems.deleteMany({
         where: {
           customerId,
         },
       });
 
-      return [{ deletedCount: res.count }];
+      return;
     } catch (e) {
       return [
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: deleteCustomerBox failed',
+          message: 'Server Side Error: deleteCustomerBoxProduct failed',
         },
       ];
     }
   }
 
-  async postCustomerBox({
+  async postCustomerBoxProduct({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[UpdateCustomerBoxRes?, Error?]> {
+  }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]> {
     try {
       let data: Prisma.Enumerable<Prisma.CustomerBoxItemsCreateManyInput> = [];
       for (let product of products) {
         if (product?.id) data.push({ customerId, productId: product?.id });
       }
-      const res = await this.prisma.customerBoxItems.createMany({
+      const createCustomerBox = await this.prisma.customerBoxItems.createMany({
         data,
       });
 
-      if (!res.count) {
+      if (!createCustomerBox.count) {
         throw new Error();
       }
-      return [{ postCount: res.count }];
+
+      const customerProducts = await this.prisma.product.findMany({
+        where: { OR: products },
+        select: { id: true, externalSku: true, name: true, label: true },
+      });
+
+      const productsRes: Product[] = customerProducts.map(
+        ({ id, externalSku, name, label }) => {
+          return { id, name, label, sku: externalSku };
+        },
+      );
+      return [productsRes];
     } catch (e) {
       return [
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: postCustomerBox failed',
+          message: 'Server Side Error: postCustomerBoxProduct failed',
         },
       ];
     }
@@ -97,9 +98,7 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
 
   async getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<
-    [GetCustomerBoxProductsRes?, Error?]
-  > {
+  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]> {
     try {
       const res = await this.prisma.customers.findUnique({
         where: { email },
@@ -112,15 +111,17 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
       if (!res?.customerBoxItems) {
         throw new Error();
       }
-      return [
-        {
-          products: !res.customerBoxItems.length
-            ? []
-            : res.customerBoxItems.map((boxItem) => {
-                return { sku: boxItem.product.externalSku };
-              }),
-        },
-      ];
+      const products: Product[] = !res.customerBoxItems.length
+        ? []
+        : res.customerBoxItems.map((boxItem) => {
+            return {
+              sku: boxItem.product.externalSku,
+              id: boxItem.product.id,
+              name: boxItem.product.name,
+              label: boxItem.product.label,
+            };
+          });
+      return [products];
     } catch (e) {
       return [
         undefined,

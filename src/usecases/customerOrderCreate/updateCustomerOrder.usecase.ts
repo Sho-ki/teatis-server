@@ -8,7 +8,6 @@ import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCust
 import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { Product } from 'src/domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
-import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
 import { Status } from '@Domains/Status';
 
@@ -37,40 +36,38 @@ export class UpdateCustomerOrderUsecase
     private readonly shopifyRepo: ShopifyRepoInterface,
     @Inject('GetNextBoxInterface')
     private nextBoxUtil: GetNextBoxInterface,
-    @Inject('PostPrePurchaseSurveyUsecaseInterface')
-    private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
   ) {}
-
-  private delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
   async updateCustomerOrder({
     name,
-    customer,
+    customer: shopifyCustomer,
     line_items,
     note_attributes,
   }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
-    const [Customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomer({ email: customer.email });
-    let customerId = Customer?.id;
+    let [customer, getCustomerError] =
+      await this.customerGeneralRepo.getCustomer({
+        email: shopifyCustomer.email,
+      });
+
     if (getCustomerError) {
-      const [updateEmailRes, updateEmailError] =
-        await this.customerGeneralRepo.updateEmailByUuid({
+      [customer, getCustomerError] =
+        await this.customerGeneralRepo.updateCustomerEmailByUuid({
           uuid: note_attributes[0]?.value,
-          newEmail: customer.email,
+          newEmail: shopifyCustomer.email,
         });
-      customerId = updateEmailRes.id;
-      if (updateEmailError) {
-        return [null, updateEmailError];
+
+      if (getCustomerError) {
+        return [null, getCustomerError];
       }
     }
-    const [updateOrderQueueRes, updateOrderQueueError] =
+    let [orderQueue, orderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
-        customerId,
+        customerId: customer?.id,
         orderNumber: name,
         status: 'scheduled',
       });
-    if (updateOrderQueueError) {
-      return [null, updateOrderQueueError];
+    if (orderQueueError) {
+      return [null, orderQueueError];
     }
 
     // await this.delay(7000);
@@ -83,9 +80,10 @@ export class UpdateCustomerOrderUsecase
       return lineItem.product_id;
     });
 
-    const [order, orderError] = await this.shipheroRepo.getOrderByOrderNumber({
-      orderNumber: name,
-    });
+    const [order, orderError] =
+      await this.shipheroRepo.getCustomerOrderByOrderNumber({
+        orderNumber: name,
+      });
     if (orderError) {
       return [null, orderError];
     }
@@ -97,26 +95,26 @@ export class UpdateCustomerOrderUsecase
         return [{ status: 'Success' }, null];
       }
     }
-    const [getOrderCountRes, getOrderCountError] =
+    const [customerOrderCount, getOrderCountError] =
       await this.shopifyRepo.getOrderCount({
-        shopifyCustomerId: customer.id,
+        shopifyCustomerId: shopifyCustomer.id,
       });
     if (getOrderCountError) {
       return [null, getOrderCountError];
     }
-    const [getCustomerBoxProductsRes, getCustomerBoxProductsError] =
+    const [products, getCustomerBoxProductsError] =
       await this.customerBoxRepo.getCustomerBoxProducts({
-        email: customer.email,
+        email: shopifyCustomer.email,
       });
     if (getCustomerBoxProductsError) {
       return [null, getCustomerBoxProductsError];
     }
 
-    if (!getCustomerBoxProductsRes.products.length) {
+    if (!products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.nextBoxUtil.getNextBoxSurvey({
-          email: customer.email,
+          email: shopifyCustomer.email,
           productCount: 15,
         });
       orderProducts = nextBoxProductsRes.products.map((product) => {
@@ -126,9 +124,9 @@ export class UpdateCustomerOrderUsecase
         return [null, nextBoxProductsError];
       }
     } else {
-      orderProducts = getCustomerBoxProductsRes.products;
+      orderProducts = products;
     }
-    getOrderCountRes.orderCount <= 1
+    customerOrderCount.orderCount <= 1
       ? orderProducts.push(
           { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
           { sku: 'NP-carton-lightblue' }, // Uprinting designed boxes
@@ -136,8 +134,8 @@ export class UpdateCustomerOrderUsecase
         )
       : orderProducts.push({ sku: 'NP-carton-lightblue' }); //   Uprinting designed boxes
 
-    const [updateOrderRes, updateOrderError] =
-      await this.shipheroRepo.updateOrder({
+    const [customerOrder, updateOrderError] =
+      await this.shipheroRepo.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
@@ -146,14 +144,13 @@ export class UpdateCustomerOrderUsecase
       return [null, updateOrderError];
     }
 
-    const [completeOrderQueueRes, completeOrderQueueError] =
-      await this.orderQueueRepo.updateOrderQueue({
-        customerId,
-        orderNumber: name,
-        status: 'ordered',
-      });
-    if (completeOrderQueueError) {
-      return [null, completeOrderQueueError];
+    [orderQueue, orderQueueError] = await this.orderQueueRepo.updateOrderQueue({
+      customerId: customer?.id,
+      orderNumber: name,
+      status: 'ordered',
+    });
+    if (orderQueueError) {
+      return [null, orderQueueError];
     }
 
     return [{ status: 'Success' }, null];

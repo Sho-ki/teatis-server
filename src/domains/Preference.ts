@@ -1,3 +1,3 @@
-export class Preference {
+export interface Preference {
   id: number[];
 }
