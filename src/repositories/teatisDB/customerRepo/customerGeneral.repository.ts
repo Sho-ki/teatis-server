@@ -317,8 +317,7 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         where: { email },
         select: { id: true, email: true, uuid: true },
       });
-
-      if (!response?.email || !response?.id || response?.uuid) {
+      if (!response?.email || !response?.id || !response?.uuid) {
         throw new Error();
       }
       return [{ id: response.id, email: response.email, uuid: response.uuid }];

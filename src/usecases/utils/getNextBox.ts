@@ -65,9 +65,9 @@ export class GetNextBox implements GetNextBoxInterface {
 
   private filterProducts({
     filterType,
-    customerFilter,
+    customerFilter = { id: [], sku: [] },
     products,
-    nextWantProducts,
+    nextWantProducts = [],
   }: FilterProductsArgs): DisplayAnalyzeProduct[] {
     let filteredProducts: DisplayAnalyzeProduct[] = products;
     filteredProducts = products.filter((product) => {
