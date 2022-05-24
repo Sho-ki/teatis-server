@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from '@Domains/Product';
+
+import { AverageScores } from '../../../domains/AverageScores';
+import { Product } from '../../../domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 
@@ -11,9 +13,16 @@ interface GetNextUnwantArgs {
   email: string;
 }
 
+interface GetAverageScoresArgs {
+  email: string;
+}
+
 export interface CustomerNextBoxSurveyRepoInterface {
   getNextWant({ orderNumber }: GetNextWantArgs): Promise<[Product[]?, Error?]>;
   getNextUnwant({ email }: GetNextUnwantArgs): Promise<[Product[]?, Error?]>;
+  getAverageScores({
+    email,
+  }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]>;
 }
 
 @Injectable()
@@ -89,6 +98,47 @@ export class CustomerNextBoxSurveyRepo
         {
           name: 'Internal Server Error',
           message: 'Server Side Error: getNextUnwant failed',
+        },
+      ];
+    }
+  }
+
+  async getAverageScores({
+    email,
+  }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]> {
+    try {
+      const res = await this.prisma.surveyQuestionAnswer.findMany({
+        where: { customer: { email }, answerNumeric: { not: null } },
+        select: {
+          product: {
+            select: { productCategoryId: true, productFlavorId: true },
+          },
+          answerNumeric: true,
+        },
+      });
+      let flavorLikesAverages: { [key: string]: number } = {};
+      let categoryLikesAverages: { [key: string]: number } = {};
+
+      for (let data of res) {
+        const flavorId = data.product.productFlavorId;
+        const categoryId = data.product.productCategoryId;
+        const score = data.answerNumeric;
+        flavorLikesAverages[flavorId] = !flavorLikesAverages[flavorId]
+          ? score
+          : Math.round(((flavorLikesAverages[flavorId] + score) / 2) * 10) / 10;
+
+        categoryLikesAverages[categoryId] = !categoryLikesAverages[categoryId]
+          ? score
+          : Math.round(((categoryLikesAverages[categoryId] + score) / 2) * 10) /
+            10;
+      }
+      return [{ flavorLikesAverages, categoryLikesAverages }];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getAverageScores failed',
         },
       ];
     }

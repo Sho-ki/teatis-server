@@ -15,7 +15,10 @@ import {
   AnalyzePreferenceRepoInterface,
   CustomerShippableProduct,
 } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
+
 import { CustomerOrder } from '@Domains/CustomerOrder';
+import { AverageScores } from '../../domains/AverageScores';
+
 
 interface GetNextBoxArgs extends GetNextBoxSurveyDto {
   productCount: number;
@@ -62,7 +65,7 @@ export class GetNextBox implements GetNextBoxInterface {
 
   private filterProducts({
     filterType,
-    customerFilter,
+    customerFilter = { id: [], sku: [] },
     products,
     nextWantProducts = [],
   }: FilterProductsArgs): DisplayAnalyzeProduct[] {
@@ -118,8 +121,15 @@ export class GetNextBox implements GetNextBoxInterface {
       undefined,
       undefined,
     ];
+
     let [lastCustomerOrder, getLastCustomerOrderError]: [CustomerOrder, Error] =
       [{ products: [], orderNumber: '', orderDate: '', orderId: '' }, null];
+
+    let [Scores, getAverageScoresError]: [AverageScores?, Error?] = [
+      undefined,
+      undefined,
+    ];
+
     // When the first box, uuid would exist
     if (uuid) {
       const [customer, getCustomerError] =
@@ -129,22 +139,32 @@ export class GetNextBox implements GetNextBoxInterface {
       }
       email = customer.email;
     } else if (email) {
-      [lastCustomerOrder, getLastCustomerOrderError] =
-        await this.shipheroRepo.getLastCustomerOrder({
+
+      [
+         [lastCustomerOrder, getLastCustomerOrderError] ,
+        [nextWantProducts, getNextWantError],
+        [Scores, getAverageScoresError],
+      ] = await Promise.all([
+        this.shipheroRepo.getLastCustomerOrder({
           email,
-        });
+        }),
+        this.customerNextBoxSurveyRepo.getNextWant({
+          orderNumber: lastCustomerOrder.orderNumber,
+        }),
+        this.customerNextBoxSurveyRepo.getAverageScores({ email }),
+      ]);
       if (getLastCustomerOrderError) {
         return [null, getLastCustomerOrderError];
       }
-      [nextWantProducts, getNextWantError] =
-        await this.customerNextBoxSurveyRepo.getNextWant({
-          orderNumber: lastCustomerOrder.orderNumber,
-        });
       if (getNextWantError) {
         return [null, getNextWantError];
       }
+      if (getAverageScoresError) {
+        return [null, getAverageScoresError];
+      }
       if (nextWantProducts.length > 0) {
         productCount -= nextWantProducts.length;
+
       }
     }
 
@@ -266,11 +286,16 @@ export class GetNextBox implements GetNextBoxInterface {
         nextWantProducts: nextWantProducts,
       });
     }
-
+    const allCategories = [18, 19, 7, 15, 17, 6, 4, 3, 13, 25, 11, 26, 14, 10];
+    const favoriteCategories = customerCategoryPreferences.id.length
+      ? customerCategoryPreferences.id
+      : allCategories; // when nothing is selected, choose all the categories
     let customerShippableProducts: AnalyzePreferenceArgs = {
       necessary_responces: productCount,
       products: [],
-      user_fav_categories: customerCategoryPreferences.id,
+
+      user_fav_categories: favoriteCategories,
+
     };
     let nextBoxProducts: GetNextBoxRes = { products: [] };
 
@@ -278,6 +303,7 @@ export class GetNextBox implements GetNextBoxInterface {
       if (
         nextWantProducts &&
         nextWantProducts.some((nextWant) => nextWant.id === product.id)
+
       ) {
         const {
           id,
@@ -323,6 +349,9 @@ export class GetNextBox implements GetNextBoxInterface {
         flavor_id: product.flavor.id,
         category_id: product.category.id,
         is_sent_1: 0,
+        avg_flavor_score: Scores?.flavorLikesAverages[product.flavor.id] || 5,
+        avg_category_score:
+          Scores?.categoryLikesAverages[product.category.id] || 5,
       };
       for (let lastSentProduct of lastCustomerOrder.products) {
         if (product.sku === lastSentProduct.sku) {
@@ -332,11 +361,24 @@ export class GetNextBox implements GetNextBoxInterface {
       }
       customerShippableProducts.products.push(shippableProduct);
     }
-    const [analyzedProductsRes, analyzedProductsError] =
+    let [analyzedProductsRes, analyzedProductsError] =
       await this.analyzePreferenceRepo.getAnalyzedProducts(
         customerShippableProducts,
       );
-
+    if (analyzedProductsRes.is_success === 'false') {
+      customerShippableProducts.user_fav_categories.push(
+        allCategories[0], // Chocolate
+        allCategories[1], // Cookie/Brownie
+        allCategories[2], // Meal Shake
+      );
+      [analyzedProductsRes, analyzedProductsError] =
+        await this.analyzePreferenceRepo.getAnalyzedProducts(
+          customerShippableProducts,
+        );
+    }
+    if (analyzedProductsError) {
+      return [null, analyzedProductsError];
+    }
     for (let product of allProducts) {
       for (let analyzedProduct of analyzedProductsRes.products) {
         if (product.id === analyzedProduct.product_id) {
@@ -352,7 +394,7 @@ export class GetNextBox implements GetNextBoxInterface {
             allergenLabel,
             nutritionFact,
           } = product;
-          nextBoxProducts.products.push({
+          const nextProduct: DisplayProduct = {
             id,
             sku,
             name,
@@ -375,7 +417,11 @@ export class GetNextBox implements GetNextBoxInterface {
               addedSugar: nutritionFact.addedSugar,
               protein: nutritionFact.protein,
             },
-          });
+          };
+          if (favoriteCategories.includes(product.category.id)) {
+            nextBoxProducts.products.unshift(nextProduct);
+          } else nextBoxProducts.products.push(nextProduct);
+          continue;
         }
       }
     }

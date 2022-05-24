@@ -13,9 +13,11 @@ export interface CustomerShippableProduct {
   flavor_id: number;
   category_id: number;
   is_sent_1: 0 | 1;
+  avg_category_score: number;
+  avg_flavor_score: number;
 }
 interface AnalyzePreferenceRes {
-  is_success: string;
+  is_success: 'true' | 'false';
   products: {
     product_id: number;
     product_sku: string;
@@ -37,7 +39,7 @@ export class AnalyzePreferenceRepo implements AnalyzePreferenceRepoInterface {
   ): Promise<[AnalyzePreferenceRes?, Error?]> {
     try {
       const response = await axios.post<AnalyzePreferenceRes>(
-        `https://us-central1-teatis-discovery.cloudfunctions.net/product_distribution_optimizer`,
+        `https://us-central1-teatis-discovery.cloudfunctions.net/product_distribution_optimizer_v101`,
         data,
       );
 
