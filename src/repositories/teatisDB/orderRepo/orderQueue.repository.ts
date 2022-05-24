@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OrderQueue } from '../../../domains/OrderQueue';
+import { OrderQueue } from '@Domains/OrderQueue';
 
 import { PrismaService } from '../../../prisma.service';
 

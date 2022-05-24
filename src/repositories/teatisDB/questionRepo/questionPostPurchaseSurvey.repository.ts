@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Question } from '../../../domains/Question';
-import { SurveyQuestion } from '../../../domains/SurveyQuestion';
+import { Question } from '@Domains/Question';
+import { SurveyQuestion } from '@Domains/SurveyQuestion';
 import { PrismaService } from '../../../prisma.service';
 
 interface GetSurveyQuestionsArgs {

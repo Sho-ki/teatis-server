@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { AverageScores } from '../../../domains/AverageScores';
-import { Product } from '../../../domains/Product';
+import { AverageScores } from '@Domains/AverageScores';
+import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 

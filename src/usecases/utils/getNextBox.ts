@@ -19,7 +19,6 @@ import {
 import { CustomerOrder } from '@Domains/CustomerOrder';
 import { AverageScores } from '../../domains/AverageScores';
 
-
 interface GetNextBoxArgs extends GetNextBoxSurveyDto {
   productCount: number;
 }
@@ -125,7 +124,7 @@ export class GetNextBox implements GetNextBoxInterface {
     let [lastCustomerOrder, getLastCustomerOrderError]: [CustomerOrder, Error] =
       [{ products: [], orderNumber: '', orderDate: '', orderId: '' }, null];
 
-    let [Scores, getAverageScoresError]: [AverageScores?, Error?] = [
+    let [scores, getAverageScoresError]: [AverageScores?, Error?] = [
       undefined,
       undefined,
     ];
@@ -139,11 +138,10 @@ export class GetNextBox implements GetNextBoxInterface {
       }
       email = customer.email;
     } else if (email) {
-
       [
-         [lastCustomerOrder, getLastCustomerOrderError] ,
+        [lastCustomerOrder, getLastCustomerOrderError],
         [nextWantProducts, getNextWantError],
-        [Scores, getAverageScoresError],
+        [scores, getAverageScoresError],
       ] = await Promise.all([
         this.shipheroRepo.getLastCustomerOrder({
           email,
@@ -164,7 +162,6 @@ export class GetNextBox implements GetNextBoxInterface {
       }
       if (nextWantProducts.length > 0) {
         productCount -= nextWantProducts.length;
-
       }
     }
 
@@ -293,9 +290,7 @@ export class GetNextBox implements GetNextBoxInterface {
     let customerShippableProducts: AnalyzePreferenceArgs = {
       necessary_responces: productCount,
       products: [],
-
       user_fav_categories: favoriteCategories,
-
     };
     let nextBoxProducts: GetNextBoxRes = { products: [] };
 
@@ -303,7 +298,6 @@ export class GetNextBox implements GetNextBoxInterface {
       if (
         nextWantProducts &&
         nextWantProducts.some((nextWant) => nextWant.id === product.id)
-
       ) {
         const {
           id,
@@ -349,9 +343,9 @@ export class GetNextBox implements GetNextBoxInterface {
         flavor_id: product.flavor.id,
         category_id: product.category.id,
         is_sent_1: 0,
-        avg_flavor_score: Scores?.flavorLikesAverages[product.flavor.id] || 5,
+        avg_flavor_score: scores?.flavorLikesAverages[product.flavor.id] || 5,
         avg_category_score:
-          Scores?.categoryLikesAverages[product.category.id] || 5,
+          scores?.categoryLikesAverages[product.category.id] || 5,
       };
       for (let lastSentProduct of lastCustomerOrder.products) {
         if (product.sku === lastSentProduct.sku) {

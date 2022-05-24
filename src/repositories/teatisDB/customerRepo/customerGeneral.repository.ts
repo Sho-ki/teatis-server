@@ -4,8 +4,7 @@ import { Customer } from '@Domains/Customer';
 import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
-import { MedicalCondition } from '@Domains/MedicalCondition';
-import { CustomerMedicalCondition } from '../../../domains/CustomerMedicalCondition';
+import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 
 export interface GetCustomerArgs {
   email: string;

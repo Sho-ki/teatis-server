@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Customer } from '../../../domains/Customer';
+import { Customer } from '@Domains/Customer';
 import { PrismaService } from '../../../prisma.service';
 
 interface UpsertCustomerArgs {
@@ -470,8 +470,7 @@ export class CustomerPrePurchaseSurveyRepo
         },
       });
 
-
-      return [{ customerId: customer.id, customerUuid: customer.uuid }];
+      return [{ id: customer.id, uuid: customer.uuid, email }];
     } catch (e) {
       return [
         undefined,

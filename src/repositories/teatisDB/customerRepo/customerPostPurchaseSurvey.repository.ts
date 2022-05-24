@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { Answer } from '../../../domains/Answer';
-import { CustomerAnswer } from '../../../domains/CustomerAnswer';
+import { Answer } from '@Domains/Answer';
+import { CustomerAnswer } from '@Domains/CustomerAnswer';
 
 import { PrismaService } from '../../../prisma.service';
 
