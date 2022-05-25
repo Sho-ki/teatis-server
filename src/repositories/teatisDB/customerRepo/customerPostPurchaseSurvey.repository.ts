@@ -123,10 +123,7 @@ export class CustomerPostPurchaseSurveyRepo
         },
       });
       const currentMaxAnswerCount = res?._max?.answerCount;
-      if (
-        currentMaxAnswerCount === undefined ||
-        currentMaxAnswerCount === null
-      ) {
+      if (currentMaxAnswerCount === undefined) {
         throw new Error();
       }
       return [{ currentMaxAnswerCount }];
