@@ -40,7 +40,6 @@ export class UpdateCustomerBoxUsecase
       await this.customerBoxRepo.deleteCustomerBoxProduct({
         customerId: customer.id,
       });
-
     if (deleteCustomerBoxProductError) {
       return [null, deleteCustomerBoxProductError];
     }

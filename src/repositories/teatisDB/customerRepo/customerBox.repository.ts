@@ -45,7 +45,7 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
         },
       });
 
-      return;
+      return [];
     } catch (e) {
       return [
         undefined,
@@ -69,7 +69,6 @@ export class CustomerBoxRepo implements CustomerBoxRepoInterface {
       const createCustomerBox = await this.prisma.customerBoxItems.createMany({
         data,
       });
-
       if (!createCustomerBox.count) {
         throw new Error();
       }
