@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { execFile } from 'child_process';
+import { execFile, spawn } from 'child_process';
 import { ShipheroAuthRepoInterface } from '../../repositories/shiphero/shipheroAuth.repository';
 
 export interface UpdateShipheoKeyUsecaseInterface {
@@ -23,25 +23,17 @@ export class UpdateShipheoKeyUsecase
       return [undefined, getNewTokenError];
     }
 
-    const child = execFile(
-      'gcloud',
-      [
-        'run',
-        'deploy',
-        process.env.GCP_PROJECT,
-        '--image',
-        process.env.GCP_IMAGE,
-        '--region',
-        process.env.GCP_REGION,
-        '--update-env-vars',
-        `SHIPHERO_API_KEY=\Bearer ${newToken}`,
-      ],
-      (error, stdout, stderr) => {
-        if (error) {
-          throw error;
-        }
-      },
-    );
+    const child = spawn('gcloud', [
+      'run',
+      'deploy',
+      process.env.GCP_PROJECT,
+      '--image',
+      process.env.GCP_IMAGE,
+      '--region',
+      process.env.GCP_REGION,
+      '--update-env-vars',
+      `TEST=\Bearer ${newToken}`,
+    ]);
     return ['OK'];
   }
 }
