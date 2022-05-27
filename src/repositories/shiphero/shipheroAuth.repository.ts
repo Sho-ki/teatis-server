@@ -15,14 +15,24 @@ export interface ShipheroAuthRepoInterface {
 @Injectable()
 export class ShipheroAuthRepo implements ShipheroAuthRepoInterface {
   async getNewToken(): Promise<[Token?, Error?]> {
-    const res = await axios('https://public-api.shiphero.com/auth/refresh', {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      data: {
-        refresh_token: process.env.SHIPHERO_API_REFRESH_TOKEN,
-      },
-    });
-    const newToken = await res.data.access_token;
-    return [newToken];
+    try {
+      const res = await axios('https://public-api.shiphero.com/auth/refresh', {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          refresh_token: process.env.SHIPHERO_API_REFRESH_TOKEN,
+        },
+      });
+      const newToken = await res.data.access_token;
+      return [newToken];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getNewToken failed',
+        },
+      ];
+    }
   }
 }

@@ -19,7 +19,9 @@ export class UpdateShipheoKeyUsecase
   async updateShipheroKey(): Promise<[string?, Error?]> {
     const [newToken, getNewTokenError] =
       await this.shipheroAuthRepo.getNewToken();
-
+    if (getNewTokenError) {
+      return [undefined, getNewTokenError];
+    }
     const child = execFile(
       'gcloud',
       [
@@ -31,7 +33,7 @@ export class UpdateShipheoKeyUsecase
         '--region',
         process.env.GCP_REGION,
         '--update-env-vars',
-        `SHIPHERO_API_KEY=Bearer ${newToken}`,
+        `SHIPHERO_API_KEY='Bearer ${newToken}'`,
       ],
       (error, stdout, stderr) => {
         if (error) {
