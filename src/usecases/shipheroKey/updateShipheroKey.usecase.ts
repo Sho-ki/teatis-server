@@ -22,6 +22,7 @@ export class UpdateShipheoKeyUsecase
     if (getNewTokenError) {
       return [undefined, getNewTokenError];
     }
+
     const child = execFile(
       'gcloud',
       [
@@ -33,7 +34,7 @@ export class UpdateShipheoKeyUsecase
         '--region',
         process.env.GCP_REGION,
         '--update-env-vars',
-        `SHIPHERO_API_KEY='Bearer ${newToken}'`,
+        `SHIPHERO_API_KEY=\Bearer ${newToken}`,
       ],
       (error, stdout, stderr) => {
         if (error) {
