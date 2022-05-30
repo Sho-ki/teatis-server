@@ -1,5 +1,5 @@
 import { Body, Controller, Inject, Post, Res } from '@nestjs/common';
-import { UpdateShipheoKeyUsecaseInterface } from '../../usecases/shipheroKey/updateShipheroKey.usecase';
+import { UpdateShipheoKeyUsecaseInterface } from '@Usecases/shipheroKey/updateShipheroKey.usecase';
 import { Response } from 'express';
 
 @Controller('api/system')
