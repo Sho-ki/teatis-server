@@ -9,11 +9,11 @@ export class ShipheroKeyController {
     private updateShipheoKeyUsecaseInterface: UpdateShipheoKeyUsecaseInterface,
   ) {}
   @Post('shiphero-key')
-  async updateShipherokey(@Res() response: Response): Promise<any> {
+  async updateShipherokey(@Res() response: Response): Promise<Response> {
     const [res, error] =
       await this.updateShipheoKeyUsecaseInterface.updateShipheroKey();
     if (error) {
-      return error;
+      return response.status(500).send(res);
     }
     return response.status(200).send({ status: 'OK' });
   }
