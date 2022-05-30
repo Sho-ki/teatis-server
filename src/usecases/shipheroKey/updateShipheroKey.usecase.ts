@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { execFile, spawn } from 'child_process';
 import { ShipheroAuthRepoInterface } from '../../repositories/shiphero/shipheroAuth.repository';
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 export interface UpdateShipheoKeyUsecaseInterface {
   updateShipheroKey(): Promise<[string?, Error?]>;
@@ -23,17 +23,18 @@ export class UpdateShipheoKeyUsecase
       return [undefined, getNewTokenError];
     }
 
-    const child = spawn('gcloud', [
-      'run',
-      'deploy',
-      process.env.GCP_PROJECT,
-      '--image',
-      process.env.GCP_IMAGE,
-      '--region',
-      process.env.GCP_REGION,
-      '--update-env-vars',
-      `TEST=\Bearer ${newToken}`,
-    ]);
+    // Instantiates a client
+    const client = new SecretManagerServiceClient();
+    const parent = 'projects/441786500914/secrets/shiphero_key';
+
+    const [version] = await client.addSecretVersion({
+      parent: parent,
+      payload: {
+        data: Buffer.from(`Bearer ${newToken}`, 'utf8'),
+      },
+    });
+    console.info(`Added secret version ${version.name}`);
+
     return ['OK'];
   }
 }
