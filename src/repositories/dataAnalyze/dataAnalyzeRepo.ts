@@ -39,8 +39,9 @@ export class AnalyzePreferenceRepo implements AnalyzePreferenceRepoInterface {
   ): Promise<[AnalyzePreferenceRes?, Error?]> {
     try {
       const response = await axios.post<AnalyzePreferenceRes>(
-        `https://us-central1-teatis-discovery.cloudfunctions.net/product_distribution_optimizer_v101`,
+        `https://us-central1-teatis-discovery.cloudfunctions.net/protein-production-product_distribution_optimizer_v1`,
         data,
+        { headers: { 'Content-Type': 'application/json' } },
       );
 
       return [response.data];
