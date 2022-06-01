@@ -47,6 +47,8 @@ model Customers{
   intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
   intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
+  intermediateCustomerRdBox IntermediateCustomerRdBox[]
+  rdCustomerOrderHistory RdCustomerOrderHistory[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -148,6 +150,7 @@ model Product{
   intermediateProductIngredients IntermediateProductIngredient[]	
   intermediateProductAllergens IntermediateProductAllergen[]
   intermediateProductCookingMethods IntermediateProductCookingMethod[]
+  intermediateRdBoxProduct IntermediateRdBoxProduct[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
@@ -515,4 +518,60 @@ enum QueueStatus {
   scheduled
   ordered
   fulfilled
+}
+
+model Rd{
+  id  Int @default(autoincrement()) @id
+  uuid  String @unique
+  email String @unique
+  firstName String
+  lastName String
+  rdBox RdBox[]
+  rdCustomerOrderHistory RdCustomerOrderHistory[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model RdBox{
+  id  Int @default(autoincrement()) @id
+  rd Rd @relation(fields: [rdId], references: [id])
+  rdId Int
+  label String
+  intermediateRdBoxProduct IntermediateRdBoxProduct[]
+  intermediateCustomerRdBox IntermediateCustomerRdBox[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model IntermediateRdBoxProduct{
+  rdBox RdBox @relation(fields: [rdBoxId], references: [id])
+  rdBoxId Int
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([rdBoxId, productId])
+}
+
+model IntermediateCustomerRdBox{
+  customer  Customers @relation(fields: [customerId], references: [id])
+  customerId  Int
+  rdBox RdBox @relation(fields: [rdBoxId], references: [id])
+  rdBoxId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([customerId, rdBoxId])
+}
+
+model RdCustomerOrderHistory{
+  id  Int @default(autoincrement()) @id
+  customer  Customers @relation(fields: [customerId], references: [id])
+  customerId  Int
+  rd Rd @relation(fields: [rdId], references: [id])
+  rdId Int 
+  orderNumber String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
 }
