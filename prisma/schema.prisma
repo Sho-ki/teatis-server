@@ -47,8 +47,7 @@ model Customers{
   intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
   intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
-  intermediateCustomerRdBox IntermediateCustomerRdBox[]
-  rdCustomerOrderHistory RdCustomerOrderHistory[]
+  practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -150,7 +149,7 @@ model Product{
   intermediateProductIngredients IntermediateProductIngredient[]	
   intermediateProductAllergens IntermediateProductAllergen[]
   intermediateProductCookingMethods IntermediateProductCookingMethod[]
-  intermediateRdBoxProduct IntermediateRdBoxProduct[]
+  intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
@@ -520,58 +519,65 @@ enum QueueStatus {
   fulfilled
 }
 
-model Rd{
+model Practitioner{
   id  Int @default(autoincrement()) @id
   uuid  String @unique
   email String @unique
+  profileImage String?
   firstName String
-  lastName String
-  rdBox RdBox[]
-  rdCustomerOrderHistory RdCustomerOrderHistory[]
+  lastName String?
+  practitionerBox PractitionerBox[]
+  practitionerSocialMedia PractitionerSocialMedia?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
 
-model RdBox{
+model PractitionerSocialMedia{
   id  Int @default(autoincrement()) @id
-  rd Rd @relation(fields: [rdId], references: [id])
-  rdId Int
-  label String
-  intermediateRdBoxProduct IntermediateRdBoxProduct[]
-  intermediateCustomerRdBox IntermediateCustomerRdBox[]
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id])
+  practitionerId Int
+  instagram String?
+  facebook String?
+  twitter String?
+  website String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
 
-model IntermediateRdBoxProduct{
-  rdBox RdBox @relation(fields: [rdBoxId], references: [id])
-  rdBoxId Int
+model PractitionerBox{
+  id  Int @default(autoincrement()) @id
+  uuid String @unique
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id])
+  practitionerId Int
+  practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
+  label String
+  note String?
+  intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+ @@unique([practitionerId, label], name: "PractitionerBoxIdentifier")
+}
+
+model IntermediatePractitionerBoxProduct{
+  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id])
+  practitionerBoxId Int
   product Product @relation(fields: [productId], references: [id])
   productId Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@id([rdBoxId, productId])
+  @@id([practitionerBoxId, productId])
 }
 
-model IntermediateCustomerRdBox{
-  customer  Customers @relation(fields: [customerId], references: [id])
-  customerId  Int
-  rdBox RdBox @relation(fields: [rdBoxId], references: [id])
-  rdBoxId Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt @default(now())
-
-  @@id([customerId, rdBoxId])
-}
-
-model RdCustomerOrderHistory{
+model PractitionerCustomerOrderHistory{
   id  Int @default(autoincrement()) @id
   customer  Customers @relation(fields: [customerId], references: [id])
   customerId  Int
-  rd Rd @relation(fields: [rdId], references: [id])
-  rdId Int 
+  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id])
+  practitionerBoxId Int
   orderNumber String
+  transactionPrice Float
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }

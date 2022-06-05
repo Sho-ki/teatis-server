@@ -15,26 +15,31 @@ import { CustomerBoxRepo } from '@Repositories/teatisDB/customerRepo/customerBox
 import { TeatisJobs } from '@Repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderUsecase } from '@Usecases/customerOrderCreate/updateCustomerOrder.usecase';
+import { UpdateCustomerOrderByCustomerUuidUsecase } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
 import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { OrderQueueRepo } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { GetNextBoxUsecase } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { CustomerNextBoxSurveyRepo } from '@Repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 import { AnalyzePreferenceRepo } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
 import { GetNextBox } from '@Usecases/utils/getNextBox';
-import { CreateCustomerCartUsecase } from '@Usecases/customerCart/createCustomerCart.usecase';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
+import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCartOfCustomerOriginalBox/createCheckoutCartOfCustomerOriginalBox.usecase';
+import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
     {
+      provide: 'CreateCustomerUsecaseInterface',
+      useClass: CreateCustomerUsecase,
+    },
+    {
       provide: 'GetCustomerNutritionUsecaseInterface',
       useClass: GetCustomerNutritionUsecase,
     },
     {
-      provide: 'CreateCustomerCartUsecaseInterface',
-      useClass: CreateCustomerCartUsecase,
+      provide: 'CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface',
+      useClass: CreateCheckoutCartOfCustomerOriginalBoxUsecase,
     },
     {
       provide: 'GetNextBoxInterface',
@@ -111,8 +116,8 @@ import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCust
       useClass: PostPrePurchaseSurveyUsecase,
     },
     {
-      provide: 'UpdateCustomerOrderUsecaseInterface',
-      useClass: UpdateCustomerOrderUsecase,
+      provide: 'UpdateCustomerOrderByCustomerUuidUsecaseInterface',
+      useClass: UpdateCustomerOrderByCustomerUuidUsecase,
     },
     {
       provide: 'DeleteCustomerBoxUsecaseInterface',

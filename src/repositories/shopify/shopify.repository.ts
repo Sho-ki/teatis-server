@@ -17,7 +17,7 @@ interface GetOrderCountArgs {
 interface CreateCartArgs {
   merchandiseId: string;
   sellingPlanId: string;
-  uuid: string;
+  attributes: { key: string; value: string }[];
 }
 
 export interface ShopifyRepoInterface {
@@ -27,7 +27,7 @@ export interface ShopifyRepoInterface {
   createCart({
     merchandiseId,
     sellingPlanId,
-    uuid,
+    attributes,
   }: CreateCartArgs): Promise<[Cart?, Error?]>;
 }
 
@@ -38,7 +38,7 @@ export class ShopifyRepo implements ShopifyRepoInterface {
   async createCart({
     merchandiseId,
     sellingPlanId,
-    uuid,
+    attributes,
   }: CreateCartArgs): Promise<[Cart?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
@@ -51,7 +51,7 @@ export class ShopifyRepo implements ShopifyRepoInterface {
 
       const res: CreateCartMutation = await sdk.CreateCart({
         input: {
-          attributes: [{ key: 'uuid', value: uuid }],
+          attributes,
           lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
         },
       });
