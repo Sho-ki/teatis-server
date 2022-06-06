@@ -8,7 +8,7 @@ import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustom
 
 export interface DeleteCustomerBoxUsecaseInterface {
   deleteCustomerBox({
-    email,
+    customer,
     name,
   }: DeleteCustomerBoxDto): Promise<[Status, Error]>;
 }
@@ -29,11 +29,13 @@ export class DeleteCustomerBoxUsecase
   // need to delete CustomerBox every time products are shipped, since customers may not answer the next post-purchase-survey
   // which causes sending the same products as the previous order
   async deleteCustomerBox({
-    email,
+    customer: shopifyCustomer,
     name,
   }: DeleteCustomerBoxDto): Promise<[Status, Error]> {
     const [customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomer({ email });
+      await this.customerGeneralRepo.getCustomer({
+        email: shopifyCustomer.email,
+      });
     if (getCustomerError) {
       return [null, getCustomerError];
     }

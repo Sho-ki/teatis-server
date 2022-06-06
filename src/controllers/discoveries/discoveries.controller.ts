@@ -41,6 +41,7 @@ import { UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface } from '@Useca
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
+import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -71,6 +72,8 @@ export class DiscoveriesController {
     private updateCustomerOrderByPractitionerBoxUuidUsecase: UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface,
     @Inject('CreateCheckoutCartOfPractitionerBoxUsecaseInterface')
     private createCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
+    @Inject('UpdatePractitionerBoxOrderHistoryUsecaseInterface')
+    private updatePractitionerBoxOrderHistoryUsecase: UpdatePractitionerBoxOrderHistoryUsecaseInterface,
 
     private teatisJob: TeatisJobs,
   ) {}
@@ -166,13 +169,26 @@ export class DiscoveriesController {
     @Body() body: DeleteCustomerBoxDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const [res, error] = await this.deleteCustomerBoxUsecase.deleteCustomerBox(
-      body,
-    );
-    if (error) {
-      return response.status(500).send(error);
+    const noteAttributesKey = body.note_attributes[0].key as
+      | 'practitionerBoxUuid'
+      | 'uuid';
+    if (noteAttributesKey === 'practitionerBoxUuid') {
+      const [res, error] =
+        await this.updatePractitionerBoxOrderHistoryUsecase.updatePractitionerOrderHistory(
+          body,
+        );
+      if (error) {
+        return response.status(500).send(error);
+      }
+      return response.status(200).send({ status: 'OK' });
+    } else {
+      const [res, error] =
+        await this.deleteCustomerBoxUsecase.deleteCustomerBox(body);
+      if (error) {
+        return response.status(500).send(error);
+      }
+      return response.status(200).send({ status: res.status });
     }
-    return response.status(200).send({ status: res.status });
   }
 
   // POST: api/discovery/order-update-webhook

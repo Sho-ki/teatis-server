@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
 
 import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
 import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
@@ -11,8 +10,7 @@ import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
-import { CustomerOrderHistoryRepoInterface } from '../../repositories/teatisDB/customerRepo/customerOrderHistory.repository';
-import { PractitionerGeneralRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
+import { PractitionerBoxOrderHistoryRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
 
 export interface UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface {
   updateCustomerOrderByPractitionerBoxUuid({
@@ -31,8 +29,8 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
   constructor(
     @Inject('ShipheroRepoInterface')
     private shipheroRepo: ShipheroRepoInterface,
-    @Inject('CustomerOrderHistoryRepoInterface')
-    private customerOrderHistoryRepo: CustomerOrderHistoryRepoInterface,
+    @Inject('PractitionerBoxOrderHistoryRepoInterface')
+    private practitionerBoxOrderHistoryRepo: PractitionerBoxOrderHistoryRepoInterface,
     @Inject('OrderQueueRepoInterface')
     private orderQueueRepo: OrderQueueRepoInterface,
     @Inject('PractitionerBoxRepoInterface')
@@ -146,7 +144,7 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
         products: orderProducts,
         orderNumber: name,
       }),
-      this.customerOrderHistoryRepo.createPractitionerBoxOrderHistory({
+      this.practitionerBoxOrderHistoryRepo.createPractitionerBoxOrderHistory({
         transactionPrice,
         orderNumber: name,
         status: 'ordered',
