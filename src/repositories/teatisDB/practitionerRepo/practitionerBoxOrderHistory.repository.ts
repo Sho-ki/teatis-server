@@ -80,14 +80,16 @@ export class PractitionerBoxOrderHistoryRepo
     practitionerBoxId,
   }: CreatePractitionerBoxOrderHistoryArgs): Promise<[void?, Error?]> {
     try {
-      await this.prisma.practitionerCustomerOrderHistory.create({
-        data: {
+      await this.prisma.practitionerCustomerOrderHistory.upsert({
+        where: { orderNumber },
+        create: {
           practitionerBoxId,
           customerId,
           orderNumber,
           status,
           transactionPrice,
         },
+        update: {},
       });
 
       return [];
