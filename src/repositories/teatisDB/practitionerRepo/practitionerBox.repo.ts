@@ -131,6 +131,8 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
               product: true,
             },
           },
+          id: true,
+          uuid: true,
           label: true,
           note: true,
           practitioner: {
@@ -169,6 +171,8 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           };
         });
       const practitionerBox: PractitionerBox = {
+        id: response.id,
+        uuid: response.uuid,
         label: response.label,
         note: response?.note,
         products: boxProducts,
@@ -220,6 +224,8 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
               },
             },
           },
+          id: true,
+          uuid: true,
           label: true,
           note: true,
           practitioner: {
@@ -283,6 +289,8 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         : [];
 
       const practitionerBox: PractitionerBox = {
+        id: response.id,
+        uuid: response.uuid,
         label: response.label,
         note: response.note,
         products: boxProducts,
@@ -334,6 +342,8 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
               },
             },
           },
+          id: true,
+          uuid: true,
           label: true,
           note: true,
           practitioner: {
@@ -397,6 +407,8 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         : [];
 
       const practitionerBox: PractitionerBox = {
+        id: response.id,
+        uuid: response.uuid,
         label: response.label,
         note: response.note,
         products: boxProducts,

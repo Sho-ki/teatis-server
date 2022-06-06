@@ -517,6 +517,7 @@ enum QueueStatus {
   scheduled
   ordered
   fulfilled
+  canceled
 }
 
 model Practitioner{
@@ -580,6 +581,8 @@ model PractitionerCustomerOrderHistory{
   practitionerBoxId Int
   orderNumber String
   transactionPrice Float
+  status QueueStatus
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
+

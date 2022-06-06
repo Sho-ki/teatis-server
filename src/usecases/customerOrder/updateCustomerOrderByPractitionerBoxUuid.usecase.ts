@@ -11,11 +11,14 @@ import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
+import { CustomerOrderHistoryRepoInterface } from '../../repositories/teatisDB/customerRepo/customerOrderHistory.repository';
+import { PractitionerGeneralRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
 
 export interface UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface {
   updateCustomerOrderByPractitionerBoxUuid({
     name,
     customer,
+    subtotal_price,
     line_items,
     note_attributes,
   }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
@@ -28,8 +31,8 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
   constructor(
     @Inject('ShipheroRepoInterface')
     private shipheroRepo: ShipheroRepoInterface,
-    @Inject('CustomerBoxRepoInterface')
-    private customerBoxRepo: CustomerBoxRepoInterface,
+    @Inject('CustomerOrderHistoryRepoInterface')
+    private customerOrderHistoryRepo: CustomerOrderHistoryRepoInterface,
     @Inject('OrderQueueRepoInterface')
     private orderQueueRepo: OrderQueueRepoInterface,
     @Inject('PractitionerBoxRepoInterface')
@@ -45,6 +48,7 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
   async updateCustomerOrderByPractitionerBoxUuid({
     name,
     customer: shopifyCustomer,
+    subtotal_price,
     line_items,
     note_attributes,
   }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
@@ -57,14 +61,14 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
       return [undefined, getCustomerError];
     }
 
-    let [orderQueue, orderQueueError] =
+    let [orderQueueScheduled, orderQueueScheduledError] =
       await this.orderQueueRepo.updateOrderQueue({
         customerId: customer?.id,
         orderNumber: name,
         status: 'scheduled',
       });
-    if (orderQueueError) {
-      return [null, orderQueueError];
+    if (orderQueueScheduledError) {
+      return [null, orderQueueScheduledError];
     }
 
     let orderProducts: Pick<Product, 'sku'>[] = [];
@@ -86,10 +90,10 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     ) {
       return [
         {
-          customerId: orderQueue.customerId,
-          orderNumber: orderQueue.orderNumber,
-          status: orderQueue.status,
-          orderDate: orderQueue.orderDate,
+          customerId: orderQueueScheduled.customerId,
+          orderNumber: orderQueueScheduled.orderNumber,
+          status: orderQueueScheduled.status,
+          orderDate: orderQueueScheduled.orderDate,
         },
         null,
       ];
@@ -108,7 +112,6 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     if (getPractitionerSingleBoxByUuidError) {
       return [null, getPractitionerSingleBoxByUuidError];
     }
-
     if (!practitionerSingleBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
@@ -132,32 +135,47 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
           { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
         )
       : orderProducts.push({ sku: 'NP-carton-lightblue' }); //   Uprinting designed boxes
-
-    const [customerOrder, updateOrderError] =
-      await this.shipheroRepo.updateCustomerOrder({
+    const transactionPrice: number = Number(subtotal_price);
+    const [
+      [customerOrder, updateOrderError],
+      [practitionerBoxHistory, createPractitionerBoxHistoryError],
+      [orderQueueOrdered, orderQueueOrderedError],
+    ] = await Promise.all([
+      this.shipheroRepo.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
-      });
+      }),
+      this.customerOrderHistoryRepo.createPractitionerBoxOrderHistory({
+        transactionPrice,
+        orderNumber: name,
+        status: 'ordered',
+        customerId: customer?.id,
+        practitionerBoxId: practitionerSingleBox.box.id,
+      }),
+      this.orderQueueRepo.updateOrderQueue({
+        customerId: customer?.id,
+        orderNumber: name,
+        status: 'ordered',
+      }),
+    ]);
+
     if (updateOrderError) {
       return [null, updateOrderError];
     }
-
-    [orderQueue, orderQueueError] = await this.orderQueueRepo.updateOrderQueue({
-      customerId: customer?.id,
-      orderNumber: name,
-      status: 'ordered',
-    });
-    if (orderQueueError) {
-      return [null, orderQueueError];
+    if (createPractitionerBoxHistoryError) {
+      return [null, createPractitionerBoxHistoryError];
+    }
+    if (orderQueueOrderedError) {
+      return [null, orderQueueOrderedError];
     }
 
     return [
       {
-        customerId: orderQueue.customerId,
-        orderNumber: orderQueue.orderNumber,
-        status: orderQueue.status,
-        orderDate: orderQueue.orderDate,
+        customerId: orderQueueOrdered.customerId,
+        orderNumber: orderQueueOrdered.orderNumber,
+        status: orderQueueOrdered.status,
+        orderDate: orderQueueOrdered.orderDate,
       },
       null,
     ];

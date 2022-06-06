@@ -4,6 +4,9 @@ export class UpdateCustomerOrderDto {
   @IsString()
   name: string;
 
+  @IsString()
+  subtotal_price: string;
+
   @IsObject()
   customer: { email: string; id: number };
 

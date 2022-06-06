@@ -30,10 +30,15 @@ import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module
 import { PractitionerModule } from './practitioner/practitioner.module';
 import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '../../usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
 import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { CustomerOrderHistoryRepo } from '../../repositories/teatisDB/customerRepo/customerOrderHistory.repository';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'CustomerOrderHistoryRepoInterface',
+      useClass: CustomerOrderHistoryRepo,
+    },
     {
       provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
       useClass: CreateCheckoutCartOfPractitionerBoxUsecase,

@@ -16,6 +16,7 @@ export interface UpdateCustomerOrderByCustomerUuidUsecaseInterface {
     name,
     customer,
     line_items,
+    subtotal_price,
     note_attributes,
   }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
 }
@@ -43,6 +44,7 @@ export class UpdateCustomerOrderByCustomerUuidUsecase
     name,
     customer: shopifyCustomer,
     line_items,
+    subtotal_price,
     note_attributes,
   }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =

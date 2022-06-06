@@ -21,6 +21,10 @@ interface getPractitionerArgs {
   email: string;
 }
 
+interface getPractitionerByPractitionerBoxArgs {
+  practitionerBoxUuid: string;
+}
+
 export interface PractitionerGeneralRepoInterface {
   getPractitioner({
     email,
