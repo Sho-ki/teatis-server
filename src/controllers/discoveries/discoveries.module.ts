@@ -15,26 +15,53 @@ import { CustomerBoxRepo } from '@Repositories/teatisDB/customerRepo/customerBox
 import { TeatisJobs } from '@Repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderUsecase } from '@Usecases/customerOrderCreate/updateCustomerOrder.usecase';
+import { UpdateCustomerOrderByCustomerUuidUsecase } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
 import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { OrderQueueRepo } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { GetNextBoxUsecase } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
 import { CustomerNextBoxSurveyRepo } from '@Repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 import { AnalyzePreferenceRepo } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
 import { GetNextBox } from '@Usecases/utils/getNextBox';
-import { CreateCustomerCartUsecase } from '@Usecases/customerCart/createCustomerCart.usecase';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
+import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
+import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
+import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
+import { PractitionerModule } from './practitioner/practitioner.module';
+import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '../../usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
+import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { CustomerOrderHistoryRepo } from '../../repositories/teatisDB/customerRepo/customerOrderHistory.repository';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
     {
+      provide: 'CustomerOrderHistoryRepoInterface',
+      useClass: CustomerOrderHistoryRepo,
+    },
+    {
+      provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
+      useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
+    },
+    {
+      provide: 'PractitionerBoxRepoInterface',
+      useClass: PractitionerBoxRepo,
+    },
+    {
+      provide: 'UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface',
+      useClass: UpdateCustomerOrderByPractitionerBoxUuidUsecase,
+    },
+    {
+      provide: 'CreateCustomerUsecaseInterface',
+      useClass: CreateCustomerUsecase,
+    },
+    {
       provide: 'GetCustomerNutritionUsecaseInterface',
       useClass: GetCustomerNutritionUsecase,
     },
     {
-      provide: 'CreateCustomerCartUsecaseInterface',
-      useClass: CreateCustomerCartUsecase,
+      provide: 'CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface',
+      useClass: CreateCheckoutCartOfCustomerOriginalBoxUsecase,
     },
     {
       provide: 'GetNextBoxInterface',
@@ -111,8 +138,8 @@ import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCust
       useClass: PostPrePurchaseSurveyUsecase,
     },
     {
-      provide: 'UpdateCustomerOrderUsecaseInterface',
-      useClass: UpdateCustomerOrderUsecase,
+      provide: 'UpdateCustomerOrderByCustomerUuidUsecaseInterface',
+      useClass: UpdateCustomerOrderByCustomerUuidUsecase,
     },
     {
       provide: 'DeleteCustomerBoxUsecaseInterface',
@@ -123,6 +150,7 @@ import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCust
     DiscoveriesController,
     PrismaService,
   ],
+  imports: [PractitionerModule, PractitionerBoxModule],
   exports: [DiscoveriesController],
 })
 export class DiscoveriesModule {}

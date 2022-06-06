@@ -1,42 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateCustomerOrderDto } from '../../controllers/discoveries/dtos/updateCustomerOrder';
+import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
 import { Status } from '@Domains/Status';
 
-import {
-  GetOrderByOrderNumberRes,
-  ShipheroRepoInterface,
-} from '@Repositories/shiphero/shiphero.repository';
-import {
-  GetOrderCountRes,
-  ShopifyRepoInterface,
-} from '@Repositories/shopify/shopify.repository';
-import {
-  CustomerBoxRepoInterface,
-  GetCustomerBoxProductsRes,
-} from '@Repositories/teatisDB/customerRepo/customerBox.repository';
+import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
+import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
+import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
 import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import {
-  OrderQueueRepoInterface,
-  UpdateOrderQueueRes,
-} from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
+import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
 } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { GetNextBoxInterface, GetNextBoxRes } from '../utils/getNextBox';
-import {
-  UpdateCustomerOrderUsecase,
-  UpdateCustomerOrderUsecaseInterface,
-} from './updateCustomerOrder.usecase';
 import { Customer } from '@Domains/Customer';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CustomerOrder } from '@Domains/CustomerOrder';
 import { Order } from '@Domains/Order';
 import { Product } from '@Domains/Product';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
+import {
+  UpdateCustomerOrderByCustomerUuidUsecase,
+  UpdateCustomerOrderByCustomerUuidUsecaseInterface,
+} from './updateCustomerOrderByCustomerUuid.usecase';
 
 describe('GetOptions', () => {
-  let usecase: UpdateCustomerOrderUsecaseInterface;
+  let usecase: UpdateCustomerOrderByCustomerUuidUsecaseInterface;
   let MockedCustomerGeneralRepo: Partial<CustomerGeneralRepoInterface>;
   let MockedOrderQueueRepo: Partial<OrderQueueRepoInterface>;
   let MockedShipheroRepo: Partial<ShipheroRepoInterface>;
@@ -59,7 +47,7 @@ describe('GetOptions', () => {
         ]),
     };
     MockedShipheroRepo = {
-      getOrderByOrderNumber: () =>
+      getCustomerOrderByOrderNumber: () =>
         Promise.resolve<[CustomerOrder?, Error?]>([
           {
             products: [{ sku: '987654321' }],
@@ -67,7 +55,7 @@ describe('GetOptions', () => {
             orderId: '123',
           },
         ]),
-      updateOrder: () =>
+      updateCustomerOrder: () =>
         Promise.resolve<[CustomerOrder?, Error?]>([
           {
             orderNumber: '12345',
@@ -138,7 +126,7 @@ describe('GetOptions', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UpdateCustomerOrderUsecase,
+        UpdateCustomerOrderByCustomerUuidUsecase,
         {
           provide: 'CustomerGeneralRepoInterface',
           useValue: MockedCustomerGeneralRepo,
@@ -170,13 +158,13 @@ describe('GetOptions', () => {
       ],
     }).compile();
 
-    usecase = module.get<UpdateCustomerOrderUsecase>(
-      UpdateCustomerOrderUsecase,
+    usecase = module.get<UpdateCustomerOrderByCustomerUuidUsecase>(
+      UpdateCustomerOrderByCustomerUuidUsecase,
     );
   });
 
   it('Order is already updated', async () => {
-    MockedShipheroRepo.getOrderByOrderNumber = () =>
+    MockedShipheroRepo.getCustomerOrderByOrderNumber = () =>
       Promise.resolve<[CustomerOrder, Error]>([
         {
           orderNumber: '1234',
@@ -185,7 +173,7 @@ describe('GetOptions', () => {
         },
         null,
       ]);
-    const [res, error] = await usecase.updateCustomerOrder({
+    const [res, error] = await usecase.updateCustomerOrderByCustomerUuid({
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       name: '#1111',
@@ -200,7 +188,7 @@ describe('GetOptions', () => {
         [{ id: 1, name: 'test', label: 'Test', sku: '123' }],
         null,
       ]);
-    const [res, error] = await usecase.updateCustomerOrder({
+    const [res, error] = await usecase.updateCustomerOrderByCustomerUuid({
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       name: '#1111',

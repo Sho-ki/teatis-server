@@ -17,7 +17,7 @@ import {
 } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
 
 import { CustomerOrder } from '@Domains/CustomerOrder';
-import { AverageScores } from '../../domains/AverageScores';
+import { AverageScores } from '@Domains/AverageScores';
 
 interface GetNextBoxArgs extends GetNextBoxSurveyDto {
   productCount: number;

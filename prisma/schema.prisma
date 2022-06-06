@@ -47,6 +47,7 @@ model Customers{
   intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
   intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
+  practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -148,6 +149,7 @@ model Product{
   intermediateProductIngredients IntermediateProductIngredient[]	
   intermediateProductAllergens IntermediateProductAllergen[]
   intermediateProductCookingMethods IntermediateProductCookingMethod[]
+  intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
@@ -515,4 +517,72 @@ enum QueueStatus {
   scheduled
   ordered
   fulfilled
+  canceled
 }
+
+model Practitioner{
+  id  Int @default(autoincrement()) @id
+  uuid  String @unique
+  email String @unique
+  profileImage String?
+  message String?
+  firstName String
+  middleName String?
+  lastName String?
+  practitionerBox PractitionerBox[]
+  practitionerSocialMedia PractitionerSocialMedia?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model PractitionerSocialMedia{
+  id  Int @default(autoincrement()) @id
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id])
+  practitionerId Int
+  instagram String?
+  facebook String?
+  twitter String?
+  website String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model PractitionerBox{
+  id  Int @default(autoincrement()) @id
+  uuid String @unique
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id])
+  practitionerId Int
+  practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
+  label String
+  note String?
+  intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+ @@unique([practitionerId, label], name: "PractitionerBoxIdentifier")
+}
+
+model IntermediatePractitionerBoxProduct{
+  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id])
+  practitionerBoxId Int
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([practitionerBoxId, productId])
+}
+
+model PractitionerCustomerOrderHistory{
+  id  Int @default(autoincrement()) @id
+  customer  Customers @relation(fields: [customerId], references: [id])
+  customerId  Int
+  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id])
+  practitionerBoxId Int
+  orderNumber String
+  transactionPrice Float
+  status QueueStatus
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+

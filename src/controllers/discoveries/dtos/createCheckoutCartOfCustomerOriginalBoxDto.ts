@@ -1,6 +1,6 @@
 import { IsEmail, IsString } from 'class-validator';
 
-export class CreateCartDto {
+export class CreateCheckoutCartOfCustomerOriginalBoxDto {
   @IsString()
   merchandiseId: string;
 

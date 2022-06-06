@@ -6,22 +6,24 @@ import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/cu
 
 import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
 import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
-import { Product } from 'src/domains/Product';
+import { Product } from '@Domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
-import { Status } from '@Domains/Status';
+import { OrderQueue } from '@Domains/OrderQueue';
 
-export interface UpdateCustomerOrderUsecaseInterface {
-  updateCustomerOrder({
+export interface UpdateCustomerOrderByCustomerUuidUsecaseInterface {
+  updateCustomerOrderByCustomerUuid({
     name,
     customer,
     line_items,
-  }: UpdateCustomerOrderDto): Promise<[Status, Error]>;
+    subtotal_price,
+    note_attributes,
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
 }
 
 @Injectable()
-export class UpdateCustomerOrderUsecase
-  implements UpdateCustomerOrderUsecaseInterface
+export class UpdateCustomerOrderByCustomerUuidUsecase
+  implements UpdateCustomerOrderByCustomerUuidUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepoInterface')
@@ -38,12 +40,13 @@ export class UpdateCustomerOrderUsecase
     private nextBoxUtil: GetNextBoxInterface,
   ) {}
 
-  async updateCustomerOrder({
+  async updateCustomerOrderByCustomerUuid({
     name,
     customer: shopifyCustomer,
     line_items,
+    subtotal_price,
     note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({
         email: shopifyCustomer.email,
@@ -60,6 +63,7 @@ export class UpdateCustomerOrderUsecase
         return [null, getCustomerError];
       }
     }
+
     let [orderQueue, orderQueueError] =
       await this.orderQueueRepo.updateOrderQueue({
         customerId: customer?.id,
@@ -70,11 +74,6 @@ export class UpdateCustomerOrderUsecase
       return [null, orderQueueError];
     }
 
-    // await this.delay(7000);
-    // Case 1: if the first order
-    // Case 1-1: if healthy carb
-    // Case 1-2: if low sodium
-    // Case 2: if the second order but no post-purchase survey (no customer box products)
     let orderProducts: Pick<Product, 'sku'>[] = [];
     const purchasedProducts = line_items.map((lineItem) => {
       return lineItem.product_id;
@@ -87,12 +86,22 @@ export class UpdateCustomerOrderUsecase
     if (orderError) {
       return [null, orderError];
     }
+    const HCBox: number = 6618823458871;
+    const HCLSBox: number = 6618823753783;
     if (order.products.length > 1) {
       if (
-        purchasedProducts.includes(6618823458871) ||
-        purchasedProducts.includes(6618823753783)
+        purchasedProducts.includes(HCBox) ||
+        purchasedProducts.includes(HCLSBox)
       ) {
-        return [{ status: 'Success' }, null];
+        return [
+          {
+            customerId: orderQueue.customerId,
+            orderNumber: orderQueue.orderNumber,
+            status: orderQueue.status,
+            orderDate: orderQueue.orderDate,
+          },
+          null,
+        ];
       }
     }
     const [customerOrderCount, getOrderCountError] =
@@ -153,6 +162,14 @@ export class UpdateCustomerOrderUsecase
       return [null, orderQueueError];
     }
 
-    return [{ status: 'Success' }, null];
+    return [
+      {
+        customerId: orderQueue.customerId,
+        orderNumber: orderQueue.orderNumber,
+        status: orderQueue.status,
+        orderDate: orderQueue.orderDate,
+      },
+      null,
+    ];
   }
 }
