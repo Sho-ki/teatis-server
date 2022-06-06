@@ -34,18 +34,17 @@ export class PractitionerController {
     }
     return response.status(201).send(res);
   }
-
   @Get('practitioner')
   async getPractitioner(
-    @Body() body: GetPractitionerDto,
+    @Query() body: GetPractitionerDto,
     @Res() response: Response,
   ) {
     const [res, error] = await this.getPractitionerUsecase.getPractitioner(
       body,
     );
-    if (error) {
+    if (error && error.name !== 'Not found') {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(200).send(res);
   }
 }

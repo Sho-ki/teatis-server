@@ -184,23 +184,20 @@ export class DiscoveriesController {
     const noteAttributesKey = body.note_attributes[0].key as
       | 'practitionerBoxUuid'
       | 'uuid';
-    let [res, updateCustomerBoxError]: [OrderQueue, Error] = [
-      undefined,
-      undefined,
-    ];
+    let [res, error]: [OrderQueue, Error] = [undefined, undefined];
     if (noteAttributesKey === 'practitionerBoxUuid') {
-      [res, updateCustomerBoxError] =
+      [res, error] =
         await this.updateCustomerOrderByPractitionerBoxUuidUsecase.updateCustomerOrderByPractitionerBoxUuid(
           body,
         );
     } else {
-      [res, updateCustomerBoxError] =
+      [res, error] =
         await this.updateCustomerOrderByCustomerUuidUsecase.updateCustomerOrderByCustomerUuid(
           body,
         );
     }
-    if (updateCustomerBoxError) {
-      return response.status(500).send(updateCustomerBoxError);
+    if (error) {
+      return response.status(500).send(error);
     }
     return response.status(200).send(res);
   }

@@ -25,7 +25,7 @@ export class GetPractitionerUsecase implements GetPractitionerUsecaseInterface {
           email,
         });
       if (getPractitionerError) {
-        throw new Error();
+        return [undefined, getPractitionerError];
       }
       return [
         {

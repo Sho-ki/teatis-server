@@ -55,7 +55,7 @@ export class PractitionerBoxController {
     return response.status(200).send(res);
   }
 
-  // Get: api/discovery/practitioner-box
+  // Post: api/discovery/practitioner-box
   @Post('practitioner-box')
   async createPractitionerBox(
     @Body() body: CreatePractitionerBoxDto,
