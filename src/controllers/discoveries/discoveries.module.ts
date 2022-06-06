@@ -25,19 +25,24 @@ import { GetNextBox } from '@Usecases/utils/getNextBox';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
 import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
-import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
-import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '../../usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
+import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '@Usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
 import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { CustomerOrderHistoryRepo } from '../../repositories/teatisDB/customerRepo/customerOrderHistory.repository';
+import { PractitionerBoxOrderHistoryRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
+import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
     {
-      provide: 'CustomerOrderHistoryRepoInterface',
-      useClass: CustomerOrderHistoryRepo,
+      provide: 'UpdatePractitionerBoxOrderHistoryUsecaseInterface',
+      useClass: UpdatePractitionerBoxOrderHistoryUsecase,
+    },
+    {
+      provide: 'PractitionerBoxOrderHistoryRepoInterface',
+      useClass: PractitionerBoxOrderHistoryRepo,
     },
     {
       provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',

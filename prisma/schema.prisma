@@ -579,7 +579,7 @@ model PractitionerCustomerOrderHistory{
   customerId  Int
   practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id])
   practitionerBoxId Int
-  orderNumber String
+  orderNumber String @unique
   transactionPrice Float
   status QueueStatus
   createdAt DateTime  @default(now())

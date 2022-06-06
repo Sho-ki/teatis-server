@@ -73,7 +73,7 @@ export class PractitionerGeneralRepo
         !response.uuid ||
         !response.firstName
       ) {
-        throw new Error();
+        throw new Error('No users found');
       }
       return [
         {
@@ -95,8 +95,8 @@ export class PractitionerGeneralRepo
       return [
         undefined,
         {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getPractitioner failed',
+          name: e ? 'Not found' : 'Internal Server Error',
+          message: e || 'Server Side Error: getPractitioner failed',
         },
       ];
     }
