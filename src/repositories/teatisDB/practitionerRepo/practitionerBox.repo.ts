@@ -2,11 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { DisplayProduct, Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
-// import { PractitionerBoxProduct } from '@Domains/PractitionerBoxProduct';
 import { Practitioner } from '@Domains/Practitioner';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
-import assert from 'assert';
 import { SocialMedia } from '@Domains/SocialMedia';
 
 interface getPractitionerSingleBoxByUuidArgs {
@@ -307,7 +305,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getPractitionerSingleBoxByUuid failed',
+          message: 'Server Side Error: getPractitionerSingleBoxByLabel failed',
         },
       ];
     }
@@ -418,7 +416,6 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           ...practitioner,
           ...socialMedia,
           box: { ...practitionerBox },
-          // product: boxProducts,
         },
       ];
     } catch (e) {

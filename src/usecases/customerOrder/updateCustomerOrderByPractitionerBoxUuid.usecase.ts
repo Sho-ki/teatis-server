@@ -133,6 +133,12 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
           { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
         )
       : orderProducts.push({ sku: 'NP-carton-lightblue' }); //   Uprinting designed boxes
+
+    console.log({
+      orderId: order.orderId,
+      products: orderProducts,
+      orderNumber: name,
+    });
     const transactionPrice: number = Number(subtotal_price);
     const [
       [customerOrder, updateOrderError],
