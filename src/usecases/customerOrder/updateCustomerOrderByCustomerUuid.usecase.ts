@@ -9,7 +9,7 @@ import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQ
 import { Product } from 'src/domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
-import { Status } from '@Domains/Status';
+import { OrderQueue } from '@Domains/OrderQueue';
 import { Customer } from '../../domains/Customer';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 
@@ -19,7 +19,7 @@ export interface UpdateCustomerOrderByCustomerUuidUsecaseInterface {
     customer,
     line_items,
     note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[Status, Error]>;
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
 }
 
 @Injectable()
@@ -46,7 +46,7 @@ export class UpdateCustomerOrderByCustomerUuidUsecase
     customer: shopifyCustomer,
     line_items,
     note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({
         email: shopifyCustomer.email,
@@ -86,12 +86,22 @@ export class UpdateCustomerOrderByCustomerUuidUsecase
     if (orderError) {
       return [null, orderError];
     }
+    const HCBox: number = 6618823458871;
+    const HCLSBox: number = 6618823753783;
     if (order.products.length > 1) {
       if (
-        purchasedProducts.includes(6618823458871) ||
-        purchasedProducts.includes(6618823753783)
+        purchasedProducts.includes(HCBox) ||
+        purchasedProducts.includes(HCLSBox)
       ) {
-        return [{ status: 'Success' }, null];
+        return [
+          {
+            customerId: orderQueue.customerId,
+            orderNumber: orderQueue.orderNumber,
+            status: orderQueue.status,
+            orderDate: orderQueue.orderDate,
+          },
+          null,
+        ];
       }
     }
     const [customerOrderCount, getOrderCountError] =
@@ -152,6 +162,14 @@ export class UpdateCustomerOrderByCustomerUuidUsecase
       return [null, orderQueueError];
     }
 
-    return [{ status: 'Success' }, null];
+    return [
+      {
+        customerId: orderQueue.customerId,
+        orderNumber: orderQueue.orderNumber,
+        status: orderQueue.status,
+        orderDate: orderQueue.orderDate,
+      },
+      null,
+    ];
   }
 }

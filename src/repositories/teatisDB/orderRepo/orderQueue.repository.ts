@@ -32,7 +32,7 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
         actionDate.setMinutes(actionDate.getMinutes() + 3);
       }
 
-      const updateOrderQueueRes = await this.prisma.queuedShopifyOrder.upsert({
+      const response = await this.prisma.queuedShopifyOrder.upsert({
         where: { orderName: orderNumber },
         create: {
           scheduledAt: actionDate.toISOString(),
@@ -55,14 +55,15 @@ export class OrderQueueRepo implements OrderQueueRepoInterface {
             : {},
       });
 
-      if (!updateOrderQueueRes) {
+      if (!response) {
         throw new Error();
       }
       return [
         {
-          customerId: updateOrderQueueRes.customerId,
+          customerId: response.customerId,
           status,
           orderNumber,
+          orderDate: response.orderedAt,
         },
       ];
     } catch (e) {

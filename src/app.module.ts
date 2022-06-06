@@ -8,12 +8,7 @@ import { ShipheroKeyModule } from './controllers/system/shipheroKey.module';
 import { PrismaService } from './prisma.service';
 
 @Module({
-  imports: [
-    DiscoveriesModule,
-    ShipheroKeyModule,
-    PractitionerModule,
-    PractitionerBoxModule,
-  ],
+  imports: [DiscoveriesModule, ShipheroKeyModule],
 
   controllers: [AppController],
   providers: [AppService, PrismaService],

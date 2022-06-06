@@ -3,7 +3,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreatePractitionerBoxDto } from '../../controllers/discoveries/dtos/createPractitionerBox';
 import { v4 as uuidv4 } from 'uuid';
 import { PractitionerBoxRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { PractitionerBoxProduct } from '../../domains/PractitionerBoxProduct';
+import { PractitionerSingleBox } from '../../domains/PractitionerSingleBox';
+// import { PractitionerBoxProduct } from '../../domains/PractitionerBoxProduct';
 
 export interface CreatePractitionerBoxUsecaseInterface {
   createPractitionerBox({
@@ -11,7 +12,7 @@ export interface CreatePractitionerBoxUsecaseInterface {
     products,
     label,
     note,
-  }: CreatePractitionerBoxDto): Promise<[PractitionerBoxProduct?, Error?]>;
+  }: CreatePractitionerBoxDto): Promise<[PractitionerSingleBox?, Error?]>;
 }
 
 @Injectable()
@@ -27,12 +28,12 @@ export class CreatePractitionerBoxUsecase
     products,
     label,
     note,
-  }: CreatePractitionerBoxDto): Promise<[PractitionerBoxProduct?, Error?]> {
+  }: CreatePractitionerBoxDto): Promise<[PractitionerSingleBox?, Error?]> {
     try {
       const practitionerBoxUuid = uuidv4();
 
       const [practitionerBoxProduct, createPractitionerBoxProductError] =
-        await this.practitionerBoxRepo.createPractitionerBoxProduct({
+        await this.practitionerBoxRepo.createPractitionerSingleBox({
           practitionerId,
           practitionerBoxUuid,
           label,

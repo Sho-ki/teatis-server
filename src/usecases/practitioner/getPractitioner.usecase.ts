@@ -4,64 +4,32 @@ import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRep
 import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
 import { Status } from '@Domains/Status';
 import { UpdateCustomerBoxDto } from '@Controllers/discoveries/dtos/updateCustomerBox';
-import { CreatePractitionerDto } from '../../controllers/discoveries/dtos/createPractitioner';
+import { GetPractitionerDto } from '../../controllers/discoveries/dtos/getPractitioner';
 import { v4 as uuidv4 } from 'uuid';
 import { PractitionerGeneralRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
 import { Practitioner } from '../../domains/Practitioner';
 
-export interface CreatePractitionerUsecaseInterface {
-  createPractitioner({
-    firstName,
-    lastName,
-    message,
-    middleName,
-    profileImage,
+export interface GetPractitionerUsecaseInterface {
+  getPractitioner({
     email,
-    instagram,
-    facebook,
-    twitter,
-    website,
-  }: CreatePractitionerDto): Promise<[Practitioner?, Error?]>;
+  }: GetPractitionerDto): Promise<[Practitioner?, Error?]>;
 }
 
 @Injectable()
-export class CreatePractitionerUsecase
-  implements CreatePractitionerUsecaseInterface
-{
+export class GetPractitionerUsecase implements GetPractitionerUsecaseInterface {
   constructor(
     @Inject('PractitionerGeneralRepoInterface')
     private practitionerGeneralRepo: PractitionerGeneralRepoInterface,
   ) {}
-  async createPractitioner({
-    firstName,
-    lastName,
-    message,
-    middleName,
-    profileImage,
+  async getPractitioner({
     email,
-    instagram,
-    facebook,
-    twitter,
-    website,
-  }: CreatePractitionerDto): Promise<[Practitioner?, Error?]> {
+  }: GetPractitionerDto): Promise<[Practitioner?, Error?]> {
     try {
-      const uuid = uuidv4();
-
-      const [practitionerSocialMedia, createPractitionerError] =
-        await this.practitionerGeneralRepo.createPractitioner({
-          firstName,
-          lastName,
-          message,
-          middleName,
-          profileImage,
+      const [practitionerSocialMedia, getPractitionerError] =
+        await this.practitionerGeneralRepo.getPractitioner({
           email,
-          instagram,
-          facebook,
-          twitter,
-          website,
-          uuid,
         });
-      if (createPractitionerError) {
+      if (getPractitionerError) {
         throw new Error();
       }
       return [
@@ -85,7 +53,7 @@ export class CreatePractitionerUsecase
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: createPractitioner Usecase failed',
+          message: 'Server Side Error: getPractitioner Usecase failed',
         },
       ];
     }

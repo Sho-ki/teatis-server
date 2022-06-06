@@ -12,6 +12,8 @@ import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
 import { Status } from '@Domains/Status';
 import { Customer } from '../../domains/Customer';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
+import { PractitionerBoxRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { OrderQueue } from '../../domains/OrderQueue';
 
 export interface UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface {
   updateCustomerOrderByPractitionerBoxUuid({
@@ -19,7 +21,7 @@ export interface UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface {
     customer,
     line_items,
     note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[Status, Error]>;
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
 }
 
 @Injectable()
@@ -33,8 +35,8 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     private customerBoxRepo: CustomerBoxRepoInterface,
     @Inject('OrderQueueRepoInterface')
     private orderQueueRepo: OrderQueueRepoInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
+    @Inject('PractitionerBoxRepoInterface')
+    private practitionerBoxRepo: PractitionerBoxRepoInterface,
     @Inject('ShopifyRepoInterface')
     private readonly shopifyRepo: ShopifyRepoInterface,
     @Inject('GetNextBoxInterface')
@@ -48,35 +50,14 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     customer: shopifyCustomer,
     line_items,
     note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[Status, Error]> {
-    const noteAttributesKey = note_attributes[0].key as 'rdBoxUuid' | 'uuid';
-    let [customer, getCustomerError]: [Customer?, Error?] = [
-      undefined,
-      undefined,
-    ];
-    if (noteAttributesKey === 'rdBoxUuid') {
-      [customer, getCustomerError] =
-        await this.createCustomerUtil.createCustomer({
-          email: shopifyCustomer.email,
-        });
-    } else {
-      [customer, getCustomerError] = await this.customerGeneralRepo.getCustomer(
-        {
-          email: shopifyCustomer.email,
-        },
-      );
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
+    let [customer, getCustomerError] =
+      await this.createCustomerUtil.createCustomer({
+        email: shopifyCustomer.email,
+      });
 
-      if (getCustomerError) {
-        [customer, getCustomerError] =
-          await this.customerGeneralRepo.updateCustomerEmailByUuid({
-            uuid: note_attributes[0]?.value,
-            newEmail: shopifyCustomer.email,
-          });
-
-        if (getCustomerError) {
-          return [null, getCustomerError];
-        }
-      }
+    if (getCustomerError) {
+      return [undefined, getCustomerError];
     }
 
     let [orderQueue, orderQueueError] =
@@ -101,13 +82,20 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     if (orderError) {
       return [null, orderError];
     }
-    if (order.products.length > 1) {
-      if (
-        purchasedProducts.includes(6618823458871) ||
-        purchasedProducts.includes(6618823753783)
-      ) {
-        return [{ status: 'Success' }, null];
-      }
+    const PractitionerBox = 6666539204663;
+    if (
+      order.products.length > 1 &&
+      purchasedProducts.includes(PractitionerBox)
+    ) {
+      return [
+        {
+          customerId: orderQueue.customerId,
+          orderNumber: orderQueue.orderNumber,
+          status: orderQueue.status,
+          orderDate: orderQueue.orderDate,
+        },
+        null,
+      ];
     }
     const [customerOrderCount, getOrderCountError] =
       await this.shopifyRepo.getOrderCount({
@@ -116,15 +104,15 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     if (getOrderCountError) {
       return [null, getOrderCountError];
     }
-    const [products, getCustomerBoxProductsError] =
-      await this.customerBoxRepo.getCustomerBoxProducts({
-        email: shopifyCustomer.email,
+    const [practitionerSingleBox, getPractitionerSingleBoxByUuidError] =
+      await this.practitionerBoxRepo.getPractitionerSingleBoxByUuid({
+        practitionerBoxUuid: note_attributes[0].value,
       });
-    if (getCustomerBoxProductsError) {
-      return [null, getCustomerBoxProductsError];
+    if (getPractitionerSingleBoxByUuidError) {
+      return [null, getPractitionerSingleBoxByUuidError];
     }
 
-    if (!products.length) {
+    if (!practitionerSingleBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.nextBoxUtil.getNextBoxSurvey({
@@ -138,7 +126,7 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
         return [null, nextBoxProductsError];
       }
     } else {
-      orderProducts = products;
+      orderProducts = practitionerSingleBox.box.products;
     }
     customerOrderCount.orderCount <= 1
       ? orderProducts.push(
@@ -167,6 +155,14 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
       return [null, orderQueueError];
     }
 
-    return [{ status: 'Success' }, null];
+    return [
+      {
+        customerId: orderQueue.customerId,
+        orderNumber: orderQueue.orderNumber,
+        status: orderQueue.status,
+        orderDate: orderQueue.orderDate,
+      },
+      null,
+    ];
   }
 }

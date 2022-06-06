@@ -524,7 +524,9 @@ model Practitioner{
   uuid  String @unique
   email String @unique
   profileImage String?
+  message String?
   firstName String
+  middleName String?
   lastName String?
   practitionerBox PractitionerBox[]
   practitionerSocialMedia PractitionerSocialMedia?

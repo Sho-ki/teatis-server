@@ -23,12 +23,29 @@ import { CustomerNextBoxSurveyRepo } from '@Repositories/teatisDB/customerRepo/c
 import { AnalyzePreferenceRepo } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
 import { GetNextBox } from '@Usecases/utils/getNextBox';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
-import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCartOfCustomerOriginalBox/createCheckoutCartOfCustomerOriginalBox.usecase';
+import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
 import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
+import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
+import { PractitionerModule } from './practitioner/practitioner.module';
+import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '../../usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
+import { PractitionerBoxRepo } from '../../repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
+      useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
+    },
+    {
+      provide: 'PractitionerBoxRepoInterface',
+      useClass: PractitionerBoxRepo,
+    },
+    {
+      provide: 'UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface',
+      useClass: UpdateCustomerOrderByPractitionerBoxUuidUsecase,
+    },
     {
       provide: 'CreateCustomerUsecaseInterface',
       useClass: CreateCustomerUsecase,
@@ -128,6 +145,7 @@ import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
     DiscoveriesController,
     PrismaService,
   ],
+  imports: [PractitionerModule, PractitionerBoxModule],
   exports: [DiscoveriesController],
 })
 export class DiscoveriesModule {}

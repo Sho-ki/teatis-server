@@ -6,11 +6,19 @@ export class CreatePractitionerDto {
 
   @IsString()
   @IsOptional()
+  middleName?: string;
+
+  @IsString()
+  @IsOptional()
   lastName?: string;
 
   @IsString()
   @IsOptional()
   profileImage?: string;
+
+  @IsString()
+  @IsOptional()
+  message?: string;
 
   @IsEmail()
   email: string;

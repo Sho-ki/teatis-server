@@ -2,17 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { DisplayProduct, Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
-import { PractitionerBoxProduct } from '../../../domains/PractitionerBoxProduct';
+// import { PractitionerBoxProduct } from '../../../domains/PractitionerBoxProduct';
 import { Practitioner } from '../../../domains/Practitioner';
 import { PractitionerBox } from '../../../domains/PractitionerBox';
-import { PractitionerSocialMediaBoxDisplayProduct } from '../../../domains/PractitionerSocialMediaBoxDisplayProduct';
+import { PractitionerSingleBox } from '../../../domains/PractitionerSingleBox';
+import assert from 'assert';
 import { SocialMedia } from '../../../domains/SocialMedia';
 
-interface getPractitionerBoxProductArgs {
+interface getPractitionerSingleBoxByUuidArgs {
   practitionerBoxUuid: string;
 }
 
-interface createPractitionerBoxProductArgs {
+interface getPractitionerSingleBoxByLabelArgs {
+  practitionerId: number;
+  label: string;
+}
+
+interface createPractitionerSingleBoxArgs {
   practitionerId: number;
   practitionerBoxUuid: string;
   label: string;
@@ -21,34 +27,41 @@ interface createPractitionerBoxProductArgs {
 }
 
 export interface PractitionerBoxRepoInterface {
-  getPractitionerBoxProduct({
+  getPractitionerSingleBoxByUuid({
     practitionerBoxUuid,
-  }: getPractitionerBoxProductArgs): Promise<
-    [PractitionerSocialMediaBoxDisplayProduct?, Error?]
+  }: getPractitionerSingleBoxByUuidArgs): Promise<
+    [PractitionerSingleBox?, Error?]
   >;
 
-  createPractitionerBoxProduct({
+  getPractitionerSingleBoxByLabel({
+    practitionerId,
+    label,
+  }: getPractitionerSingleBoxByLabelArgs): Promise<
+    [PractitionerSingleBox?, Error?]
+  >;
+
+  createPractitionerSingleBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
     note,
-  }: createPractitionerBoxProductArgs): Promise<
-    [PractitionerBoxProduct?, Error?]
+  }: createPractitionerSingleBoxArgs): Promise<
+    [PractitionerSingleBox?, Error?]
   >;
 }
 
 @Injectable()
 export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
   constructor(private prisma: PrismaService) {}
-  async createPractitionerBoxProduct({
+  async createPractitionerSingleBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
     note,
-  }: createPractitionerBoxProductArgs): Promise<
-    [PractitionerBoxProduct?, Error?]
+  }: createPractitionerSingleBoxArgs): Promise<
+    [PractitionerSingleBox?, Error?]
   > {
     try {
       if (!products.length) {
@@ -122,16 +135,29 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           note: true,
           practitioner: {
             select: {
+              practitionerSocialMedia: {
+                select: {
+                  instagram: true,
+                  facebook: true,
+                  twitter: true,
+                  website: true,
+                },
+              },
               id: true,
               email: true,
               uuid: true,
               profileImage: true,
               firstName: true,
               lastName: true,
+              middleName: true,
+              message: true,
             },
           },
         },
       });
+      const socialMedia: SocialMedia =
+        response.practitioner.practitionerSocialMedia;
+      delete response.practitioner.practitionerSocialMedia;
       const practitioner: Practitioner = response.practitioner;
       const boxProducts: Product[] =
         response.intermediatePractitionerBoxProduct.map(({ product }) => {
@@ -145,12 +171,13 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
       const practitionerBox: PractitionerBox = {
         label: response.label,
         note: response?.note,
+        products: boxProducts,
       };
       return [
         {
           ...practitioner,
-          ...practitionerBox,
-          product: boxProducts,
+          ...socialMedia,
+          box: { ...practitionerBox },
         },
       ];
     } catch (e) {
@@ -158,15 +185,130 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: createPractitionerBoxProduct failed',
+          message: 'Server Side Error: createPractitionerSingleBox failed',
         },
       ];
     }
   }
-  async getPractitionerBoxProduct({
+  async getPractitionerSingleBoxByLabel({
+    practitionerId,
+    label,
+  }: getPractitionerSingleBoxByLabelArgs): Promise<
+    [PractitionerSingleBox?, Error?]
+  > {
+    try {
+      const response = await this.prisma.practitionerBox.findUnique({
+        where: { PractitionerBoxIdentifier: { label, practitionerId } },
+        select: {
+          intermediatePractitionerBoxProduct: {
+            select: {
+              product: {
+                select: {
+                  id: true,
+                  productVendor: { select: { label: true } },
+                  externalSku: true,
+                  productImages: {
+                    select: { id: true, src: true, position: true },
+                  },
+                  expertComment: true,
+                  label: true,
+                  name: true,
+                  productNutritionFact: true,
+                  ingredientLabel: true,
+                  allergenLabel: true,
+                },
+              },
+            },
+          },
+          label: true,
+          note: true,
+          practitioner: {
+            select: {
+              practitionerSocialMedia: {
+                select: {
+                  instagram: true,
+                  facebook: true,
+                  twitter: true,
+                  website: true,
+                },
+              },
+              id: true,
+              email: true,
+              uuid: true,
+              profileImage: true,
+              firstName: true,
+              lastName: true,
+              middleName: true,
+              message: true,
+            },
+          },
+        },
+      });
+      if (!response) {
+        throw new Error();
+      }
+      const socialMedia: SocialMedia =
+        response.practitioner.practitionerSocialMedia;
+      delete response.practitioner.practitionerSocialMedia;
+      const practitioner: Practitioner = response.practitioner;
+      const boxProducts: DisplayProduct[] = response
+        .intermediatePractitionerBoxProduct.length
+        ? response.intermediatePractitionerBoxProduct.map(({ product }) => {
+            return {
+              id: product.id,
+              sku: product.externalSku,
+              name: product.name,
+              label: product.label,
+              expertComment: product.expertComment,
+              ingredientLabel: product.ingredientLabel,
+              images: product.productImages,
+              allergenLabel: product.allergenLabel,
+              vendor: product.productVendor.label,
+              nutritionFact: {
+                calorie: product.productNutritionFact.calories,
+                totalFat: product.productNutritionFact.totalFatG,
+                saturatedFat: product.productNutritionFact.saturatedFatG,
+                transFat: product.productNutritionFact.transFatG,
+                cholesterole: product.productNutritionFact.cholesteroleMg,
+                sodium: product.productNutritionFact.sodiumMg,
+                totalCarbohydrate:
+                  product.productNutritionFact.totalCarbohydrateG,
+                dietaryFiber: product.productNutritionFact.dietaryFiberG,
+                totalSugar: product.productNutritionFact.totalSugarG,
+                addedSugar: product.productNutritionFact.addedSugarG,
+                protein: product.productNutritionFact.proteinG,
+              },
+            };
+          })
+        : [];
+
+      const practitionerBox: PractitionerBox = {
+        label: response.label,
+        note: response.note,
+        products: boxProducts,
+      };
+      return [
+        {
+          ...practitioner,
+          ...socialMedia,
+          box: { ...practitionerBox },
+        },
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getPractitionerSingleBoxByUuid failed',
+        },
+      ];
+    }
+  }
+
+  async getPractitionerSingleBoxByUuid({
     practitionerBoxUuid,
-  }: getPractitionerBoxProductArgs): Promise<
-    [PractitionerSocialMediaBoxDisplayProduct?, Error?]
+  }: getPractitionerSingleBoxByUuidArgs): Promise<
+    [PractitionerSingleBox?, Error?]
   > {
     try {
       const response = await this.prisma.practitionerBox.findUnique({
@@ -210,6 +352,8 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
               profileImage: true,
               firstName: true,
               lastName: true,
+              middleName: true,
+              message: true,
             },
           },
         },
@@ -252,25 +396,25 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           })
         : [];
 
-      const boxLabel: PractitionerBox = {
+      const practitionerBox: PractitionerBox = {
         label: response.label,
         note: response.note,
+        products: boxProducts,
       };
       return [
         {
           ...practitioner,
           ...socialMedia,
-          ...boxLabel,
-          product: boxProducts,
+          box: { ...practitionerBox },
+          // product: boxProducts,
         },
       ];
     } catch (e) {
-      console.log(e);
       return [
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getPractitionerBoxProduct failed',
+          message: 'Server Side Error: getPractitionerSingleBoxByUuid failed',
         },
       ];
     }

@@ -27,10 +27,7 @@ import {
 } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
-import {
-  PostPrePurchaseSurveyUsecaseInterface,
-  PostPrePurchaseSurveyUsecaseRes,
-} from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { UpdateCustomerOrderByCustomerUuidUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
@@ -38,8 +35,12 @@ import { GetNextBoxUsecaseInterface } from '@Usecases/nextBoxSurvey/getNextBoxSu
 import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
 import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
 import { GetCustomerNutritionUsecaseInterface } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
-import { CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface } from '../../usecases/checkoutCartOfCustomerOriginalBox/createCheckoutCartOfCustomerOriginalBox.usecase';
+import { CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxDto } from './dtos/createCheckoutCartOfCustomerOriginalBoxDto';
+import { UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
+import { OrderQueue } from '@Domains/OrderQueue';
+import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
 
 // api/discovery
 @Controller('api/discovery')
@@ -66,6 +67,10 @@ export class DiscoveriesController {
     private createCheckoutCartOfCustomerOriginalBoxUsecase: CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface,
     @Inject('GetCustomerNutritionUsecaseInterface')
     private getCustomerNutritionUsecase: GetCustomerNutritionUsecaseInterface,
+    @Inject('UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface')
+    private updateCustomerOrderByPractitionerBoxUuidUsecase: UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface,
+    @Inject('CreateCheckoutCartOfPractitionerBoxUsecaseInterface')
+    private createCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
 
     private teatisJob: TeatisJobs,
   ) {}
@@ -179,25 +184,25 @@ export class DiscoveriesController {
     const noteAttributesKey = body.note_attributes[0].key as
       | 'practitionerBoxUuid'
       | 'uuid';
+    let [res, updateCustomerBoxError]: [OrderQueue, Error] = [
+      undefined,
+      undefined,
+    ];
     if (noteAttributesKey === 'practitionerBoxUuid') {
-      const [res, error] =
-        await this.updateCustomerOrderByCustomerUuidUsecase.updateCustomerOrderByCustomerUuid(
+      [res, updateCustomerBoxError] =
+        await this.updateCustomerOrderByPractitionerBoxUuidUsecase.updateCustomerOrderByPractitionerBoxUuid(
           body,
         );
-      if (error) {
-        return response.status(500).send(error);
-      }
-      return response.status(200).send({ status: res.status });
     } else {
-      const [res, error] =
+      [res, updateCustomerBoxError] =
         await this.updateCustomerOrderByCustomerUuidUsecase.updateCustomerOrderByCustomerUuid(
           body,
         );
-      if (error) {
-        return response.status(500).send(error);
-      }
-      return response.status(200).send({ status: res.status });
     }
+    if (updateCustomerBoxError) {
+      return response.status(500).send(updateCustomerBoxError);
+    }
+    return response.status(200).send(res);
   }
 
   // POST: api/discovery/update-customer-box
@@ -215,8 +220,8 @@ export class DiscoveriesController {
     return response.status(201).send(res);
   }
 
-  // Post: api/discovery/create-original-box-cart
-  @Post('create-original-box-cart')
+  // Post: api/discovery/customer-original-box-cart
+  @Post('customer-original-box-cart')
   async createCheckoutCartOfCustomerOriginalBox(
     @Body() body: CreateCheckoutCartOfCustomerOriginalBoxDto,
     @Res() response: Response,
@@ -231,19 +236,21 @@ export class DiscoveriesController {
     return response.status(201).send(res);
   }
 
-  // Post: api/discovery/create-practitioner-box-cart
-  // @Post('create-practitioner-box-cart')
-  // async createPractitionerBoxCart(
-  //   @Body() body: CreateCustomerOriginalBoxCartDto,
-  //   @Res() response: Response,
-  // ) {
-  //   const [res, error] =
-  //     await this.createCheckoutCartOfCustomerOriginalBoxUsecase.createCart(body);
-  //   if (error) {
-  //     return response.status(500).send(error);
-  //   }
-  //   return response.status(201).send(res);
-  // }
+  // Post: api/discovery/practitioner-box-cart
+  @Post('practitioner-box-cart')
+  async createPractitionerBoxCart(
+    @Body() body: CreateCheckoutCartOfPractitionerBoxDto,
+    @Res() response: Response,
+  ) {
+    const [res, error] =
+      await this.createCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
+        body,
+      );
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(201).send(res);
+  }
 
   // Get: api/discovery/customer-nutrition
   @Get('customer-nutrition')
