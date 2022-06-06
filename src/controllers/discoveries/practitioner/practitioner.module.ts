@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
-import { PractitionerGeneralRepo } from '../../../repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
+import { PractitionerGeneralRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
 import { CreatePractitionerUsecase } from '../../../usecases/practitioner/createPractitioner.usecase';
 import { GetPractitionerUsecase } from '../../../usecases/practitioner/getPractitioner.usecase';
 import { PractitionerController } from './practitioner.controller';

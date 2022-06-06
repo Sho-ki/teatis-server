@@ -1,10 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CreatePractitionerBoxDto } from '../../controllers/discoveries/dtos/createPractitionerBox';
+import { CreatePractitionerBoxDto } from '@Controllers/discoveries/dtos/createPractitionerBox';
 import { v4 as uuidv4 } from 'uuid';
-import { PractitionerBoxRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { PractitionerSingleBox } from '../../domains/PractitionerSingleBox';
-// import { PractitionerBoxProduct } from '../../domains/PractitionerBoxProduct';
+import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
 
 export interface CreatePractitionerBoxUsecaseInterface {
   createPractitionerBox({

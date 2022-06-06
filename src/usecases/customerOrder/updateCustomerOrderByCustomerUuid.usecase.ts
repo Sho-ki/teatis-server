@@ -6,12 +6,10 @@ import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/cu
 
 import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
 import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
-import { Product } from 'src/domains/Product';
+import { Product } from '@Domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
 import { OrderQueue } from '@Domains/OrderQueue';
-import { Customer } from '../../domains/Customer';
-import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 
 export interface UpdateCustomerOrderByCustomerUuidUsecaseInterface {
   updateCustomerOrderByCustomerUuid({

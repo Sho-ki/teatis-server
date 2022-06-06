@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { DisplayProduct, Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
-// import { PractitionerBoxProduct } from '../../../domains/PractitionerBoxProduct';
-import { Practitioner } from '../../../domains/Practitioner';
-import { PractitionerBox } from '../../../domains/PractitionerBox';
-import { PractitionerSingleBox } from '../../../domains/PractitionerSingleBox';
+// import { PractitionerBoxProduct } from '@Domains/PractitionerBoxProduct';
+import { Practitioner } from '@Domains/Practitioner';
+import { PractitionerBox } from '@Domains/PractitionerBox';
+import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
 import assert from 'assert';
-import { SocialMedia } from '../../../domains/SocialMedia';
+import { SocialMedia } from '@Domains/SocialMedia';
 
 interface getPractitionerSingleBoxByUuidArgs {
   practitionerBoxUuid: string;

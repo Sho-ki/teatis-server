@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
 import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
 
 import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
@@ -9,11 +8,9 @@ import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQ
 import { Product } from 'src/domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
-import { Status } from '@Domains/Status';
-import { Customer } from '../../domains/Customer';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
-import { PractitionerBoxRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { OrderQueue } from '../../domains/OrderQueue';
+import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { OrderQueue } from '@Domains/OrderQueue';
 
 export interface UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface {
   updateCustomerOrderByPractitionerBoxUuid({

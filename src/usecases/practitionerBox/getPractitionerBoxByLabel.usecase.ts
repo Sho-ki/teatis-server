@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PractitionerBoxRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { PractitionerSingleBox } from '../../domains/PractitionerSingleBox';
-import { PractitionerGeneralRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
-import { GetPractitionerBoxDto } from '../../controllers/discoveries/dtos/getPractitionerBox';
+import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
+import { PractitionerGeneralRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
+import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
 
 export interface GetPractitionerBoxByLabelUsecaseInterface {
   getPractitionerBoxByLabel({

@@ -1,13 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
-import { Status } from '@Domains/Status';
-import { UpdateCustomerBoxDto } from '@Controllers/discoveries/dtos/updateCustomerBox';
-import { CreatePractitionerDto } from '../../controllers/discoveries/dtos/createPractitioner';
+import { CreatePractitionerDto } from '@Controllers/discoveries/dtos/createPractitioner';
 import { v4 as uuidv4 } from 'uuid';
-import { PractitionerGeneralRepoInterface } from '../../repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
-import { Practitioner } from '../../domains/Practitioner';
+import { PractitionerGeneralRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
+import { Practitioner } from '@Domains/Practitioner';
 
 export interface CreatePractitionerUsecaseInterface {
   createPractitioner({

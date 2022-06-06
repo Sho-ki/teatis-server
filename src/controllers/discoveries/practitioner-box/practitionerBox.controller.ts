@@ -9,13 +9,11 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
-import { CreatePractitionerDto } from '../dtos/createPractitioner';
-import { CreatePractitionerUsecaseInterface } from '../../../usecases/practitioner/createPractitioner.usecase';
-import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
 import { CreatePractitionerBoxUsecaseInterface } from '../../../usecases/practitionerBox/createPractitionerBox.usecase';
-import { PractitionerSingleBox } from '../../../domains/PractitionerSingleBox';
+import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
 import { GetPractitionerBoxByLabelUsecaseInterface } from '../../../usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
+import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
 
 @Controller('api/discovery')
 export class PractitionerBoxController {

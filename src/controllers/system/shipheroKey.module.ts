@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ShipheroAuthRepo } from '../../repositories/shiphero/shipheroAuth.repository';
+import { ShipheroAuthRepo } from '@Repositories/shiphero/shipheroAuth.repository';
 import { UpdateShipheoKeyUsecase } from '../../usecases/shipheroKey/updateShipheroKey.usecase';
 import { ShipheroKeyController } from './shipheroKey.controller';
 

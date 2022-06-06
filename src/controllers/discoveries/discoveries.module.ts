@@ -29,7 +29,7 @@ import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/check
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
 import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '../../usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
-import { PractitionerBoxRepo } from '../../repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 
 @Module({
   controllers: [DiscoveriesController],
