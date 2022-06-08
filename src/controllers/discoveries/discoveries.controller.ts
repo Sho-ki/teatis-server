@@ -169,7 +169,7 @@ export class DiscoveriesController {
     @Body() body: DeleteCustomerBoxDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const noteAttributesKey = body.note_attributes[0].key as
+    const noteAttributesKey = body.note_attributes[0].name as
       | 'practitionerBoxUuid'
       | 'uuid';
     if (noteAttributesKey === 'practitionerBoxUuid') {
@@ -197,7 +197,7 @@ export class DiscoveriesController {
     @Body() body: UpdateCustomerOrderDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const noteAttributesKey = body.note_attributes[0].key as
+    const noteAttributesKey = body.note_attributes[0].name as
       | 'practitionerBoxUuid'
       | 'uuid';
     let [res, error]: [OrderQueue, Error] = [undefined, undefined];
