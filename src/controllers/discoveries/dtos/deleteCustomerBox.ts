@@ -21,5 +21,5 @@ export class DeleteCustomerBoxDto {
 
   @IsArray()
   @IsOptional()
-  note_attributes?: { key: string; value: string }[];
+  note_attributes?: { name: string; value: string }[];
 }
