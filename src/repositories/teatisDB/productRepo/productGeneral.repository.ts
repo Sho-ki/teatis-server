@@ -37,7 +37,73 @@ export interface GetOption {
   src?: string | null;
 }
 
+interface UpsertProductArgs {
+  activeStatus: 'active' | 'inactive';
+  allergenLabel?: string;
+  ingredientLabel?: string;
+  expertComment?: string;
+  WSP?: number;
+  MSP?: number;
+  label: string;
+  name?: string;
+  productProviderId: number;
+  upcCode?: string;
+  flavorId?: number;
+  categoryId?: number;
+  vendorId?: number;
+  externalSku: string;
+  allergenIds?: number[];
+  foodTypeIds?: number[];
+  images?: { src: string; position: number }[];
+  ingredientIds?: number[];
+  cookingMethodIds?: number[];
+  nutritionFact: {
+    quantity: number;
+    servingSize: number;
+    calories: number;
+    totalFat: number;
+    saturatedFat: number;
+    transFat: number;
+    cholesterole: number;
+    sodium: number;
+    totalCarbohydrate: number;
+    dietaryFiber: number;
+    totalSugar: number;
+    addedSugar: number;
+    protein: number;
+    sweet: number;
+    sour: number;
+    salty: number;
+    bitter: number;
+    spicy: number;
+    texture: string;
+  };
+}
+
 export interface ProductGeneralRepoInterface {
+  upsertProduct({
+    activeStatus,
+    allergenLabel,
+    ingredientLabel,
+    expertComment,
+    WSP,
+    MSP,
+    label,
+    name,
+    productProviderId,
+    upcCode,
+    flavorId,
+    categoryId,
+    vendorId,
+    externalSku,
+    allergenIds,
+    foodTypeIds,
+    images,
+    ingredientIds,
+    cookingMethodIds,
+    nutritionFact,
+  }: UpsertProductArgs): Promise<[Product?, Error?]>;
+
   getProductsBySku({
     products,
   }: GetProductsBySkuArgs): Promise<[DisplayProduct[]?, Error?]>;
@@ -51,7 +117,399 @@ export interface ProductGeneralRepoInterface {
 
 @Injectable()
 export class ProductGeneralRepo implements ProductGeneralRepoInterface {
+  private getAddAndDeleteNumber(
+    existingNumbers: number[],
+    newNumbers: number[],
+  ): [number[], number[]] {
+    const existingNumberSet = new Set(existingNumbers);
+    const newNumberSet = new Set(newNumbers);
+
+    const numbersToDelete = existingNumbers.filter(
+      (number) => !newNumberSet.has(number),
+    );
+    // Delete
+
+    const numbersToAdd = newNumbers.filter(
+      (number) => !existingNumberSet.has(number),
+    );
+    // Add
+    return [numbersToAdd, numbersToDelete];
+  }
+
   constructor(private prisma: PrismaService) {}
+  async upsertProduct({
+    activeStatus,
+    allergenLabel,
+    ingredientLabel,
+    expertComment,
+    WSP,
+    MSP,
+    label,
+    name,
+    productProviderId,
+    upcCode,
+    flavorId,
+    categoryId,
+    vendorId,
+    externalSku,
+    allergenIds: newAllergenIds,
+    foodTypeIds: newFoodTypeIds,
+    images: newImages,
+    ingredientIds: newIngredientIds,
+    cookingMethodIds: newCookingMethodIds,
+    nutritionFact,
+  }: UpsertProductArgs): Promise<[Product?, Error?]> {
+    try {
+      const [
+        existingIngredients,
+        existingCookingMethods,
+        existingAllergens,
+        existingFoodTypes,
+        existingImages,
+      ] = await Promise.all([
+        this.prisma.intermediateProductIngredient.findMany({
+          where: {
+            product: { externalSku },
+          },
+          select: {
+            productIngredient: true,
+          },
+        }),
+        this.prisma.intermediateProductCookingMethod.findMany({
+          where: {
+            product: { externalSku },
+          },
+          select: {
+            productCookingMethod: true,
+          },
+        }),
+        this.prisma.intermediateProductAllergen.findMany({
+          where: {
+            product: { externalSku },
+          },
+          select: {
+            productAllergen: true,
+          },
+        }),
+        this.prisma.intermediateProductFoodType.findMany({
+          where: {
+            product: { externalSku },
+          },
+          select: {
+            productFoodType: true,
+          },
+        }),
+        this.prisma.productImage.findMany({
+          where: {
+            product: { externalSku },
+          },
+          select: {
+            src: true,
+            position: true,
+          },
+        }),
+      ]);
+
+      const existingIndredientIds = existingIngredients.map(
+        ({ productIngredient }) => productIngredient.id,
+      );
+      const [ingredientsToAdd, ingredientsToDelete] =
+        this.getAddAndDeleteNumber(existingIndredientIds, newIngredientIds);
+
+      const existingCookingMethodIds = existingCookingMethods.map(
+        ({ productCookingMethod }) => productCookingMethod.id,
+      );
+      const [cookingMethodsToAdd, cookingMethodsToDelete] =
+        this.getAddAndDeleteNumber(
+          existingCookingMethodIds,
+          newCookingMethodIds,
+        );
+
+      const existingAllergenIds = existingAllergens.map(
+        ({ productAllergen }) => productAllergen.id,
+      );
+      const [allergensToAdd, allergensToDelete] = this.getAddAndDeleteNumber(
+        existingAllergenIds,
+        newAllergenIds,
+      );
+
+      const existingFoodTypeIds = existingFoodTypes.map(
+        ({ productFoodType }) => productFoodType.id,
+      );
+      const [foodTypesToAdd, foodTypesToDelete] = this.getAddAndDeleteNumber(
+        existingFoodTypeIds,
+        newFoodTypeIds,
+      );
+
+      const existingImageSet = new Set(existingImages);
+      const newImageSet = new Set(newImages);
+
+      const imagesToDelete = existingImages.filter(
+        (string) => !newImageSet.has(string),
+      );
+      // Delete
+
+      const imagesToAdd = newImages.filter(
+        (string) => !existingImageSet.has(string),
+      );
+      // Add
+
+      await Promise.all([
+        this.prisma.intermediateProductIngredient.deleteMany({
+          where: {
+            OR: ingredientsToDelete.map((productIngredientId) => {
+              return { productIngredientId };
+            }),
+          },
+        }),
+        this.prisma.intermediateProductCookingMethod.deleteMany({
+          where: {
+            OR: cookingMethodsToDelete.map((productCookingMethodId) => {
+              return { productCookingMethodId };
+            }),
+          },
+        }),
+        this.prisma.intermediateProductAllergen.deleteMany({
+          where: {
+            OR: allergensToDelete.map((productAllergenId) => {
+              return { productAllergenId };
+            }),
+          },
+        }),
+        this.prisma.intermediateProductFoodType.deleteMany({
+          where: {
+            OR: foodTypesToDelete.map((productFoodTypeId) => {
+              return { productFoodTypeId };
+            }),
+          },
+        }),
+        this.prisma.productImage.deleteMany({
+          where: {
+            OR: imagesToDelete.map(({ src }) => {
+              return { src };
+            }),
+          },
+        }),
+      ]);
+
+      const response = await this.prisma.product.upsert({
+        where: { externalSku },
+        create: {
+          activeStatus,
+          allergenLabel,
+          ingredientLabel,
+          expertComment,
+          WSP,
+          MSP,
+          label,
+          name,
+          productProviderId,
+          upcCode,
+          productFlavorId: flavorId,
+          productCategoryId: categoryId,
+          productVendorId: vendorId,
+          externalSku,
+          productNutritionFact: {
+            create: {
+              quantity: nutritionFact.quantity,
+              servingSize: nutritionFact.servingSize,
+              calories: nutritionFact.calories,
+              totalFatG: nutritionFact.totalFat,
+              saturatedFatG: nutritionFact.saturatedFat,
+              transFatG: nutritionFact.transFat,
+              cholesteroleMg: nutritionFact.cholesterole,
+              sodiumMg: nutritionFact.sodium,
+              totalCarbohydrateG: nutritionFact.totalCarbohydrate,
+              dietaryFiberG: nutritionFact.dietaryFiber,
+              totalSugarG: nutritionFact.totalSugar,
+              addedSugarG: nutritionFact.addedSugar,
+              proteinG: nutritionFact.protein,
+              sweet: nutritionFact.sweet,
+              sour: nutritionFact.sour,
+              salty: nutritionFact.salty,
+              bitter: nutritionFact.bitter,
+              spicy: nutritionFact.spicy,
+              texture: nutritionFact.texture,
+            },
+          },
+          intermediateProductAllergens: {
+            createMany: {
+              data: allergensToAdd.map((productAllergenId) => {
+                return { productAllergenId };
+              }),
+            },
+          },
+          intermediateProductFoodTypes: {
+            createMany: {
+              data: foodTypesToAdd.map((productFoodTypeId) => {
+                return { productFoodTypeId };
+              }),
+            },
+          },
+          intermediateProductIngredients: {
+            createMany: {
+              data: ingredientsToAdd.map((productIngredientId) => {
+                return { productIngredientId };
+              }),
+            },
+          },
+          intermediateProductCookingMethods: {
+            createMany: {
+              data: cookingMethodsToAdd.map((productCookingMethodId) => {
+                return { productCookingMethodId };
+              }),
+            },
+          },
+          productImages: {
+            createMany: {
+              data: imagesToAdd.map(({ src, position }) => {
+                return { src, position };
+              }),
+            },
+          },
+        },
+        update: {
+          activeStatus,
+          allergenLabel,
+          ingredientLabel,
+          expertComment,
+          WSP,
+          MSP,
+          label,
+          name,
+          productProviderId,
+          upcCode,
+          productFlavorId: flavorId,
+          productCategoryId: categoryId,
+          productVendorId: vendorId,
+          externalSku,
+          productNutritionFact: {
+            upsert: {
+              create: {
+                quantity: nutritionFact.quantity,
+                servingSize: nutritionFact.servingSize,
+                calories: nutritionFact.calories,
+                totalFatG: nutritionFact.totalFat,
+                saturatedFatG: nutritionFact.saturatedFat,
+                transFatG: nutritionFact.transFat,
+                cholesteroleMg: nutritionFact.cholesterole,
+                sodiumMg: nutritionFact.sodium,
+                totalCarbohydrateG: nutritionFact.totalCarbohydrate,
+                dietaryFiberG: nutritionFact.dietaryFiber,
+                totalSugarG: nutritionFact.totalSugar,
+                addedSugarG: nutritionFact.addedSugar,
+                proteinG: nutritionFact.protein,
+                sweet: nutritionFact.sweet,
+                sour: nutritionFact.sour,
+                salty: nutritionFact.salty,
+                bitter: nutritionFact.bitter,
+                spicy: nutritionFact.spicy,
+                texture: nutritionFact.texture,
+              },
+              update: {
+                quantity: nutritionFact.quantity,
+                servingSize: nutritionFact.servingSize,
+                calories: nutritionFact.calories,
+                totalFatG: nutritionFact.totalFat,
+                saturatedFatG: nutritionFact.saturatedFat,
+                transFatG: nutritionFact.transFat,
+                cholesteroleMg: nutritionFact.cholesterole,
+                sodiumMg: nutritionFact.sodium,
+                totalCarbohydrateG: nutritionFact.totalCarbohydrate,
+                dietaryFiberG: nutritionFact.dietaryFiber,
+                totalSugarG: nutritionFact.totalSugar,
+                addedSugarG: nutritionFact.addedSugar,
+                proteinG: nutritionFact.protein,
+                sweet: nutritionFact.sweet,
+                sour: nutritionFact.sour,
+                salty: nutritionFact.salty,
+                bitter: nutritionFact.bitter,
+                spicy: nutritionFact.spicy,
+                texture: nutritionFact.texture,
+              },
+            },
+          },
+          intermediateProductAllergens: {
+            createMany: {
+              data: allergensToAdd.map((productAllergenId) => {
+                return { productAllergenId };
+              }),
+            },
+          },
+          intermediateProductFoodTypes: {
+            createMany: {
+              data: foodTypesToAdd.map((productFoodTypeId) => {
+                return { productFoodTypeId };
+              }),
+            },
+          },
+          intermediateProductIngredients: {
+            createMany: {
+              data: ingredientsToAdd.map((productIngredientId) => {
+                return { productIngredientId };
+              }),
+            },
+          },
+          intermediateProductCookingMethods: {
+            createMany: {
+              data: cookingMethodsToAdd.map((productCookingMethodId) => {
+                return { productCookingMethodId };
+              }),
+            },
+          },
+          productImages: {
+            createMany: {
+              data: imagesToAdd.map(({ src, position }) => {
+                return { src, position };
+              }),
+            },
+          },
+        },
+        select: {
+          id: true,
+          externalSku: true,
+          name: true,
+          label: true,
+          mainProductImageId: true,
+          productImages: true,
+        },
+      });
+
+      const {
+        id,
+        externalSku: sku,
+        name: productName,
+        label: productLabel,
+        mainProductImageId,
+        productImages,
+      } = response;
+
+      if (!id || !sku || !productName || !productLabel) {
+        throw new Error();
+      }
+      const mainProductImage = productImages.find(
+        ({ position }) => position === 1,
+      );
+      if (mainProductImage?.id !== mainProductImageId) {
+        await this.prisma.product.update({
+          where: { externalSku },
+          data: {
+            mainProductImageId: mainProductImage?.id,
+          },
+        });
+      }
+
+      return [{ id, sku, name: productName, label: productLabel }];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: upsertProduct failed',
+        },
+      ];
+    }
+  }
   async getProductsBySku({
     products,
   }: GetProductsBySkuArgs): Promise<[DisplayProduct[]?, Error?]> {

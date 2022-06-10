@@ -158,7 +158,9 @@ model Product{
   surveyQuestionAnswer SurveyQuestionAnswer[]
   customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
-  productImages ProductImage[]
+  productImages ProductImage[] 
+  mainProductImage ProductImage? @relation(name: "mainProductImage", fields: [mainProductImageId], references: [id])
+  mainProductImageId Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -173,6 +175,7 @@ model ProductImage{
   id  Int   @default(autoincrement()) @id
   product Product @relation(fields: [productId], references: [id])
   productId Int
+  mainProductImage Product? @relation(name: "mainProductImage")
   src String
   position Int
   createdAt DateTime  @default(now())
