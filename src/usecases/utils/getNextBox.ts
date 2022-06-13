@@ -42,7 +42,6 @@ interface FilterProductsArgs {
 export interface GetNextBoxInterface {
   getNextBoxSurvey({
     email,
-    uuid,
     productCount,
   }: GetNextBoxArgs): Promise<[GetNextBoxRes, Error]>;
 }
@@ -64,7 +63,7 @@ export class GetNextBox implements GetNextBoxInterface {
 
   private filterProducts({
     filterType,
-    customerFilter = { id: [], sku: [] },
+    customerFilter = { id: [] as number[], sku: [] as string[] },
     products,
     nextWantProducts = [],
   }: FilterProductsArgs): DisplayAnalyzeProduct[] {
@@ -113,56 +112,33 @@ export class GetNextBox implements GetNextBoxInterface {
 
   async getNextBoxSurvey({
     email,
-    uuid,
     productCount,
   }: GetNextBoxArgs): Promise<[GetNextBoxRes, Error]> {
-    let [nextWantProducts, getNextWantError]: [Product[]?, Error?] = [
-      undefined,
-      undefined,
-    ];
+    let [
+      [lastCustomerOrder, getLastCustomerOrderError],
+      [scores, getAverageScoresError],
+    ] = await Promise.all([
+      this.shipheroRepo.getLastCustomerOrder({
+        email,
+      }),
+      this.customerNextBoxSurveyRepo.getAverageScores({ email }),
+    ]);
+    const [nextWantProducts, getNextWantError] =
+      await this.customerNextBoxSurveyRepo.getNextWant({
+        orderNumber: lastCustomerOrder.orderNumber,
+      });
 
-    let [lastCustomerOrder, getLastCustomerOrderError]: [CustomerOrder, Error] =
-      [{ products: [], orderNumber: '', orderDate: '', orderId: '' }, null];
-
-    let [scores, getAverageScoresError]: [AverageScores?, Error?] = [
-      undefined,
-      undefined,
-    ];
-
-    // When the first box, uuid would exist
-    if (uuid) {
-      const [customer, getCustomerError] =
-        await this.customerGeneralRepo.getCustomerByUuid({ uuid });
-      if (getCustomerError) {
-        return [null, getCustomerError];
-      }
-      email = customer.email;
-    } else if (email) {
-      [
-        [lastCustomerOrder, getLastCustomerOrderError],
-        [nextWantProducts, getNextWantError],
-        [scores, getAverageScoresError],
-      ] = await Promise.all([
-        this.shipheroRepo.getLastCustomerOrder({
-          email,
-        }),
-        this.customerNextBoxSurveyRepo.getNextWant({
-          orderNumber: lastCustomerOrder.orderNumber,
-        }),
-        this.customerNextBoxSurveyRepo.getAverageScores({ email }),
-      ]);
-      if (getLastCustomerOrderError) {
-        return [null, getLastCustomerOrderError];
-      }
-      if (getNextWantError) {
-        return [null, getNextWantError];
-      }
-      if (getAverageScoresError) {
-        return [null, getAverageScoresError];
-      }
-      if (nextWantProducts.length > 0) {
-        productCount -= nextWantProducts.length;
-      }
+    if (getLastCustomerOrderError) {
+      return [null, getLastCustomerOrderError];
+    }
+    if (getNextWantError) {
+      return [null, getNextWantError];
+    }
+    if (getAverageScoresError) {
+      return [null, getAverageScoresError];
+    }
+    if (nextWantProducts.length > 0) {
+      productCount -= nextWantProducts.length;
     }
 
     const [

@@ -3,7 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
 import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { GetFirstBoxDto } from '@Controllers/ xdiscoveries/dtos/getFirstBox';
+
+import { GetFirstBoxDto } from '@Controllers/discoveries/dtos/getFirstBox';
+
 import {
   DisplayAnalyzeProduct,
   DisplayProduct,
@@ -257,6 +259,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
           name,
           label,
           vendor: vendor.label,
+
           images,
           expertComment,
           ingredientLabel,

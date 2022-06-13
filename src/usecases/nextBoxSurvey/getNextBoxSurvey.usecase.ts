@@ -16,8 +16,7 @@ export interface GetNextBoxUsecaseInterface {
   getNextBoxSurvey({
     email,
     uuid,
-    productCount,
-  }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]>;
+  }: GetNextBoxSurveyDto): Promise<[GetNextBoxUsecaseRes, Error]>;
 }
 
 @Injectable()
@@ -30,8 +29,8 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
   async getNextBoxSurvey({
     email,
     uuid,
-    productCount,
-  }: GetNextBoxUsecaseArgs): Promise<[GetNextBoxUsecaseRes, Error]> {
+  }: GetNextBoxSurveyDto): Promise<[GetNextBoxUsecaseRes, Error]> {
+    let productCount = 30;
     const [getNextBoxProducts, getNextBoxProductsError] =
       await this.getNextBox.getNextBoxSurvey({ email, uuid, productCount });
 
