@@ -17,7 +17,7 @@ export interface DisplayProduct extends Product {
 }
 
 export interface AnalyzeProduct extends Product {
-  vendor: string;
+  vendor: ProductAddOn;
   flavor: ProductAddOn;
   category: ProductAddOn;
   allergens: ProductAddOn[];
@@ -26,8 +26,8 @@ export interface AnalyzeProduct extends Product {
 
 export interface DisplayAnalyzeProduct
   extends Product,
-    DisplayProduct,
-    Omit<AnalyzeProduct, 'vendor'> {}
+    Omit<DisplayProduct, 'vendor'>,
+    AnalyzeProduct {}
 
 export interface FullProduct extends Product {
   expertComment: string;

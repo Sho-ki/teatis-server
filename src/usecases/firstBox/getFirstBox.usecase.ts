@@ -3,7 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
 import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+
 import { GetFirstBoxDto } from '@Controllers/discoveries/dtos/getFirstBox';
+
 import {
   DisplayAnalyzeProduct,
   DisplayProduct,
@@ -256,7 +258,8 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
           sku,
           name,
           label,
-          vendor,
+          vendor: vendor.label,
+
           images,
           expertComment,
           ingredientLabel,
@@ -292,6 +295,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
         is_sent_1: 0,
         avg_flavor_score: 5,
         avg_category_score: 5,
+        vendor_id: product.vendor.id,
       };
 
       customerShippableProducts.products.push(shippableProduct);
@@ -334,7 +338,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
             sku,
             name,
             label,
-            vendor,
+            vendor: vendor.label,
             images,
             expertComment,
             ingredientLabel,
