@@ -32,10 +32,15 @@ import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '@Usecases/custo
 import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { PractitionerBoxOrderHistoryRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
+import { GetFirstBoxUsecase } from '../../usecases/firstBox/getFirstBox.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'GetFirstBoxUsecaseInterface',
+      useClass: GetFirstBoxUsecase,
+    },
     {
       provide: 'UpdatePractitionerBoxOrderHistoryUsecaseInterface',
       useClass: UpdatePractitionerBoxOrderHistoryUsecase,
