@@ -13,6 +13,7 @@ export interface CustomerShippableProduct {
   flavor_id: number;
   category_id: number;
   is_sent_1: 0 | 1;
+  vendor_id: number;
   avg_category_score: number;
   avg_flavor_score: number;
 }

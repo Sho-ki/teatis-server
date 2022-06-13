@@ -3,27 +3,19 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
 import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { GetNextBoxSurveyDto } from '@Controllers/discoveries/dtos/getNextBoxSurvey';
+import { GetFirstBoxDto } from '@Controllers/ xdiscoveries/dtos/getFirstBox';
 import {
   DisplayAnalyzeProduct,
   DisplayProduct,
   Product,
 } from '@Domains/Product';
-import { CustomerNextBoxSurveyRepoInterface } from '@Repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
 import {
   AnalyzePreferenceArgs,
   AnalyzePreferenceRepoInterface,
   CustomerShippableProduct,
 } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
 
-import { CustomerOrder } from '@Domains/CustomerOrder';
-import { AverageScores } from '@Domains/AverageScores';
-
-interface GetNextBoxArgs extends GetNextBoxSurveyDto {
-  productCount: number;
-}
-
-export interface GetNextBoxRes {
+export interface GetFirstBoxRes {
   products: DisplayProduct[];
 }
 
@@ -39,16 +31,12 @@ interface FilterProductsArgs {
   nextWantProducts?: Product[];
 }
 
-export interface GetNextBoxInterface {
-  getNextBoxSurvey({
-    email,
-    uuid,
-    productCount,
-  }: GetNextBoxArgs): Promise<[GetNextBoxRes, Error]>;
+export interface GetFirstBoxUsecaseInterface {
+  getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]>;
 }
 
 @Injectable()
-export class GetNextBox implements GetNextBoxInterface {
+export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
   constructor(
     @Inject('ShipheroRepoInterface')
     private shipheroRepo: ShipheroRepoInterface,
@@ -58,13 +46,11 @@ export class GetNextBox implements GetNextBoxInterface {
     private productGeneralRepo: ProductGeneralRepoInterface,
     @Inject('AnalyzePreferenceRepoInterface')
     private analyzePreferenceRepo: AnalyzePreferenceRepoInterface,
-    @Inject('CustomerNextBoxSurveyRepoInterface')
-    private customerNextBoxSurveyRepo: CustomerNextBoxSurveyRepoInterface,
   ) {}
 
   private filterProducts({
     filterType,
-    customerFilter = { id: [], sku: [] },
+    customerFilter = { id: [] as number[], sku: [] as string[] },
     products,
     nextWantProducts = [],
   }: FilterProductsArgs): DisplayAnalyzeProduct[] {
@@ -111,58 +97,13 @@ export class GetNextBox implements GetNextBoxInterface {
     return filteredProducts;
   }
 
-  async getNextBoxSurvey({
-    email,
+  async getFirstBox({
     uuid,
-    productCount,
-  }: GetNextBoxArgs): Promise<[GetNextBoxRes, Error]> {
-    let [nextWantProducts, getNextWantError]: [Product[]?, Error?] = [
-      undefined,
-      undefined,
-    ];
-
-    let [lastCustomerOrder, getLastCustomerOrderError]: [CustomerOrder, Error] =
-      [{ products: [], orderNumber: '', orderDate: '', orderId: '' }, null];
-
-    let [scores, getAverageScoresError]: [AverageScores?, Error?] = [
-      undefined,
-      undefined,
-    ];
-
-    // When the first box, uuid would exist
-    if (uuid) {
-      const [customer, getCustomerError] =
-        await this.customerGeneralRepo.getCustomerByUuid({ uuid });
-      if (getCustomerError) {
-        return [null, getCustomerError];
-      }
-      email = customer.email;
-    } else if (email) {
-      [
-        [lastCustomerOrder, getLastCustomerOrderError],
-        [nextWantProducts, getNextWantError],
-        [scores, getAverageScoresError],
-      ] = await Promise.all([
-        this.shipheroRepo.getLastCustomerOrder({
-          email,
-        }),
-        this.customerNextBoxSurveyRepo.getNextWant({
-          orderNumber: lastCustomerOrder.orderNumber,
-        }),
-        this.customerNextBoxSurveyRepo.getAverageScores({ email }),
-      ]);
-      if (getLastCustomerOrderError) {
-        return [null, getLastCustomerOrderError];
-      }
-      if (getNextWantError) {
-        return [null, getNextWantError];
-      }
-      if (getAverageScoresError) {
-        return [null, getAverageScoresError];
-      }
-      if (nextWantProducts.length > 0) {
-        productCount -= nextWantProducts.length;
-      }
+  }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]> {
+    const [customer, getCustomerError] =
+      await this.customerGeneralRepo.getCustomerByUuid({ uuid });
+    if (getCustomerError) {
+      return [null, getCustomerError];
     }
 
     const [
@@ -175,27 +116,27 @@ export class GetNextBox implements GetNextBoxInterface {
         customerUnavailableCookingMethodsError,
       ],
       [customerCategoryPreferences, customerCategoryPreferencesError],
-      [nextUnwantProducts, getCustomerUnwantError],
     ] = await Promise.all([
-      this.customerGeneralRepo.getCustomerMedicalCondition({ email }),
+      this.customerGeneralRepo.getCustomerMedicalCondition({
+        email: customer.email,
+      }),
       this.shipheroRepo.getNoInventryProducts(),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'flavorDislikes',
       }),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'allergens',
       }),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'unavailableCookingMethods',
       }),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'categoryPreferences',
       }),
-      this.customerNextBoxSurveyRepo.getNextUnwant({ email }),
     ]);
 
     if (getCustomerMedicalConditionError) {
@@ -236,7 +177,6 @@ export class GetNextBox implements GetNextBoxInterface {
         filterType: 'flavorDislikes',
         customerFilter: customerFlavorDislikes,
         products: allProducts,
-        nextWantProducts: nextWantProducts,
       });
     }
 
@@ -248,7 +188,6 @@ export class GetNextBox implements GetNextBoxInterface {
         filterType: 'allergens',
         customerFilter: customerAllergens,
         products: allProducts,
-        nextWantProducts: nextWantProducts,
       });
     }
 
@@ -260,7 +199,6 @@ export class GetNextBox implements GetNextBoxInterface {
         filterType: 'unavailableCookingMethods',
         customerFilter: customerUnavailableCookingMethods,
         products: allProducts,
-        nextWantProducts: nextWantProducts,
       });
     }
 
@@ -268,36 +206,38 @@ export class GetNextBox implements GetNextBoxInterface {
       return [null, customerCategoryPreferencesError];
     }
 
-    if (getCustomerUnwantError) {
-      return [null, getCustomerUnwantError];
-    }
-    if (nextUnwantProducts.length > 0) {
-      allProducts = this.filterProducts({
-        filterType: 'unwant',
-        customerFilter: {
-          id: nextUnwantProducts.map(({ id }) => {
-            return id;
-          }),
-        },
-        products: allProducts,
-        nextWantProducts: nextWantProducts,
-      });
-    }
+    const defaultIncludeSkus = [
+      'x10245-GUM-SN20102',
+      'x10208-CHC-SN20124',
+      'x10204-SWT-SN20114',
+      'x10230-SOU-SN20135',
+      'x10262-COK-SN20113',
+      'x10244-SWT-SN20138',
+    ];
+
+    const defaultExcludeSkus = [
+      'x10249-SHK-SN20143',
+      'x10253-SOU-SN20100',
+      'x10256-OAT-SN20152',
+      'x10231-CHP-SN20116',
+      'x10221-CHP-SN20101',
+    ];
     const allCategories = [18, 19, 7, 15, 17, 6, 4, 3, 13, 25, 11, 26, 14, 10];
     const favoriteCategories = customerCategoryPreferences.id.length
       ? customerCategoryPreferences.id
       : allCategories; // when nothing is selected, choose all the categories
     let customerShippableProducts: AnalyzePreferenceArgs = {
-      necessary_responces: productCount,
+      necessary_responces: 15 - defaultIncludeSkus.length,
       products: [],
       user_fav_categories: favoriteCategories,
     };
-    let nextBoxProducts: GetNextBoxRes = { products: [] };
+    let nextBoxProducts: GetFirstBoxRes = { products: [] };
 
     for (let product of allProducts) {
       if (
-        nextWantProducts &&
-        nextWantProducts.some((nextWant) => nextWant.id === product.id)
+        defaultIncludeSkus.some(
+          (defaultIncludeSku) => defaultIncludeSku === product.sku,
+        )
       ) {
         const {
           id,
@@ -336,24 +276,25 @@ export class GetNextBox implements GetNextBoxInterface {
           },
         });
         continue;
+      } else if (
+        defaultExcludeSkus.some(
+          (defaultIncludeSku) => defaultIncludeSku === product.sku,
+        )
+      ) {
+        continue;
       }
+
       let shippableProduct: CustomerShippableProduct = {
         product_id: product.id,
         product_sku: product.sku,
         flavor_id: product.flavor.id,
         category_id: product.category.id,
-        vendor_id: product.vendor.id,
         is_sent_1: 0,
-        avg_flavor_score: scores?.flavorLikesAverages[product.flavor.id] || 5,
-        avg_category_score:
-          scores?.categoryLikesAverages[product.category.id] || 5,
+        avg_flavor_score: 5,
+        avg_category_score: 5,
+        vendor_id: product.vendor.id,
       };
-      for (let lastSentProduct of lastCustomerOrder.products) {
-        if (product.sku === lastSentProduct.sku) {
-          shippableProduct = { ...shippableProduct, is_sent_1: 1 };
-          break;
-        }
-      }
+
       customerShippableProducts.products.push(shippableProduct);
     }
     let [analyzedProductsRes, analyzedProductsError] =
