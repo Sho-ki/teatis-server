@@ -129,10 +129,10 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     customerOrderCount.orderCount <= 1
       ? orderProducts.push(
           { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
-          { sku: 'NP-carton-lightblue' }, // Uprinting designed boxes
+          { sku: 'NP-packagingtape' }, // Packaging Tape
           { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
         )
-      : orderProducts.push({ sku: 'NP-carton-lightblue' }); //   Uprinting designed boxes
+      : orderProducts.push({ sku: 'NP-packagingtape' }); //   Packaging Tape
 
     const transactionPrice: number = Number(subtotal_price);
 

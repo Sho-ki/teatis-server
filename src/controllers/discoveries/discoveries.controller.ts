@@ -42,6 +42,8 @@ import { OrderQueue } from '@Domains/OrderQueue';
 import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
 import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
+import { GetFirstBoxDto } from './dtos/getFirstBox';
+import { GetFirstBoxUsecaseInterface } from '../../usecases/firstBox/getFirstBox.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -74,6 +76,8 @@ export class DiscoveriesController {
     private createCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
     @Inject('UpdatePractitionerBoxOrderHistoryUsecaseInterface')
     private updatePractitionerBoxOrderHistoryUsecase: UpdatePractitionerBoxOrderHistoryUsecaseInterface,
+    @Inject('GetFirstBoxUsecaseInterface')
+    private getFirstBoxUsecase: GetFirstBoxUsecaseInterface,
 
     private teatisJob: TeatisJobs,
   ) {}
@@ -136,12 +140,23 @@ export class DiscoveriesController {
     @Query() body: GetNextBoxSurveyDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const isFirstBox = body.uuid ? true : false;
-    const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey({
-      email: body.email,
-      uuid: body.uuid,
-      productCount: isFirstBox ? 15 : 30,
-    });
+    const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey(
+      body,
+    );
+
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send(res);
+  }
+
+  // GET: api/discovery/first-box
+  @Get('first-box')
+  async getFirstBox(
+    @Query() body: GetFirstBoxDto,
+    @Res() response: Response,
+  ): Promise<Response<any | Error>> {
+    const [res, error] = await this.getFirstBoxUsecase.getFirstBox(body);
 
     if (error) {
       return response.status(500).send(error);
