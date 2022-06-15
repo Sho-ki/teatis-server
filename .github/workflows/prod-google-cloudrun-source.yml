@@ -47,18 +47,16 @@
 name: Deploy to Cloud Run from Source for the Dev environment
 
 on:
-  push:
-    branches:
-      - ops/*
+  release:
+    types: [published]
 
 env:
-  PROJECT_ID: teatis-discovery-dev
-  SERVICE: teatis-discovery-dev
+  PROJECT_ID: teatis-discovery
+  SERVICE: teatis-discovery
   REGION: us-central1
 
 jobs:
   deploy:
-    # Add 'id-token' with the intended permissions for workload identity federation
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -72,8 +70,8 @@ jobs:
         id: auth
         uses: 'google-github-actions/auth@v0'
         with:
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER_DEV }}'
-          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}'
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER_PROD }}'
+          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_PROD }}'
 
       - name: Deploy to Cloud Run
         id: deploy
