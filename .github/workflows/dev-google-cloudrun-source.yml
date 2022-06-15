@@ -47,8 +47,9 @@
 name: Deploy to Cloud Run from Source for the Dev environment
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - ops/*
 
 env:
   PROJECT_ID: teatis-discovery-dev
