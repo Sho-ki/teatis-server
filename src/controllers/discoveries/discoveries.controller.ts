@@ -31,8 +31,8 @@ import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurv
 import { UpdateCustomerOrderByCustomerUuidUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
-import { GetNextBoxUsecaseInterface } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
-import { GetNextBoxSurveyDto } from './dtos/getNextBoxSurvey';
+import { GetNextBoxUsecaseInterface } from '@Usecases/nextBox/getNextBox.usecase';
+import { GetNextBoxDto } from './dtos/getNextBox';
 import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
 import { GetCustomerNutritionUsecaseInterface } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
@@ -65,7 +65,7 @@ export class DiscoveriesController {
     @Inject('DeleteCustomerBoxUsecaseInterface')
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
-    private getNextBoxSurveyUsecase: GetNextBoxUsecaseInterface,
+    private getNextBoxUsecase: GetNextBoxUsecaseInterface,
     @Inject('CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface')
     private createCheckoutCartOfCustomerOriginalBoxUsecase: CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface,
     @Inject('GetCustomerNutritionUsecaseInterface')
@@ -136,13 +136,11 @@ export class DiscoveriesController {
 
   // GET: api/discovery/next-box-survey
   @Get('next-box-survey')
-  async getNextBoxSurvey(
-    @Query() body: GetNextBoxSurveyDto,
+  async getNextBox(
+    @Query() body: GetNextBoxDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const [res, error] = await this.getNextBoxSurveyUsecase.getNextBoxSurvey(
-      body,
-    );
+    const [res, error] = await this.getNextBoxUsecase.getNextBox(body);
 
     if (error) {
       return response.status(500).send(error);

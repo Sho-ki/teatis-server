@@ -17,7 +17,7 @@ interface GetAverageScoresArgs {
   email: string;
 }
 
-export interface CustomerNextBoxSurveyRepoInterface {
+export interface CustomerPreferenceRepoInterface {
   getNextWant({ orderNumber }: GetNextWantArgs): Promise<[Product[]?, Error?]>;
   getNextUnwant({ email }: GetNextUnwantArgs): Promise<[Product[]?, Error?]>;
   getAverageScores({
@@ -26,9 +26,7 @@ export interface CustomerNextBoxSurveyRepoInterface {
 }
 
 @Injectable()
-export class CustomerNextBoxSurveyRepo
-  implements CustomerNextBoxSurveyRepoInterface
-{
+export class CustomerPreferenceRepo implements CustomerPreferenceRepoInterface {
   constructor(private prisma: PrismaService) {}
 
   async getNextWant({

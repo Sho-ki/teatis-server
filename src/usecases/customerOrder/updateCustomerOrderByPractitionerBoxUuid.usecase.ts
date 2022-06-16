@@ -6,7 +6,7 @@ import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCust
 import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { Product } from 'src/domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
-import { GetNextBoxInterface } from '@Usecases/utils/getNextBox';
+import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
@@ -37,8 +37,8 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     private practitionerBoxRepo: PractitionerBoxRepoInterface,
     @Inject('ShopifyRepoInterface')
     private readonly shopifyRepo: ShopifyRepoInterface,
-    @Inject('GetNextBoxInterface')
-    private nextBoxUtil: GetNextBoxInterface,
+    @Inject('GetSuggestionInterface')
+    private getSuggestionUtil: GetSuggestionInterface,
     @Inject('CreateCustomerUsecaseInterface')
     private createCustomerUtil: CreateCustomerUsecaseInterface,
   ) {}
@@ -113,8 +113,8 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     if (!practitionerSingleBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
-        await this.nextBoxUtil.getNextBoxSurvey({
-          email: shopifyCustomer.email,
+        await this.getSuggestionUtil.getSuggestion({
+          customer,
           productCount: 15,
         });
       orderProducts = nextBoxProductsRes.products.map((product) => {

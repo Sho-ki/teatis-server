@@ -3,27 +3,28 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
 import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { GetNextBoxSurveyDto } from '@Controllers/discoveries/dtos/getNextBoxSurvey';
 import {
   DisplayAnalyzeProduct,
   DisplayProduct,
   Product,
 } from '@Domains/Product';
-import { CustomerNextBoxSurveyRepoInterface } from '@Repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
+import { CustomerPreferenceRepoInterface } from '@Repositories/teatisDB/customerRepo/customerPreference.repository';
 import {
   AnalyzePreferenceArgs,
   AnalyzePreferenceRepoInterface,
   CustomerShippableProduct,
 } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
 
-import { CustomerOrder } from '@Domains/CustomerOrder';
-import { AverageScores } from '@Domains/AverageScores';
+import { Customer } from '@Domains/Customer';
 
-interface GetNextBoxArgs extends GetNextBoxSurveyDto {
+interface GetSuggestionArgs {
+  customer: Customer;
   productCount: number;
+  includeProducts?: Pick<Product, 'sku'>[];
+  excludeProducts?: Pick<Product, 'sku'>[];
 }
 
-export interface GetNextBoxRes {
+export interface GetSuggestionRes {
   products: DisplayProduct[];
 }
 
@@ -39,15 +40,17 @@ interface FilterProductsArgs {
   nextWantProducts?: Product[];
 }
 
-export interface GetNextBoxInterface {
-  getNextBoxSurvey({
-    email,
+export interface GetSuggestionInterface {
+  getSuggestion({
+    customer,
     productCount,
-  }: GetNextBoxArgs): Promise<[GetNextBoxRes, Error]>;
+    includeProducts,
+    excludeProducts,
+  }: GetSuggestionArgs): Promise<[GetSuggestionRes, Error]>;
 }
 
 @Injectable()
-export class GetNextBox implements GetNextBoxInterface {
+export class GetSuggestion implements GetSuggestionInterface {
   constructor(
     @Inject('ShipheroRepoInterface')
     private shipheroRepo: ShipheroRepoInterface,
@@ -57,8 +60,8 @@ export class GetNextBox implements GetNextBoxInterface {
     private productGeneralRepo: ProductGeneralRepoInterface,
     @Inject('AnalyzePreferenceRepoInterface')
     private analyzePreferenceRepo: AnalyzePreferenceRepoInterface,
-    @Inject('CustomerNextBoxSurveyRepoInterface')
-    private customerNextBoxSurveyRepo: CustomerNextBoxSurveyRepoInterface,
+    @Inject('CustomerPreferenceRepoInterface')
+    private customerPreferenceRepo: CustomerPreferenceRepoInterface,
   ) {}
 
   private filterProducts({
@@ -110,34 +113,49 @@ export class GetNextBox implements GetNextBoxInterface {
     return filteredProducts;
   }
 
-  async getNextBoxSurvey({
-    email,
+  async getSuggestion({
+    customer,
     productCount,
-  }: GetNextBoxArgs): Promise<[GetNextBoxRes, Error]> {
-    let [
-      [lastCustomerOrder, getLastCustomerOrderError],
-      [scores, getAverageScoresError],
-    ] = await Promise.all([
-      this.shipheroRepo.getLastCustomerOrder({
-        email,
-      }),
-      this.customerNextBoxSurveyRepo.getAverageScores({ email }),
-    ]);
-    const [nextWantProducts, getNextWantError] =
-      await this.customerNextBoxSurveyRepo.getNextWant({
-        orderNumber: lastCustomerOrder.orderNumber,
+    includeProducts = [],
+    excludeProducts = [],
+  }: GetSuggestionArgs): Promise<[GetSuggestionRes, Error]> {
+    let isFirstOrder = false;
+    const [lastCustomerOrder, getLastCustomerOrderError] =
+      await this.shipheroRepo.getLastCustomerOrder({
+        email: customer.email,
       });
-
     if (getLastCustomerOrderError) {
       return [null, getLastCustomerOrderError];
+    }
+    if (lastCustomerOrder.products.length === 0) {
+      isFirstOrder = true;
+    }
+    const [
+      [scores, getAverageScoresError],
+      [nextWantProducts, getNextWantError],
+      [nextUnwantProducts, getCustomerUnwantError],
+    ] = !isFirstOrder
+      ? await Promise.all([
+          this.customerPreferenceRepo.getAverageScores({
+            email: customer.email,
+          }),
+          this.customerPreferenceRepo.getNextWant({
+            orderNumber: lastCustomerOrder.orderNumber,
+          }),
+          this.customerPreferenceRepo.getNextUnwant({ email: customer.email }),
+        ])
+      : [[], [], []];
+
+    if (getAverageScoresError) {
+      return [null, getAverageScoresError];
     }
     if (getNextWantError) {
       return [null, getNextWantError];
     }
-    if (getAverageScoresError) {
-      return [null, getAverageScoresError];
+    if (getCustomerUnwantError) {
+      return [null, getCustomerUnwantError];
     }
-    if (nextWantProducts.length > 0) {
+    if (nextWantProducts && nextWantProducts.length > 0) {
       productCount -= nextWantProducts.length;
     }
 
@@ -151,27 +169,27 @@ export class GetNextBox implements GetNextBoxInterface {
         customerUnavailableCookingMethodsError,
       ],
       [customerCategoryPreferences, customerCategoryPreferencesError],
-      [nextUnwantProducts, getCustomerUnwantError],
     ] = await Promise.all([
-      this.customerGeneralRepo.getCustomerMedicalCondition({ email }),
+      this.customerGeneralRepo.getCustomerMedicalCondition({
+        email: customer.email,
+      }),
       this.shipheroRepo.getNoInventryProducts(),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'flavorDislikes',
       }),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'allergens',
       }),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'unavailableCookingMethods',
       }),
       this.customerGeneralRepo.getCustomerPreference({
-        email,
+        email: customer.email,
         type: 'categoryPreferences',
       }),
-      this.customerNextBoxSurveyRepo.getNextUnwant({ email }),
     ]);
 
     if (getCustomerMedicalConditionError) {
@@ -212,7 +230,7 @@ export class GetNextBox implements GetNextBoxInterface {
         filterType: 'flavorDislikes',
         customerFilter: customerFlavorDislikes,
         products: allProducts,
-        nextWantProducts: nextWantProducts,
+        nextWantProducts,
       });
     }
 
@@ -224,7 +242,7 @@ export class GetNextBox implements GetNextBoxInterface {
         filterType: 'allergens',
         customerFilter: customerAllergens,
         products: allProducts,
-        nextWantProducts: nextWantProducts,
+        nextWantProducts,
       });
     }
 
@@ -236,7 +254,7 @@ export class GetNextBox implements GetNextBoxInterface {
         filterType: 'unavailableCookingMethods',
         customerFilter: customerUnavailableCookingMethods,
         products: allProducts,
-        nextWantProducts: nextWantProducts,
+        nextWantProducts,
       });
     }
 
@@ -244,10 +262,7 @@ export class GetNextBox implements GetNextBoxInterface {
       return [null, customerCategoryPreferencesError];
     }
 
-    if (getCustomerUnwantError) {
-      return [null, getCustomerUnwantError];
-    }
-    if (nextUnwantProducts.length > 0) {
+    if (nextUnwantProducts && nextUnwantProducts.length > 0) {
       allProducts = this.filterProducts({
         filterType: 'unwant',
         customerFilter: {
@@ -256,7 +271,7 @@ export class GetNextBox implements GetNextBoxInterface {
           }),
         },
         products: allProducts,
-        nextWantProducts: nextWantProducts,
+        nextWantProducts,
       });
     }
     const allCategories = [18, 19, 7, 15, 17, 6, 4, 3, 13, 25, 11, 26, 14, 10];
@@ -268,25 +283,26 @@ export class GetNextBox implements GetNextBoxInterface {
       products: [],
       user_fav_categories: favoriteCategories,
     };
-    let nextBoxProducts: GetNextBoxRes = { products: [] };
+    let nextBoxProducts: GetSuggestionRes = { products: [] };
 
     for (let product of allProducts) {
+      const {
+        id,
+        sku,
+        name,
+        label,
+        vendor,
+        images,
+        expertComment,
+        ingredientLabel,
+        allergenLabel,
+        nutritionFact,
+      } = product;
       if (
-        nextWantProducts &&
-        nextWantProducts.some((nextWant) => nextWant.id === product.id)
+        includeProducts.some(({ sku }) => sku === product.sku) ||
+        (nextWantProducts &&
+          nextWantProducts.some((nextWant) => nextWant.id === product.id))
       ) {
-        const {
-          id,
-          sku,
-          name,
-          label,
-          vendor,
-          images,
-          expertComment,
-          ingredientLabel,
-          allergenLabel,
-          nutritionFact,
-        } = product;
         nextBoxProducts.products.unshift({
           id,
           sku,
@@ -312,25 +328,31 @@ export class GetNextBox implements GetNextBoxInterface {
           },
         });
         continue;
-      }
-      let shippableProduct: CustomerShippableProduct = {
-        product_id: product.id,
-        product_sku: product.sku,
-        flavor_id: product.flavor.id,
-        category_id: product.category.id,
-        vendor_id: product.vendor.id,
-        is_sent_1: 0,
-        avg_flavor_score: scores?.flavorLikesAverages[product.flavor.id] || 5,
-        avg_category_score:
-          scores?.categoryLikesAverages[product.category.id] || 5,
-      };
-      for (let lastSentProduct of lastCustomerOrder.products) {
-        if (product.sku === lastSentProduct.sku) {
-          shippableProduct = { ...shippableProduct, is_sent_1: 1 };
-          break;
+      } else if (excludeProducts.some(({ sku }) => sku === product.sku)) {
+        continue;
+      } else {
+        let shippableProduct: CustomerShippableProduct = {
+          product_id: product.id,
+          product_sku: product.sku,
+          flavor_id: product.flavor.id,
+          category_id: product.category.id,
+          vendor_id: product.vendor.id,
+          is_sent_1: 0,
+          avg_flavor_score: scores?.flavorLikesAverages[product.flavor.id] || 5,
+          avg_category_score:
+            scores?.categoryLikesAverages[product.category.id] || 5,
+        };
+        if (!isFirstOrder) {
+          for (let lastSentProduct of lastCustomerOrder.products) {
+            if (product.sku === lastSentProduct.sku) {
+              shippableProduct = { ...shippableProduct, is_sent_1: 1 };
+              break;
+            }
+          }
         }
+
+        customerShippableProducts.products.push(shippableProduct);
       }
-      customerShippableProducts.products.push(shippableProduct);
     }
     let [analyzedProductsRes, analyzedProductsError] =
       await this.analyzePreferenceRepo.getAnalyzedProducts(
