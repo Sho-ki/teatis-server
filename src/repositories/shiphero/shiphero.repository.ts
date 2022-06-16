@@ -167,12 +167,23 @@ export class ShipheroRepo implements ShipheroRepoInterface {
         email,
       });
 
+      const hasOrdered = res?.orders?.data?.edges.length > 0;
       const node = res?.orders?.data?.edges[0]?.node;
       const orderNumber = node?.order_number;
       const items = node?.line_items?.edges;
       const orderId = node?.id;
       const orderDate = node?.order_date;
 
+      if (!hasOrdered) {
+        return [
+          {
+            orderNumber: undefined,
+            products: [],
+            orderDate: undefined,
+            orderId: undefined,
+          },
+        ];
+      }
       if (!node || !orderNumber || !items) {
         throw new Error();
       }

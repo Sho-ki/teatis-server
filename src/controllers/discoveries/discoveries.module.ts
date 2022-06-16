@@ -18,10 +18,10 @@ import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPr
 import { UpdateCustomerOrderByCustomerUuidUsecase } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
 import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { OrderQueueRepo } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
-import { GetNextBoxUsecase } from '@Usecases/nextBoxSurvey/getNextBoxSurvey.usecase';
-import { CustomerNextBoxSurveyRepo } from '@Repositories/teatisDB/customerRepo/customerNextBoxSurvey.repository';
+import { GetNextBoxUsecase } from '@Usecases/nextBox/getNextBox.usecase';
+import { CustomerPreferenceRepo } from '@Repositories/teatisDB/customerRepo/customerPreference.repository';
 import { AnalyzePreferenceRepo } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
-import { GetNextBox } from '@Usecases/utils/getNextBox';
+import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
 import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
@@ -74,16 +74,16 @@ import { GetFirstBoxUsecase } from '../../usecases/firstBox/getFirstBox.usecase'
       useClass: CreateCheckoutCartOfCustomerOriginalBoxUsecase,
     },
     {
-      provide: 'GetNextBoxInterface',
-      useClass: GetNextBox,
+      provide: 'GetSuggestionInterface',
+      useClass: GetSuggestion,
     },
     {
       provide: 'AnalyzePreferenceRepoInterface',
       useClass: AnalyzePreferenceRepo,
     },
     {
-      provide: 'CustomerNextBoxSurveyRepoInterface',
-      useClass: CustomerNextBoxSurveyRepo,
+      provide: 'CustomerPreferenceRepoInterface',
+      useClass: CustomerPreferenceRepo,
     },
     {
       provide: 'GetNextBoxUsecaseInterface',

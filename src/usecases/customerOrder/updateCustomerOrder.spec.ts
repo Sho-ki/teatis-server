@@ -11,7 +11,7 @@ import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
 } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { GetNextBoxInterface, GetNextBoxRes } from '../utils/getNextBox';
+import { GetNextBoxInterface, GetNextBoxRes } from '../utils/getSuggestion';
 import { Customer } from '@Domains/Customer';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CustomerOrder } from '@Domains/CustomerOrder';
