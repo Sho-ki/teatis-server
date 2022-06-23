@@ -68,7 +68,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
 
       const existingProducts =
         await this.prisma.intermediatePractitionerBoxProduct.findMany({
-          where: { practitionerBox: { AND: [{ practitionerId, label }] } },
+          where: { practitionerBox: { AND: [{ label }, { practitionerId }] } },
           select: {
             product: true,
           },
@@ -92,9 +92,14 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
       // Add
       await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
         where: {
-          OR: productIdsToRemove.map((productId) => {
-            return { productId };
-          }),
+          AND: [
+            {
+              OR: productIdsToRemove.map((productId) => {
+                return { productId };
+              }),
+            },
+            { practitionerBox: { AND: [{ label }, { practitionerId }] } },
+          ],
         },
       });
 
