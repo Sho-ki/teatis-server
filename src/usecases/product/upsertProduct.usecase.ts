@@ -7,6 +7,7 @@ import { Product } from '../../domains/Product';
 export interface UpsertProductUsecaseInterface {
   upsertProduct({
     activeStatus,
+    style,
     allergenLabel,
     ingredientLabel,
     expertComment,
@@ -38,6 +39,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
 
   async upsertProduct({
     activeStatus,
+    style,
     allergenLabel,
     ingredientLabel,
     expertComment,
@@ -62,6 +64,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
       const [product, upsertProductError] =
         await this.productGeneralRepo.upsertProduct({
           activeStatus,
+          style,
           allergenLabel,
           ingredientLabel,
           expertComment,

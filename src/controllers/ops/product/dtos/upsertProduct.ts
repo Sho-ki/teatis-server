@@ -1,7 +1,6 @@
 import {
   IsArray,
   IsNumber,
-  isObject,
   IsObject,
   IsOptional,
   IsString,
@@ -9,7 +8,12 @@ import {
 
 export class UpsertProductDto {
   @IsString()
-  activeStatus: 'active' | 'inactive';
+  @IsOptional()
+  activeStatus?: 'active' | 'inactive';
+
+  @IsString()
+  @IsOptional()
+  style?: 'normal' | 'refrigerated' | 'frozen';
 
   @IsString()
   @IsOptional()

@@ -35,6 +35,7 @@ model Customers{
   gender String?
   activeLevel String?
   mealsPerDay Int?
+  frozenAvailable Boolean? @default(false)
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
   intermediateCustomerAllergens IntermediateCustomerAllergen[]
@@ -132,6 +133,7 @@ model IntermediateProductFoodType{
 model Product{
   id                  Int             @default(autoincrement()) @id
   activeStatus  ActiveStatus? @default(active)
+  style  Style? @default(normal)
   name String?
   label String?
   ingredientLabel String?
@@ -170,6 +172,11 @@ enum ActiveStatus {
   inactive
 }
 
+enum Style {
+  normal
+  refrigerated
+  frozen
+}
 
 model ProductImage{
   id  Int   @default(autoincrement()) @id
