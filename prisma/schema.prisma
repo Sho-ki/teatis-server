@@ -133,7 +133,7 @@ model IntermediateProductFoodType{
 model Product{
   id                  Int             @default(autoincrement()) @id
   activeStatus  ActiveStatus? @default(active)
-  style  Style? @default(normal)
+  preservationStyle  PreservationStyle? @default(normal)
   name String?
   label String?
   ingredientLabel String?
@@ -172,7 +172,7 @@ enum ActiveStatus {
   inactive
 }
 
-enum Style {
+enum PreservationStyle {
   normal
   refrigerated
   frozen
