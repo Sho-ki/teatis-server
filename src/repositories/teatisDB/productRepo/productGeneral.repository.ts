@@ -7,6 +7,7 @@ import {
   ProductImage,
 } from '@Domains/Product';
 import { PrismaService } from '../../../prisma.service';
+import { calculateAddedAndDeletedNumbers } from '../../utils/calculateAddedAndDeletedNumbers';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -119,25 +120,6 @@ export interface ProductGeneralRepoInterface {
 
 @Injectable()
 export class ProductGeneralRepo implements ProductGeneralRepoInterface {
-  private getAddAndDeleteNumber(
-    existingNumbers: number[],
-    newNumbers: number[],
-  ): [number[], number[]] {
-    const existingNumberSet = new Set(existingNumbers);
-    const newNumberSet = new Set(newNumbers);
-
-    const numbersToDelete = existingNumbers.filter(
-      (number) => !newNumberSet.has(number),
-    );
-    // Delete
-
-    const numbersToAdd = newNumbers.filter(
-      (number) => !existingNumberSet.has(number),
-    );
-    // Add
-    return [numbersToAdd, numbersToDelete];
-  }
-
   constructor(private prisma: PrismaService) {}
   async upsertProduct({
     activeStatus,
@@ -217,13 +199,16 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         ({ productIngredient }) => productIngredient.id,
       );
       const [ingredientsToAdd, ingredientsToDelete] =
-        this.getAddAndDeleteNumber(existingIndredientIds, newIngredientIds);
+        calculateAddedAndDeletedNumbers(
+          existingIndredientIds,
+          newIngredientIds,
+        );
 
       const existingCookingMethodIds = existingCookingMethods.map(
         ({ productCookingMethod }) => productCookingMethod.id,
       );
       const [cookingMethodsToAdd, cookingMethodsToDelete] =
-        this.getAddAndDeleteNumber(
+        calculateAddedAndDeletedNumbers(
           existingCookingMethodIds,
           newCookingMethodIds,
         );
@@ -231,18 +216,14 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
       const existingAllergenIds = existingAllergens.map(
         ({ productAllergen }) => productAllergen.id,
       );
-      const [allergensToAdd, allergensToDelete] = this.getAddAndDeleteNumber(
-        existingAllergenIds,
-        newAllergenIds,
-      );
+      const [allergensToAdd, allergensToDelete] =
+        calculateAddedAndDeletedNumbers(existingAllergenIds, newAllergenIds);
 
       const existingFoodTypeIds = existingFoodTypes.map(
         ({ productFoodType }) => productFoodType.id,
       );
-      const [foodTypesToAdd, foodTypesToDelete] = this.getAddAndDeleteNumber(
-        existingFoodTypeIds,
-        newFoodTypeIds,
-      );
+      const [foodTypesToAdd, foodTypesToDelete] =
+        calculateAddedAndDeletedNumbers(existingFoodTypeIds, newFoodTypeIds);
 
       const existingImageSet = new Set(existingImages);
       const newImageSet = new Set(newImages);
