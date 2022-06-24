@@ -574,7 +574,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
           name: true,
           label: true,
           externalSku: true,
-          productVendor: { select: { label: true, id: true, name: true } },
+          productVendor: { select: { label: true, id: true } },
           productImages: { select: { id: true, position: true, src: true } },
           productFlavor: { select: { id: true, name: true, label: true } },
           productCategory: { select: { id: true, name: true, label: true } },
@@ -632,12 +632,10 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             sku: product.externalSku,
             vendor: product?.productVendor?.id
               ? {
-                  id: product?.productVendor?.id,
-                  label: product?.productVendor?.label,
-                  name: product?.productVendor?.name,
+                  id: product.productVendor.id,
+                  label: product.productVendor.label,
                 }
               : {},
-
             images: product?.productImages
               ? product.productImages.map((image): ProductImage => {
                   return {
