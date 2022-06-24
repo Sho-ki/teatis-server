@@ -39,7 +39,7 @@ export interface GetOption {
 
 interface UpsertProductArgs {
   activeStatus?: 'active' | 'inactive';
-  style?: 'normal' | 'refrigerated' | 'frozen';
+  preservationStyle?: 'normal' | 'refrigerated' | 'frozen';
   allergenLabel?: string;
   ingredientLabel?: string;
   expertComment?: string;
@@ -84,7 +84,7 @@ interface UpsertProductArgs {
 export interface ProductGeneralRepoInterface {
   upsertProduct({
     activeStatus,
-    style,
+    preservationStyle,
     allergenLabel,
     ingredientLabel,
     expertComment,
@@ -141,7 +141,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
   async upsertProduct({
     activeStatus,
-    style,
+    preservationStyle,
     allergenLabel,
     ingredientLabel,
     expertComment,
@@ -299,7 +299,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         where: { externalSku },
         create: {
           activeStatus,
-          style,
+          preservationStyle,
           allergenLabel,
           ingredientLabel,
           expertComment,
@@ -374,7 +374,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         },
         update: {
           activeStatus,
-          style,
+          preservationStyle,
           allergenLabel,
           ingredientLabel,
           expertComment,

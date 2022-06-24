@@ -13,7 +13,7 @@ export class UpsertProductDto {
 
   @IsString()
   @IsOptional()
-  style?: 'normal' | 'refrigerated' | 'frozen';
+  preservationStyle?: 'normal' | 'refrigerated' | 'frozen';
 
   @IsString()
   @IsOptional()
