@@ -354,6 +354,11 @@ export class GetSuggestion implements GetSuggestionInterface {
         customerShippableProducts.products.push(shippableProduct);
       }
     }
+
+    customerShippableProducts = {
+      ...customerShippableProducts,
+      necessary_responces: productCount - nextBoxProducts.products.length,
+    };
     let [analyzedProductsRes, analyzedProductsError] =
       await this.analyzePreferenceRepo.getAnalyzedProducts(
         customerShippableProducts,

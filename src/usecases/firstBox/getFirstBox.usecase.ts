@@ -50,7 +50,6 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
   async getFirstBox({
     uuid,
   }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]> {
-    let productCount = 30;
     const [customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomerByUuid({ uuid });
 
@@ -61,7 +60,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       'x10245-GUM-SN20102',
       'x10208-CHC-SN20124',
       'x10204-SWT-SN20114',
-      'x10230-SOU-SN20135',
+      'x10230-SOU-SN20135', // LS
       'x10262-COK-SN20113',
       'x10244-SWT-SN20138',
     ];
@@ -73,7 +72,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       'x10231-CHP-SN20116',
       'x10221-CHP-SN20101',
     ];
-
+    let productCount = 15;
     const [getSuggestion, getSuggestionError] =
       await this.getSuggestionUntil.getSuggestion({
         customer,
