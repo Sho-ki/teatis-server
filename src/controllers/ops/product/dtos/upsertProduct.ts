@@ -8,11 +8,9 @@ import {
 
 export class UpsertProductDto {
   @IsString()
-  @IsOptional()
   activeStatus?: 'active' | 'inactive';
 
   @IsString()
-  @IsOptional()
   preservationStyle?: 'normal' | 'refrigerated' | 'frozen';
 
   @IsString()
@@ -39,8 +37,7 @@ export class UpsertProductDto {
   label: string;
 
   @IsString()
-  @IsOptional()
-  name?: string;
+  name: string;
 
   @IsNumber()
   productProviderId: number;
@@ -50,16 +47,13 @@ export class UpsertProductDto {
   upcCode?: string;
 
   @IsNumber()
-  @IsOptional()
-  flavorId?: number;
+  flavorId: number;
 
   @IsNumber()
-  @IsOptional()
-  categoryId?: number;
+  categoryId: number;
 
   @IsNumber()
-  @IsOptional()
-  vendorId?: number;
+  vendorId: number;
 
   @IsString()
   externalSku: string;
@@ -77,33 +71,33 @@ export class UpsertProductDto {
   images?: { src: string; position: number }[];
 
   @IsArray()
-  @IsOptional()
-  ingredientIds?: number[];
+  ingredientIds: number[];
 
   @IsArray()
   @IsOptional()
   cookingMethodIds?: number[];
 
   @IsObject()
+  @IsOptional()
   nutritionFact: {
-    quantity: number;
-    servingSize: number;
-    calories: number;
-    totalFat: number;
-    saturatedFat: number;
-    transFat: number;
-    cholesterole: number;
-    sodium: number;
-    totalCarbohydrate: number;
-    dietaryFiber: number;
-    totalSugar: number;
-    addedSugar: number;
-    protein: number;
-    sweet: number;
-    sour: number;
-    salty: number;
-    bitter: number;
-    spicy: number;
-    texture: string;
+    quantity?: number;
+    servingSize?: number;
+    calories?: number;
+    totalFat?: number;
+    saturatedFat?: number;
+    transFat?: number;
+    cholesterole?: number;
+    sodium?: number;
+    totalCarbohydrate?: number;
+    dietaryFiber?: number;
+    totalSugar?: number;
+    addedSugar?: number;
+    protein?: number;
+    sweet?: number;
+    sour?: number;
+    salty?: number;
+    bitter?: number;
+    spicy?: number;
+    texture?: string;
   };
 }

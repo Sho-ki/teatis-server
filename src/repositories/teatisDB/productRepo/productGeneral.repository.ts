@@ -39,20 +39,20 @@ export interface GetOption {
 }
 
 interface UpsertProductArgs {
-  activeStatus?: 'active' | 'inactive';
-  preservationStyle?: 'normal' | 'refrigerated' | 'frozen';
+  activeStatus: 'active' | 'inactive';
+  preservationStyle: 'normal' | 'refrigerated' | 'frozen';
   allergenLabel?: string;
   ingredientLabel?: string;
   expertComment?: string;
   WSP?: number;
   MSP?: number;
   label: string;
-  name?: string;
+  name: string;
   productProviderId: number;
   upcCode?: string;
-  flavorId?: number;
-  categoryId?: number;
-  vendorId?: number;
+  flavorId: number;
+  categoryId: number;
+  vendorId: number;
   externalSku: string;
   allergenIds?: number[];
   foodTypeIds?: number[];
@@ -60,25 +60,25 @@ interface UpsertProductArgs {
   ingredientIds?: number[];
   cookingMethodIds?: number[];
   nutritionFact: {
-    quantity: number;
-    servingSize: number;
-    calories: number;
-    totalFat: number;
-    saturatedFat: number;
-    transFat: number;
-    cholesterole: number;
-    sodium: number;
-    totalCarbohydrate: number;
-    dietaryFiber: number;
-    totalSugar: number;
-    addedSugar: number;
-    protein: number;
-    sweet: number;
-    sour: number;
-    salty: number;
-    bitter: number;
-    spicy: number;
-    texture: string;
+    quantity?: number;
+    servingSize?: number;
+    calories?: number;
+    totalFat?: number;
+    saturatedFat?: number;
+    transFat?: number;
+    cholesterole?: number;
+    sodium?: number;
+    totalCarbohydrate?: number;
+    dietaryFiber?: number;
+    totalSugar?: number;
+    addedSugar?: number;
+    protein?: number;
+    sweet?: number;
+    sour?: number;
+    salty?: number;
+    bitter?: number;
+    spicy?: number;
+    texture?: string;
   };
 }
 
