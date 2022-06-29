@@ -3,11 +3,12 @@ import {
   DisplayAnalyzeProduct,
   DisplayProduct,
   Product,
-  ProductAddOn,
+  ProductFeature,
   ProductImage,
 } from '@Domains/Product';
 import { PrismaService } from '../../../prisma.service';
-import { calculateAddedAndDeletedNumbers } from '../../utils/calculateAddedAndDeletedNumbers';
+import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
+import { Prisma } from '@prisma/client';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -27,8 +28,8 @@ export interface GetOptionsArgs {
     | 'category';
 }
 
-export interface GetOptionsRes<T> {
-  option: T[];
+export interface GetExsitingProductFeaturesArgs {
+  externalSku: string;
 }
 
 export interface GetOption {
@@ -54,11 +55,6 @@ interface UpsertProductArgs {
   categoryId: number;
   vendorId: number;
   externalSku: string;
-  allergenIds?: number[];
-  foodTypeIds?: number[];
-  images?: { src: string; position: number }[];
-  ingredientIds?: number[];
-  cookingMethodIds?: number[];
   nutritionFact: {
     quantity?: number;
     servingSize?: number;
@@ -99,11 +95,6 @@ export interface ProductGeneralRepoInterface {
     categoryId,
     vendorId,
     externalSku,
-    allergenIds,
-    foodTypeIds,
-    images,
-    ingredientIds,
-    cookingMethodIds,
     nutritionFact,
   }: UpsertProductArgs): Promise<[Product?, Error?]>;
 
@@ -113,14 +104,529 @@ export interface ProductGeneralRepoInterface {
   getAllProducts({
     medicalCondtions,
   }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]>;
-  getOptions({
-    target,
-  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>?, Error?]>;
+  getOptions({ target }: GetOptionsArgs): Promise<[ProductFeature[]?, Error?]>;
+
+  getExistingProductIngredients({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
+  getExistingProductAllergens({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
+  getExistingProductFoodTypes({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
+  getExistingProductCookingMethods({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
+  getExistingProductImages({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]>;
+
+  upsertProductIngredientSet(
+    newIngredientIds: number[],
+    existingIngredients: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]>;
+
+  upsertProductAllergenSet(
+    newAllergenIds: number[],
+    existingAllergens: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]>;
+
+  upsertProductFoodTypeSet(
+    newFoodTypeIds: number[],
+    existingFoodTypes: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]>;
+
+  upsertProductCookingMethodSet(
+    newCookingMethodIds: number[],
+    existingCookingMethods: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]>;
+
+  upsertProductImageSet(
+    newImages: ProductImage[],
+    existingImages: ProductImage[],
+    productId: number,
+  ): Promise<[ProductImage[]?, Error?]>;
 }
 
 @Injectable()
 export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
+  async upsertProductAllergenSet(
+    newAllergenIds: number[],
+    existingAllergens: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const existingAllergenIds = existingAllergens.map(({ id }) => id);
+      const [allergensToAdd, allergensToDelete] = calculateAddedAndDeletedIds(
+        existingAllergenIds,
+        newAllergenIds,
+      );
+
+      await Promise.all([
+        this.prisma.intermediateProductAllergen.deleteMany({
+          where: {
+            OR: allergensToDelete.map((productAllergenId) => {
+              return { productAllergenId, productId };
+            }),
+          },
+        }),
+        this.prisma.intermediateProductAllergen.createMany({
+          data: allergensToAdd.map((productAllergenId) => {
+            return { productAllergenId, productId };
+          }),
+        }),
+        ,
+      ]);
+
+      const response = await this.prisma.intermediateProductAllergen.findMany({
+        where: { productId },
+        select: { productAllergen: true },
+      });
+      return [
+        response.map(({ productAllergen }) => {
+          return {
+            id: productAllergen.id,
+            label: productAllergen.label,
+            name: productAllergen.name,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: upsertProductAllergenSet failed',
+        },
+      ];
+    }
+  }
+  async upsertProductFoodTypeSet(
+    newFoodTypeIds: number[],
+    existingFoodTypes: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const existingFoodTypeIds = existingFoodTypes.map(({ id }) => id);
+      const [foodTypeToAdd, foodTypeToDelete] = calculateAddedAndDeletedIds(
+        existingFoodTypeIds,
+        newFoodTypeIds,
+      );
+
+      await Promise.all([
+        this.prisma.intermediateProductFoodType.deleteMany({
+          where: {
+            OR: foodTypeToDelete.map((productFoodTypeId) => {
+              return { productFoodTypeId, productId };
+            }),
+          },
+        }),
+        this.prisma.intermediateProductFoodType.createMany({
+          data: foodTypeToAdd.map((productFoodTypeId) => {
+            return { productFoodTypeId, productId };
+          }),
+        }),
+        ,
+      ]);
+
+      const response = await this.prisma.intermediateProductFoodType.findMany({
+        where: { productId },
+        select: { productFoodType: true },
+      });
+      return [
+        response.map(({ productFoodType }) => {
+          return {
+            id: productFoodType.id,
+            label: productFoodType.label,
+            name: productFoodType.name,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: upsertProductFoodTypeSet failed',
+        },
+      ];
+    }
+  }
+  async upsertProductCookingMethodSet(
+    newCookingMethodIds: number[],
+    existingCookingMethods: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const existingCookingMethodIds = existingCookingMethods.map(
+        ({ id }) => id,
+      );
+      const [cookingMethodToAdd, cookingMethodToDelete] =
+        calculateAddedAndDeletedIds(
+          existingCookingMethodIds,
+          newCookingMethodIds,
+        );
+
+      await Promise.all([
+        this.prisma.intermediateProductCookingMethod.deleteMany({
+          where: {
+            OR: cookingMethodToDelete.map((productCookingMethodId) => {
+              return { productCookingMethodId, productId };
+            }),
+          },
+        }),
+        this.prisma.intermediateProductCookingMethod.createMany({
+          data: cookingMethodToAdd.map((productCookingMethodId) => {
+            return { productCookingMethodId, productId };
+          }),
+        }),
+        ,
+      ]);
+
+      const response =
+        await this.prisma.intermediateProductCookingMethod.findMany({
+          where: { productId },
+          select: { productCookingMethod: true },
+        });
+
+      return [
+        response.map(({ productCookingMethod }) => {
+          return {
+            id: productCookingMethod.id,
+            label: productCookingMethod.label,
+            name: productCookingMethod.name,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: upsertProductCookingMethodSet failed',
+        },
+      ];
+    }
+  }
+
+  async upsertProductIngredientSet(
+    newIngredientIds: number[],
+    existingIngredients: ProductFeature[],
+    productId: number,
+  ): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const existingIngredientIds = existingIngredients.map(({ id }) => id);
+      const [ingredientsToAdd, ingredientsToDelete] =
+        calculateAddedAndDeletedIds(existingIngredientIds, newIngredientIds);
+
+      await Promise.all([
+        this.prisma.intermediateProductIngredient.deleteMany({
+          where: {
+            OR: ingredientsToDelete.map((productIngredientId) => {
+              return { productIngredientId, productId };
+            }),
+          },
+        }),
+        this.prisma.intermediateProductIngredient.createMany({
+          data: ingredientsToAdd.map((productIngredientId) => {
+            return { productIngredientId, productId };
+          }),
+        }),
+        ,
+      ]);
+
+      const response = await this.prisma.intermediateProductIngredient.findMany(
+        {
+          where: { productId },
+          select: { productIngredient: true },
+        },
+      );
+      return [
+        response.map(({ productIngredient }) => {
+          return {
+            id: productIngredient.id,
+            label: productIngredient.label,
+            name: productIngredient.name,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: upsertProductIngredientSet failed',
+        },
+      ];
+    }
+  }
+
+  async upsertProductImageSet(
+    newImages: ProductImage[],
+    existingImages: ProductImage[],
+    productId: number,
+  ): Promise<[ProductImage[]?, Error?]> {
+    try {
+      const existingImageSet = new Set(
+        existingImages.map(({ src, position }) => {
+          return JSON.stringify({ src, position });
+        }),
+      );
+      const newImageSet = new Set(
+        newImages.map(({ src, position }) => {
+          return JSON.stringify({ src, position });
+        }),
+      );
+
+      const imagesToDelete = existingImages.filter(({ src, position }) => {
+        return !newImageSet.has(JSON.stringify({ src, position }));
+      });
+
+      const imagesToAdd = newImages.filter(
+        ({ src, position }) =>
+          !existingImageSet.has(JSON.stringify({ src, position })),
+      );
+      await Promise.all([
+        this.prisma.productImage.deleteMany({
+          where: {
+            OR: imagesToDelete.map(({ src, position }) => {
+              return { src, position };
+            }),
+          },
+        }),
+        this.prisma.productImage.createMany({
+          data: imagesToAdd.map(({ src, position }) => {
+            return { src, position, productId };
+          }),
+        }),
+      ]);
+      const response = await this.prisma.productImage.findMany({
+        where: { productId },
+        select: {
+          id: true,
+          src: true,
+          position: true,
+          product: { select: { mainProductImageId: true } },
+        },
+      });
+
+      const currentMainProductImageId =
+        response[0]?.product?.mainProductImageId;
+      const newMainProductImage = response.find(
+        ({ position }) => position === 1,
+      );
+      if (newMainProductImage?.id !== currentMainProductImageId) {
+        await this.prisma.product.update({
+          where: { id: productId },
+          data: {
+            mainProductImageId: newMainProductImage.id,
+          },
+        });
+      }
+
+      return [
+        response.map(({ id, src, position }) => {
+          return {
+            id,
+            src,
+            position,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: upsertProductImageSet failed',
+        },
+      ];
+    }
+  }
+
+  async getExistingProductIngredients({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response = await this.prisma.intermediateProductIngredient.findMany(
+        {
+          where: {
+            product: { externalSku },
+          },
+          select: {
+            productIngredient: true,
+          },
+        },
+      );
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productIngredient }): ProductFeature => {
+          return {
+            id: productIngredient.id,
+            name: productIngredient.name,
+            label: productIngredient.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductIngredients failed',
+        },
+      ];
+    }
+  }
+  async getExistingProductAllergens({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response = await this.prisma.intermediateProductAllergen.findMany({
+        where: {
+          product: { externalSku },
+        },
+        select: {
+          productAllergen: true,
+        },
+      });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productAllergen }): ProductFeature => {
+          return {
+            id: productAllergen.id,
+            name: productAllergen.name,
+            label: productAllergen.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductAllergens failed',
+        },
+      ];
+    }
+  }
+  async getExistingProductCookingMethods({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response =
+        await this.prisma.intermediateProductCookingMethod.findMany({
+          where: {
+            product: { externalSku },
+          },
+          select: {
+            productCookingMethod: true,
+          },
+        });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productCookingMethod }): ProductFeature => {
+          return {
+            id: productCookingMethod.id,
+            name: productCookingMethod.name,
+            label: productCookingMethod.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductCookingMethods failed',
+        },
+      ];
+    }
+  }
+  async getExistingProductFoodTypes({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response = await this.prisma.intermediateProductFoodType.findMany({
+        where: {
+          product: { externalSku },
+        },
+        select: {
+          productFoodType: true,
+        },
+      });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productFoodType }): ProductFeature => {
+          return {
+            id: productFoodType.id,
+            name: productFoodType.name,
+            label: productFoodType.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductFoodTypes failed',
+        },
+      ];
+    }
+  }
+  async getExistingProductImages({
+    externalSku,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]> {
+    try {
+      const response = await this.prisma.productImage.findMany({
+        where: {
+          product: { externalSku },
+        },
+        select: {
+          id: true,
+          src: true,
+          position: true,
+        },
+      });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ id, src, position }) => {
+          return { id, src, position };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductImages failed',
+        },
+      ];
+    }
+  }
+
   async upsertProduct({
     activeStatus,
     preservationStyle,
@@ -137,145 +643,31 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
     categoryId,
     vendorId,
     externalSku,
-    allergenIds: newAllergenIds,
-    foodTypeIds: newFoodTypeIds,
-    images: newImages,
-    ingredientIds: newIngredientIds,
-    cookingMethodIds: newCookingMethodIds,
     nutritionFact,
   }: UpsertProductArgs): Promise<[Product?, Error?]> {
+    const productNutritionInput: Prisma.ProductNutritionFactCreateWithoutProductInput =
+      {
+        quantity: nutritionFact.quantity,
+        servingSize: nutritionFact.servingSize,
+        calories: nutritionFact.calories,
+        totalFatG: nutritionFact.totalFat,
+        saturatedFatG: nutritionFact.saturatedFat,
+        transFatG: nutritionFact.transFat,
+        cholesteroleMg: nutritionFact.cholesterole,
+        sodiumMg: nutritionFact.sodium,
+        totalCarbohydrateG: nutritionFact.totalCarbohydrate,
+        dietaryFiberG: nutritionFact.dietaryFiber,
+        totalSugarG: nutritionFact.totalSugar,
+        addedSugarG: nutritionFact.addedSugar,
+        proteinG: nutritionFact.protein,
+        sweet: nutritionFact.sweet,
+        sour: nutritionFact.sour,
+        salty: nutritionFact.salty,
+        bitter: nutritionFact.bitter,
+        spicy: nutritionFact.spicy,
+        texture: nutritionFact.texture,
+      };
     try {
-      const [
-        existingIngredients,
-        existingCookingMethods,
-        existingAllergens,
-        existingFoodTypes,
-        existingImages,
-      ] = await Promise.all([
-        this.prisma.intermediateProductIngredient.findMany({
-          where: {
-            product: { externalSku },
-          },
-          select: {
-            productIngredient: true,
-          },
-        }),
-        this.prisma.intermediateProductCookingMethod.findMany({
-          where: {
-            product: { externalSku },
-          },
-          select: {
-            productCookingMethod: true,
-          },
-        }),
-        this.prisma.intermediateProductAllergen.findMany({
-          where: {
-            product: { externalSku },
-          },
-          select: {
-            productAllergen: true,
-          },
-        }),
-        this.prisma.intermediateProductFoodType.findMany({
-          where: {
-            product: { externalSku },
-          },
-          select: {
-            productFoodType: true,
-          },
-        }),
-        this.prisma.productImage.findMany({
-          where: {
-            product: { externalSku },
-          },
-          select: {
-            src: true,
-            position: true,
-          },
-        }),
-      ]);
-
-      const existingIndredientIds = existingIngredients.map(
-        ({ productIngredient }) => productIngredient.id,
-      );
-      const [ingredientsToAdd, ingredientsToDelete] =
-        calculateAddedAndDeletedNumbers(
-          existingIndredientIds,
-          newIngredientIds,
-        );
-
-      const existingCookingMethodIds = existingCookingMethods.map(
-        ({ productCookingMethod }) => productCookingMethod.id,
-      );
-      const [cookingMethodsToAdd, cookingMethodsToDelete] =
-        calculateAddedAndDeletedNumbers(
-          existingCookingMethodIds,
-          newCookingMethodIds,
-        );
-
-      const existingAllergenIds = existingAllergens.map(
-        ({ productAllergen }) => productAllergen.id,
-      );
-      const [allergensToAdd, allergensToDelete] =
-        calculateAddedAndDeletedNumbers(existingAllergenIds, newAllergenIds);
-
-      const existingFoodTypeIds = existingFoodTypes.map(
-        ({ productFoodType }) => productFoodType.id,
-      );
-      const [foodTypesToAdd, foodTypesToDelete] =
-        calculateAddedAndDeletedNumbers(existingFoodTypeIds, newFoodTypeIds);
-
-      const existingImageSet = new Set(existingImages);
-      const newImageSet = new Set(newImages);
-
-      const imagesToDelete = existingImages.filter(
-        (string) => !newImageSet.has(string),
-      );
-      // Delete
-
-      const imagesToAdd = newImages.filter(
-        (string) => !existingImageSet.has(string),
-      );
-      // Add
-
-      await Promise.all([
-        this.prisma.intermediateProductIngredient.deleteMany({
-          where: {
-            OR: ingredientsToDelete.map((productIngredientId) => {
-              return { productIngredientId };
-            }),
-          },
-        }),
-        this.prisma.intermediateProductCookingMethod.deleteMany({
-          where: {
-            OR: cookingMethodsToDelete.map((productCookingMethodId) => {
-              return { productCookingMethodId };
-            }),
-          },
-        }),
-        this.prisma.intermediateProductAllergen.deleteMany({
-          where: {
-            OR: allergensToDelete.map((productAllergenId) => {
-              return { productAllergenId };
-            }),
-          },
-        }),
-        this.prisma.intermediateProductFoodType.deleteMany({
-          where: {
-            OR: foodTypesToDelete.map((productFoodTypeId) => {
-              return { productFoodTypeId };
-            }),
-          },
-        }),
-        this.prisma.productImage.deleteMany({
-          where: {
-            OR: imagesToDelete.map(({ src }) => {
-              return { src };
-            }),
-          },
-        }),
-      ]);
-
       const response = await this.prisma.product.upsert({
         where: { externalSku },
         create: {
@@ -295,62 +687,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
           productVendorId: vendorId,
           externalSku,
           productNutritionFact: {
-            create: {
-              quantity: nutritionFact.quantity,
-              servingSize: nutritionFact.servingSize,
-              calories: nutritionFact.calories,
-              totalFatG: nutritionFact.totalFat,
-              saturatedFatG: nutritionFact.saturatedFat,
-              transFatG: nutritionFact.transFat,
-              cholesteroleMg: nutritionFact.cholesterole,
-              sodiumMg: nutritionFact.sodium,
-              totalCarbohydrateG: nutritionFact.totalCarbohydrate,
-              dietaryFiberG: nutritionFact.dietaryFiber,
-              totalSugarG: nutritionFact.totalSugar,
-              addedSugarG: nutritionFact.addedSugar,
-              proteinG: nutritionFact.protein,
-              sweet: nutritionFact.sweet,
-              sour: nutritionFact.sour,
-              salty: nutritionFact.salty,
-              bitter: nutritionFact.bitter,
-              spicy: nutritionFact.spicy,
-              texture: nutritionFact.texture,
-            },
-          },
-          intermediateProductAllergens: {
-            createMany: {
-              data: allergensToAdd.map((productAllergenId) => {
-                return { productAllergenId };
-              }),
-            },
-          },
-          intermediateProductFoodTypes: {
-            createMany: {
-              data: foodTypesToAdd.map((productFoodTypeId) => {
-                return { productFoodTypeId };
-              }),
-            },
-          },
-          intermediateProductIngredients: {
-            createMany: {
-              data: ingredientsToAdd.map((productIngredientId) => {
-                return { productIngredientId };
-              }),
-            },
-          },
-          intermediateProductCookingMethods: {
-            createMany: {
-              data: cookingMethodsToAdd.map((productCookingMethodId) => {
-                return { productCookingMethodId };
-              }),
-            },
-          },
-          productImages: {
-            createMany: {
-              data: imagesToAdd.map(({ src, position }) => {
-                return { src, position };
-              }),
-            },
+            create: productNutritionInput,
           },
         },
         update: {
@@ -371,83 +708,8 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
           externalSku,
           productNutritionFact: {
             upsert: {
-              create: {
-                quantity: nutritionFact.quantity,
-                servingSize: nutritionFact.servingSize,
-                calories: nutritionFact.calories,
-                totalFatG: nutritionFact.totalFat,
-                saturatedFatG: nutritionFact.saturatedFat,
-                transFatG: nutritionFact.transFat,
-                cholesteroleMg: nutritionFact.cholesterole,
-                sodiumMg: nutritionFact.sodium,
-                totalCarbohydrateG: nutritionFact.totalCarbohydrate,
-                dietaryFiberG: nutritionFact.dietaryFiber,
-                totalSugarG: nutritionFact.totalSugar,
-                addedSugarG: nutritionFact.addedSugar,
-                proteinG: nutritionFact.protein,
-                sweet: nutritionFact.sweet,
-                sour: nutritionFact.sour,
-                salty: nutritionFact.salty,
-                bitter: nutritionFact.bitter,
-                spicy: nutritionFact.spicy,
-                texture: nutritionFact.texture,
-              },
-              update: {
-                quantity: nutritionFact.quantity,
-                servingSize: nutritionFact.servingSize,
-                calories: nutritionFact.calories,
-                totalFatG: nutritionFact.totalFat,
-                saturatedFatG: nutritionFact.saturatedFat,
-                transFatG: nutritionFact.transFat,
-                cholesteroleMg: nutritionFact.cholesterole,
-                sodiumMg: nutritionFact.sodium,
-                totalCarbohydrateG: nutritionFact.totalCarbohydrate,
-                dietaryFiberG: nutritionFact.dietaryFiber,
-                totalSugarG: nutritionFact.totalSugar,
-                addedSugarG: nutritionFact.addedSugar,
-                proteinG: nutritionFact.protein,
-                sweet: nutritionFact.sweet,
-                sour: nutritionFact.sour,
-                salty: nutritionFact.salty,
-                bitter: nutritionFact.bitter,
-                spicy: nutritionFact.spicy,
-                texture: nutritionFact.texture,
-              },
-            },
-          },
-          intermediateProductAllergens: {
-            createMany: {
-              data: allergensToAdd.map((productAllergenId) => {
-                return { productAllergenId };
-              }),
-            },
-          },
-          intermediateProductFoodTypes: {
-            createMany: {
-              data: foodTypesToAdd.map((productFoodTypeId) => {
-                return { productFoodTypeId };
-              }),
-            },
-          },
-          intermediateProductIngredients: {
-            createMany: {
-              data: ingredientsToAdd.map((productIngredientId) => {
-                return { productIngredientId };
-              }),
-            },
-          },
-          intermediateProductCookingMethods: {
-            createMany: {
-              data: cookingMethodsToAdd.map((productCookingMethodId) => {
-                return { productCookingMethodId };
-              }),
-            },
-          },
-          productImages: {
-            createMany: {
-              data: imagesToAdd.map(({ src, position }) => {
-                return { src, position };
-              }),
+              create: productNutritionInput,
+              update: productNutritionInput,
             },
           },
         },
@@ -472,17 +734,6 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
 
       if (!id || !sku || !productName || !productLabel) {
         throw new Error();
-      }
-      const mainProductImage = productImages.find(
-        ({ position }) => position === 1,
-      );
-      if (mainProductImage?.id !== mainProductImageId) {
-        await this.prisma.product.update({
-          where: { externalSku },
-          data: {
-            mainProductImageId: mainProductImage?.id,
-          },
-        });
       }
 
       return [{ id, sku, name: productName, label: productLabel }];
@@ -662,7 +913,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             allergens:
               product.intermediateProductAllergens?.length > 0
                 ? product.intermediateProductAllergens.map(
-                    (allergen): ProductAddOn => {
+                    (allergen): ProductFeature => {
                       return {
                         id: allergen.productAllergen.id,
                         name: allergen.productAllergen.name,
@@ -674,7 +925,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             foodTypes:
               product.intermediateProductFoodTypes?.length > 0
                 ? product.intermediateProductFoodTypes.map(
-                    (foodType): ProductAddOn => {
+                    (foodType): ProductFeature => {
                       return {
                         id: foodType.productFoodType.id,
                         name: foodType.productFoodType.name,
@@ -686,7 +937,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             cookingMethods:
               product.intermediateProductCookingMethods?.length > 0
                 ? product.intermediateProductCookingMethods.map(
-                    (cookingMethod): ProductAddOn => {
+                    (cookingMethod): ProductFeature => {
                       return {
                         id: cookingMethod.productCookingMethod.id,
                         name: cookingMethod.productCookingMethod.name,
@@ -726,9 +977,9 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
 
   async getOptions({
     target,
-  }: GetOptionsArgs): Promise<[GetOptionsRes<GetOption>?, Error?]> {
+  }: GetOptionsArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
-      let getOptionsRes: GetOption[] = [];
+      let getOptionsRes: ProductFeature[] = [];
       switch (target) {
         case 'cookingMethod':
           getOptionsRes = await this.prisma.productCookingMethod.findMany({
@@ -770,7 +1021,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         throw new Error();
       }
 
-      return [{ option: getOptionsRes }];
+      return [getOptionsRes];
     } catch (e) {
       return [
         undefined,

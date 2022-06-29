@@ -53,14 +53,54 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
     categoryId,
     vendorId,
     externalSku,
-    allergenIds,
-    foodTypeIds,
-    images,
-    ingredientIds,
-    cookingMethodIds,
+    allergenIds: newAllergenIds,
+    foodTypeIds: newFoodTypeIds,
+    images: newImages,
+    ingredientIds: newIngredientIds,
+    cookingMethodIds: newCookingMethodIds,
     nutritionFact,
   }: UpsertProductDto): Promise<[Product?, Error?]> {
     try {
+      const [
+        [existingCookingMethods, getCookMethodsError],
+        [existingIngredients, getIngredientsError],
+        [existingAllergens, getAllergensError],
+        [existingFoodTypes, getFoodTypesError],
+        [existingImages, getImagesError],
+      ] = await Promise.all([
+        this.productGeneralRepo.getExistingProductCookingMethods({
+          externalSku,
+        }),
+        this.productGeneralRepo.getExistingProductIngredients({
+          externalSku,
+        }),
+        this.productGeneralRepo.getExistingProductAllergens({
+          externalSku,
+        }),
+        this.productGeneralRepo.getExistingProductFoodTypes({
+          externalSku,
+        }),
+        this.productGeneralRepo.getExistingProductImages({
+          externalSku,
+        }),
+      ]);
+
+      if (getCookMethodsError) {
+        return [undefined, getCookMethodsError];
+      }
+      if (getIngredientsError) {
+        return [undefined, getIngredientsError];
+      }
+      if (getAllergensError) {
+        return [undefined, getAllergensError];
+      }
+      if (getFoodTypesError) {
+        return [undefined, getFoodTypesError];
+      }
+      if (getImagesError) {
+        return [undefined, getImagesError];
+      }
+
       const [product, upsertProductError] =
         await this.productGeneralRepo.upsertProduct({
           activeStatus,
@@ -78,16 +118,62 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
           categoryId,
           vendorId,
           externalSku,
-          allergenIds,
-          foodTypeIds,
-          images,
-          ingredientIds,
-          cookingMethodIds,
           nutritionFact,
         });
       if (upsertProductError) {
         return [undefined, upsertProductError];
       }
+
+      const [
+        [updatedCookingMethods, upsertCookMethodsError],
+        [updatedIngredients, upsertIngredientsError],
+        [updatedAllergens, upsertAllergensError],
+        [updatedFoodTypes, upsertFoodTypesError],
+        [updatedImages, upsertImagesError],
+      ] = await Promise.all([
+        this.productGeneralRepo.upsertProductCookingMethodSet(
+          newCookingMethodIds,
+          existingCookingMethods,
+          product.id,
+        ),
+        this.productGeneralRepo.upsertProductIngredientSet(
+          newIngredientIds,
+          existingIngredients,
+          product.id,
+        ),
+        this.productGeneralRepo.upsertProductAllergenSet(
+          newAllergenIds,
+          existingAllergens,
+          product.id,
+        ),
+        this.productGeneralRepo.upsertProductFoodTypeSet(
+          newFoodTypeIds,
+          existingFoodTypes,
+          product.id,
+        ),
+        this.productGeneralRepo.upsertProductImageSet(
+          newImages,
+          existingImages,
+          product.id,
+        ),
+      ]);
+
+      if (upsertCookMethodsError) {
+        return [undefined, upsertCookMethodsError];
+      }
+      if (upsertIngredientsError) {
+        return [undefined, upsertIngredientsError];
+      }
+      if (upsertAllergensError) {
+        return [undefined, upsertAllergensError];
+      }
+      if (upsertFoodTypesError) {
+        return [undefined, upsertFoodTypesError];
+      }
+      if (upsertImagesError) {
+        return [undefined, upsertImagesError];
+      }
+
       return [product];
     } catch (e) {
       return [

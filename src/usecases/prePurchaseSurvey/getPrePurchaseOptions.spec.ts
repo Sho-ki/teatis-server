@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
-  GetOption,
   GetOptionsArgs,
-  GetOptionsRes,
   ProductGeneralRepoInterface,
 } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
+import { ProductFeature } from '@Domains/Product';
 import { GetPrePurchaseOptionsUsecase } from './getPrePurchaseOptions.usecase';
 
 describe('GetOptions', () => {
@@ -15,22 +14,20 @@ describe('GetOptions', () => {
   beforeEach(async () => {
     MockedProductGeneralRepo = {
       getOptions: ({ target }: GetOptionsArgs) =>
-        Promise.resolve<[GetOptionsRes<GetOption>, Error]>([
+        Promise.resolve<[ProductFeature[], Error]>([
           target === 'flavor'
-            ? {
-                option: [{ id: 1, name: 'mint', label: 'Mint' }],
-              }
+            ? [{ id: 1, name: 'mint', label: 'Mint' }]
             : target === 'category'
-            ? { option: [{ id: 1, name: 'chips', label: 'Chips' }] }
+            ? [{ id: 1, name: 'chips', label: 'Chips' }]
             : target === 'cookingMethod'
-            ? { option: [{ id: 1, name: 'shake', label: 'Shake' }] }
+            ? [{ id: 1, name: 'shake', label: 'Shake' }]
             : target === 'ingredient'
-            ? { option: [{ id: 1, name: 'nut', label: 'Nut' }] }
+            ? [{ id: 1, name: 'nut', label: 'Nut' }]
             : target === 'allergen'
-            ? { option: [{ id: 1, name: 'fish', label: 'Fish' }] }
+            ? [{ id: 1, name: 'fish', label: 'Fish' }]
             : target === 'foodType'
-            ? { option: [{ id: 1, name: 'organic', label: 'Organic' }] }
-            : { option: [] },
+            ? [{ id: 1, name: 'organic', label: 'Organic' }]
+            : [],
           null,
         ]),
     };
@@ -59,7 +56,7 @@ describe('GetOptions', () => {
 
   it('throws an error if no options are found', async () => {
     MockedProductGeneralRepo.getOptions = ({ target }: GetOptionsArgs) =>
-      Promise.resolve<[GetOptionsRes<GetOption>, Error]>([
+      Promise.resolve<[ProductFeature[], Error]>([
         null,
         { name: 'Not found error', message: 'Options not found' },
       ]);

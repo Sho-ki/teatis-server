@@ -8,10 +8,10 @@ import {
 
 export class UpsertProductDto {
   @IsString()
-  activeStatus?: 'active' | 'inactive';
+  activeStatus: 'active' | 'inactive';
 
   @IsString()
-  preservationStyle?: 'normal' | 'refrigerated' | 'frozen';
+  preservationStyle: 'normal' | 'refrigerated' | 'frozen';
 
   @IsString()
   @IsOptional()
@@ -59,23 +59,19 @@ export class UpsertProductDto {
   externalSku: string;
 
   @IsArray()
-  @IsOptional()
-  allergenIds?: number[];
+  allergenIds: number[];
 
   @IsArray()
-  @IsOptional()
-  foodTypeIds?: number[];
+  foodTypeIds: number[];
 
   @IsArray()
-  @IsOptional()
-  images?: { src: string; position: number }[];
+  images: { src: string; position: number }[];
 
   @IsArray()
   ingredientIds: number[];
 
   @IsArray()
-  @IsOptional()
-  cookingMethodIds?: number[];
+  cookingMethodIds: number[];
 
   @IsObject()
   @IsOptional()

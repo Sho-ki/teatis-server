@@ -1,6 +1,6 @@
-export function calculateAddedAndDeletedNumbers(
-  existingNumbers: number[],
-  newNumbers: number[],
+export function calculateAddedAndDeletedIds(
+  existingNumbers: number[] = [],
+  newNumbers: number[] = [],
 ): [number[], number[]] {
   const existingNumberSet = new Set(existingNumbers);
   const newNumberSet = new Set(newNumbers);

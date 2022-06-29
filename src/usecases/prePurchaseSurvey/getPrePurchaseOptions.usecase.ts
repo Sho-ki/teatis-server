@@ -1,21 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
+import { ProductFeature } from '@Domains/Product';
 
 export interface GetPrePurchaseOptionsUsecaseRes {
-  unavailableCookingMethods: Options[];
-  allergens: Options[];
-  ingredientDislikes: Options[];
-  // foodType: Options[];
-  flavorDislikes: Options[];
-  categoryPreferences: Options[];
-}
-
-interface Options {
-  id: number;
-  name: string;
-  label: string;
-  src?: string;
+  unavailableCookingMethods: ProductFeature[];
+  allergens: ProductFeature[];
+  ingredientDislikes: ProductFeature[];
+  // foodType: ProductFeature[];
+  flavorDislikes: ProductFeature[];
+  categoryPreferences: ProductFeature[];
 }
 
 export interface GetPrePurchaseOptionsUsecaseInterface {
@@ -31,7 +25,7 @@ export class GetPrePurchaseOptionsUsecase
     private readonly productGeneralRepo: ProductGeneralRepoInterface,
   ) {}
 
-  sortOptions(list: Options[]): Options[] {
+  sortOptions(list: ProductFeature[]): ProductFeature[] {
     list.sort((a, b) => {
       if (a.name > b.name) {
         return 1;
@@ -84,19 +78,19 @@ export class GetPrePurchaseOptionsUsecase
       {
         unavailableCookingMethods: [
           { id: 0, name: 'none', label: 'None' },
-          ...this.sortOptions(cookingMethods.option),
+          ...this.sortOptions(cookingMethods),
         ],
         allergens: [
           { id: 0, name: 'none', label: 'None' },
-          ...this.sortOptions(allergens.option),
+          ...this.sortOptions(allergens),
         ],
-        ingredientDislikes: this.sortOptions(ingredients.option),
+        ingredientDislikes: this.sortOptions(ingredients),
         // foodType: [
         //   { id: 0, name: 'none', label: 'None' },
-        //   ...this.sortOptions(foodTypes.option),
+        //   ...this.sortOptions(foodTypes),
         // ],
-        flavorDislikes: this.sortOptions(flavors.option),
-        categoryPreferences: categories.option,
+        flavorDislikes: this.sortOptions(flavors),
+        categoryPreferences: categories,
       },
       null,
     ];

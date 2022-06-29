@@ -17,11 +17,11 @@ export interface DisplayProduct extends Product {
 }
 
 export interface AnalyzeProduct extends Product {
-  vendor: ProductAddOn;
-  flavor: ProductAddOn;
-  category: ProductAddOn;
-  allergens: ProductAddOn[];
-  cookingMethods: ProductAddOn[];
+  vendor: ProductFeature;
+  flavor: ProductFeature;
+  category: ProductFeature;
+  allergens: ProductFeature[];
+  cookingMethods: ProductFeature[];
 }
 
 export interface DisplayAnalyzeProduct
@@ -33,19 +33,20 @@ export interface FullProduct extends Product {
   expertComment: string;
   ingredientLabel: string;
   images: ProductImage[];
-  flavor: ProductAddOn;
-  category: ProductAddOn;
-  allergens: ProductAddOn[];
+  flavor: ProductFeature;
+  category: ProductFeature;
+  allergens: ProductFeature[];
   allergenLabel: string;
-  foodTypes: ProductAddOn[];
-  cookingMethods: ProductAddOn[];
+  foodTypes: ProductFeature[];
+  cookingMethods: ProductFeature[];
   nutritionFact: NutritionFact;
 }
 
-export interface ProductAddOn {
+export interface ProductFeature {
   id?: number;
   name?: string;
   label?: string;
+  src?: string | null;
 }
 
 export interface ProductImage {
