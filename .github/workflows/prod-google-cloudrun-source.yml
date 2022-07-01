@@ -82,8 +82,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run the tests
-        run: npm test
+      - name: Build the source code
+        run: npm run build
 
   test:
     runs-on: ubuntu-latest
@@ -111,8 +111,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build the source code
-        run: npm build
+      - name: Run the tests
+        run: npm test
 
 
   deploy:
