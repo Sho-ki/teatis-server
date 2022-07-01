@@ -15,7 +15,7 @@ import { CustomerBoxRepo } from '@Repositories/teatisDB/customerRepo/customerBox
 import { TeatisJobs } from '@Repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderByCustomerUuidUsecase } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
+import { UpdateCustomerOrderOfCustomerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { OrderQueueRepo } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
 import { GetNextBoxUsecase } from '@Usecases/nextBox/getNextBox.usecase';
@@ -28,7 +28,7 @@ import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
 import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
-import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '@Usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
+import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
 import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { PractitionerBoxOrderHistoryRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
@@ -68,8 +68,8 @@ import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/custo
       useClass: PractitionerBoxRepo,
     },
     {
-      provide: 'UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface',
-      useClass: UpdateCustomerOrderByPractitionerBoxUuidUsecase,
+      provide: 'UpdateCustomerOrderOfPractitionerBoxUsecaseInterface',
+      useClass: UpdateCustomerOrderOfPractitionerBoxUsecase,
     },
     {
       provide: 'CreateCustomerUsecaseInterface',
@@ -158,8 +158,8 @@ import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/custo
       useClass: PostPrePurchaseSurveyUsecase,
     },
     {
-      provide: 'UpdateCustomerOrderByCustomerUuidUsecaseInterface',
-      useClass: UpdateCustomerOrderByCustomerUuidUsecase,
+      provide: 'UpdateCustomerOrderOfCustomerBoxUsecaseInterface',
+      useClass: UpdateCustomerOrderOfCustomerBoxUsecase,
     },
     {
       provide: 'DeleteCustomerBoxUsecaseInterface',

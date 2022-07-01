@@ -7,24 +7,32 @@ import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQ
 import { Product } from 'src/domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
-import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
+import { CreateCustomerUsecaseInterface } from '@Usecases/utils/createCustomer';
 import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
 
-export interface UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface {
-  updateCustomerOrderByPractitionerBoxUuid({
+interface UpdateCustomerOrderOfPractitionerBoxArgs
+  extends Pick<
+    UpdateCustomerOrderDto,
+    'name' | 'customer' | 'subtotal_price' | 'line_items'
+  > {
+  practitionerBoxUuid: string;
+}
+
+export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
+  updateCustomerOrderOfPractitionerBox({
     name,
     customer,
     subtotal_price,
     line_items,
-    note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
+    practitionerBoxUuid,
+  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue, Error]>;
 }
 
 @Injectable()
-export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
-  implements UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface
+export class UpdateCustomerOrderOfPractitionerBoxUsecase
+  implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepoInterface')
@@ -43,13 +51,13 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     private createCustomerUtil: CreateCustomerUsecaseInterface,
   ) {}
 
-  async updateCustomerOrderByPractitionerBoxUuid({
+  async updateCustomerOrderOfPractitionerBox({
     name,
     customer: shopifyCustomer,
     subtotal_price,
     line_items,
-    note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
+    practitionerBoxUuid,
+  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =
       await this.createCustomerUtil.createCustomer({
         email: shopifyCustomer.email,
@@ -105,7 +113,7 @@ export class UpdateCustomerOrderByPractitionerBoxUuidUsecase
     }
     const [practitionerSingleBox, getPractitionerSingleBoxByUuidError] =
       await this.practitionerBoxRepo.getPractitionerSingleBoxByUuid({
-        practitionerBoxUuid: note_attributes[0].value,
+        practitionerBoxUuid,
       });
     if (getPractitionerSingleBoxByUuidError) {
       return [null, getPractitionerSingleBoxByUuidError];

@@ -11,19 +11,23 @@ import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
 
-export interface UpdateCustomerOrderByCustomerUuidUsecaseInterface {
-  updateCustomerOrderByCustomerUuid({
+interface UpdateCustomerOrderOfCustomerBoxArgs
+  extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
+  uuid: string;
+}
+
+export interface UpdateCustomerOrderOfCustomerBoxUsecaseInterface {
+  updateCustomerOrderOfCustomerBox({
     name,
     customer,
     line_items,
-    subtotal_price,
-    note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
+    uuid,
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]>;
 }
 
 @Injectable()
-export class UpdateCustomerOrderByCustomerUuidUsecase
-  implements UpdateCustomerOrderByCustomerUuidUsecaseInterface
+export class UpdateCustomerOrderOfCustomerBoxUsecase
+  implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepoInterface')
@@ -40,13 +44,12 @@ export class UpdateCustomerOrderByCustomerUuidUsecase
     private getSuggestionUtil: GetSuggestionInterface,
   ) {}
 
-  async updateCustomerOrderByCustomerUuid({
+  async updateCustomerOrderOfCustomerBox({
     name,
     customer: shopifyCustomer,
     line_items,
-    subtotal_price,
-    note_attributes,
-  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
+    uuid,
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({
         email: shopifyCustomer.email,
@@ -55,7 +58,7 @@ export class UpdateCustomerOrderByCustomerUuidUsecase
     if (!customer.id) {
       [customer, getCustomerError] =
         await this.customerGeneralRepo.updateCustomerEmailByUuid({
-          uuid: note_attributes[0]?.value,
+          uuid,
           newEmail: shopifyCustomer.email,
         });
 

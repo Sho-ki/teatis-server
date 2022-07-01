@@ -28,7 +28,7 @@ import {
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderByCustomerUuidUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
+import { UpdateCustomerOrderOfCustomerBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface } from '@Usecases/nextBox/getNextBox.usecase';
@@ -37,16 +37,16 @@ import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
 import { GetCustomerNutritionUsecaseInterface } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxDto } from './dtos/createCheckoutCartOfCustomerOriginalBoxDto';
-import { UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
+import { UpdateCustomerOrderOfPractitionerBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
-import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
+import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxDto } from './dtos/getFirstBox';
-import { GetFirstBoxUsecaseInterface } from '../../usecases/firstBox/getFirstBox.usecase';
+import { GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
-import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
-import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '../../usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
+import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
+import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -63,8 +63,8 @@ export class DiscoveriesController {
     private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
-    @Inject('UpdateCustomerOrderByCustomerUuidUsecaseInterface')
-    private updateCustomerOrderByCustomerUuidUsecase: UpdateCustomerOrderByCustomerUuidUsecaseInterface,
+    @Inject('UpdateCustomerOrderOfCustomerBoxUsecaseInterface')
+    private updateCustomerOrderOfCustomerBoxUsecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface,
     @Inject('DeleteCustomerBoxUsecaseInterface')
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
@@ -73,8 +73,8 @@ export class DiscoveriesController {
     private createCheckoutCartOfCustomerOriginalBoxUsecase: CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface,
     @Inject('GetCustomerNutritionUsecaseInterface')
     private getCustomerNutritionUsecase: GetCustomerNutritionUsecaseInterface,
-    @Inject('UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface')
-    private updateCustomerOrderByPractitionerBoxUuidUsecase: UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface,
+    @Inject('UpdateCustomerOrderOfPractitionerBoxUsecaseInterface')
+    private updateCustomerOrderOfPractitionerBoxUsecase: UpdateCustomerOrderOfPractitionerBoxUsecaseInterface,
     @Inject('CreateCheckoutCartOfPractitionerBoxUsecaseInterface')
     private createCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
     @Inject('UpdatePractitionerBoxOrderHistoryUsecaseInterface')
@@ -261,13 +261,24 @@ export class DiscoveriesController {
         );
     } else if (noteAttributesKeys.includes('practitionerBoxUuid')) {
       [res, error] =
-        await this.updateCustomerOrderByPractitionerBoxUuidUsecase.updateCustomerOrderByPractitionerBoxUuid(
-          body,
+        await this.updateCustomerOrderOfPractitionerBoxUsecase.updateCustomerOrderOfPractitionerBox(
+          {
+            name: body.name,
+            customer: body.customer,
+            subtotal_price: body.subtotal_price,
+            line_items: body.line_items,
+            practitionerBoxUuid: noteAttributes.practitionerBoxUuid,
+          },
         );
     } else {
       [res, error] =
-        await this.updateCustomerOrderByCustomerUuidUsecase.updateCustomerOrderByCustomerUuid(
-          body,
+        await this.updateCustomerOrderOfCustomerBoxUsecase.updateCustomerOrderOfCustomerBox(
+          {
+            name: body.name,
+            customer: body.customer,
+            line_items: body.line_items,
+            uuid: noteAttributes.uuid,
+          },
         );
     }
     if (error) {

@@ -7,11 +7,10 @@ import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQ
 import { Product } from 'src/domains/Product';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
-import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
-import { CustomerGeneralRepoInterface } from '../../repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
 
 interface UpdateCustomerOrderOfPractitionerMealBoxArgs
   extends Pick<
@@ -31,7 +30,7 @@ export interface UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface {
     uuid,
     practitionerBoxUuid,
   }: UpdateCustomerOrderOfPractitionerMealBoxArgs): Promise<
-    [OrderQueue, Error]
+    [OrderQueue?, Error?]
   >;
 }
 
@@ -54,8 +53,6 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     private getSuggestionUtil: GetSuggestionInterface,
     @Inject('CustomerGeneralRepoInterface')
     private customerGeneralRepo: CustomerGeneralRepoInterface,
-    @Inject('CreateCustomerUsecaseInterface')
-    private createCustomerUtil: CreateCustomerUsecaseInterface,
   ) {}
 
   async updateCustomerOrderOfPractitionerMealBox({
@@ -66,17 +63,8 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     uuid,
     practitionerBoxUuid,
   }: UpdateCustomerOrderOfPractitionerMealBoxArgs): Promise<
-    [OrderQueue, Error]
+    [OrderQueue?, Error?]
   > {
-    console.log(
-      name,
-      shopifyCustomer,
-      subtotal_price,
-      line_items,
-      uuid,
-      practitionerBoxUuid,
-    );
-
     let [customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({
         email: shopifyCustomer.email,
@@ -90,7 +78,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
         });
 
       if (getCustomerError) {
-        return [null, getCustomerError];
+        return [undefined, getCustomerError];
       }
     }
 
@@ -101,7 +89,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
         status: 'scheduled',
       });
     if (orderQueueScheduledError) {
-      return [null, orderQueueScheduledError];
+      return [undefined, orderQueueScheduledError];
     }
 
     let orderProducts: Pick<Product, 'sku'>[] = [];
@@ -114,12 +102,12 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
         orderNumber: name,
       });
     if (orderError) {
-      return [null, orderError];
+      return [undefined, orderError];
     }
-    const PractitionerBox = 6666539204663;
+    const PractitionerMealBox = 6603694014519;
     if (
       order.products.length > 1 &&
-      purchasedProducts.includes(PractitionerBox)
+      purchasedProducts.includes(PractitionerMealBox)
     ) {
       return [
         {
@@ -136,14 +124,14 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
         shopifyCustomerId: shopifyCustomer.id,
       });
     if (getOrderCountError) {
-      return [null, getOrderCountError];
+      return [undefined, getOrderCountError];
     }
     const [practitionerSingleBox, getPractitionerSingleBoxByUuidError] =
       await this.practitionerBoxRepo.getPractitionerSingleBoxByUuid({
         practitionerBoxUuid,
       });
     if (getPractitionerSingleBoxByUuidError) {
-      return [null, getPractitionerSingleBoxByUuidError];
+      return [undefined, getPractitionerSingleBoxByUuidError];
     }
     if (!practitionerSingleBox.box.products.length) {
       // analyze
@@ -156,7 +144,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
         return { sku: product.sku };
       });
       if (nextBoxProductsError) {
-        return [null, nextBoxProductsError];
+        return [undefined, nextBoxProductsError];
       }
     } else {
       orderProducts = practitionerSingleBox.box.products;
@@ -170,50 +158,48 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       : orderProducts.push({ sku: 'NP-packagingtape' }); //   Packaging Tape
 
     const transactionPrice: number = Number(subtotal_price);
-    console.log(orderProducts);
-    return;
-    // const [
-    //   [customerOrder, updateOrderError],
-    //   [practitionerBoxHistory, createPractitionerBoxHistoryError],
-    //   [orderQueueOrdered, orderQueueOrderedError],
-    // ] = await Promise.all([
-    //   this.shipheroRepo.updateCustomerOrder({
-    //     orderId: order.orderId,
-    //     products: orderProducts,
-    //     orderNumber: name,
-    //   }),
-    //   this.practitionerBoxOrderHistoryRepo.createPractitionerBoxOrderHistory({
-    //     transactionPrice,
-    //     orderNumber: name,
-    //     status: 'ordered',
-    //     customerId: customer?.id,
-    //     practitionerBoxId: practitionerSingleBox.box.id,
-    //   }),
-    //   this.orderQueueRepo.updateOrderQueue({
-    //     customerId: customer?.id,
-    //     orderNumber: name,
-    //     status: 'ordered',
-    //   }),
-    // ]);
 
-    // if (updateOrderError) {
-    //   return [null, updateOrderError];
-    // }
-    // if (createPractitionerBoxHistoryError) {
-    //   return [null, createPractitionerBoxHistoryError];
-    // }
-    // if (orderQueueOrderedError) {
-    //   return [null, orderQueueOrderedError];
-    // }
+    const [
+      [customerOrder, updateOrderError],
+      [practitionerBoxHistory, createPractitionerBoxHistoryError],
+      [orderQueueOrdered, orderQueueOrderedError],
+    ] = await Promise.all([
+      this.shipheroRepo.updateCustomerOrder({
+        orderId: order.orderId,
+        products: orderProducts,
+        orderNumber: name,
+      }),
+      this.practitionerBoxOrderHistoryRepo.createPractitionerBoxOrderHistory({
+        transactionPrice,
+        orderNumber: name,
+        status: 'ordered',
+        customerId: customer?.id,
+        practitionerBoxId: practitionerSingleBox.box.id,
+      }),
+      this.orderQueueRepo.updateOrderQueue({
+        customerId: customer?.id,
+        orderNumber: name,
+        status: 'ordered',
+      }),
+    ]);
 
-    // return [
-    //   {
-    //     customerId: orderQueueOrdered.customerId,
-    //     orderNumber: orderQueueOrdered.orderNumber,
-    //     status: orderQueueOrdered.status,
-    //     orderDate: orderQueueOrdered.orderDate,
-    //   },
-    //   null,
-    // ];
+    if (updateOrderError) {
+      return [undefined, updateOrderError];
+    }
+    if (createPractitionerBoxHistoryError) {
+      return [undefined, createPractitionerBoxHistoryError];
+    }
+    if (orderQueueOrderedError) {
+      return [undefined, orderQueueOrderedError];
+    }
+
+    return [
+      {
+        customerId: orderQueueOrdered.customerId,
+        orderNumber: orderQueueOrdered.orderNumber,
+        status: orderQueueOrdered.status,
+        orderDate: orderQueueOrdered.orderDate,
+      },
+    ];
   }
 }
