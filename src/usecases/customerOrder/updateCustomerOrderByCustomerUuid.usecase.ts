@@ -11,23 +11,19 @@ import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
 
-interface UpdateCustomerOrderOfCustomerBoxArgs
-  extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
-  uuid: string;
-}
-
-export interface UpdateCustomerOrderOfCustomerBoxUsecaseInterface {
-  updateCustomerOrderOfCustomerBox({
+export interface UpdateCustomerOrderByCustomerUuidUsecaseInterface {
+  updateCustomerOrderByCustomerUuid({
     name,
     customer,
     line_items,
-    uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]>;
+    subtotal_price,
+    note_attributes,
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]>;
 }
 
 @Injectable()
-export class UpdateCustomerOrderOfCustomerBoxUsecase
-  implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
+export class UpdateCustomerOrderByCustomerUuidUsecase
+  implements UpdateCustomerOrderByCustomerUuidUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepoInterface')
@@ -44,21 +40,22 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     private getSuggestionUtil: GetSuggestionInterface,
   ) {}
 
-  async updateCustomerOrderOfCustomerBox({
+  async updateCustomerOrderByCustomerUuid({
     name,
     customer: shopifyCustomer,
     line_items,
-    uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]> {
+    subtotal_price,
+    note_attributes,
+  }: UpdateCustomerOrderDto): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepo.getCustomer({
         email: shopifyCustomer.email,
       });
 
-    if (!customer.id) {
+    if (getCustomerError) {
       [customer, getCustomerError] =
         await this.customerGeneralRepo.updateCustomerEmailByUuid({
-          uuid,
+          uuid: note_attributes[0]?.value,
           newEmail: shopifyCustomer.email,
         });
 

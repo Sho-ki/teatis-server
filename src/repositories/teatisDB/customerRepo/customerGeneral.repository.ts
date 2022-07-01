@@ -327,9 +327,6 @@ export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
         where: { email },
         select: { id: true, email: true, uuid: true },
       });
-      if (!Object.keys(response).length) {
-        return [{ id: undefined, email: undefined, uuid: undefined }];
-      }
       if (!response?.email || !response?.id || !response?.uuid) {
         throw new Error();
       }
