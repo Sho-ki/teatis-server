@@ -18,7 +18,10 @@ import {
   UpdateCustomerOrderByCustomerUuidUsecase,
   UpdateCustomerOrderByCustomerUuidUsecaseInterface,
 } from './updateCustomerOrderByCustomerUuid.usecase';
-import {GetSuggestionInterface, GetSuggestionRes} from "@Usecases/utils/getSuggestion";
+import {
+  GetSuggestionInterface,
+  GetSuggestionRes,
+} from '@Usecases/utils/getSuggestion';
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderByCustomerUuidUsecaseInterface;
@@ -28,7 +31,7 @@ describe('GetOptions', () => {
   let MockedCustomerBoxRepo: Partial<CustomerBoxRepoInterface>;
   let MockedShopifyRepo: Partial<ShopifyRepoInterface>;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
-  let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>
+  let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>;
 
   beforeEach(async () => {
     MockedCustomerGeneralRepo = {
@@ -40,7 +43,7 @@ describe('GetOptions', () => {
     MockedOrderQueueRepo = {
       updateOrderQueue: () =>
         Promise.resolve<[OrderQueue?, Error?]>([
-          { customerId: 1, status: 'fulfilled', orderNumber: '12345' },
+          { customerId: 1, status: 'ordered', orderNumber: '12345' },
         ]),
     };
     MockedShipheroRepo = {
@@ -93,13 +96,13 @@ describe('GetOptions', () => {
             products: [
               {
                 id: 1,
-                name: "product1",
-                label: "",
-                sku: "sku_test",
-                expertComment: "",
-                ingredientLabel: "",
+                name: 'product1',
+                label: '',
+                sku: 'sku_test',
+                expertComment: '',
+                ingredientLabel: '',
                 images: [],
-                allergenLabel: "",
+                allergenLabel: '',
                 nutritionFact: {
                   calorie: 123,
                   totalFat: 123,
@@ -111,15 +114,15 @@ describe('GetOptions', () => {
                   dietaryFiber: 123,
                   totalSugar: 123,
                   addedSugar: 123,
-                  protein: 123
+                  protein: 123,
                 },
-                vendor: ""
-              }
-            ]
+                vendor: '',
+              },
+            ],
           },
-          null
-        ])
-    }
+          null,
+        ]),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -170,9 +173,9 @@ describe('GetOptions', () => {
       name: '#1111',
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
-      subtotal_price: ""
+      subtotal_price: '',
     });
-    expect(res.status).toBe('fulfilled');
+    expect(res.status).toBe('ordered');
     expect(error).toBeNull();
   });
 
@@ -186,9 +189,9 @@ describe('GetOptions', () => {
       name: '#1111',
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
-      subtotal_price: ""
+      subtotal_price: '',
     });
-    expect(res.status).toBe('fulfilled');
+    expect(res.status).toBe('ordered');
     expect(error).toBeNull();
   });
 });
