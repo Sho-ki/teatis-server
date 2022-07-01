@@ -9,27 +9,29 @@ import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
 } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+
 import { Customer } from '@Domains/Customer';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CustomerOrder } from '@Domains/CustomerOrder';
 import { Product } from '@Domains/Product';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import {
-  UpdateCustomerOrderByCustomerUuidUsecase,
-  UpdateCustomerOrderByCustomerUuidUsecaseInterface,
-} from './updateCustomerOrderByCustomerUuid.usecase';
+  UpdateCustomerOrderOfCustomerBoxUsecase,
+  UpdateCustomerOrderOfCustomerBoxUsecaseInterface,
+} from './updateCustomerOrderOfCustomerBox.usecase';
 import {
   GetSuggestionInterface,
   GetSuggestionRes,
 } from '@Usecases/utils/getSuggestion';
 
 describe('GetOptions', () => {
-  let usecase: UpdateCustomerOrderByCustomerUuidUsecaseInterface;
+  let usecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface;
   let MockedCustomerGeneralRepo: Partial<CustomerGeneralRepoInterface>;
   let MockedOrderQueueRepo: Partial<OrderQueueRepoInterface>;
   let MockedShipheroRepo: Partial<ShipheroRepoInterface>;
   let MockedCustomerBoxRepo: Partial<CustomerBoxRepoInterface>;
   let MockedShopifyRepo: Partial<ShopifyRepoInterface>;
+  let MockedNextBoxUtil: GetSuggestionInterface;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
   let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>;
 
@@ -74,6 +76,41 @@ describe('GetOptions', () => {
       getOrderCount: () =>
         Promise.resolve<[CustomerOrderCount?, Error?]>([
           { orderCount: 1, email: 'test@test.com' },
+        ]),
+    };
+
+    MockedNextBoxUtil = {
+      getSuggestion: () =>
+        Promise.resolve<[GetSuggestionRes, Error]>([
+          {
+            products: [
+              {
+                id: 40,
+                sku: '00000000000024',
+                name: 'PURPO All-in-One Cereal Cup 1.73 oz',
+                label: 'PURPO All-in-One Cereal Cup',
+                vendor: 'Chef Soraya',
+                images: [],
+                expertComment: '',
+                ingredientLabel: '',
+                allergenLabel: '',
+                nutritionFact: {
+                  calorie: 100,
+                  totalFat: 100,
+                  saturatedFat: 100,
+                  transFat: 100,
+                  cholesterole: 100,
+                  sodium: 100,
+                  totalCarbohydrate: 100,
+                  dietaryFiber: 100,
+                  totalSugar: 100,
+                  addedSugar: 100,
+                  protein: 100,
+                },
+              },
+            ],
+          },
+          null,
         ]),
     };
 
@@ -126,7 +163,7 @@ describe('GetOptions', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UpdateCustomerOrderByCustomerUuidUsecase,
+        UpdateCustomerOrderOfCustomerBoxUsecase,
         {
           provide: 'ShipheroRepoInterface',
           useValue: MockedShipheroRepo,
@@ -154,8 +191,8 @@ describe('GetOptions', () => {
       ],
     }).compile();
 
-    usecase = module.get<UpdateCustomerOrderByCustomerUuidUsecase>(
-      UpdateCustomerOrderByCustomerUuidUsecase,
+    usecase = module.get<UpdateCustomerOrderOfCustomerBoxUsecase>(
+      UpdateCustomerOrderOfCustomerBoxUsecase,
     );
   });
 
@@ -169,11 +206,11 @@ describe('GetOptions', () => {
         },
         null,
       ]);
-    const [res, error] = await usecase.updateCustomerOrderByCustomerUuid({
+    const [res, error] = await usecase.updateCustomerOrderOfCustomerBox({
       name: '#1111',
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
-      subtotal_price: '',
+      uuid: '1234',
     });
     expect(res.status).toBe('ordered');
     expect(error).toBeNull();
@@ -185,11 +222,11 @@ describe('GetOptions', () => {
         [{ id: 1, name: 'test', label: 'Test', sku: '123' }],
         null,
       ]);
-    const [res, error] = await usecase.updateCustomerOrderByCustomerUuid({
+    const [res, error] = await usecase.updateCustomerOrderOfCustomerBox({
       name: '#1111',
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
-      subtotal_price: '',
+      uuid: '1234',
     });
     expect(res.status).toBe('ordered');
     expect(error).toBeNull();
