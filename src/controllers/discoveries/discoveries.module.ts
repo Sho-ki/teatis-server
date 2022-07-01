@@ -32,11 +32,21 @@ import { UpdateCustomerOrderByPractitionerBoxUuidUsecase } from '@Usecases/custo
 import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
 import { PractitionerBoxOrderHistoryRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
-import { GetFirstBoxUsecase } from '../../usecases/firstBox/getFirstBox.usecase';
+import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';
+import { CreateCheckoutCartOfPractitionerMealBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
+import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    {
+      provide: 'UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface',
+      useClass: UpdateCustomerOrderOfPractitionerMealBoxUsecase,
+    },
+    {
+      provide: 'CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface',
+      useClass: CreateCheckoutCartOfPractitionerMealBoxUsecase,
+    },
     {
       provide: 'GetFirstBoxUsecaseInterface',
       useClass: GetFirstBoxUsecase,

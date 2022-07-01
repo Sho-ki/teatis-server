@@ -52,7 +52,7 @@ export class UpdateCustomerOrderByCustomerUuidUsecase
         email: shopifyCustomer.email,
       });
 
-    if (getCustomerError) {
+    if (!customer.id) {
       [customer, getCustomerError] =
         await this.customerGeneralRepo.updateCustomerEmailByUuid({
           uuid: note_attributes[0]?.value,

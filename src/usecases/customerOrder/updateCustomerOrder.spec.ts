@@ -11,7 +11,10 @@ import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
 } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { GetNextBoxInterface, GetNextBoxRes } from '../utils/getSuggestion';
+import {
+  GetSuggestionRes,
+  GetSuggestionInterface,
+} from '../utils/getSuggestion';
 import { Customer } from '@Domains/Customer';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CustomerOrder } from '@Domains/CustomerOrder';
@@ -30,7 +33,7 @@ describe('GetOptions', () => {
   let MockedShipheroRepo: Partial<ShipheroRepoInterface>;
   let MockedCustomerBoxRepo: Partial<CustomerBoxRepoInterface>;
   let MockedShopifyRepo: Partial<ShopifyRepoInterface>;
-  let MockedNextBoxUtil: GetNextBoxInterface;
+  let MockedNextBoxUtil: GetSuggestionInterface;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
 
   beforeEach(async () => {
@@ -78,8 +81,8 @@ describe('GetOptions', () => {
     };
 
     MockedNextBoxUtil = {
-      getNextBoxSurvey: () =>
-        Promise.resolve<[GetNextBoxRes, Error]>([
+      getSuggestion: () =>
+        Promise.resolve<[GetSuggestionRes, Error]>([
           {
             products: [
               {
@@ -177,6 +180,8 @@ describe('GetOptions', () => {
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       name: '#1111',
+      note_attributes: [{ name: 'string', value: 'string' }],
+      subtotal_price: '3',
     });
     expect(res.status).toBe('Success');
     expect(error).toBeNull();
@@ -192,6 +197,8 @@ describe('GetOptions', () => {
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       name: '#1111',
+      note_attributes: [{ name: 'string', value: 'string' }],
+      subtotal_price: '3',
     });
     expect(res.status).toBe('Success');
     expect(error).toBeNull();
