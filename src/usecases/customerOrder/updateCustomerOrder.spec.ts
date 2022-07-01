@@ -1,6 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
-import { Status } from '@Domains/Status';
 
 import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
 import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
@@ -11,17 +9,16 @@ import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
 } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { GetNextBoxInterface, GetNextBoxRes } from '../utils/getSuggestion';
 import { Customer } from '@Domains/Customer';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CustomerOrder } from '@Domains/CustomerOrder';
-import { Order } from '@Domains/Order';
 import { Product } from '@Domains/Product';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import {
   UpdateCustomerOrderByCustomerUuidUsecase,
   UpdateCustomerOrderByCustomerUuidUsecaseInterface,
 } from './updateCustomerOrderByCustomerUuid.usecase';
+import {GetSuggestionInterface, GetSuggestionRes} from "@Usecases/utils/getSuggestion";
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderByCustomerUuidUsecaseInterface;
@@ -30,8 +27,8 @@ describe('GetOptions', () => {
   let MockedShipheroRepo: Partial<ShipheroRepoInterface>;
   let MockedCustomerBoxRepo: Partial<CustomerBoxRepoInterface>;
   let MockedShopifyRepo: Partial<ShopifyRepoInterface>;
-  let MockedNextBoxUtil: GetNextBoxInterface;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
+  let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>
 
   beforeEach(async () => {
     MockedCustomerGeneralRepo = {
@@ -77,41 +74,6 @@ describe('GetOptions', () => {
         ]),
     };
 
-    MockedNextBoxUtil = {
-      getNextBoxSurvey: () =>
-        Promise.resolve<[GetNextBoxRes, Error]>([
-          {
-            products: [
-              {
-                id: 40,
-                sku: '00000000000024',
-                name: 'PURPO All-in-One Cereal Cup 1.73 oz',
-                label: 'PURPO All-in-One Cereal Cup',
-                vendor: 'Chef Soraya',
-                images: [],
-                expertComment: '',
-                ingredientLabel: '',
-                allergenLabel: '',
-                nutritionFact: {
-                  calorie: 100,
-                  totalFat: 100,
-                  saturatedFat: 100,
-                  transFat: 100,
-                  cholesterole: 100,
-                  sodium: 100,
-                  totalCarbohydrate: 100,
-                  dietaryFiber: 100,
-                  totalSugar: 100,
-                  addedSugar: 100,
-                  protein: 100,
-                },
-              },
-            ],
-          },
-          null,
-        ]),
-    };
-
     MockedPostPrePurchaseSurveyUsecase = {
       postPrePurchaseSurvey: () =>
         Promise.resolve<[PostPrePurchaseSurveyUsecaseRes, Error]>([
@@ -124,17 +86,44 @@ describe('GetOptions', () => {
         ]),
     };
 
+    MockedGetSuggestionInterface = {
+      getSuggestion: () =>
+        Promise.resolve<[GetSuggestionRes, Error]>([
+          {
+            products: [
+              {
+                id: 1,
+                name: "product1",
+                label: "",
+                sku: "sku_test",
+                expertComment: "",
+                ingredientLabel: "",
+                images: [],
+                allergenLabel: "",
+                nutritionFact: {
+                  calorie: 123,
+                  totalFat: 123,
+                  saturatedFat: 123,
+                  transFat: 123,
+                  cholesterole: 123,
+                  sodium: 123,
+                  totalCarbohydrate: 123,
+                  dietaryFiber: 123,
+                  totalSugar: 123,
+                  addedSugar: 123,
+                  protein: 123
+                },
+                vendor: ""
+              }
+            ]
+          },
+          null
+        ])
+    }
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateCustomerOrderByCustomerUuidUsecase,
-        {
-          provide: 'CustomerGeneralRepoInterface',
-          useValue: MockedCustomerGeneralRepo,
-        },
-        {
-          provide: 'OrderQueueRepoInterface',
-          useValue: MockedOrderQueueRepo,
-        },
         {
           provide: 'ShipheroRepoInterface',
           useValue: MockedShipheroRepo,
@@ -144,15 +133,19 @@ describe('GetOptions', () => {
           useValue: MockedCustomerBoxRepo,
         },
         {
+          provide: 'OrderQueueRepoInterface',
+          useValue: MockedOrderQueueRepo,
+        },
+        {
+          provide: 'CustomerGeneralRepoInterface',
+          useValue: MockedCustomerGeneralRepo,
+        },
+        {
           provide: 'ShopifyRepoInterface',
           useValue: MockedShopifyRepo,
         },
         {
-          provide: 'GetNextBoxInterface',
-          useValue: MockedNextBoxUtil,
-        },
-        {
-          provide: 'PostPrePurchaseSurveyUsecaseInterface',
+          provide: 'GetSuggestionInterface',
           useValue: MockedPostPrePurchaseSurveyUsecase,
         },
       ],
@@ -174,11 +167,12 @@ describe('GetOptions', () => {
         null,
       ]);
     const [res, error] = await usecase.updateCustomerOrderByCustomerUuid({
+      name: '#1111',
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
-      name: '#1111',
+      subtotal_price: ""
     });
-    expect(res.status).toBe('Success');
+    expect(res.status).toBe('fulfilled');
     expect(error).toBeNull();
   });
 
@@ -189,11 +183,12 @@ describe('GetOptions', () => {
         null,
       ]);
     const [res, error] = await usecase.updateCustomerOrderByCustomerUuid({
+      name: '#1111',
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
-      name: '#1111',
+      subtotal_price: ""
     });
-    expect(res.status).toBe('Success');
+    expect(res.status).toBe('fulfilled');
     expect(error).toBeNull();
   });
 });
