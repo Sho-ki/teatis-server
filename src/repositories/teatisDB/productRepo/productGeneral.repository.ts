@@ -29,7 +29,7 @@ export interface GetOptionsArgs {
 }
 
 export interface GetExsitingProductFeaturesArgs {
-  externalSku: string;
+  productId: number;
 }
 
 export interface GetOption {
@@ -106,49 +106,28 @@ export interface ProductGeneralRepoInterface {
   }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]>;
   getOptions({ target }: GetOptionsArgs): Promise<[ProductFeature[]?, Error?]>;
 
-  getExistingProductIngredients({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
-  getExistingProductAllergens({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
-  getExistingProductFoodTypes({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
-  getExistingProductCookingMethods({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]>;
-  getExistingProductImages({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]>;
-
   upsertProductIngredientSet(
-    newIngredientIds: number[],
-    existingIngredients: ProductFeature[],
+    newProductIngredientIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductAllergenSet(
-    newAllergenIds: number[],
-    existingAllergens: ProductFeature[],
+    newProductAllergenIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductFoodTypeSet(
-    newFoodTypeIds: number[],
-    existingFoodTypes: ProductFeature[],
+    newProductFoodTypeIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductCookingMethodSet(
-    newCookingMethodIds: number[],
-    existingCookingMethods: ProductFeature[],
+    newProductCookingMethodIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductImageSet(
-    newImages: ProductImage[],
-    existingImages: ProductImage[],
+    newProductImages: ProductImage[],
     productId: number,
   ): Promise<[ProductImage[]?, Error?]>;
 }
@@ -156,16 +135,205 @@ export interface ProductGeneralRepoInterface {
 @Injectable()
 export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
+  private async getExistingProductIngredients({
+    productId,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response = await this.prisma.intermediateProductIngredient.findMany(
+        {
+          where: {
+            product: { id: productId },
+          },
+          select: {
+            productIngredient: true,
+          },
+        },
+      );
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productIngredient }): ProductFeature => {
+          return {
+            id: productIngredient.id,
+            name: productIngredient.name,
+            label: productIngredient.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductIngredients failed',
+        },
+      ];
+    }
+  }
+  private async getExistingProductAllergens({
+    productId,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response = await this.prisma.intermediateProductAllergen.findMany({
+        where: {
+          product: { id: productId },
+        },
+        select: {
+          productAllergen: true,
+        },
+      });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productAllergen }): ProductFeature => {
+          return {
+            id: productAllergen.id,
+            name: productAllergen.name,
+            label: productAllergen.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductAllergens failed',
+        },
+      ];
+    }
+  }
+  private async getExistingProductCookingMethods({
+    productId,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response =
+        await this.prisma.intermediateProductCookingMethod.findMany({
+          where: {
+            product: { id: productId },
+          },
+          select: {
+            productCookingMethod: true,
+          },
+        });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productCookingMethod }): ProductFeature => {
+          return {
+            id: productCookingMethod.id,
+            name: productCookingMethod.name,
+            label: productCookingMethod.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductCookingMethods failed',
+        },
+      ];
+    }
+  }
+  private async getExistingProductFoodTypes({
+    productId,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+    try {
+      const response = await this.prisma.intermediateProductFoodType.findMany({
+        where: {
+          product: { id: productId },
+        },
+        select: {
+          productFoodType: true,
+        },
+      });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ productFoodType }): ProductFeature => {
+          return {
+            id: productFoodType.id,
+            name: productFoodType.name,
+            label: productFoodType.label,
+          };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductFoodTypes failed',
+        },
+      ];
+    }
+  }
+  private async getExistingProductImages({
+    productId,
+  }: GetExsitingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]> {
+    try {
+      const response = await this.prisma.productImage.findMany({
+        where: {
+          product: { id: productId },
+        },
+        select: {
+          id: true,
+          src: true,
+          position: true,
+        },
+      });
+      if (!response) {
+        throw new Error();
+      }
+
+      return [
+        response.map(({ id, src, position }) => {
+          return { id, src, position };
+        }),
+      ];
+    } catch (e) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductImages failed',
+        },
+      ];
+    }
+  }
+
   async upsertProductAllergenSet(
-    newAllergenIds: number[],
-    existingAllergens: ProductFeature[],
+    newProductAllergenIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]> {
     try {
-      const existingAllergenIds = existingAllergens.map(({ id }) => id);
+      const [existingProductAllergens, getExistingProductAllergensError] =
+        await this.getExistingProductAllergens({ productId });
+      if (getExistingProductAllergensError) {
+        return [
+          undefined,
+          {
+            name: 'Internal Server Error',
+            message: 'Server Side Error: upsertProductAllergenSet failed',
+          },
+        ];
+      }
+      const existingProductAllergenIds = existingProductAllergens.map(
+        ({ id }) => id,
+      );
       const [allergensToAdd, allergensToDelete] = calculateAddedAndDeletedIds(
-        existingAllergenIds,
-        newAllergenIds,
+        existingProductAllergenIds,
+        newProductAllergenIds,
       );
 
       await Promise.all([
@@ -208,15 +376,28 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
     }
   }
   async upsertProductFoodTypeSet(
-    newFoodTypeIds: number[],
-    existingFoodTypes: ProductFeature[],
+    newProductFoodTypeIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]> {
     try {
-      const existingFoodTypeIds = existingFoodTypes.map(({ id }) => id);
+      const [existingProductFoodTypes, getExistingProductFoodTypesError] =
+        await this.getExistingProductFoodTypes({ productId });
+      if (getExistingProductFoodTypesError) {
+        return [
+          undefined,
+          {
+            name: 'Internal Server Error',
+            message: 'Server Side Error: getExistingProductFoodTypes failed',
+          },
+        ];
+      }
+
+      const existingProductFoodTypeIds = existingProductFoodTypes.map(
+        ({ id }) => id,
+      );
       const [foodTypeToAdd, foodTypeToDelete] = calculateAddedAndDeletedIds(
-        existingFoodTypeIds,
-        newFoodTypeIds,
+        existingProductFoodTypeIds,
+        newProductFoodTypeIds,
       );
 
       await Promise.all([
@@ -259,18 +440,31 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
     }
   }
   async upsertProductCookingMethodSet(
-    newCookingMethodIds: number[],
-    existingCookingMethods: ProductFeature[],
+    newProductCookingMethodIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]> {
+    const [
+      existingProductCookingMethods,
+      getExistingProductCookingMethodsError,
+    ] = await this.getExistingProductCookingMethods({ productId });
+    if (getExistingProductCookingMethodsError) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductCookingMethods failed',
+        },
+      ];
+    }
+
     try {
-      const existingCookingMethodIds = existingCookingMethods.map(
+      const existingProductCookingMethodIds = existingProductCookingMethods.map(
         ({ id }) => id,
       );
       const [cookingMethodToAdd, cookingMethodToDelete] =
         calculateAddedAndDeletedIds(
-          existingCookingMethodIds,
-          newCookingMethodIds,
+          existingProductCookingMethodIds,
+          newProductCookingMethodIds,
         );
 
       await Promise.all([
@@ -316,14 +510,29 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }
 
   async upsertProductIngredientSet(
-    newIngredientIds: number[],
-    existingIngredients: ProductFeature[],
+    newProductIngredientIds: number[],
     productId: number,
   ): Promise<[ProductFeature[]?, Error?]> {
     try {
-      const existingIngredientIds = existingIngredients.map(({ id }) => id);
+      const [existingProductIngredients, getExistingProductIngredientsError] =
+        await this.getExistingProductIngredients({ productId });
+      if (getExistingProductIngredientsError) {
+        return [
+          undefined,
+          {
+            name: 'Internal Server Error',
+            message: 'Server Side Error: getExistingProductIngredients failed',
+          },
+        ];
+      }
+      const existingProductIngredientIds = existingProductIngredients.map(
+        ({ id }) => id,
+      );
       const [ingredientsToAdd, ingredientsToDelete] =
-        calculateAddedAndDeletedIds(existingIngredientIds, newIngredientIds);
+        calculateAddedAndDeletedIds(
+          existingProductIngredientIds,
+          newProductIngredientIds,
+        );
 
       await Promise.all([
         this.prisma.intermediateProductIngredient.deleteMany({
@@ -368,27 +577,40 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }
 
   async upsertProductImageSet(
-    newImages: ProductImage[],
-    existingImages: ProductImage[],
+    newProductImages: ProductImage[],
     productId: number,
   ): Promise<[ProductImage[]?, Error?]> {
     try {
+      const [existingProductImages, getExistingProductImagesError] =
+        await this.getExistingProductImages({ productId });
+      if (getExistingProductImagesError) {
+        return [
+          undefined,
+          {
+            name: 'Internal Server Error',
+            message: 'Server Side Error: getExistingProductImages failed',
+          },
+        ];
+      }
+
       const existingImageSet = new Set(
-        existingImages.map(({ src, position }) => {
+        existingProductImages.map(({ src, position }) => {
           return JSON.stringify({ src, position });
         }),
       );
       const newImageSet = new Set(
-        newImages.map(({ src, position }) => {
+        newProductImages.map(({ src, position }) => {
           return JSON.stringify({ src, position });
         }),
       );
 
-      const imagesToDelete = existingImages.filter(({ src, position }) => {
-        return !newImageSet.has(JSON.stringify({ src, position }));
-      });
+      const imagesToDelete = existingProductImages.filter(
+        ({ src, position }) => {
+          return !newImageSet.has(JSON.stringify({ src, position }));
+        },
+      );
 
-      const imagesToAdd = newImages.filter(
+      const imagesToAdd = newProductImages.filter(
         ({ src, position }) =>
           !existingImageSet.has(JSON.stringify({ src, position })),
       );
@@ -445,183 +667,6 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
         {
           name: 'Internal Server Error',
           message: 'Server Side Error: upsertProductImageSet failed',
-        },
-      ];
-    }
-  }
-
-  async getExistingProductIngredients({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
-    try {
-      const response = await this.prisma.intermediateProductIngredient.findMany(
-        {
-          where: {
-            product: { externalSku },
-          },
-          select: {
-            productIngredient: true,
-          },
-        },
-      );
-      if (!response) {
-        throw new Error();
-      }
-
-      return [
-        response.map(({ productIngredient }): ProductFeature => {
-          return {
-            id: productIngredient.id,
-            name: productIngredient.name,
-            label: productIngredient.label,
-          };
-        }),
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getExistingProductIngredients failed',
-        },
-      ];
-    }
-  }
-  async getExistingProductAllergens({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
-    try {
-      const response = await this.prisma.intermediateProductAllergen.findMany({
-        where: {
-          product: { externalSku },
-        },
-        select: {
-          productAllergen: true,
-        },
-      });
-      if (!response) {
-        throw new Error();
-      }
-
-      return [
-        response.map(({ productAllergen }): ProductFeature => {
-          return {
-            id: productAllergen.id,
-            name: productAllergen.name,
-            label: productAllergen.label,
-          };
-        }),
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getExistingProductAllergens failed',
-        },
-      ];
-    }
-  }
-  async getExistingProductCookingMethods({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
-    try {
-      const response =
-        await this.prisma.intermediateProductCookingMethod.findMany({
-          where: {
-            product: { externalSku },
-          },
-          select: {
-            productCookingMethod: true,
-          },
-        });
-      if (!response) {
-        throw new Error();
-      }
-
-      return [
-        response.map(({ productCookingMethod }): ProductFeature => {
-          return {
-            id: productCookingMethod.id,
-            name: productCookingMethod.name,
-            label: productCookingMethod.label,
-          };
-        }),
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getExistingProductCookingMethods failed',
-        },
-      ];
-    }
-  }
-  async getExistingProductFoodTypes({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
-    try {
-      const response = await this.prisma.intermediateProductFoodType.findMany({
-        where: {
-          product: { externalSku },
-        },
-        select: {
-          productFoodType: true,
-        },
-      });
-      if (!response) {
-        throw new Error();
-      }
-
-      return [
-        response.map(({ productFoodType }): ProductFeature => {
-          return {
-            id: productFoodType.id,
-            name: productFoodType.name,
-            label: productFoodType.label,
-          };
-        }),
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getExistingProductFoodTypes failed',
-        },
-      ];
-    }
-  }
-  async getExistingProductImages({
-    externalSku,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]> {
-    try {
-      const response = await this.prisma.productImage.findMany({
-        where: {
-          product: { externalSku },
-        },
-        select: {
-          id: true,
-          src: true,
-          position: true,
-        },
-      });
-      if (!response) {
-        throw new Error();
-      }
-
-      return [
-        response.map(({ id, src, position }) => {
-          return { id, src, position };
-        }),
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getExistingProductImages failed',
         },
       ];
     }
