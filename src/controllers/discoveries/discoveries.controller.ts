@@ -28,7 +28,7 @@ import {
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderByCustomerUuidUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderByCustomerUuid.usecase';
+import { UpdateCustomerOrderOfCustomerBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface } from '@Usecases/nextBox/getNextBox.usecase';
@@ -37,13 +37,16 @@ import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
 import { GetCustomerNutritionUsecaseInterface } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxDto } from './dtos/createCheckoutCartOfCustomerOriginalBoxDto';
-import { UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderByPractitionerBoxUuid.usecase';
+import { UpdateCustomerOrderOfPractitionerBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
-import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
+import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxDto } from './dtos/getFirstBox';
-import { GetFirstBoxUsecaseInterface } from '../../usecases/firstBox/getFirstBox.usecase';
+import { GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
+import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
+import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
+import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -60,8 +63,8 @@ export class DiscoveriesController {
     private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
-    @Inject('UpdateCustomerOrderByCustomerUuidUsecaseInterface')
-    private updateCustomerOrderByCustomerUuidUsecase: UpdateCustomerOrderByCustomerUuidUsecaseInterface,
+    @Inject('UpdateCustomerOrderOfCustomerBoxUsecaseInterface')
+    private updateCustomerOrderOfCustomerBoxUsecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface,
     @Inject('DeleteCustomerBoxUsecaseInterface')
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
@@ -70,14 +73,18 @@ export class DiscoveriesController {
     private createCheckoutCartOfCustomerOriginalBoxUsecase: CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface,
     @Inject('GetCustomerNutritionUsecaseInterface')
     private getCustomerNutritionUsecase: GetCustomerNutritionUsecaseInterface,
-    @Inject('UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface')
-    private updateCustomerOrderByPractitionerBoxUuidUsecase: UpdateCustomerOrderByPractitionerBoxUuidUsecaseInterface,
+    @Inject('UpdateCustomerOrderOfPractitionerBoxUsecaseInterface')
+    private updateCustomerOrderOfPractitionerBoxUsecase: UpdateCustomerOrderOfPractitionerBoxUsecaseInterface,
     @Inject('CreateCheckoutCartOfPractitionerBoxUsecaseInterface')
     private createCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
     @Inject('UpdatePractitionerBoxOrderHistoryUsecaseInterface')
     private updatePractitionerBoxOrderHistoryUsecase: UpdatePractitionerBoxOrderHistoryUsecaseInterface,
     @Inject('GetFirstBoxUsecaseInterface')
     private getFirstBoxUsecase: GetFirstBoxUsecaseInterface,
+    @Inject('CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface')
+    private createCheckoutCartOfPractitionerMealBoxUsecase: CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface,
+    @Inject('UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface')
+    private updateCustomerOrderOfPractitionerMealBoxUsecase: UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface,
 
     private teatisJob: TeatisJobs,
   ) {}
@@ -182,11 +189,22 @@ export class DiscoveriesController {
     @Body() body: DeleteCustomerBoxDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const noteAttributesKey = body.note_attributes[0]?.name as
-      | 'practitionerBoxUuid'
-      | 'uuid'
-      | undefined;
-    if (noteAttributesKey === 'practitionerBoxUuid') {
+    let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
+    for (let noteAttribute of body.note_attributes) {
+      if (noteAttribute.name === 'uuid') {
+        noteAttributes = Object.assign(noteAttributes, {
+          uuid: noteAttribute.value,
+        });
+      }
+      if (noteAttribute.name === 'practitionerBoxUuid') {
+        noteAttributes = Object.assign(noteAttributes, {
+          practitionerBoxUuid: noteAttribute.value,
+        });
+      }
+    }
+    const noteAttributesKeys = Object.keys(noteAttributes);
+
+    if (noteAttributesKeys.includes('practitionerBoxUuid')) {
       const [res, error] =
         await this.updatePractitionerBoxOrderHistoryUsecase.updatePractitionerOrderHistory(
           body,
@@ -211,20 +229,56 @@ export class DiscoveriesController {
     @Body() body: UpdateCustomerOrderDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const noteAttributesKey = body.note_attributes[0]?.name as
-      | 'practitionerBoxUuid'
-      | 'uuid'
-      | undefined;
+    let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
+    for (let noteAttribute of body.note_attributes) {
+      if (noteAttribute.name === 'uuid') {
+        noteAttributes = Object.assign(noteAttributes, {
+          uuid: noteAttribute.value,
+        });
+      }
+      if (noteAttribute.name === 'practitionerBoxUuid') {
+        noteAttributes = Object.assign(noteAttributes, {
+          practitionerBoxUuid: noteAttribute.value,
+        });
+      }
+    }
+    const noteAttributesKeys = Object.keys(noteAttributes);
     let [res, error]: [OrderQueue, Error] = [undefined, undefined];
-    if (noteAttributesKey === 'practitionerBoxUuid') {
+    if (
+      noteAttributesKeys.includes('practitionerBoxUuid') &&
+      noteAttributesKeys.includes('uuid')
+    ) {
       [res, error] =
-        await this.updateCustomerOrderByPractitionerBoxUuidUsecase.updateCustomerOrderByPractitionerBoxUuid(
-          body,
+        await this.updateCustomerOrderOfPractitionerMealBoxUsecase.updateCustomerOrderOfPractitionerMealBox(
+          {
+            name: body.name,
+            customer: body.customer,
+            subtotal_price: body.subtotal_price,
+            line_items: body.line_items,
+            uuid: noteAttributes.uuid,
+            practitionerBoxUuid: noteAttributes.practitionerBoxUuid,
+          },
+        );
+    } else if (noteAttributesKeys.includes('practitionerBoxUuid')) {
+      [res, error] =
+        await this.updateCustomerOrderOfPractitionerBoxUsecase.updateCustomerOrderOfPractitionerBox(
+          {
+            name: body.name,
+            customer: body.customer,
+            subtotal_price: body.subtotal_price,
+            line_items: body.line_items,
+            practitionerBoxUuid: noteAttributes.practitionerBoxUuid,
+          },
         );
     } else {
       [res, error] =
-        await this.updateCustomerOrderByCustomerUuidUsecase.updateCustomerOrderByCustomerUuid(
-          body,
+        await this.updateCustomerOrderOfCustomerBoxUsecase.updateCustomerOrderOfCustomerBox(
+          {
+            name: body.name,
+            customer: body.customer,
+            line_items: body.line_items,
+            uuid: noteAttributes.uuid,
+          },
         );
     }
     if (error) {
@@ -272,6 +326,22 @@ export class DiscoveriesController {
   ) {
     const [res, error] =
       await this.createCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
+        body,
+      );
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(201).send(res);
+  }
+
+  // Post: api/discovery/practitioner-meal-box-cart
+  @Post('practitioner-meal-box-cart')
+  async createPractitionerMealBoxCart(
+    @Body() body: CreateCheckoutCartOfPractitionerMealBoxDto,
+    @Res() response: Response,
+  ) {
+    const [res, error] =
+      await this.createCheckoutCartOfPractitionerMealBoxUsecase.createCheckoutCartOfPractitionerMealBox(
         body,
       );
     if (error) {
