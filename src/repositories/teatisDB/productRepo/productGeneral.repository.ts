@@ -39,6 +39,31 @@ export interface GetOption {
   src?: string | null;
 }
 
+interface UpsertProductIngredientSetArgs {
+  productId: number;
+  newProductIngredientIds: number[];
+}
+
+interface UpsertProductAllergenSetArgs {
+  productId: number;
+  newProductAllergenIds: number[];
+}
+
+interface UpsertProductFoodTypeSetArgs {
+  productId: number;
+  newProductFoodTypeIds: number[];
+}
+
+interface UpsertProductCookingMethodSetArgs {
+  productId: number;
+  newProductCookingMethodIds: number[];
+}
+
+interface UpsertProductImageSetArgs {
+  productId: number;
+  newProductImages: ProductImage[];
+}
+
 interface UpsertProductArgs {
   activeStatus: 'active' | 'inactive';
   preservationStyle: 'normal' | 'refrigerated' | 'frozen';
@@ -106,35 +131,41 @@ export interface ProductGeneralRepoInterface {
   }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]>;
   getOptions({ target }: GetOptionsArgs): Promise<[ProductFeature[]?, Error?]>;
 
-  upsertProductIngredientSet(
-    newProductIngredientIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]>;
+  upsertProductIngredientSet({
+    newProductIngredientIds,
+    productId,
+  }: UpsertProductIngredientSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
-  upsertProductAllergenSet(
-    newProductAllergenIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]>;
+  upsertProductAllergenSet({
+    newProductAllergenIds,
+    productId,
+  }: UpsertProductAllergenSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
-  upsertProductFoodTypeSet(
-    newProductFoodTypeIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]>;
+  upsertProductFoodTypeSet({
+    newProductFoodTypeIds,
+    productId,
+  }: UpsertProductFoodTypeSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
-  upsertProductCookingMethodSet(
-    newProductCookingMethodIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]>;
+  upsertProductCookingMethodSet({
+    newProductCookingMethodIds,
+    productId,
+  }: UpsertProductCookingMethodSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
-  upsertProductImageSet(
-    newProductImages: ProductImage[],
-    productId: number,
-  ): Promise<[ProductImage[]?, Error?]>;
+  upsertProductImageSet({
+    newProductImages,
+    productId,
+  }: UpsertProductImageSetArgs): Promise<[ProductImage[]?, Error?]>;
+
+  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
 }
 
 @Injectable()
 export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   constructor(private prisma: PrismaService) {}
+
+  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
+    return this.prisma.$transaction(transactionBlock);
+  }
 
   private async getExistingProductIngredients({
     productId,
@@ -313,10 +344,10 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
     }
   }
 
-  async upsertProductAllergenSet(
-    newProductAllergenIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]> {
+  async upsertProductAllergenSet({
+    newProductAllergenIds,
+    productId,
+  }: UpsertProductAllergenSetArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       return await this.prisma.$transaction(async (prisma) => {
         const [existingProductAllergens, getExistingProductAllergensError] =
@@ -378,10 +409,10 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
       ];
     }
   }
-  async upsertProductFoodTypeSet(
-    newProductFoodTypeIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]> {
+  async upsertProductFoodTypeSet({
+    newProductFoodTypeIds,
+    productId,
+  }: UpsertProductFoodTypeSetArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       return await this.prisma.$transaction(async (prisma) => {
         const [existingProductFoodTypes, getExistingProductFoodTypesError] =
@@ -444,10 +475,10 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
       ];
     }
   }
-  async upsertProductCookingMethodSet(
-    newProductCookingMethodIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]> {
+  async upsertProductCookingMethodSet({
+    newProductCookingMethodIds,
+    productId,
+  }: UpsertProductCookingMethodSetArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       return await this.prisma.$transaction(async (prisma) => {
         const [
@@ -495,7 +526,6 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
             select: { productCookingMethod: true },
           },
         );
-
         return [
           response.map(({ productCookingMethod }) => {
             return {
@@ -517,10 +547,10 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
     }
   }
 
-  async upsertProductIngredientSet(
-    newProductIngredientIds: number[],
-    productId: number,
-  ): Promise<[ProductFeature[]?, Error?]> {
+  async upsertProductIngredientSet({
+    newProductIngredientIds,
+    productId,
+  }: UpsertProductIngredientSetArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       return await this.prisma.$transaction(async (prisma) => {
         const [existingProductIngredients, getExistingProductIngredientsError] =
@@ -585,10 +615,10 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
     }
   }
 
-  async upsertProductImageSet(
-    newProductImages: ProductImage[],
-    productId: number,
-  ): Promise<[ProductImage[]?, Error?]> {
+  async upsertProductImageSet({
+    newProductImages,
+    productId,
+  }: UpsertProductImageSetArgs): Promise<[ProductImage[]?, Error?]> {
     try {
       return await this.prisma.$transaction(async (prisma) => {
         const [existingProductImages, getExistingProductImagesError] =

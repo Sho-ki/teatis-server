@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
-import { UpsertProductDto } from '../../controllers/ops/product/dtos/upsertProduct';
-import { Product } from '../../domains/Product';
+import { UpsertProductDto } from '@Controllers/ops/product/dtos/upsertProduct';
+import { Product } from '@Domains/Product';
 
 export interface UpsertProductUsecaseInterface {
   upsertProduct({
@@ -61,74 +61,80 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
     nutritionFact,
   }: UpsertProductDto): Promise<[Product?, Error?]> {
     try {
-      const [product, upsertProductError] =
-        await this.productGeneralRepo.upsertProduct({
-          activeStatus,
-          preservationStyle,
-          allergenLabel,
-          ingredientLabel,
-          expertComment,
-          WSP,
-          MSP,
-          label,
-          name,
-          productProviderId,
-          upcCode,
-          flavorId,
-          categoryId,
-          vendorId,
-          externalSku,
-          nutritionFact,
-        });
+      // Transaction
+      const [updatedProduct, upsertProductError] =
+        await this.productGeneralRepo.performAtomicOperations(
+          async (): Promise<[Product?, Error?]> => {
+            const [product, upsertProductError] =
+              await this.productGeneralRepo.upsertProduct({
+                activeStatus,
+                preservationStyle,
+                allergenLabel,
+                ingredientLabel,
+                expertComment,
+                WSP,
+                MSP,
+                label,
+                name,
+                productProviderId,
+                upcCode,
+                flavorId,
+                categoryId,
+                vendorId,
+                externalSku,
+                nutritionFact,
+              });
+            if (upsertProductError) {
+              return [undefined, upsertProductError];
+            }
+            const [cookingMethods, upsertCookingMethodsError] =
+              await this.productGeneralRepo.upsertProductCookingMethodSet({
+                newProductCookingMethodIds,
+                productId: product.id,
+              });
+            if (upsertCookingMethodsError) {
+              return [undefined, upsertCookingMethodsError];
+            }
+
+            const [ingredients, upsertIngredientsError] =
+              await this.productGeneralRepo.upsertProductIngredientSet({
+                newProductIngredientIds,
+                productId: product.id,
+              });
+            if (upsertIngredientsError) {
+              return [undefined, upsertIngredientsError];
+            }
+            const [allergen, upsertAllergenError] =
+              await this.productGeneralRepo.upsertProductAllergenSet({
+                newProductAllergenIds,
+                productId: product.id,
+              });
+            if (upsertAllergenError) {
+              return [undefined, upsertAllergenError];
+            }
+            const [foodType, upsertFoodTypesError] =
+              await this.productGeneralRepo.upsertProductFoodTypeSet({
+                newProductFoodTypeIds,
+                productId: product.id,
+              });
+            if (upsertFoodTypesError) {
+              return [undefined, upsertFoodTypesError];
+            }
+            const [image, upsertImagesError] =
+              await this.productGeneralRepo.upsertProductImageSet({
+                newProductImages,
+                productId: product.id,
+              });
+            if (upsertImagesError) {
+              return [undefined, upsertImagesError];
+            }
+            return [product];
+          },
+        );
       if (upsertProductError) {
         return [undefined, upsertProductError];
       }
-      const [
-        [updatedCookingMethods, upsertCookMethodsError],
-        [updatedIngredients, upsertIngredientsError],
-        [updatedAllergens, upsertAllergensError],
-        [updatedFoodTypes, upsertFoodTypesError],
-        [updatedImages, upsertImagesError],
-      ] = await Promise.all([
-        this.productGeneralRepo.upsertProductCookingMethodSet(
-          newProductCookingMethodIds,
-          product.id,
-        ),
-        this.productGeneralRepo.upsertProductIngredientSet(
-          newProductIngredientIds,
-          product.id,
-        ),
-        this.productGeneralRepo.upsertProductAllergenSet(
-          newProductAllergenIds,
-          product.id,
-        ),
-        this.productGeneralRepo.upsertProductFoodTypeSet(
-          newProductFoodTypeIds,
-          product.id,
-        ),
-        this.productGeneralRepo.upsertProductImageSet(
-          newProductImages,
-          product.id,
-        ),
-      ]);
-
-      if (upsertCookMethodsError) {
-        return [undefined, upsertCookMethodsError];
-      }
-      if (upsertIngredientsError) {
-        return [undefined, upsertIngredientsError];
-      }
-      if (upsertAllergensError) {
-        return [undefined, upsertAllergensError];
-      }
-      if (upsertFoodTypesError) {
-        return [undefined, upsertFoodTypesError];
-      }
-      if (upsertImagesError) {
-        return [undefined, upsertImagesError];
-      }
-
-      return [product];
+      return [updatedProduct];
     } catch (e) {
       return [
         undefined,
