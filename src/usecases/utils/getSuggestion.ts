@@ -416,9 +416,7 @@ export class GetSuggestion implements GetSuggestionInterface {
               protein: nutritionFact.protein,
             },
           };
-          if (favoriteCategories.includes(product.category.id)) {
-            nextBoxProducts.products.unshift(nextProduct);
-          } else nextBoxProducts.products.push(nextProduct);
+          nextBoxProducts.products.push(nextProduct);
           continue;
         }
       }

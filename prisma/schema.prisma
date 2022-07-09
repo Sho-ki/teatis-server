@@ -3,6 +3,8 @@
 
 generator client {
   provider = "prisma-client-js"
+    previewFeatures = ["interactiveTransactions"]
+
 }
 
 datasource db {
@@ -161,8 +163,8 @@ model Product{
   customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]
   productImages ProductImage[] 
-  mainProductImage ProductImage? @relation(name: "mainProductImage", fields: [mainProductImageId], references: [id])
-  mainProductImageId Int?
+  mainProductImage ProductImage? @relation(name: "mainProductImage", fields: [mainProductImageId], references: [id]) 
+  mainProductImageId Int? @unique 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -348,7 +350,7 @@ model IntermediateCustomerAllergen{
 model ProductNutritionFact{
   id                  Int             @default(autoincrement()) @id
   product   Product @relation(fields: [productId], references: [id])
-  productId Int
+  productId Int @unique
   quantity	Int? 
   servingSize	Int? 
   calories Int?
@@ -548,7 +550,7 @@ model Practitioner{
 model PractitionerSocialMedia{
   id  Int @default(autoincrement()) @id
   practitioner Practitioner @relation(fields: [practitionerId], references: [id])
-  practitionerId Int
+  practitionerId Int @unique
   instagram String?
   facebook String?
   twitter String?
