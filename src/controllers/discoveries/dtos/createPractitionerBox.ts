@@ -18,5 +18,9 @@ export class CreatePractitionerBoxDto {
 
   @IsString()
   @IsOptional()
+  description?: string;
+
+  @IsString()
+  @IsOptional()
   note?: string;
 }

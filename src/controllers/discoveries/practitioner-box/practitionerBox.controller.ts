@@ -10,7 +10,7 @@ import {
 import { Response } from 'express';
 import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
 import { CreatePractitionerBoxUsecaseInterface } from '../../../usecases/practitionerBox/createPractitionerBox.usecase';
-import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { GetPractitionerBoxByLabelUsecaseInterface } from '../../../usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
@@ -33,7 +33,7 @@ export class PractitionerBoxController {
     query: GetPractitionerBoxDto,
     @Res() response: Response,
   ) {
-    let [res, error]: [PractitionerSingleBox, Error] = [undefined, undefined];
+    let [res, error]: [PractitionerAndBox, Error] = [undefined, undefined];
 
     if (query.practitionerBoxUuid) {
       [res, error] =

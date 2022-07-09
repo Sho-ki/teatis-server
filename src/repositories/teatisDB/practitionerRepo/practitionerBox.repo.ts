@@ -4,63 +4,58 @@ import { DisplayProduct, Product } from '@Domains/Product';
 import { PrismaService } from '../../../prisma.service';
 import { Practitioner } from '@Domains/Practitioner';
 import { PractitionerBox } from '@Domains/PractitionerBox';
-import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { SocialMedia } from '@Domains/SocialMedia';
 
-interface getPractitionerSingleBoxByUuidArgs {
+interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
 }
 
-interface getPractitionerSingleBoxByLabelArgs {
+interface getPractitionerAndBoxByLabelArgs {
   practitionerId: number;
   label: string;
 }
 
-interface createPractitionerSingleBoxArgs {
+interface createPractitionerAndBoxArgs {
   practitionerId: number;
   practitionerBoxUuid: string;
   label: string;
   products: { id: number }[];
+  description?: string;
   note?: string;
 }
 
 export interface PractitionerBoxRepoInterface {
-  getPractitionerSingleBoxByUuid({
+  getPractitionerAndBoxByUuid({
     practitionerBoxUuid,
-  }: getPractitionerSingleBoxByUuidArgs): Promise<
-    [PractitionerSingleBox?, Error?]
-  >;
+  }: getPractitionerAndBoxByUuidArgs): Promise<[PractitionerAndBox?, Error?]>;
 
-  getPractitionerSingleBoxByLabel({
+  getPractitionerAndBoxByLabel({
     practitionerId,
     label,
-  }: getPractitionerSingleBoxByLabelArgs): Promise<
-    [PractitionerSingleBox?, Error?]
-  >;
+  }: getPractitionerAndBoxByLabelArgs): Promise<[PractitionerAndBox?, Error?]>;
 
-  createPractitionerSingleBox({
+  createPractitionerAndBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
+    description,
     note,
-  }: createPractitionerSingleBoxArgs): Promise<
-    [PractitionerSingleBox?, Error?]
-  >;
+  }: createPractitionerAndBoxArgs): Promise<[PractitionerAndBox?, Error?]>;
 }
 
 @Injectable()
 export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
   constructor(private prisma: PrismaService) {}
-  async createPractitionerSingleBox({
+  async createPractitionerAndBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
+    description,
     note,
-  }: createPractitionerSingleBoxArgs): Promise<
-    [PractitionerSingleBox?, Error?]
-  > {
+  }: createPractitionerAndBoxArgs): Promise<[PractitionerAndBox?, Error?]> {
     try {
       if (!products.length) {
         throw new Error();
@@ -104,6 +99,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           label,
           uuid: practitionerBoxUuid,
           practitionerId,
+          description,
           note,
           intermediatePractitionerBoxProduct: {
             createMany: {
@@ -114,6 +110,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           },
         },
         update: {
+          description,
           note,
           intermediatePractitionerBoxProduct: {
             createMany: {
@@ -132,6 +129,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           id: true,
           uuid: true,
           label: true,
+          description: true,
           note: true,
           practitioner: {
             select: {
@@ -172,6 +170,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         id: response.id,
         uuid: response.uuid,
         label: response.label,
+        description: response?.description,
         note: response?.note,
         products: boxProducts,
       };
@@ -188,17 +187,15 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: createPractitionerSingleBox failed',
+          message: 'Server Side Error: createPractitionerAndBox failed',
         },
       ];
     }
   }
-  async getPractitionerSingleBoxByLabel({
+  async getPractitionerAndBoxByLabel({
     practitionerId,
     label,
-  }: getPractitionerSingleBoxByLabelArgs): Promise<
-    [PractitionerSingleBox?, Error?]
-  > {
+  }: getPractitionerAndBoxByLabelArgs): Promise<[PractitionerAndBox?, Error?]> {
     try {
       const response = await this.prisma.practitionerBox.findUnique({
         where: { PractitionerBoxIdentifier: { label, practitionerId } },
@@ -226,6 +223,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           id: true,
           uuid: true,
           label: true,
+          description: true,
           note: true,
           practitioner: {
             select: {
@@ -291,6 +289,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         id: response.id,
         uuid: response.uuid,
         label: response.label,
+        description: response.description,
         note: response.note,
         products: boxProducts,
       };
@@ -306,17 +305,15 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getPractitionerSingleBoxByLabel failed',
+          message: 'Server Side Error: getPractitionerAndBoxByLabel failed',
         },
       ];
     }
   }
 
-  async getPractitionerSingleBoxByUuid({
+  async getPractitionerAndBoxByUuid({
     practitionerBoxUuid,
-  }: getPractitionerSingleBoxByUuidArgs): Promise<
-    [PractitionerSingleBox?, Error?]
-  > {
+  }: getPractitionerAndBoxByUuidArgs): Promise<[PractitionerAndBox?, Error?]> {
     try {
       const response = await this.prisma.practitionerBox.findUnique({
         where: { uuid: practitionerBoxUuid },
@@ -344,6 +341,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
           id: true,
           uuid: true,
           label: true,
+          description: true,
           note: true,
           practitioner: {
             select: {
@@ -409,6 +407,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         id: response.id,
         uuid: response.uuid,
         label: response.label,
+        description: response.description,
         note: response.note,
         products: boxProducts,
       };
@@ -424,7 +423,7 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getPractitionerSingleBoxByUuid failed',
+          message: 'Server Side Error: getPractitionerAndBoxByUuid failed',
         },
       ];
     }

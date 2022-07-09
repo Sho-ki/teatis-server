@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
 
 export interface GetPractitionerBoxByUuidUsecaseInterface {
   getPractitionerBoxByUuid({
     practitionerBoxUuid,
-  }: GetPractitionerBoxDto): Promise<[PractitionerSingleBox?, Error?]>;
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]>;
 }
 
 @Injectable()
@@ -20,16 +20,16 @@ export class GetPractitionerBoxByUuidUsecase
   ) {}
   async getPractitionerBoxByUuid({
     practitionerBoxUuid,
-  }: GetPractitionerBoxDto): Promise<[PractitionerSingleBox?, Error?]> {
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
     try {
-      const [practitionerSingleBox, getPractitionerSingleBoxError] =
-        await this.practitionerBoxRepo.getPractitionerSingleBoxByUuid({
+      const [practitionerAndBox, getPractitionerAndBoxError] =
+        await this.practitionerBoxRepo.getPractitionerAndBoxByUuid({
           practitionerBoxUuid,
         });
-      if (getPractitionerSingleBoxError) {
-        return [undefined, getPractitionerSingleBoxError];
+      if (getPractitionerAndBoxError) {
+        return [undefined, getPractitionerAndBoxError];
       }
-      return [practitionerSingleBox];
+      return [practitionerAndBox];
     } catch (e) {
       return [undefined, e];
     }
