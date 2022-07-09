@@ -111,14 +111,14 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     if (getOrderCountError) {
       return [null, getOrderCountError];
     }
-    const [practitionerSingleBox, getPractitionerSingleBoxByUuidError] =
-      await this.practitionerBoxRepo.getPractitionerSingleBoxByUuid({
+    const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
+      await this.practitionerBoxRepo.getPractitionerAndBoxByUuid({
         practitionerBoxUuid,
       });
-    if (getPractitionerSingleBoxByUuidError) {
-      return [null, getPractitionerSingleBoxByUuidError];
+    if (getPractitionerAndBoxByUuidError) {
+      return [null, getPractitionerAndBoxByUuidError];
     }
-    if (!practitionerSingleBox.box.products.length) {
+    if (!practitionerAndBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.getSuggestionUtil.getSuggestion({
@@ -132,7 +132,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
         return [null, nextBoxProductsError];
       }
     } else {
-      orderProducts = practitionerSingleBox.box.products;
+      orderProducts = practitionerAndBox.box.products;
     }
     customerOrderCount.orderCount <= 1
       ? orderProducts.push(
@@ -159,7 +159,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
         orderNumber: name,
         status: 'ordered',
         customerId: customer?.id,
-        practitionerBoxId: practitionerSingleBox.box.id,
+        practitionerBoxId: practitionerAndBox.box.id,
       }),
       this.orderQueueRepo.updateOrderQueue({
         customerId: customer?.id,

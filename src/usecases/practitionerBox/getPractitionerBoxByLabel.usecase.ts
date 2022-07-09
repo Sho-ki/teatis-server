@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { PractitionerSingleBox } from '@Domains/PractitionerSingleBox';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { PractitionerGeneralRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
 import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
 
@@ -9,7 +9,7 @@ export interface GetPractitionerBoxByLabelUsecaseInterface {
   getPractitionerBoxByLabel({
     email,
     label,
-  }: GetPractitionerBoxDto): Promise<[PractitionerSingleBox?, Error?]>;
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]>;
 }
 
 @Injectable()
@@ -25,7 +25,7 @@ export class GetPractitionerBoxByLabelUsecase
   async getPractitionerBoxByLabel({
     email,
     label,
-  }: GetPractitionerBoxDto): Promise<[PractitionerSingleBox?, Error?]> {
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
     try {
       const [practitioner, getPractitionerError] =
         await this.practitionerGeneralRepo.getPractitioner({
@@ -34,15 +34,15 @@ export class GetPractitionerBoxByLabelUsecase
       if (getPractitionerError) {
         return [undefined, getPractitionerError];
       }
-      const [practitionerSingleBox, getPractitionerSingleBoxError] =
-        await this.practitionerBoxRepo.getPractitionerSingleBoxByLabel({
+      const [practitionerAndBox, getPractitionerAndBoxError] =
+        await this.practitionerBoxRepo.getPractitionerAndBoxByLabel({
           label,
           practitionerId: practitioner.id,
         });
-      if (getPractitionerSingleBoxError) {
-        return [undefined, getPractitionerSingleBoxError];
+      if (getPractitionerAndBoxError) {
+        return [undefined, getPractitionerAndBoxError];
       }
-      return [practitionerSingleBox];
+      return [practitionerAndBox];
     } catch (e) {
       return [undefined, e];
     }

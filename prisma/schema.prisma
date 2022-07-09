@@ -566,6 +566,7 @@ model PractitionerBox{
   practitionerId Int
   practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
   label String
+  description String?
   note String?
   intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
   createdAt DateTime @default(now())

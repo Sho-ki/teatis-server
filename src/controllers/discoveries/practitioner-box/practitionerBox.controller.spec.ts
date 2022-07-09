@@ -1,22 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PractitionerBoxController } from './practitionerBox.controller';
-import {GetPractitionerBoxByUuidUsecaseInterface} from "@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase";
-import {CreatePractitionerBoxUsecaseInterface} from "@Usecases/practitionerBox/createPractitionerBox.usecase";
-import {GetPractitionerBoxByLabelUsecaseInterface} from "@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase";
-import {PractitionerSingleBox} from "@Domains/PractitionerSingleBox";
+import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
+import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
+import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 
 describe('PractitionerBoxController', () => {
   let controller: PractitionerBoxController;
 
-  let mockBox : PractitionerSingleBox = {
+  let mockBox: PractitionerAndBox = {
     box: undefined,
-    email: "",
-    firstName: "",
+    email: '',
+    firstName: '',
     id: 1,
-    message: "",
-    middleName: "",
-    uuid: ""
-  }
+    message: '',
+    middleName: '',
+    uuid: '',
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,30 +26,24 @@ describe('PractitionerBoxController', () => {
           provide: 'GetPractitionerBoxByUuidUsecaseInterface',
           useValue: {
             getPractitionerBoxByUuid: () =>
-              Promise.resolve<[PractitionerSingleBox?, Error?]>([
-                mockBox
-              ]),
-          } as GetPractitionerBoxByUuidUsecaseInterface
+              Promise.resolve<[PractitionerAndBox?, Error?]>([mockBox]),
+          } as GetPractitionerBoxByUuidUsecaseInterface,
         },
         {
           provide: 'CreatePractitionerBoxUsecaseInterface',
           useValue: {
             createPractitionerBox: () =>
-              Promise.resolve<[PractitionerSingleBox?, Error?]>([
-                mockBox
-              ]),
-          } as CreatePractitionerBoxUsecaseInterface
+              Promise.resolve<[PractitionerAndBox?, Error?]>([mockBox]),
+          } as CreatePractitionerBoxUsecaseInterface,
         },
         {
           provide: 'GetPractitionerBoxByLabelUsecaseInterface',
           useValue: {
             getPractitionerBoxByLabel: () =>
-              Promise.resolve<[PractitionerSingleBox?, Error?]>([
-                mockBox
-              ]),
-          } as GetPractitionerBoxByLabelUsecaseInterface
-        }
-      ]
+              Promise.resolve<[PractitionerAndBox?, Error?]>([mockBox]),
+          } as GetPractitionerBoxByLabelUsecaseInterface,
+        },
+      ],
     }).compile();
 
     controller = module.get<PractitionerBoxController>(
