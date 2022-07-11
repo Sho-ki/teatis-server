@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CreatePractitionerDto } from '@Controllers/discoveries/dtos/createPractitioner';
 import { v4 as uuidv4 } from 'uuid';
-import { PractitionerGeneralRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
+import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { Practitioner } from '@Domains/Practitioner';
 
 export interface CreatePractitionerUsecaseInterface {
@@ -25,8 +25,8 @@ export class CreatePractitionerUsecase
   implements CreatePractitionerUsecaseInterface
 {
   constructor(
-    @Inject('PractitionerGeneralRepoInterface')
-    private practitionerGeneralRepo: PractitionerGeneralRepoInterface,
+    @Inject('PractitionerGeneralRepositoryInterface')
+    private practitionerGeneralRepository: PractitionerGeneralRepositoryInterface,
   ) {}
   async createPractitioner({
     firstName,
@@ -44,7 +44,7 @@ export class CreatePractitionerUsecase
       const uuid = uuidv4();
 
       const [practitionerSocialMedia, createPractitionerError] =
-        await this.practitionerGeneralRepo.createPractitioner({
+        await this.practitionerGeneralRepository.createPractitioner({
           firstName,
           lastName,
           message,

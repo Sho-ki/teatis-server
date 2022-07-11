@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
-import { CustomerPrePurchaseSurveyRepoInterface } from '@Repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
+import { CustomerPrePurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
 import { Customer } from '@Domains/Customer';
 
 interface CreateCustomerUsecaseArgs {
@@ -45,8 +45,8 @@ export interface CreateCustomerUsecaseInterface {
 @Injectable()
 export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
   constructor(
-    @Inject('CustomerPrePurchaseSurveyRepoInterface')
-    private readonly customerPrePurchaseRepo: CustomerPrePurchaseSurveyRepoInterface,
+    @Inject('CustomerPrePurchaseSurveyRepositoryInterface')
+    private readonly customerPrePurchaseRepository: CustomerPrePurchaseSurveyRepositoryInterface,
   ) {}
 
   outlierValidate(name: 'height' | 'weight' | 'age', value: number): number {
@@ -143,7 +143,7 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
 
     const uuid = uuidv4();
     const [customer, upsertCustomerError] =
-      await this.customerPrePurchaseRepo.upsertCustomer({
+      await this.customerPrePurchaseRepository.upsertCustomer({
         uuid,
         diabetes,
         gender,

@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   GetOptionsArgs,
-  ProductGeneralRepoInterface,
-} from '@Repositories/teatisDB/productRepo/productGeneral.repository';
+  ProductGeneralRepositoryInterface,
+} from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
 import { GetPrePurchaseOptionsUsecase } from './getPrePurchaseOptions.usecase';
 
 describe('GetOptions', () => {
   let usecase: GetPrePurchaseOptionsUsecase;
-  let repo: ProductGeneralRepoInterface;
-  let MockedProductGeneralRepo: Partial<ProductGeneralRepoInterface>;
+  let repo: ProductGeneralRepositoryInterface;
+  let MockedProductGeneralRepository: Partial<ProductGeneralRepositoryInterface>;
 
   beforeEach(async () => {
-    MockedProductGeneralRepo = {
+    MockedProductGeneralRepository = {
       getOptions: ({ target }: GetOptionsArgs) =>
         Promise.resolve<[ProductFeature[], Error]>([
           target === 'flavor'
@@ -33,11 +33,11 @@ describe('GetOptions', () => {
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        // ProductGeneralRepo,
+        // ProductGeneralRepository,
         GetPrePurchaseOptionsUsecase,
         {
-          provide: 'ProductGeneralRepoInterface',
-          useValue: MockedProductGeneralRepo,
+          provide: 'ProductGeneralRepositoryInterface',
+          useValue: MockedProductGeneralRepository,
         },
       ],
     }).compile();
@@ -55,7 +55,7 @@ describe('GetOptions', () => {
   });
 
   it('throws an error if no options are found', async () => {
-    MockedProductGeneralRepo.getOptions = ({ target }: GetOptionsArgs) =>
+    MockedProductGeneralRepository.getOptions = ({ target }: GetOptionsArgs) =>
       Promise.resolve<[ProductFeature[], Error]>([
         null,
         { name: 'Not found error', message: 'Options not found' },

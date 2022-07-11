@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
-import { PractitionerBoxOrderHistoryRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
+import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 
 export interface UpdatePractitionerBoxOrderHistoryUsecaseInterface {
   updatePractitionerOrderHistory({
@@ -14,8 +14,8 @@ export class UpdatePractitionerBoxOrderHistoryUsecase
   implements UpdatePractitionerBoxOrderHistoryUsecaseInterface
 {
   constructor(
-    @Inject('PractitionerBoxOrderHistoryRepoInterface')
-    private practitionerBoxOrderHistoryRepo: PractitionerBoxOrderHistoryRepoInterface,
+    @Inject('PractitionerBoxOrderHistoryRepositoryInterface')
+    private practitionerBoxOrderHistoryRepository: PractitionerBoxOrderHistoryRepositoryInterface,
   ) {}
 
   async updatePractitionerOrderHistory({
@@ -23,7 +23,7 @@ export class UpdatePractitionerBoxOrderHistoryUsecase
   }: DeleteCustomerBoxDto): Promise<[void?, Error?]> {
     try {
       const [_practitioner, getPractitionerError] =
-        await this.practitionerBoxOrderHistoryRepo.updatePractitionerBoxOrderHistory(
+        await this.practitionerBoxOrderHistoryRepository.updatePractitionerBoxOrderHistory(
           {
             orderNumber: name,
             status: 'fulfilled',

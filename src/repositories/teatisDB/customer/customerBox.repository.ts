@@ -17,7 +17,7 @@ export interface UpdateCustomerBoxArgs {
   products: Partial<Product>[];
 }
 
-export interface CustomerBoxRepoInterface {
+export interface CustomerBoxRepositoryInterface {
   getCustomerBoxProducts({
     email,
   }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]>;
@@ -32,7 +32,7 @@ export interface CustomerBoxRepoInterface {
 }
 
 @Injectable()
-export class CustomerBoxRepo implements CustomerBoxRepoInterface {
+export class CustomerBoxRepository implements CustomerBoxRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
   async deleteCustomerBoxProduct({

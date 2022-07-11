@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
-import { QuestionPostPurchaseSurveyRepoInterface } from '@Repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
-import { CustomerPostPurchaseSurveyRepoInterface } from '@Repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { QuestionPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/question/questionPostPurchaseSurvey.repository';
+import { CustomerPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
 import {
   PostPurchaseSurvey,
   SurveyQuestions,
@@ -28,14 +28,14 @@ export class GetPostPurchaseSurveyUsecase
   implements GetPostPurchaseSurveyUsecaseInterface
 {
   constructor(
-    @Inject('ShipheroRepoInterface')
-    private shipheroRepo: ShipheroRepoInterface,
-    @Inject('QuestionPostPurchaseSurveyRepoInterface')
-    private questionPostPurchaseSurveyRepo: QuestionPostPurchaseSurveyRepoInterface,
-    @Inject('CustomerPostPurchaseSurveyRepoInterface')
-    private customerPostPurchaseSurveyRepo: CustomerPostPurchaseSurveyRepoInterface,
-    @Inject('ProductGeneralRepoInterface')
-    private productGeneralRepo: ProductGeneralRepoInterface,
+    @Inject('ShipheroRepositoryInterface')
+    private shipheroRepository: ShipheroRepositoryInterface,
+    @Inject('QuestionPostPurchaseSurveyRepositoryInterface')
+    private questionPostPurchaseSurveyRepository: QuestionPostPurchaseSurveyRepositoryInterface,
+    @Inject('CustomerPostPurchaseSurveyRepositoryInterface')
+    private customerPostPurchaseSurveyRepository: CustomerPostPurchaseSurveyRepositoryInterface,
+    @Inject('ProductGeneralRepositoryInterface')
+    private productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
 
   async getPostPurchaseSurvey({
@@ -45,14 +45,16 @@ export class GetPostPurchaseSurveyUsecase
     // Get last order products from shiphero
 
     const [customerOrder, getOrderError] = orderNumber
-      ? await this.shipheroRepo.getCustomerOrderByOrderNumber({ orderNumber })
-      : await this.shipheroRepo.getLastCustomerOrder({ email });
+      ? await this.shipheroRepository.getCustomerOrderByOrderNumber({
+          orderNumber,
+        })
+      : await this.shipheroRepository.getLastCustomerOrder({ email });
 
     if (getOrderError) {
       return [null, getOrderError];
     }
     const [displayProducts, getProductDetailError] =
-      await this.productGeneralRepo.getProductsBySku({
+      await this.productGeneralRepository.getProductsBySku({
         products: customerOrder.products,
       });
 
@@ -85,7 +87,7 @@ export class GetPostPurchaseSurveyUsecase
     });
 
     const [surveyQuestion, getPostPurchaseQuestionsError] =
-      await this.questionPostPurchaseSurveyRepo.getSurveyQuestions({
+      await this.questionPostPurchaseSurveyRepository.getSurveyQuestions({
         surveyName: 'post-purchase',
       });
     if (getPostPurchaseQuestionsError) {
@@ -93,7 +95,7 @@ export class GetPostPurchaseSurveyUsecase
     }
 
     const [customerAnswer, getCustomerAnswersError] =
-      await this.customerPostPurchaseSurveyRepo.getCustomerAnswers({
+      await this.customerPostPurchaseSurveyRepository.getCustomerAnswers({
         email,
         orderNumber: customerOrder.orderNumber,
       });

@@ -15,7 +15,7 @@ interface GetProductsBySkuArgs {
 }
 
 interface GetAllProductsArgs {
-  medicalCondtions: { highBloodPressure: boolean; highCholesterol: boolean };
+  medicalConditions: { highBloodPressure: boolean; highCholesterol: boolean };
 }
 
 export interface GetOptionsArgs {
@@ -28,7 +28,7 @@ export interface GetOptionsArgs {
     | 'category';
 }
 
-export interface GetExsitingProductFeaturesArgs {
+export interface GetExistingProductFeaturesArgs {
   productId: number;
 }
 
@@ -103,7 +103,7 @@ interface UpsertProductArgs {
   };
 }
 
-export interface ProductGeneralRepoInterface {
+export interface ProductGeneralRepositoryInterface {
   upsertProduct({
     activeStatus,
     preservationStyle,
@@ -127,7 +127,7 @@ export interface ProductGeneralRepoInterface {
     products,
   }: GetProductsBySkuArgs): Promise<[DisplayProduct[]?, Error?]>;
   getAllProducts({
-    medicalCondtions,
+    medicalConditions,
   }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]>;
   getOptions({ target }: GetOptionsArgs): Promise<[ProductFeature[]?, Error?]>;
 
@@ -160,7 +160,9 @@ export interface ProductGeneralRepoInterface {
 }
 
 @Injectable()
-export class ProductGeneralRepo implements ProductGeneralRepoInterface {
+export class ProductGeneralRepository
+  implements ProductGeneralRepositoryInterface
+{
   constructor(private prisma: PrismaService) {}
 
   performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
@@ -169,7 +171,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
 
   private async getExistingProductIngredients({
     productId,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       const response = await this.prisma.intermediateProductIngredient.findMany(
         {
@@ -206,7 +208,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }
   private async getExistingProductAllergens({
     productId,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       const response = await this.prisma.intermediateProductAllergen.findMany({
         where: {
@@ -241,7 +243,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }
   private async getExistingProductCookingMethods({
     productId,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       const response =
         await this.prisma.intermediateProductCookingMethod.findMany({
@@ -277,7 +279,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }
   private async getExistingProductFoodTypes({
     productId,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     try {
       const response = await this.prisma.intermediateProductFoodType.findMany({
         where: {
@@ -312,7 +314,7 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }
   private async getExistingProductImages({
     productId,
-  }: GetExsitingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]> {
     try {
       const response = await this.prisma.productImage.findMany({
         where: {
@@ -896,13 +898,13 @@ export class ProductGeneralRepo implements ProductGeneralRepoInterface {
   }
 
   async getAllProducts({
-    medicalCondtions,
+    medicalConditions,
   }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]> {
     try {
       const res = await this.prisma.product.findMany({
         where: {
           activeStatus: 'active',
-          productNutritionFact: medicalCondtions.highBloodPressure
+          productNutritionFact: medicalConditions.highBloodPressure
             ? { sodiumMg: { lt: 500 } }
             : {},
         },

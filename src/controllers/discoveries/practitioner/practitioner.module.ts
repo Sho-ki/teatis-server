@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
-import { PractitionerGeneralRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
-import { CreatePractitionerUsecase } from '../../../usecases/practitioner/createPractitioner.usecase';
-import { GetPractitionerUsecase } from '../../../usecases/practitioner/getPractitioner.usecase';
+import { PractitionerGeneralRepository } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
+import { CreatePractitionerUsecase } from '@Usecases/practitioner/createPractitioner.usecase';
+import { GetPractitionerUsecase } from '@Usecases/practitioner/getPractitioner.usecase';
 import { PractitionerController } from './practitioner.controller';
 
 @Module({
@@ -13,8 +13,8 @@ import { PractitionerController } from './practitioner.controller';
       useClass: GetPractitionerUsecase,
     },
     {
-      provide: 'PractitionerGeneralRepoInterface',
-      useClass: PractitionerGeneralRepo,
+      provide: 'PractitionerGeneralRepositoryInterface',
+      useClass: PractitionerGeneralRepository,
     },
     {
       provide: 'CreatePractitionerUsecaseInterface',

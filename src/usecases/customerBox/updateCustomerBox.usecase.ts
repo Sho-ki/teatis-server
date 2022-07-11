@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
 import { Status } from '@Domains/Status';
 import { UpdateCustomerBoxDto } from '@Controllers/discoveries/dtos/updateCustomerBox';
 
@@ -18,10 +18,10 @@ export class UpdateCustomerBoxUsecase
   implements UpdateCustomerBoxUsecaseInterface
 {
   constructor(
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
-    @Inject('CustomerBoxRepoInterface')
-    private customerBoxRepo: CustomerBoxRepoInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('CustomerBoxRepositoryInterface')
+    private customerBoxRepository: CustomerBoxRepositoryInterface,
   ) {}
 
   async updateCustomerBox({
@@ -30,14 +30,14 @@ export class UpdateCustomerBoxUsecase
     uuid,
   }: UpdateCustomerBoxDto): Promise<[Status, Error]> {
     const [customer, getCustomerError] = uuid
-      ? await this.customerGeneralRepo.getCustomerByUuid({ uuid })
-      : await this.customerGeneralRepo.getCustomer({ email });
+      ? await this.customerGeneralRepository.getCustomerByUuid({ uuid })
+      : await this.customerGeneralRepository.getCustomer({ email });
     if (getCustomerError) {
       return [null, getCustomerError];
     }
 
     const [_product, deleteCustomerBoxProductError] =
-      await this.customerBoxRepo.deleteCustomerBoxProduct({
+      await this.customerBoxRepository.deleteCustomerBoxProduct({
         customerId: customer.id,
       });
     if (deleteCustomerBoxProductError) {
@@ -45,7 +45,7 @@ export class UpdateCustomerBoxUsecase
     }
 
     const [product, postCustomerBoxProductError] =
-      await this.customerBoxRepo.postCustomerBoxProduct({
+      await this.customerBoxRepository.postCustomerBoxProduct({
         customerId: customer.id,
         products,
       });

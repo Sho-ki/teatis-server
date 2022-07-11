@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
 
@@ -15,15 +15,15 @@ export class GetPractitionerBoxByUuidUsecase
   implements GetPractitionerBoxByUuidUsecaseInterface
 {
   constructor(
-    @Inject('PractitionerBoxRepoInterface')
-    private practitionerBoxRepo: PractitionerBoxRepoInterface,
+    @Inject('PractitionerBoxRepositoryInterface')
+    private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
   ) {}
   async getPractitionerBoxByUuid({
     practitionerBoxUuid,
   }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
     try {
       const [practitionerAndBox, getPractitionerAndBoxError] =
-        await this.practitionerBoxRepo.getPractitionerAndBoxByUuid({
+        await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
           practitionerBoxUuid,
         });
       if (getPractitionerAndBoxError) {

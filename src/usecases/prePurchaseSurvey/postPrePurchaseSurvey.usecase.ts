@@ -1,7 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 
-import { CustomerPrePurchaseSurveyRepoInterface } from '@Repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
 import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { Customer } from '@Domains/Customer';

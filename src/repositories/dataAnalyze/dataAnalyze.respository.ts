@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export interface AnalyzePreferenceArgs {
   products: CustomerShippableProduct[];
-  necessary_responces: number;
+  necessary_responses: number;
   user_fav_categories: number[];
 }
 
@@ -25,20 +25,26 @@ interface AnalyzePreferenceRes {
   }[];
 }
 
-export interface AnalyzePreferenceRepoInterface {
+export interface AnalyzePreferenceRepositoryInterface {
   getAnalyzedProducts({
     products,
-    necessary_responces,
+    necessary_responses: necessary_responces,
     user_fav_categories,
   }: AnalyzePreferenceArgs): Promise<[AnalyzePreferenceRes?, Error?]>;
 }
 
 @Injectable()
-export class AnalyzePreferenceRepo implements AnalyzePreferenceRepoInterface {
-  async getAnalyzedProducts(
-    data: AnalyzePreferenceArgs,
-  ): Promise<[AnalyzePreferenceRes?, Error?]> {
+export class AnalyzePreferenceRepository
+  implements AnalyzePreferenceRepositoryInterface
+{
+  async getAnalyzedProducts({
+    products,
+    necessary_responses: necessary_responces,
+    user_fav_categories,
+  }: AnalyzePreferenceArgs): Promise<[AnalyzePreferenceRes?, Error?]> {
     try {
+      const data = { products, necessary_responces, user_fav_categories };
+
       const response = await axios.post<AnalyzePreferenceRes>(
         `https://us-central1-teatis-discovery.cloudfunctions.net/protein-production-product_distribution_optimizer_v1`,
         data,

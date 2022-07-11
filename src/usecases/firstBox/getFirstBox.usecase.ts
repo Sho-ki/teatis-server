@@ -1,37 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-
-import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 
 import { GetFirstBoxDto } from '@Controllers/discoveries/dtos/getFirstBox';
 
-import {
-  DisplayAnalyzeProduct,
-  DisplayProduct,
-  Product,
-} from '@Domains/Product';
-import {
-  AnalyzePreferenceArgs,
-  AnalyzePreferenceRepoInterface,
-  CustomerShippableProduct,
-} from '@Repositories/dataAnalyze/dataAnalyzeRepo';
+import { DisplayProduct } from '@Domains/Product';
 import { GetSuggestionInterface } from '../utils/getSuggestion';
 
 export interface GetFirstBoxRes {
   products: DisplayProduct[];
-}
-
-interface FilterProductsArgs {
-  filterType:
-    | 'inventry'
-    | 'flavorDislikes'
-    | 'allergens'
-    | 'unavailableCookingMethods'
-    | 'unwant';
-  customerFilter: { id?: number[]; sku?: string[] };
-  products: DisplayAnalyzeProduct[];
-  nextWantProducts?: Product[];
 }
 
 export interface GetFirstBoxUsecaseInterface {
@@ -43,15 +19,15 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
   constructor(
     @Inject('GetSuggestionInterface')
     private getSuggestionUntil: GetSuggestionInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async getFirstBox({
     uuid,
   }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]> {
     const [customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomerByUuid({ uuid });
+      await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [undefined, getCustomerError];

@@ -9,7 +9,7 @@ export interface UpdateOrderQueueArgs {
   status: 'scheduled' | 'ordered' | 'fulfilled';
 }
 
-export interface OrderQueueRepoInterface {
+export interface OrderQueueRepositoryInterface {
   updateOrderQueue({
     customerId,
     orderNumber,
@@ -18,7 +18,7 @@ export interface OrderQueueRepoInterface {
 }
 
 @Injectable()
-export class OrderQueueRepo implements OrderQueueRepoInterface {
+export class OrderQueueRepository implements OrderQueueRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
   async updateOrderQueue({

@@ -36,7 +36,7 @@ interface GetCustomerNutritionArgs {
   uuid: string;
 }
 
-export interface CustomerGeneralRepoInterface {
+export interface CustomerGeneralRepositoryInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<[Customer?, Error?]>;
   getCustomerPreference({
     email,
@@ -60,7 +60,9 @@ export interface CustomerGeneralRepoInterface {
 }
 
 @Injectable()
-export class CustomerGeneralRepo implements CustomerGeneralRepoInterface {
+export class CustomerGeneralRepository
+  implements CustomerGeneralRepositoryInterface
+{
   constructor(private prisma: PrismaService) {}
 
   async getCustomerNutrition({
