@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
+import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
 
 import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
-import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
+import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { Product } from 'src/domains/Product';
-import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
+import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
-import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
-import { PractitionerBoxOrderHistoryRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 
 interface UpdateCustomerOrderOfPractitionerMealBoxArgs
   extends Pick<
@@ -39,20 +39,20 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
   implements UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface
 {
   constructor(
-    @Inject('ShipheroRepoInterface')
-    private shipheroRepo: ShipheroRepoInterface,
-    @Inject('PractitionerBoxOrderHistoryRepoInterface')
-    private practitionerBoxOrderHistoryRepo: PractitionerBoxOrderHistoryRepoInterface,
-    @Inject('OrderQueueRepoInterface')
-    private orderQueueRepo: OrderQueueRepoInterface,
-    @Inject('PractitionerBoxRepoInterface')
-    private practitionerBoxRepo: PractitionerBoxRepoInterface,
-    @Inject('ShopifyRepoInterface')
-    private readonly shopifyRepo: ShopifyRepoInterface,
+    @Inject('ShipheroRepositoryInterface')
+    private shipheroRepository: ShipheroRepositoryInterface,
+    @Inject('PractitionerBoxOrderHistoryRepositoryInterface')
+    private practitionerBoxOrderHistoryRepository: PractitionerBoxOrderHistoryRepositoryInterface,
+    @Inject('OrderQueueRepositoryInterface')
+    private orderQueueRepository: OrderQueueRepositoryInterface,
+    @Inject('PractitionerBoxRepositoryInterface')
+    private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
+    @Inject('ShopifyRepositoryInterface')
+    private readonly shopifyRepository: ShopifyRepositoryInterface,
     @Inject('GetSuggestionInterface')
     private getSuggestionUtil: GetSuggestionInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfPractitionerMealBox({
@@ -66,13 +66,13 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     [OrderQueue?, Error?]
   > {
     let [customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomer({
+      await this.customerGeneralRepository.getCustomer({
         email: shopifyCustomer.email,
       });
 
     if (!customer.id) {
       [customer, getCustomerError] =
-        await this.customerGeneralRepo.updateCustomerEmailByUuid({
+        await this.customerGeneralRepository.updateCustomerEmailByUuid({
           uuid,
           newEmail: shopifyCustomer.email,
         });
@@ -83,7 +83,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     }
 
     let [orderQueueScheduled, orderQueueScheduledError] =
-      await this.orderQueueRepo.updateOrderQueue({
+      await this.orderQueueRepository.updateOrderQueue({
         customerId: customer?.id,
         orderNumber: name,
         status: 'scheduled',
@@ -98,7 +98,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     });
 
     const [order, orderError] =
-      await this.shipheroRepo.getCustomerOrderByOrderNumber({
+      await this.shipheroRepository.getCustomerOrderByOrderNumber({
         orderNumber: name,
       });
     if (orderError) {
@@ -120,14 +120,14 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       ];
     }
     const [customerOrderCount, getOrderCountError] =
-      await this.shopifyRepo.getOrderCount({
+      await this.shopifyRepository.getOrderCount({
         shopifyCustomerId: shopifyCustomer.id,
       });
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
-      await this.practitionerBoxRepo.getPractitionerAndBoxByUuid({
+      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
         practitionerBoxUuid,
       });
     if (getPractitionerAndBoxByUuidError) {
@@ -164,19 +164,21 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       [practitionerBoxHistory, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
     ] = await Promise.all([
-      this.shipheroRepo.updateCustomerOrder({
+      this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
       }),
-      this.practitionerBoxOrderHistoryRepo.createPractitionerBoxOrderHistory({
-        transactionPrice,
-        orderNumber: name,
-        status: 'ordered',
-        customerId: customer?.id,
-        practitionerBoxId: practitionerAndBox.box.id,
-      }),
-      this.orderQueueRepo.updateOrderQueue({
+      this.practitionerBoxOrderHistoryRepository.createPractitionerBoxOrderHistory(
+        {
+          transactionPrice,
+          orderNumber: name,
+          status: 'ordered',
+          customerId: customer?.id,
+          practitionerBoxId: practitionerAndBox.box.id,
+        },
+      ),
+      this.orderQueueRepository.updateOrderQueue({
         customerId: customer?.id,
         orderNumber: name,
         status: 'ordered',

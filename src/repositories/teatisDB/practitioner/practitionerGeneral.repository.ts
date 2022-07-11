@@ -21,11 +21,7 @@ interface getPractitionerArgs {
   email: string;
 }
 
-interface getPractitionerByPractitionerBoxArgs {
-  practitionerBoxUuid: string;
-}
-
-export interface PractitionerGeneralRepoInterface {
+export interface PractitionerGeneralRepositoryInterface {
   getPractitioner({
     email,
   }: getPractitionerArgs): Promise<[Practitioner?, Error?]>;
@@ -45,8 +41,8 @@ export interface PractitionerGeneralRepoInterface {
 }
 
 @Injectable()
-export class PractitionerGeneralRepo
-  implements PractitionerGeneralRepoInterface
+export class PractitionerGeneralRepository
+  implements PractitionerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
   async getPractitioner({

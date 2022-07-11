@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
-import { ProductGeneralRepo } from '../../../repositories/teatisDB/productRepo/productGeneral.repository';
-import { UpsertProductUsecase } from '../../../usecases/product/upsertProduct.usecase';
+import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { UpsertProductUsecase } from '@Usecases/product/upsertProduct.usecase';
 import { ProductController } from './product.controller';
 
 @Module({
@@ -9,8 +9,8 @@ import { ProductController } from './product.controller';
   exports: [ProductController],
   providers: [
     {
-      provide: 'ProductGeneralRepoInterface',
-      useClass: ProductGeneralRepo,
+      provide: 'ProductGeneralRepositoryInterface',
+      useClass: ProductGeneralRepository,
     },
     {
       provide: 'UpsertProductUsecaseInterface',

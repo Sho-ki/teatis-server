@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CreatePractitionerBoxDto } from '@Controllers/discoveries/dtos/createPractitionerBox';
 import { v4 as uuidv4 } from 'uuid';
-import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 
 export interface CreatePractitionerBoxUsecaseInterface {
@@ -20,8 +20,8 @@ export class CreatePractitionerBoxUsecase
   implements CreatePractitionerBoxUsecaseInterface
 {
   constructor(
-    @Inject('PractitionerBoxRepoInterface')
-    private practitionerBoxRepo: PractitionerBoxRepoInterface,
+    @Inject('PractitionerBoxRepositoryInterface')
+    private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
   ) {}
   async createPractitionerBox({
     practitionerId,
@@ -34,7 +34,7 @@ export class CreatePractitionerBoxUsecase
       const practitionerBoxUuid = uuidv4();
 
       const [practitionerBoxProduct, createPractitionerBoxProductError] =
-        await this.practitionerBoxRepo.createPractitionerAndBox({
+        await this.practitionerBoxRepository.createPractitionerAndBox({
           practitionerId,
           practitionerBoxUuid,
           label,

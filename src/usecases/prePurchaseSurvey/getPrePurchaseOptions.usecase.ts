@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
 
 export interface GetPrePurchaseOptionsUsecaseRes {
@@ -21,8 +21,8 @@ export class GetPrePurchaseOptionsUsecase
   implements GetPrePurchaseOptionsUsecaseInterface
 {
   constructor(
-    @Inject('ProductGeneralRepoInterface')
-    private readonly productGeneralRepo: ProductGeneralRepoInterface,
+    @Inject('ProductGeneralRepositoryInterface')
+    private readonly productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
 
   sortOptions(list: ProductFeature[]): ProductFeature[] {
@@ -47,12 +47,12 @@ export class GetPrePurchaseOptionsUsecase
       [ingredients, getIngredientsError],
       [allergens, getAllergensError],
     ] = await Promise.all([
-      this.productGeneralRepo.getOptions({ target: 'cookingMethod' }),
-      this.productGeneralRepo.getOptions({ target: 'category' }),
-      this.productGeneralRepo.getOptions({ target: 'flavor' }),
-      // this.productGeneralRepo.getOptions({ target: 'foodType' }),
-      this.productGeneralRepo.getOptions({ target: 'ingredient' }),
-      this.productGeneralRepo.getOptions({ target: 'allergen' }),
+      this.productGeneralRepository.getOptions({ target: 'cookingMethod' }),
+      this.productGeneralRepository.getOptions({ target: 'category' }),
+      this.productGeneralRepository.getOptions({ target: 'flavor' }),
+      // this.productGeneralRepository.getOptions({ target: 'foodType' }),
+      this.productGeneralRepository.getOptions({ target: 'ingredient' }),
+      this.productGeneralRepository.getOptions({ target: 'allergen' }),
     ]);
 
     if (getCookMethodsError) {

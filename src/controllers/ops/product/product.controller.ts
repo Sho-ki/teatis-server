@@ -1,6 +1,6 @@
 import { Body, Controller, Inject, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { UpsertProductUsecaseInterface } from '../../../usecases/product/upsertProduct.usecase';
+import { UpsertProductUsecaseInterface } from '@Usecases/product/upsertProduct.usecase';
 import { UpsertProductDto } from './dtos/upsertProduct';
 
 @Controller('api/ops')
@@ -14,12 +14,11 @@ export class ProductController {
     @Body() body: UpsertProductDto,
     @Res() response: Response,
   ): Promise<Response> {
-    const [res, error] = await this.upsertProductUsecaseInterface.upsertProduct(
-      body,
-    );
+    const [usecaseResponse, error] =
+      await this.upsertProductUsecaseInterface.upsertProduct(body);
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 }

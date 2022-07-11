@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { CreateCheckoutCartOfPractitionerBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerBoxDto';
-import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
+import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 
 interface CreateCheckoutCartOfPractitionerBoxUsecaseRes {
   checkoutUrl: string;
@@ -22,8 +22,8 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
   implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
 {
   constructor(
-    @Inject('ShopifyRepoInterface')
-    private ShopifyRepo: ShopifyRepoInterface,
+    @Inject('ShopifyRepositoryInterface')
+    private ShopifyRepository: ShopifyRepositoryInterface,
   ) {}
 
   async createCheckoutCartOfPractitionerBox({
@@ -38,7 +38,7 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
     ];
 
     const [cart, createCheckoutCartOfPractitionerBoxError] =
-      await this.ShopifyRepo.createCart({
+      await this.ShopifyRepository.createCart({
         merchandiseId,
         sellingPlanId,
         attributes,

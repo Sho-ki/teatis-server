@@ -8,12 +8,12 @@ export interface GetOrderByOrderNumberArgs {
   orderNumber: string;
 }
 
-export interface ShipheroAuthRepoInterface {
+export interface ShipheroAuthRepositoryInterface {
   getNewToken(): Promise<[Token?, Error?]>;
 }
 
 @Injectable()
-export class ShipheroAuthRepo implements ShipheroAuthRepoInterface {
+export class ShipheroAuthRepository implements ShipheroAuthRepositoryInterface {
   async getNewToken(): Promise<[Token?, Error?]> {
     try {
       const res = await axios('https://public-api.shiphero.com/auth/refresh', {

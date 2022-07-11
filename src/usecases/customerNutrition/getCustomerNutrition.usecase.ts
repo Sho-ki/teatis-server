@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { GetCustomerNutritionDto } from '@Controllers/discoveries/dtos/getCustomerNutrition';
 
 interface GetCustomerNutritionUsecaseRes {
@@ -22,8 +22,8 @@ export class GetCustomerNutritionUsecase
   implements GetCustomerNutritionUsecaseInterface
 {
   constructor(
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async getCustomerNutrition({
@@ -32,7 +32,7 @@ export class GetCustomerNutritionUsecase
     [GetCustomerNutritionUsecaseRes, Error]
   > {
     const [customerNutrition, getCustomerNutritionError] =
-      await this.customerGeneralRepo.getCustomerNutrition({ uuid });
+      await this.customerGeneralRepository.getCustomerNutrition({ uuid });
 
     if (getCustomerNutritionError) {
       return [null, getCustomerNutritionError];

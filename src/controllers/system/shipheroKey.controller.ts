@@ -10,10 +10,10 @@ export class ShipheroKeyController {
   ) {}
   @Post('shiphero-key')
   async updateShipherokey(@Res() response: Response): Promise<Response> {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.updateShipheoKeyUsecaseInterface.updateShipheroKey();
     if (error) {
-      return response.status(500).send(res);
+      return response.status(500).send(usecaseResponse);
     }
     return response.status(200).send({ status: 'OK' });
   }

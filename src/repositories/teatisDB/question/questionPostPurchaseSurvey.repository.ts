@@ -7,15 +7,15 @@ interface GetSurveyQuestionsArgs {
   surveyName: string;
 }
 
-export interface QuestionPostPurchaseSurveyRepoInterface {
+export interface QuestionPostPurchaseSurveyRepositoryInterface {
   getSurveyQuestions({
     surveyName,
   }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]>;
 }
 
 @Injectable()
-export class QuestionPostPurchaseSurveyRepo
-  implements QuestionPostPurchaseSurveyRepoInterface
+export class QuestionPostPurchaseSurveyRepository
+  implements QuestionPostPurchaseSurveyRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
@@ -23,7 +23,7 @@ export class QuestionPostPurchaseSurveyRepo
     surveyName,
   }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]> {
     try {
-      const res = await this.prisma.survey.findUnique({
+      const response = await this.prisma.survey.findUnique({
         where: { name: surveyName },
         select: {
           id: true,
@@ -56,7 +56,7 @@ export class QuestionPostPurchaseSurveyRepo
         },
       });
       let surveyQuestions: Question[] = [];
-      for (let question of res?.intermediateSurveyQuestions || []) {
+      for (let question of response?.intermediateSurveyQuestions || []) {
         let surveyQuestion: Question = {
           id: question.surveyQuestion.id,
           name: question.surveyQuestion.name,
@@ -71,7 +71,7 @@ export class QuestionPostPurchaseSurveyRepo
         surveyQuestions.push(surveyQuestion);
       }
 
-      const { id, name, label } = res as {
+      const { id, name, label } = response as {
         id: number;
         name: string;
         label: string;

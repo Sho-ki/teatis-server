@@ -1,19 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepoInterface } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import {
   DisplayAnalyzeProduct,
   DisplayProduct,
   Product,
 } from '@Domains/Product';
-import { CustomerPreferenceRepoInterface } from '@Repositories/teatisDB/customerRepo/customerPreference.repository';
+import { CustomerPreferenceRepositoryInterface } from '@Repositories/teatisDB/customer/customerPreference.repository';
 import {
   AnalyzePreferenceArgs,
-  AnalyzePreferenceRepoInterface,
+  AnalyzePreferenceRepositoryInterface,
   CustomerShippableProduct,
-} from '@Repositories/dataAnalyze/dataAnalyzeRepo';
+} from '@Repositories/dataAnalyze/dataAnalyze.respository';
 
 import { Customer } from '@Domains/Customer';
 
@@ -30,7 +30,7 @@ export interface GetSuggestionRes {
 
 interface FilterProductsArgs {
   filterType:
-    | 'inventry'
+    | 'inventory'
     | 'flavorDislikes'
     | 'allergens'
     | 'unavailableCookingMethods'
@@ -52,16 +52,16 @@ export interface GetSuggestionInterface {
 @Injectable()
 export class GetSuggestion implements GetSuggestionInterface {
   constructor(
-    @Inject('ShipheroRepoInterface')
-    private shipheroRepo: ShipheroRepoInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
-    @Inject('ProductGeneralRepoInterface')
-    private productGeneralRepo: ProductGeneralRepoInterface,
-    @Inject('AnalyzePreferenceRepoInterface')
-    private analyzePreferenceRepo: AnalyzePreferenceRepoInterface,
-    @Inject('CustomerPreferenceRepoInterface')
-    private customerPreferenceRepo: CustomerPreferenceRepoInterface,
+    @Inject('ShipheroRepositoryInterface')
+    private shipheroRepository: ShipheroRepositoryInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('ProductGeneralRepositoryInterface')
+    private productGeneralRepository: ProductGeneralRepositoryInterface,
+    @Inject('AnalyzePreferenceRepositoryInterface')
+    private analyzePreferenceRepository: AnalyzePreferenceRepositoryInterface,
+    @Inject('CustomerPreferenceRepositoryInterface')
+    private customerPreferenceRepository: CustomerPreferenceRepositoryInterface,
   ) {}
 
   private filterProducts({
@@ -73,7 +73,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     let filteredProducts: DisplayAnalyzeProduct[] = products;
     filteredProducts = products.filter((product) => {
       switch (filterType) {
-        case 'inventry':
+        case 'inventory':
           return !customerFilter.sku.includes(product.sku);
         case 'flavorDislikes':
           return (
@@ -121,7 +121,7 @@ export class GetSuggestion implements GetSuggestionInterface {
   }: GetSuggestionArgs): Promise<[GetSuggestionRes, Error]> {
     let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
-      await this.shipheroRepo.getLastCustomerOrder({
+      await this.shipheroRepository.getLastCustomerOrder({
         email: customer.email,
       });
     if (getLastCustomerOrderError) {
@@ -136,13 +136,15 @@ export class GetSuggestion implements GetSuggestionInterface {
       [nextUnwantProducts, getCustomerUnwantError],
     ] = !isFirstOrder
       ? await Promise.all([
-          this.customerPreferenceRepo.getAverageScores({
+          this.customerPreferenceRepository.getAverageScores({
             email: customer.email,
           }),
-          this.customerPreferenceRepo.getNextWant({
+          this.customerPreferenceRepository.getNextWant({
             orderNumber: lastCustomerOrder.orderNumber,
           }),
-          this.customerPreferenceRepo.getNextUnwant({ email: customer.email }),
+          this.customerPreferenceRepository.getNextUnwant({
+            email: customer.email,
+          }),
         ])
       : [[], [], []];
 
@@ -161,7 +163,7 @@ export class GetSuggestion implements GetSuggestionInterface {
 
     const [
       [customerMedicalCondition, getCustomerMedicalConditionError],
-      [noInventryProducts, getNoInventryProductsError],
+      [noInventoryProducts, getNoInventoryProductsError],
       [customerFlavorDislikes, customerFlavorDislikesError],
       [customerAllergens, customerAllergensError],
       [
@@ -170,23 +172,23 @@ export class GetSuggestion implements GetSuggestionInterface {
       ],
       [customerCategoryPreferences, customerCategoryPreferencesError],
     ] = await Promise.all([
-      this.customerGeneralRepo.getCustomerMedicalCondition({
+      this.customerGeneralRepository.getCustomerMedicalCondition({
         email: customer.email,
       }),
-      this.shipheroRepo.getNoInventryProducts(),
-      this.customerGeneralRepo.getCustomerPreference({
+      this.shipheroRepository.getNoInventoryProducts(),
+      this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
         type: 'flavorDislikes',
       }),
-      this.customerGeneralRepo.getCustomerPreference({
+      this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
         type: 'allergens',
       }),
-      this.customerGeneralRepo.getCustomerPreference({
+      this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
         type: 'unavailableCookingMethods',
       }),
-      this.customerGeneralRepo.getCustomerPreference({
+      this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
         type: 'categoryPreferences',
       }),
@@ -197,8 +199,8 @@ export class GetSuggestion implements GetSuggestionInterface {
     }
 
     let [displayAnalyzeProducts, getDisplayAnalyzeProductsError] =
-      await this.productGeneralRepo.getAllProducts({
-        medicalCondtions: customerMedicalCondition,
+      await this.productGeneralRepository.getAllProducts({
+        medicalConditions: customerMedicalCondition,
       });
     if (getDisplayAnalyzeProductsError) {
       return [null, getDisplayAnalyzeProductsError];
@@ -207,14 +209,14 @@ export class GetSuggestion implements GetSuggestionInterface {
       () => Math.random() - 0.5,
     );
 
-    if (getNoInventryProductsError) {
-      return [null, getNoInventryProductsError];
+    if (getNoInventoryProductsError) {
+      return [null, getNoInventoryProductsError];
     }
-    if (noInventryProducts.length > 0) {
+    if (noInventoryProducts.length > 0) {
       allProducts = this.filterProducts({
-        filterType: 'inventry',
+        filterType: 'inventory',
         customerFilter: {
-          sku: noInventryProducts.map(({ sku }) => {
+          sku: noInventoryProducts.map(({ sku }) => {
             return sku;
           }),
         },
@@ -279,7 +281,7 @@ export class GetSuggestion implements GetSuggestionInterface {
       ? customerCategoryPreferences.id
       : allCategories; // when nothing is selected, choose all the categories
     let customerShippableProducts: AnalyzePreferenceArgs = {
-      necessary_responces: productCount,
+      necessary_responses: productCount,
       products: [],
       user_fav_categories: favoriteCategories,
     };
@@ -357,10 +359,10 @@ export class GetSuggestion implements GetSuggestionInterface {
 
     customerShippableProducts = {
       ...customerShippableProducts,
-      necessary_responces: productCount - nextBoxProducts.products.length,
+      necessary_responses: productCount - nextBoxProducts.products.length,
     };
     let [analyzedProductsRes, analyzedProductsError] =
-      await this.analyzePreferenceRepo.getAnalyzedProducts(
+      await this.analyzePreferenceRepository.getAnalyzedProducts(
         customerShippableProducts,
       );
     if (analyzedProductsRes.is_success === 'false') {
@@ -370,7 +372,7 @@ export class GetSuggestion implements GetSuggestionInterface {
         allCategories[2], // Meal Shake
       );
       [analyzedProductsRes, analyzedProductsError] =
-        await this.analyzePreferenceRepo.getAnalyzedProducts(
+        await this.analyzePreferenceRepository.getAnalyzedProducts(
           customerShippableProducts,
         );
     }

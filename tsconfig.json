@@ -14,7 +14,7 @@
       "@Usecases/*": ["src/usecases/*"],
       "@Domains/*": ["src/domains/*"],
       "@Repositories/*": ["src/repositories/*"],
-      "@Controllers/*": ["src/controllers/*"],
+      "@Controllers/*": ["src/controllers/*"]
     },
     // "strict": true,
     "incremental": true,
@@ -23,7 +23,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "strictNullChecks": false,
-    "noImplicitAny": false,
-  
+    "noImplicitAny": false
   }
 }

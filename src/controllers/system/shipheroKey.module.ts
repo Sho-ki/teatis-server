@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ShipheroAuthRepo } from '@Repositories/shiphero/shipheroAuth.repository';
-import { UpdateShipheoKeyUsecase } from '../../usecases/shipheroKey/updateShipheroKey.usecase';
+import { ShipheroAuthRepository } from '@Repositories/shiphero/shipheroAuth.repository';
+import { UpdateShipheoKeyUsecase } from '@Usecases/shipheroKey/updateShipheroKey.usecase';
 import { ShipheroKeyController } from './shipheroKey.controller';
 
 @Module({
@@ -8,8 +8,8 @@ import { ShipheroKeyController } from './shipheroKey.controller';
   exports: [ShipheroKeyController],
   providers: [
     {
-      provide: 'ShipheroAuthRepoInterface',
-      useClass: ShipheroAuthRepo,
+      provide: 'ShipheroAuthRepositoryInterface',
+      useClass: ShipheroAuthRepository,
     },
     {
       provide: 'UpdateShipheoKeyUsecaseInterface',

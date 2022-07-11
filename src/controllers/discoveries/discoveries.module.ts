@@ -1,26 +1,26 @@
 import { Module } from '@nestjs/common';
 import { DiscoveriesController } from './discoveries.controller';
-import { ShopifyRepo } from '@Repositories/shopify/shopify.repository';
+import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
 import { PrismaService } from 'src/prisma.service';
-import { CustomerPrePurchaseSurveyRepo } from '@Repositories/teatisDB/customerRepo/customerPrePurchaseSurvey.repository';
+import { CustomerPrePurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
 import { GetPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { QuestionPostPurchaseSurveyRepo } from '@Repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
-import { CustomerPostPurchaseSurveyRepo } from '@Repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { QuestionPostPurchaseSurveyRepository } from '@Repositories/teatisDB/question/questionPostPurchaseSurvey.repository';
+import { CustomerPostPurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
 import { PostPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-import { ProductGeneralRepo } from '@Repositories/teatisDB/productRepo/productGeneral.repository';
-import { ShipheroRepo } from '@Repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
 import { UpdateCustomerBoxUsecase } from '@Usecases/customerBox/updateCustomerBox.usecase';
-import { CustomerGeneralRepo } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerBoxRepo } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
+import { CustomerGeneralRepository } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerBoxRepository } from '@Repositories/teatisDB/customer/customerBox.repository';
 import { TeatisJobs } from '@Repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { UpdateCustomerOrderOfCustomerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
-import { OrderQueueRepo } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
+import { OrderQueueRepository } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { GetNextBoxUsecase } from '@Usecases/nextBox/getNextBox.usecase';
-import { CustomerPreferenceRepo } from '@Repositories/teatisDB/customerRepo/customerPreference.repository';
-import { AnalyzePreferenceRepo } from '@Repositories/dataAnalyze/dataAnalyzeRepo';
+import { CustomerPreferenceRepository } from '@Repositories/teatisDB/customer/customerPreference.repository';
+import { AnalyzePreferenceRepository } from '@Repositories/dataAnalyze/dataAnalyze.respository';
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
@@ -29,8 +29,8 @@ import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCa
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
 import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
-import { PractitionerBoxRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
-import { PractitionerBoxOrderHistoryRepo } from '@Repositories/teatisDB/practitionerRepo/practitionerBoxOrderHistory.repository';
+import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxOrderHistoryRepository } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
@@ -56,16 +56,16 @@ import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/custo
       useClass: UpdatePractitionerBoxOrderHistoryUsecase,
     },
     {
-      provide: 'PractitionerBoxOrderHistoryRepoInterface',
-      useClass: PractitionerBoxOrderHistoryRepo,
+      provide: 'PractitionerBoxOrderHistoryRepositoryInterface',
+      useClass: PractitionerBoxOrderHistoryRepository,
     },
     {
       provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
       useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
     },
     {
-      provide: 'PractitionerBoxRepoInterface',
-      useClass: PractitionerBoxRepo,
+      provide: 'PractitionerBoxRepositoryInterface',
+      useClass: PractitionerBoxRepository,
     },
     {
       provide: 'UpdateCustomerOrderOfPractitionerBoxUsecaseInterface',
@@ -88,53 +88,53 @@ import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/custo
       useClass: GetSuggestion,
     },
     {
-      provide: 'AnalyzePreferenceRepoInterface',
-      useClass: AnalyzePreferenceRepo,
+      provide: 'AnalyzePreferenceRepositoryInterface',
+      useClass: AnalyzePreferenceRepository,
     },
     {
-      provide: 'CustomerPreferenceRepoInterface',
-      useClass: CustomerPreferenceRepo,
+      provide: 'CustomerPreferenceRepositoryInterface',
+      useClass: CustomerPreferenceRepository,
     },
     {
       provide: 'GetNextBoxUsecaseInterface',
       useClass: GetNextBoxUsecase,
     },
     {
-      provide: 'OrderQueueRepoInterface',
-      useClass: OrderQueueRepo,
+      provide: 'OrderQueueRepositoryInterface',
+      useClass: OrderQueueRepository,
     },
     {
-      provide: 'CustomerPrePurchaseSurveyRepoInterface',
-      useClass: CustomerPrePurchaseSurveyRepo,
+      provide: 'CustomerPrePurchaseSurveyRepositoryInterface',
+      useClass: CustomerPrePurchaseSurveyRepository,
     },
     {
-      provide: 'CustomerPostPurchaseSurveyRepoInterface',
-      useClass: CustomerPostPurchaseSurveyRepo,
+      provide: 'CustomerPostPurchaseSurveyRepositoryInterface',
+      useClass: CustomerPostPurchaseSurveyRepository,
     },
     {
-      provide: 'CustomerGeneralRepoInterface',
-      useClass: CustomerGeneralRepo,
+      provide: 'CustomerGeneralRepositoryInterface',
+      useClass: CustomerGeneralRepository,
     },
     {
-      provide: 'CustomerBoxRepoInterface',
-      useClass: CustomerBoxRepo,
+      provide: 'CustomerBoxRepositoryInterface',
+      useClass: CustomerBoxRepository,
     },
     {
-      provide: 'ShipheroRepoInterface',
-      useClass: ShipheroRepo,
+      provide: 'ShipheroRepositoryInterface',
+      useClass: ShipheroRepository,
     },
     {
-      provide: 'ProductGeneralRepoInterface',
-      useClass: ProductGeneralRepo,
+      provide: 'ProductGeneralRepositoryInterface',
+      useClass: ProductGeneralRepository,
     },
 
     {
-      provide: 'QuestionPostPurchaseSurveyRepoInterface',
-      useClass: QuestionPostPurchaseSurveyRepo,
+      provide: 'QuestionPostPurchaseSurveyRepositoryInterface',
+      useClass: QuestionPostPurchaseSurveyRepository,
     },
     {
-      provide: 'ShopifyRepoInterface',
-      useClass: ShopifyRepo,
+      provide: 'ShopifyRepositoryInterface',
+      useClass: ShopifyRepository,
     },
     {
       provide: 'GetPrePurchaseOptionsUsecaseInterface',

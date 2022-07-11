@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
-import { Prisma } from '@prisma/client';
 
 export interface UpdatePractitionerBoxOrderHistoryArgs {
   orderNumber: string;
@@ -26,7 +25,7 @@ export interface UpdateCustomerOrderHistoryArgs {
   products: Partial<Product>[];
 }
 
-export interface PractitionerBoxOrderHistoryRepoInterface {
+export interface PractitionerBoxOrderHistoryRepositoryInterface {
   createPractitionerBoxOrderHistory({
     transactionPrice,
     orderNumber,
@@ -42,8 +41,8 @@ export interface PractitionerBoxOrderHistoryRepoInterface {
 }
 
 @Injectable()
-export class PractitionerBoxOrderHistoryRepo
-  implements PractitionerBoxOrderHistoryRepoInterface
+export class PractitionerBoxOrderHistoryRepository
+  implements PractitionerBoxOrderHistoryRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
   async updatePractitionerBoxOrderHistory({

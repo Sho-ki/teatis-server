@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CustomerBoxRepoInterface } from 'src/repositories/teatisDB/customerRepo/customerBox.repository';
+import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
 import { Status } from 'src/domains/Status';
-import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
 
 export interface DeleteCustomerBoxUsecaseInterface {
@@ -18,12 +18,12 @@ export class DeleteCustomerBoxUsecase
   implements DeleteCustomerBoxUsecaseInterface
 {
   constructor(
-    @Inject('CustomerBoxRepoInterface')
-    private customerBoxRepo: CustomerBoxRepoInterface,
-    @Inject('OrderQueueRepoInterface')
-    private orderQueueRepo: OrderQueueRepoInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
+    @Inject('CustomerBoxRepositoryInterface')
+    private customerBoxRepository: CustomerBoxRepositoryInterface,
+    @Inject('OrderQueueRepositoryInterface')
+    private orderQueueRepository: OrderQueueRepositoryInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   // need to delete CustomerBox every time products are shipped, since customers may not answer the next post-purchase-survey
@@ -33,7 +33,7 @@ export class DeleteCustomerBoxUsecase
     name,
   }: DeleteCustomerBoxDto): Promise<[Status, Error]> {
     const [customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomer({
+      await this.customerGeneralRepository.getCustomer({
         email: shopifyCustomer.email,
       });
     if (getCustomerError) {
@@ -41,7 +41,7 @@ export class DeleteCustomerBoxUsecase
     }
 
     const [_product, deleteCustomerBoxProductError] =
-      await this.customerBoxRepo.deleteCustomerBoxProduct({
+      await this.customerBoxRepository.deleteCustomerBoxProduct({
         customerId: customer.id,
       });
     if (deleteCustomerBoxProductError) {
@@ -49,7 +49,7 @@ export class DeleteCustomerBoxUsecase
     }
 
     const [shipOrderQueue, shipOrderQueueError] =
-      await this.orderQueueRepo.updateOrderQueue({
+      await this.orderQueueRepository.updateOrderQueue({
         customerId: customer.id,
         orderNumber: name,
         status: 'fulfilled',

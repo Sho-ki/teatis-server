@@ -95,13 +95,13 @@ export class DiscoveriesController {
     @Body() body: PostPrePurchaseSurveyDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
     if (error) {
       return response.status(500).send(error);
     }
 
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 
   // GET: api/discovery/pre-purchase-options
@@ -109,14 +109,14 @@ export class DiscoveriesController {
   async getPrePurchaseOptions(
     @Res() response: Response,
   ): Promise<Response<GetPrePurchaseOptionsUsecaseRes | Error>> {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.getPrePurchaseOptionsUsecase.getPrePurchaseOptions();
 
     if (error) {
       return response.status(500).send(error);
     }
 
-    return response.status(200).send(res);
+    return response.status(200).send(usecaseResponse);
   }
 
   // GET: api/discovery/post-purchase-survey
@@ -127,9 +127,8 @@ export class DiscoveriesController {
   ): Promise<Response<any | Error>> {
     const email = body.email;
     const orderNumber = body.orderNumber;
-    if (!email) throw new Error('No email is provided');
 
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
         email,
         orderNumber,
@@ -138,7 +137,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(200).send(usecaseResponse);
   }
 
   // GET: api/discovery/next-box-survey
@@ -147,12 +146,14 @@ export class DiscoveriesController {
     @Query() body: GetNextBoxDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const [res, error] = await this.getNextBoxUsecase.getNextBox(body);
+    const [usecaseResponse, error] = await this.getNextBoxUsecase.getNextBox(
+      body,
+    );
 
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(200).send(usecaseResponse);
   }
 
   // GET: api/discovery/first-box
@@ -161,12 +162,14 @@ export class DiscoveriesController {
     @Query() body: GetFirstBoxDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const [res, error] = await this.getFirstBoxUsecase.getFirstBox(body);
+    const [usecaseResponse, error] = await this.getFirstBoxUsecase.getFirstBox(
+      body,
+    );
 
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(200).send(usecaseResponse);
   }
 
   // POST: api/discovery/post-purchase-survey
@@ -175,12 +178,12 @@ export class DiscoveriesController {
     @Body() body: PostPostPurchaseSurveyDto,
     @Res() response: Response,
   ) {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.postPostPurchaseSurveyUsecase.postPostPurchaseSurvey(body);
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 
   // POST: api/discovery/delete-customer-box-webhook
@@ -205,7 +208,7 @@ export class DiscoveriesController {
     const noteAttributesKeys = Object.keys(noteAttributes);
 
     if (noteAttributesKeys.includes('practitionerBoxUuid')) {
-      const [res, error] =
+      const [usecaseResponse, error] =
         await this.updatePractitionerBoxOrderHistoryUsecase.updatePractitionerOrderHistory(
           body,
         );
@@ -214,12 +217,12 @@ export class DiscoveriesController {
       }
       return response.status(200).send({ status: 'OK' });
     } else {
-      const [res, error] =
+      const [usecaseResponse, error] =
         await this.deleteCustomerBoxUsecase.deleteCustomerBox(body);
       if (error) {
         return response.status(500).send(error);
       }
-      return response.status(200).send({ status: res.status });
+      return response.status(200).send({ status: usecaseResponse.status });
     }
   }
 
@@ -243,12 +246,12 @@ export class DiscoveriesController {
       }
     }
     const noteAttributesKeys = Object.keys(noteAttributes);
-    let [res, error]: [OrderQueue, Error] = [undefined, undefined];
+    let [usecaseResponse, error]: [OrderQueue, Error] = [undefined, undefined];
     if (
       noteAttributesKeys.includes('practitionerBoxUuid') &&
       noteAttributesKeys.includes('uuid')
     ) {
-      [res, error] =
+      [usecaseResponse, error] =
         await this.updateCustomerOrderOfPractitionerMealBoxUsecase.updateCustomerOrderOfPractitionerMealBox(
           {
             name: body.name,
@@ -260,7 +263,7 @@ export class DiscoveriesController {
           },
         );
     } else if (noteAttributesKeys.includes('practitionerBoxUuid')) {
-      [res, error] =
+      [usecaseResponse, error] =
         await this.updateCustomerOrderOfPractitionerBoxUsecase.updateCustomerOrderOfPractitionerBox(
           {
             name: body.name,
@@ -271,7 +274,7 @@ export class DiscoveriesController {
           },
         );
     } else {
-      [res, error] =
+      [usecaseResponse, error] =
         await this.updateCustomerOrderOfCustomerBoxUsecase.updateCustomerOrderOfCustomerBox(
           {
             name: body.name,
@@ -284,7 +287,7 @@ export class DiscoveriesController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(200).send(usecaseResponse);
   }
 
   // POST: api/discovery/update-customer-box
@@ -293,13 +296,12 @@ export class DiscoveriesController {
     @Body() body: UpdateCustomerBoxDto,
     @Res() response: Response,
   ) {
-    const [res, error] = await this.updateCustomerBoxUsecase.updateCustomerBox(
-      body,
-    );
+    const [usecaseResponse, error] =
+      await this.updateCustomerBoxUsecase.updateCustomerBox(body);
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 
   // Post: api/discovery/customer-original-box-cart
@@ -308,14 +310,14 @@ export class DiscoveriesController {
     @Body() body: CreateCheckoutCartOfCustomerOriginalBoxDto,
     @Res() response: Response,
   ) {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.createCheckoutCartOfCustomerOriginalBoxUsecase.createCheckoutCartOfCustomerOriginalBox(
         body,
       );
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 
   // Post: api/discovery/practitioner-box-cart
@@ -324,14 +326,14 @@ export class DiscoveriesController {
     @Body() body: CreateCheckoutCartOfPractitionerBoxDto,
     @Res() response: Response,
   ) {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.createCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
         body,
       );
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 
   // Post: api/discovery/practitioner-meal-box-cart
@@ -340,14 +342,14 @@ export class DiscoveriesController {
     @Body() body: CreateCheckoutCartOfPractitionerMealBoxDto,
     @Res() response: Response,
   ) {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.createCheckoutCartOfPractitionerMealBoxUsecase.createCheckoutCartOfPractitionerMealBox(
         body,
       );
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 
   // Get: api/discovery/customer-nutrition
@@ -356,12 +358,12 @@ export class DiscoveriesController {
     @Query() body: GetCustomerNutritionDto,
     @Res() response: Response,
   ) {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.getCustomerNutritionUsecase.getCustomerNutrition(body);
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(200).send(usecaseResponse);
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)

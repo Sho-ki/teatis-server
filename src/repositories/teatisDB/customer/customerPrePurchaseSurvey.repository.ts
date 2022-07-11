@@ -34,7 +34,7 @@ interface UpsertCustomerRes {
   customerUuid: string;
 }
 
-export interface CustomerPrePurchaseSurveyRepoInterface {
+export interface CustomerPrePurchaseSurveyRepositoryInterface {
   upsertCustomer({
     uuid,
     diabetes,
@@ -64,8 +64,8 @@ export interface CustomerPrePurchaseSurveyRepoInterface {
 }
 
 @Injectable()
-export class CustomerPrePurchaseSurveyRepo
-  implements CustomerPrePurchaseSurveyRepoInterface
+export class CustomerPrePurchaseSurveyRepository
+  implements CustomerPrePurchaseSurveyRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 

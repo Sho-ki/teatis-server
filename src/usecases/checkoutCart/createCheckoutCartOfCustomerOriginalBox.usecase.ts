@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CreateCheckoutCartOfCustomerOriginalBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfCustomerOriginalBoxDto';
-import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
+import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { Customer } from '@Domains/Customer';
 
 interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseRes {
@@ -24,10 +24,10 @@ export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
   implements CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface
 {
   constructor(
-    @Inject('ShopifyRepoInterface')
-    private ShopifyRepo: ShopifyRepoInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
+    @Inject('ShopifyRepositoryInterface')
+    private ShopifyRepository: ShopifyRepositoryInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async createCheckoutCartOfCustomerOriginalBox({
@@ -41,7 +41,7 @@ export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
       { key: 'uuid', value: uuid },
     ];
     const [customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomerByUuid({
+      await this.customerGeneralRepository.getCustomerByUuid({
         uuid,
       });
 
@@ -49,7 +49,7 @@ export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
       return [null, getCustomerError];
     }
     const [cart, createCheckoutCartOfCustomerOriginalBoxError] =
-      await this.ShopifyRepo.createCart({
+      await this.ShopifyRepository.createCart({
         merchandiseId,
         sellingPlanId,
         attributes,

@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
+import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
 
 import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCustomerOrder';
-import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
+import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { Product } from '@Domains/Product';
-import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
+import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
 
@@ -30,16 +30,16 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
   implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
 {
   constructor(
-    @Inject('ShipheroRepoInterface')
-    private shipheroRepo: ShipheroRepoInterface,
-    @Inject('CustomerBoxRepoInterface')
-    private customerBoxRepo: CustomerBoxRepoInterface,
-    @Inject('OrderQueueRepoInterface')
-    private orderQueueRepo: OrderQueueRepoInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
-    @Inject('ShopifyRepoInterface')
-    private readonly shopifyRepo: ShopifyRepoInterface,
+    @Inject('ShipheroRepositoryInterface')
+    private shipheroRepository: ShipheroRepositoryInterface,
+    @Inject('CustomerBoxRepositoryInterface')
+    private customerBoxRepository: CustomerBoxRepositoryInterface,
+    @Inject('OrderQueueRepositoryInterface')
+    private orderQueueRepository: OrderQueueRepositoryInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('ShopifyRepositoryInterface')
+    private readonly shopifyRepository: ShopifyRepositoryInterface,
     @Inject('GetSuggestionInterface')
     private getSuggestionUtil: GetSuggestionInterface,
   ) {}
@@ -51,13 +51,13 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     uuid,
   }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomer({
+      await this.customerGeneralRepository.getCustomer({
         email: shopifyCustomer.email,
       });
 
     if (!customer.id) {
       [customer, getCustomerError] =
-        await this.customerGeneralRepo.updateCustomerEmailByUuid({
+        await this.customerGeneralRepository.updateCustomerEmailByUuid({
           uuid,
           newEmail: shopifyCustomer.email,
         });
@@ -68,7 +68,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     }
 
     let [orderQueue, orderQueueError] =
-      await this.orderQueueRepo.updateOrderQueue({
+      await this.orderQueueRepository.updateOrderQueue({
         customerId: customer?.id,
         orderNumber: name,
         status: 'scheduled',
@@ -83,7 +83,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     });
 
     const [order, orderError] =
-      await this.shipheroRepo.getCustomerOrderByOrderNumber({
+      await this.shipheroRepository.getCustomerOrderByOrderNumber({
         orderNumber: name,
       });
     if (orderError) {
@@ -108,14 +108,14 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       }
     }
     const [customerOrderCount, getOrderCountError] =
-      await this.shopifyRepo.getOrderCount({
+      await this.shopifyRepository.getOrderCount({
         shopifyCustomerId: shopifyCustomer.id,
       });
     if (getOrderCountError) {
       return [null, getOrderCountError];
     }
     const [products, getCustomerBoxProductsError] =
-      await this.customerBoxRepo.getCustomerBoxProducts({
+      await this.customerBoxRepository.getCustomerBoxProducts({
         email: customer.email,
       });
     if (getCustomerBoxProductsError) {
@@ -147,7 +147,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       : orderProducts.push({ sku: 'NP-packagingtape' }); //   Packaging Tape
 
     const [customerOrder, updateOrderError] =
-      await this.shipheroRepo.updateCustomerOrder({
+      await this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
@@ -156,11 +156,12 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       return [null, updateOrderError];
     }
 
-    [orderQueue, orderQueueError] = await this.orderQueueRepo.updateOrderQueue({
-      customerId: customer?.id,
-      orderNumber: name,
-      status: 'ordered',
-    });
+    [orderQueue, orderQueueError] =
+      await this.orderQueueRepository.updateOrderQueue({
+        customerId: customer?.id,
+        orderNumber: name,
+        status: 'ordered',
+      });
     if (orderQueueError) {
       return [null, orderQueueError];
     }

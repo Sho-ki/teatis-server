@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
-import { CreatePractitionerBoxUsecaseInterface } from '../../../usecases/practitionerBox/createPractitionerBox.usecase';
+import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { GetPractitionerBoxByLabelUsecaseInterface } from '../../../usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
+import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
 
@@ -33,15 +33,18 @@ export class PractitionerBoxController {
     query: GetPractitionerBoxDto,
     @Res() response: Response,
   ) {
-    let [res, error]: [PractitionerAndBox, Error] = [undefined, undefined];
+    let [usecaseResponse, error]: [PractitionerAndBox, Error] = [
+      undefined,
+      undefined,
+    ];
 
     if (query.practitionerBoxUuid) {
-      [res, error] =
+      [usecaseResponse, error] =
         await this.getPractitionerBoxByUuidUsecase.getPractitionerBoxByUuid(
           query,
         );
     } else if (query.email && query.label) {
-      [res, error] =
+      [usecaseResponse, error] =
         await this.getPractitionerBoxByLabelUsecase.getPractitionerBoxByLabel(
           query,
         );
@@ -52,7 +55,7 @@ export class PractitionerBoxController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(res);
+    return response.status(200).send(usecaseResponse);
   }
 
   // Post: api/discovery/practitioner-box
@@ -61,11 +64,11 @@ export class PractitionerBoxController {
     @Body() body: CreatePractitionerBoxDto,
     @Res() response: Response,
   ) {
-    const [res, error] =
+    const [usecaseResponse, error] =
       await this.createPractitionerBoxUsecase.createPractitionerBox(body);
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(201).send(res);
+    return response.status(201).send(usecaseResponse);
   }
 }

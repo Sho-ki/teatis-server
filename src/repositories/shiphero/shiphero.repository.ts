@@ -4,7 +4,7 @@ import { Product } from '@Domains/Product';
 
 import {
   GetLastOrderByEmailQuery,
-  GetProductInventryQuery,
+  GetProductInventoryQuery,
   getSdk,
 } from './generated/graphql';
 import { CustomerOrder } from '@Domains/CustomerOrder';
@@ -29,12 +29,12 @@ export interface GetOrderByOrderNumberArgs {
 
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
-export interface ShipheroRepoInterface {
+export interface ShipheroRepositoryInterface {
   getLastCustomerOrder({
     email,
   }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]>;
 
-  getNoInventryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]>;
+  getNoInventoryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]>;
   getCustomerOrderByOrderNumber({
     orderNumber,
   }: GetOrderByOrderNumberArgs): Promise<[CustomerOrder?, Error?]>;
@@ -51,8 +51,8 @@ export interface ShipheroRepoInterface {
 }
 
 @Injectable()
-export class ShipheroRepo implements ShipheroRepoInterface {
-  async getNoInventryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]> {
+export class ShipheroRepository implements ShipheroRepositoryInterface {
+  async getNoInventoryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]> {
     try {
       const client = new GraphQLClient(endpoint, {
         headers: {
@@ -61,27 +61,27 @@ export class ShipheroRepo implements ShipheroRepoInterface {
       });
       const sdk = getSdk(client);
 
-      let res: GetProductInventryQuery = await sdk.getProductInventry();
+      let res: GetProductInventoryQuery = await sdk.getProductInventory();
       const allProducts = res?.products?.data?.edges;
       if (!allProducts) {
         throw new Error();
       }
-      let nonInventrySkus: Pick<Product, 'sku'>[] = [];
+      let nonInventorySkus: Pick<Product, 'sku'>[] = [];
       for (let product of allProducts) {
         const wareHouseProducts = product?.node?.warehouse_products;
         const onHand = wareHouseProducts ? wareHouseProducts[0]?.on_hand : 0;
         const productSku = product?.node?.sku;
         if (onHand && onHand <= 5 && productSku) {
-          nonInventrySkus.push({ sku: productSku });
+          nonInventorySkus.push({ sku: productSku });
         }
       }
-      return [nonInventrySkus];
+      return [nonInventorySkus];
     } catch (e) {
       return [
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'Server Side Error: getNoInventryProducts failed',
+          message: 'Server Side Error: getNoInventoryProducts failed',
         },
       ];
     }

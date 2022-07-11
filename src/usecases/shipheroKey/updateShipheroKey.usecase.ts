@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ShipheroAuthRepoInterface } from '@Repositories/shiphero/shipheroAuth.repository';
+import { ShipheroAuthRepositoryInterface } from '@Repositories/shiphero/shipheroAuth.repository';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 export interface UpdateShipheoKeyUsecaseInterface {
@@ -11,14 +11,14 @@ export class UpdateShipheoKeyUsecase
   implements UpdateShipheoKeyUsecaseInterface
 {
   constructor(
-    @Inject('ShipheroAuthRepoInterface')
-    private readonly shipheroAuthRepo: ShipheroAuthRepoInterface,
+    @Inject('ShipheroAuthRepositoryInterface')
+    private readonly shipheroAuthRepository: ShipheroAuthRepositoryInterface,
   ) {}
 
   async updateShipheroKey(): Promise<[string?, Error?]> {
     try {
       const [newToken, getNewTokenError] =
-        await this.shipheroAuthRepo.getNewToken();
+        await this.shipheroAuthRepository.getNewToken();
       if (getNewTokenError) {
         return [undefined, getNewTokenError];
       }
@@ -39,7 +39,7 @@ export class UpdateShipheoKeyUsecase
     } catch (e) {
       return [
         undefined,
-        { name: 'faliled', message: 'updateShipheroKey Failed' },
+        { name: 'failed', message: 'updateShipheroKey Failed' },
       ];
     }
   }

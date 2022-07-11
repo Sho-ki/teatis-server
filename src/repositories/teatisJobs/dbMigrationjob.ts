@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import { PrismaService } from '../../prisma.service';
 import { v4 as uuidv4 } from 'uuid';
-import { ShipheroRepoInterface } from '../shiphero/shiphero.repository';
+import { ShipheroRepositoryInterface } from '../shiphero/shiphero.repository';
 
 interface typeformTmp {
   diabetes: string;
@@ -49,8 +49,8 @@ interface TeatisJobsInterface {
 export class TeatisJobs implements TeatisJobsInterface {
   constructor(
     private prisma: PrismaService,
-    @Inject('ShipheroRepoInterface')
-    private shipheroRepo: ShipheroRepoInterface,
+    @Inject('ShipheroRepositoryInterface')
+    private shipheroRepository: ShipheroRepositoryInterface,
   ) {}
 
   async getCustomerBox(): Promise<any> {
@@ -73,7 +73,7 @@ export class TeatisJobs implements TeatisJobsInterface {
 
     let customerInfo = [];
     for (let customer of customerPref) {
-      const [dataSet, err] = await this.shipheroRepo.getCustomerOrders({
+      const [dataSet, err] = await this.shipheroRepository.getCustomerOrders({
         email: customer.email,
       });
 

@@ -25,7 +25,7 @@ interface createPractitionerAndBoxArgs {
   note?: string;
 }
 
-export interface PractitionerBoxRepoInterface {
+export interface PractitionerBoxRepositoryInterface {
   getPractitionerAndBoxByUuid({
     practitionerBoxUuid,
   }: getPractitionerAndBoxByUuidArgs): Promise<[PractitionerAndBox?, Error?]>;
@@ -46,7 +46,9 @@ export interface PractitionerBoxRepoInterface {
 }
 
 @Injectable()
-export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
+export class PractitionerBoxRepository
+  implements PractitionerBoxRepositoryInterface
+{
   constructor(private prisma: PrismaService) {}
   async createPractitionerAndBox({
     practitionerId,
@@ -182,7 +184,6 @@ export class PractitionerBoxRepo implements PractitionerBoxRepoInterface {
         },
       ];
     } catch (e) {
-      console.log(e);
       return [
         undefined,
         {

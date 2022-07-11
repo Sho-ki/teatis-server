@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PostPostPurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPostPurchaseSurvey';
-import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { QuestionPostPurchaseSurveyRepoInterface } from '@Repositories/teatisDB/questionRepo/questionPostPurchaseSurvey.repository';
-import { CustomerPostPurchaseSurveyRepoInterface } from '@Repositories/teatisDB/customerRepo/customerPostPurchaseSurvey.repository';
+import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
+import { QuestionPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/question/questionPostPurchaseSurvey.repository';
+import { CustomerPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
 
 export interface PostPostPurchaseSurveyUsecaseInterface {
   postPostPurchaseSurvey({
@@ -28,12 +28,8 @@ export class PostPostPurchaseSurveyUsecase
   implements PostPostPurchaseSurveyUsecaseInterface
 {
   constructor(
-    @Inject('ShipheroRepoInterface')
-    private shipheroRepo: ShipheroRepoInterface,
-    @Inject('QuestionPostPurchaseSurveyRepoInterface')
-    private questionPostPurchaseSurveyRepo: QuestionPostPurchaseSurveyRepoInterface,
-    @Inject('CustomerPostPurchaseSurveyRepoInterface')
-    private customerpostPurchaseSurveyRepo: CustomerPostPurchaseSurveyRepoInterface,
+    @Inject('CustomerPostPurchaseSurveyRepositoryInterface')
+    private customerPostPurchaseSurveyRepository: CustomerPostPurchaseSurveyRepositoryInterface,
   ) {}
 
   async postPostPurchaseSurvey({
@@ -48,7 +44,9 @@ export class PostPostPurchaseSurveyUsecase
     reason,
   }: PostPostPurchaseSurveyDto): Promise<[PostPostPurchaseSurveyRes, Error]> {
     let [answerCount, answerCountError] =
-      await this.customerpostPurchaseSurveyRepo.getAnswerCount({ customerId });
+      await this.customerPostPurchaseSurveyRepository.getAnswerCount({
+        customerId,
+      });
     if (answerCountError) {
       return [null, answerCountError];
     }
@@ -56,7 +54,7 @@ export class PostPostPurchaseSurveyUsecase
       answerCount.currentMaxAnswerCount = 1;
     } else {
       const [checkIsNewSurveyAnswer, checkIsNewSurveyAnswerError] =
-        await this.customerpostPurchaseSurveyRepo.checkIsNewSurveyAnswer({
+        await this.customerPostPurchaseSurveyRepository.checkIsNewSurveyAnswer({
           orderNumber,
           currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
         });
@@ -66,7 +64,7 @@ export class PostPostPurchaseSurveyUsecase
     }
 
     const [postProductFeedbackRes, postProductFeedbackError] =
-      await this.customerpostPurchaseSurveyRepo.postPostPurchaseSurveyCustomerAnswer(
+      await this.customerPostPurchaseSurveyRepository.postPostPurchaseSurveyCustomerAnswer(
         {
           id,
           customerId,

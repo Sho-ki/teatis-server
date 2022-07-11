@@ -50,7 +50,7 @@ interface CheckIsNewSurveyAnswerRes {
   isNewSurveyAnswer: boolean;
 }
 
-export interface CustomerPostPurchaseSurveyRepoInterface {
+export interface CustomerPostPurchaseSurveyRepositoryInterface {
   getCustomerAnswers({
     email,
     orderNumber,
@@ -82,8 +82,8 @@ export interface CustomerPostPurchaseSurveyRepoInterface {
 }
 
 @Injectable()
-export class CustomerPostPurchaseSurveyRepo
-  implements CustomerPostPurchaseSurveyRepoInterface
+export class CustomerPostPurchaseSurveyRepository
+  implements CustomerPostPurchaseSurveyRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 

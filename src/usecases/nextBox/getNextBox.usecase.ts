@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GetNextBoxDto } from '@Controllers/discoveries/dtos/getNextBox';
 import { DisplayProduct, Product } from '@Domains/Product';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 
 interface GetNextBoxUsecaseRes {
   products: DisplayProduct[];
@@ -21,8 +21,8 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
   constructor(
     @Inject('GetSuggestionInterface')
     private getSuggestionUntil: GetSuggestionInterface,
-    @Inject('CustomerGeneralRepoInterface')
-    private customerGeneralRepo: CustomerGeneralRepoInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async getNextBox({
@@ -32,10 +32,10 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     let productCount = 30;
 
     const [customer, getCustomerError] =
-      await this.customerGeneralRepo.getCustomer({ email });
+      await this.customerGeneralRepository.getCustomer({ email });
 
     // const [customer, getCustomerError] =
-    //   await this.customerGeneralRepo.getCustomerByUuid({ uuid });
+    //   await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [undefined, getCustomerError];

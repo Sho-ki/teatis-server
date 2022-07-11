@@ -3,11 +3,7 @@ import axios from 'axios';
 import { GraphQLClient } from 'graphql-request';
 import { Cart } from '@Domains/Cart';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
-import {
-  CreateCartMutation,
-  CreateCartMutationVariables,
-  getSdk,
-} from './generated/graphql';
+import { CreateCartMutation, getSdk } from './generated/graphql';
 import { ShopifyGetCustomerRes } from './shopify.interface';
 
 interface GetOrderCountArgs {
@@ -20,7 +16,7 @@ interface CreateCartArgs {
   attributes: { key: string; value: string }[];
 }
 
-export interface ShopifyRepoInterface {
+export interface ShopifyRepositoryInterface {
   getOrderCount({
     shopifyCustomerId,
   }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]>;
@@ -34,7 +30,7 @@ export interface ShopifyRepoInterface {
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
 
 @Injectable()
-export class ShopifyRepo implements ShopifyRepoInterface {
+export class ShopifyRepository implements ShopifyRepositoryInterface {
   async createCart({
     merchandiseId,
     sellingPlanId,

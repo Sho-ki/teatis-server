@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { ShipheroRepoInterface } from '@Repositories/shiphero/shiphero.repository';
-import { ShopifyRepoInterface } from '@Repositories/shopify/shopify.repository';
-import { CustomerBoxRepoInterface } from '@Repositories/teatisDB/customerRepo/customerBox.repository';
-import { CustomerGeneralRepoInterface } from '@Repositories/teatisDB/customerRepo/customerGeneral.repository';
-import { OrderQueueRepoInterface } from '@Repositories/teatisDB/orderRepo/orderQueue.repository';
+import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
+import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
+import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import {
   PostPrePurchaseSurveyUsecaseInterface,
   PostPrePurchaseSurveyUsecaseRes,
@@ -26,29 +26,29 @@ import {
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface;
-  let MockedCustomerGeneralRepo: Partial<CustomerGeneralRepoInterface>;
-  let MockedOrderQueueRepo: Partial<OrderQueueRepoInterface>;
-  let MockedShipheroRepo: Partial<ShipheroRepoInterface>;
-  let MockedCustomerBoxRepo: Partial<CustomerBoxRepoInterface>;
-  let MockedShopifyRepo: Partial<ShopifyRepoInterface>;
+  let MockedCustomerGeneralRepository: Partial<CustomerGeneralRepositoryInterface>;
+  let MockedOrderQueueRepository: Partial<OrderQueueRepositoryInterface>;
+  let MockedShipheroRepository: Partial<ShipheroRepositoryInterface>;
+  let MockedCustomerBoxRepository: Partial<CustomerBoxRepositoryInterface>;
+  let MockedShopifyRepository: Partial<ShopifyRepositoryInterface>;
   let MockedNextBoxUtil: GetSuggestionInterface;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
   let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>;
 
   beforeEach(async () => {
-    MockedCustomerGeneralRepo = {
+    MockedCustomerGeneralRepository = {
       getCustomer: () =>
         Promise.resolve<[Customer?, Error?]>([
           { id: 1, email: 'teatis@teatis.com', uuid: '12345657' },
         ]),
     };
-    MockedOrderQueueRepo = {
+    MockedOrderQueueRepository = {
       updateOrderQueue: () =>
         Promise.resolve<[OrderQueue?, Error?]>([
           { customerId: 1, status: 'ordered', orderNumber: '12345' },
         ]),
     };
-    MockedShipheroRepo = {
+    MockedShipheroRepository = {
       getCustomerOrderByOrderNumber: () =>
         Promise.resolve<[CustomerOrder?, Error?]>([
           {
@@ -66,13 +66,13 @@ describe('GetOptions', () => {
           },
         ]),
     };
-    MockedCustomerBoxRepo = {
+    MockedCustomerBoxRepository = {
       getCustomerBoxProducts: () =>
         Promise.resolve<[Product[]?, Error?]>([
           [{ sku: '987654321', id: 1, name: 'test', label: 'Test' }],
         ]),
     };
-    MockedShopifyRepo = {
+    MockedShopifyRepository = {
       getOrderCount: () =>
         Promise.resolve<[CustomerOrderCount?, Error?]>([
           { orderCount: 1, email: 'test@test.com' },
@@ -165,24 +165,24 @@ describe('GetOptions', () => {
       providers: [
         UpdateCustomerOrderOfCustomerBoxUsecase,
         {
-          provide: 'ShipheroRepoInterface',
-          useValue: MockedShipheroRepo,
+          provide: 'ShipheroRepositoryInterface',
+          useValue: MockedShipheroRepository,
         },
         {
-          provide: 'CustomerBoxRepoInterface',
-          useValue: MockedCustomerBoxRepo,
+          provide: 'CustomerBoxRepositoryInterface',
+          useValue: MockedCustomerBoxRepository,
         },
         {
-          provide: 'OrderQueueRepoInterface',
-          useValue: MockedOrderQueueRepo,
+          provide: 'OrderQueueRepositoryInterface',
+          useValue: MockedOrderQueueRepository,
         },
         {
-          provide: 'CustomerGeneralRepoInterface',
-          useValue: MockedCustomerGeneralRepo,
+          provide: 'CustomerGeneralRepositoryInterface',
+          useValue: MockedCustomerGeneralRepository,
         },
         {
-          provide: 'ShopifyRepoInterface',
-          useValue: MockedShopifyRepo,
+          provide: 'ShopifyRepositoryInterface',
+          useValue: MockedShopifyRepository,
         },
         {
           provide: 'GetSuggestionInterface',
@@ -197,7 +197,7 @@ describe('GetOptions', () => {
   });
 
   it('Order is already updated', async () => {
-    MockedShipheroRepo.getCustomerOrderByOrderNumber = () =>
+    MockedShipheroRepository.getCustomerOrderByOrderNumber = () =>
       Promise.resolve<[CustomerOrder, Error]>([
         {
           orderNumber: '1234',
@@ -217,7 +217,7 @@ describe('GetOptions', () => {
   });
 
   it('Customer has not answered the Post-Purchase survey', async () => {
-    MockedCustomerBoxRepo.getCustomerBoxProducts = () =>
+    MockedCustomerBoxRepository.getCustomerBoxProducts = () =>
       Promise.resolve<[Product[], Error]>([
         [{ id: 1, name: 'test', label: 'Test', sku: '123' }],
         null,

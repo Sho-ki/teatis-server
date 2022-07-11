@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PractitionerBoxRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerBox.repo';
+import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { PractitionerGeneralRepoInterface } from '@Repositories/teatisDB/practitionerRepo/practitionerGeneral.repository';
+import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
 
 export interface GetPractitionerBoxByLabelUsecaseInterface {
@@ -17,10 +17,10 @@ export class GetPractitionerBoxByLabelUsecase
   implements GetPractitionerBoxByLabelUsecaseInterface
 {
   constructor(
-    @Inject('PractitionerBoxRepoInterface')
-    private practitionerBoxRepo: PractitionerBoxRepoInterface,
-    @Inject('PractitionerGeneralRepoInterface')
-    private practitionerGeneralRepo: PractitionerGeneralRepoInterface,
+    @Inject('PractitionerBoxRepositoryInterface')
+    private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
+    @Inject('PractitionerGeneralRepositoryInterface')
+    private practitionerGeneralRepository: PractitionerGeneralRepositoryInterface,
   ) {}
   async getPractitionerBoxByLabel({
     email,
@@ -28,14 +28,14 @@ export class GetPractitionerBoxByLabelUsecase
   }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
     try {
       const [practitioner, getPractitionerError] =
-        await this.practitionerGeneralRepo.getPractitioner({
+        await this.practitionerGeneralRepository.getPractitioner({
           email,
         });
       if (getPractitionerError) {
         return [undefined, getPractitionerError];
       }
       const [practitionerAndBox, getPractitionerAndBoxError] =
-        await this.practitionerBoxRepo.getPractitionerAndBoxByLabel({
+        await this.practitionerBoxRepository.getPractitionerAndBoxByLabel({
           label,
           practitionerId: practitioner.id,
         });
