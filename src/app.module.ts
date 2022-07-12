@@ -5,11 +5,20 @@ import { DiscoveriesModule } from '@Controllers/discoveries/discoveries.module';
 import { ProductModule } from '@Controllers/ops/product/product.module';
 import { ShipheroKeyModule } from '@Controllers/system/shipheroKey.module';
 import { PrismaService } from './prisma.service';
+import { HttpExceptionFilter } from './filter/http-exception.filter';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [DiscoveriesModule, ShipheroKeyModule, ProductModule],
 
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [
+    AppService,
+    PrismaService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

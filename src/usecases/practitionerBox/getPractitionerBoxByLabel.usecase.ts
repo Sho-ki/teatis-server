@@ -26,25 +26,21 @@ export class GetPractitionerBoxByLabelUsecase
     email,
     label,
   }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
-    try {
-      const [practitioner, getPractitionerError] =
-        await this.practitionerGeneralRepository.getPractitioner({
-          email,
-        });
-      if (getPractitionerError) {
-        return [undefined, getPractitionerError];
-      }
-      const [practitionerAndBox, getPractitionerAndBoxError] =
-        await this.practitionerBoxRepository.getPractitionerAndBoxByLabel({
-          label,
-          practitionerId: practitioner.id,
-        });
-      if (getPractitionerAndBoxError) {
-        return [undefined, getPractitionerAndBoxError];
-      }
-      return [practitionerAndBox];
-    } catch (e) {
-      return [undefined, e];
+    const [practitioner, getPractitionerError] =
+      await this.practitionerGeneralRepository.getPractitioner({
+        email,
+      });
+    if (getPractitionerError) {
+      return [undefined, getPractitionerError];
     }
+    const [practitionerAndBox, getPractitionerAndBoxError] =
+      await this.practitionerBoxRepository.getPractitionerAndBoxByLabel({
+        label,
+        practitionerId: practitioner.id,
+      });
+    if (getPractitionerAndBoxError) {
+      return [undefined, getPractitionerAndBoxError];
+    }
+    return [practitionerAndBox];
   }
 }

@@ -3,11 +3,14 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Inject,
   Param,
   Post,
   Query,
   Res,
+  UseFilters,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -47,6 +50,7 @@ import { GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usec
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
+import { HttpExceptionFilter } from '../../filter/http-exception.filter';
 
 // api/discovery
 @Controller('api/discovery')
@@ -167,7 +171,14 @@ export class DiscoveriesController {
     );
 
     if (error) {
-      return response.status(500).send(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error,
+        },
+        403,
+      );
+      // return response.status(500).send(error);
     }
     return response.status(200).send(usecaseResponse);
   }

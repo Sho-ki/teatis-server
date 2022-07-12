@@ -21,21 +21,17 @@ export class UpdatePractitionerBoxOrderHistoryUsecase
   async updatePractitionerOrderHistory({
     name,
   }: DeleteCustomerBoxDto): Promise<[void?, Error?]> {
-    try {
-      const [_practitioner, getPractitionerError] =
-        await this.practitionerBoxOrderHistoryRepository.updatePractitionerBoxOrderHistory(
-          {
-            orderNumber: name,
-            status: 'fulfilled',
-          },
-        );
-      if (getPractitionerError) {
-        return [undefined, getPractitionerError];
-      }
-
-      return [];
-    } catch (e) {
-      return [undefined, e];
+    const [_practitioner, getPractitionerError] =
+      await this.practitionerBoxOrderHistoryRepository.updatePractitionerBoxOrderHistory(
+        {
+          orderNumber: name,
+          status: 'fulfilled',
+        },
+      );
+    if (getPractitionerError) {
+      return [undefined, getPractitionerError];
     }
+
+    return [];
   }
 }

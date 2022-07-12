@@ -36,64 +36,38 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     sellingPlanId,
     attributes,
   }: CreateCartArgs): Promise<[Cart?, Error?]> {
-    try {
-      const client = new GraphQLClient(endpoint, {
-        headers: {
-          'X-Shopify-Storefront-Access-Token':
-            'd710761c009d16ed459f7014d119093c',
-        },
-      });
-      const sdk = getSdk(client);
+    const client = new GraphQLClient(endpoint, {
+      headers: {
+        'X-Shopify-Storefront-Access-Token': 'd710761c009d16ed459f7014d119093c',
+      },
+    });
+    const sdk = getSdk(client);
 
-      const res: CreateCartMutation = await sdk.CreateCart({
-        input: {
-          attributes,
-          lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
-        },
-      });
-      if (!res?.cartCreate?.cart?.checkoutUrl) {
-        throw new Error();
-      }
-      return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: createCart failed',
-        },
-      ];
-    }
+    const res: CreateCartMutation = await sdk.CreateCart({
+      input: {
+        attributes,
+        lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
+      },
+    });
+
+    return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }];
   }
 
   async getOrderCount({
     shopifyCustomerId,
   }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]> {
-    try {
-      const res = await axios.get<ShopifyGetCustomerRes>(
-        `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
-        {
-          auth: {
-            username: process.env.SHOPIFY_API_KEY as string,
-            password: process.env.SHOPIFY_API_PASSWORD as string,
-          },
+    const res = await axios.get<ShopifyGetCustomerRes>(
+      `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
+      {
+        auth: {
+          username: process.env.SHOPIFY_API_KEY as string,
+          password: process.env.SHOPIFY_API_PASSWORD as string,
         },
-      );
-      const orderCount = res?.data?.customer?.orders_count;
-      const email = res?.data?.customer?.email;
-      if (!orderCount || !email) {
-        throw new Error();
-      }
+      },
+    );
+    const orderCount = res?.data?.customer?.orders_count;
+    const email = res?.data?.customer?.email;
 
-      return [{ orderCount: orderCount, email }];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getOrderCount failed',
-        },
-      ];
-    }
+    return [{ orderCount: orderCount, email }];
   }
 }

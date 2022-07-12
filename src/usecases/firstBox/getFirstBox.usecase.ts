@@ -64,7 +64,6 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
     if (getSuggestionError) {
       return [null, getSuggestionError];
     }
-
     return [getSuggestion, null];
   }
 }

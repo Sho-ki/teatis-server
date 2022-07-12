@@ -34,7 +34,7 @@ export class CustomerPreferenceRepository
   async getNextWant({
     orderNumber,
   }: GetNextWantArgs): Promise<[Product[]?, Error?]> {
-    try {
+    
       const response = await this.prisma.surveyQuestionAnswer.findMany({
         where: {
           AND: [{ orderNumber }, { answerNumeric: 6 }],
@@ -56,21 +56,14 @@ export class CustomerPreferenceRepository
           })
         : [];
       return [nextWantProducts];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getNextWant failed',
-        },
-      ];
-    }
+    
+      
   }
 
   async getNextUnwant({
     email,
   }: GetNextUnwantArgs): Promise<[Product[]?, Error?]> {
-    try {
+    
       const response = await this.prisma.surveyQuestionAnswer.findMany({
         where: {
           AND: [{ customer: { email } }, { answerNumeric: 1 }],
@@ -92,21 +85,13 @@ export class CustomerPreferenceRepository
           })
         : [];
       return [nextUnwantProducts];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getNextUnwant failed',
-        },
-      ];
-    }
+    
   }
 
   async getAverageScores({
     email,
   }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]> {
-    try {
+    
       const res = await this.prisma.surveyQuestionAnswer.findMany({
         where: { customer: { email }, answerNumeric: { not: null } },
         select: {
@@ -133,14 +118,6 @@ export class CustomerPreferenceRepository
             10;
       }
       return [{ flavorLikesAverages, categoryLikesAverages }];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getAverageScores failed',
-        },
-      ];
-    }
+    
   }
 }

@@ -49,26 +49,15 @@ export class PractitionerBoxOrderHistoryRepository
     orderNumber,
     status,
   }: UpdatePractitionerBoxOrderHistoryArgs): Promise<[void?, Error?]> {
-    try {
-      await this.prisma.practitionerCustomerOrderHistory.update({
-        where: { orderNumber },
-        data: {
-          orderNumber,
-          status,
-        },
-      });
+    await this.prisma.practitionerCustomerOrderHistory.update({
+      where: { orderNumber },
+      data: {
+        orderNumber,
+        status,
+      },
+    });
 
-      return [];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message:
-            'Server Side Error: updatePractitionerBoxOrderHistory failed',
-        },
-      ];
-    }
+    return [];
   }
 
   async createPractitionerBoxOrderHistory({
@@ -78,29 +67,18 @@ export class PractitionerBoxOrderHistoryRepository
     customerId,
     practitionerBoxId,
   }: CreatePractitionerBoxOrderHistoryArgs): Promise<[void?, Error?]> {
-    try {
-      await this.prisma.practitionerCustomerOrderHistory.upsert({
-        where: { orderNumber },
-        create: {
-          practitionerBoxId,
-          customerId,
-          orderNumber,
-          status,
-          transactionPrice,
-        },
-        update: {},
-      });
+    await this.prisma.practitionerCustomerOrderHistory.upsert({
+      where: { orderNumber },
+      create: {
+        practitionerBoxId,
+        customerId,
+        orderNumber,
+        status,
+        transactionPrice,
+      },
+      update: {},
+    });
 
-      return [];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message:
-            'Server Side Error: updatePractitionerBoxOrderHistory failed',
-        },
-      ];
-    }
+    return [];
   }
 }

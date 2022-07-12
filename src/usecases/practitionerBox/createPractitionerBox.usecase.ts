@@ -30,30 +30,18 @@ export class CreatePractitionerBoxUsecase
     description,
     note,
   }: CreatePractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
-    try {
-      const practitionerBoxUuid = uuidv4();
+    const practitionerBoxUuid = uuidv4();
 
-      const [practitionerBoxProduct, createPractitionerBoxProductError] =
-        await this.practitionerBoxRepository.createPractitionerAndBox({
-          practitionerId,
-          practitionerBoxUuid,
-          label,
-          products,
-          description,
-          note,
-        });
-      if (createPractitionerBoxProductError) {
-        throw new Error();
-      }
-      return [practitionerBoxProduct];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: createPractitionerBox Usecase failed',
-        },
-      ];
-    }
+    const [practitionerBoxProduct, createPractitionerBoxProductError] =
+      await this.practitionerBoxRepository.createPractitionerAndBox({
+        practitionerId,
+        practitionerBoxUuid,
+        label,
+        products,
+        description,
+        note,
+      });
+
+    return [practitionerBoxProduct];
   }
 }

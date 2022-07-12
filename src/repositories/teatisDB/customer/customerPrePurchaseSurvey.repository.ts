@@ -95,390 +95,380 @@ export class CustomerPrePurchaseSurveyRepository
     fatPerMeal,
     caloriePerMeal,
   }: UpsertCustomerArgs): Promise<[Customer?, Error?]> {
-    try {
-      let medicalConditionsQuery = [
-        {
-          medicalConditionValue: A1c,
-          customerMedicalCondition: {
-            connect: {
-              name: 'A1c',
-            },
+    let medicalConditionsQuery = [
+      {
+        medicalConditionValue: A1c,
+        customerMedicalCondition: {
+          connect: {
+            name: 'A1c',
           },
         },
-        {
-          medicalConditionValue: diabetes,
-          customerMedicalCondition: {
-            connect: {
-              name: 'diabetes',
-            },
+      },
+      {
+        medicalConditionValue: diabetes,
+        customerMedicalCondition: {
+          connect: {
+            name: 'diabetes',
           },
         },
-      ];
+      },
+    ];
 
-      for (let medicalCondition of medicalConditions) {
-        medicalConditionsQuery.push({
-          medicalConditionValue: 'yes',
-          customerMedicalCondition: {
-            connect: {
-              name: medicalCondition.name,
-            },
-          },
-        });
-      }
-
-      const checkIfExists = await this.prisma.customers.findUnique({
-        where: { email },
-      });
-
-      if (checkIfExists) {
-        await Promise.all([
-          this.prisma.intermediateCustomerCategoryPreference.deleteMany({
-            where: { customerId: checkIfExists.id },
-          }),
-          this.prisma.intermediateCustomerIngredientDislike.deleteMany({
-            where: { customerId: checkIfExists.id },
-          }),
-          this.prisma.intermediateCustomerAllergen.deleteMany({
-            where: { customerId: checkIfExists.id },
-          }),
-          this.prisma.intermediateCustomerFlavorDislike.deleteMany({
-            where: { customerId: checkIfExists.id },
-          }),
-          this.prisma.intermediateCustomerUnavailableCookingMethod.deleteMany({
-            where: { customerId: checkIfExists.id },
-          }),
-          this.prisma.intermediateCustomerMedicalCondition.deleteMany({
-            where: { customerId: checkIfExists.id },
-          }),
-          this.prisma.intermediateCustomerNutritionNeed.deleteMany({
-            where: { customerId: checkIfExists.id },
-          }),
-        ]);
-      }
-
-      let customer = await this.prisma.customers.upsert({
-        where: { email },
-        select: {
-          id: true,
-          uuid: true,
-        },
-        create: {
-          uuid,
-          email,
-          age,
-          gender,
-          heightCm: height,
-          weightKg: weight,
-          activeLevel,
-          mealsPerDay,
-          intermediateCustomerCategoryPreferences:
-            categoryPreferences.length > 0
-              ? {
-                  create: categoryPreferences.map((categoryPreference) => {
-                    return {
-                      productCategory: {
-                        connect: {
-                          name: categoryPreference.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-          intermediateCustomerIngredientDislikes:
-            ingredientDislikes.length > 0
-              ? {
-                  create: ingredientDislikes.map((ingredientDislike) => {
-                    return {
-                      productIngredient: {
-                        connect: {
-                          name: ingredientDislike.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-
-          intermediateCustomerAllergens:
-            allergens.length > 0
-              ? {
-                  create: allergens.map((allergen) => {
-                    return {
-                      productAllergen: {
-                        connect: {
-                          name: allergen.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-          intermediateCustomerFlavorDislikes:
-            flavorDislikes.length > 0
-              ? {
-                  create: flavorDislikes.map((flavorDislike) => {
-                    return {
-                      productFlavor: {
-                        connect: {
-                          name: flavorDislike.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-          intermediateCustomerUnavailableCookingMethods:
-            unavailableCookingMethods.length > 0
-              ? {
-                  create: unavailableCookingMethods.map(
-                    (unavailableCookingMethod) => {
-                      return {
-                        productCookingMethod: {
-                          connect: {
-                            name: unavailableCookingMethod.name,
-                          },
-                        },
-                      };
-                    },
-                  ),
-                }
-              : {},
-          intermediateCustomerMedicalConditions: {
-            create: medicalConditionsQuery,
-          },
-          intermediateCustomerNutritionNeeds: {
-            create: [
-              {
-                nutritionValue: BMR,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'BMR',
-                  },
-                },
-              },
-              {
-                nutritionValue: carbsMacronutrients,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'carbsMacronutrients',
-                  },
-                },
-              },
-              {
-                nutritionValue: proteinMacronutrients,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'proteinMacronutrients',
-                  },
-                },
-              },
-              {
-                nutritionValue: fatMacronutrients,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'fatMacronutrients',
-                  },
-                },
-              },
-              {
-                nutritionValue: carbsPerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'carbsPerMeal',
-                  },
-                },
-              },
-              {
-                nutritionValue: proteinPerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'proteinPerMeal',
-                  },
-                },
-              },
-              {
-                nutritionValue: fatPerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'fatPerMeal',
-                  },
-                },
-              },
-              {
-                nutritionValue: caloriePerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'caloriePerMeal',
-                  },
-                },
-              },
-            ],
-          },
-        },
-        update: {
-          age,
-          gender,
-          heightCm: height,
-          weightKg: weight,
-          activeLevel,
-          mealsPerDay,
-          intermediateCustomerCategoryPreferences:
-            categoryPreferences.length > 0
-              ? {
-                  create: categoryPreferences.map((categoryPreference) => {
-                    return {
-                      productCategory: {
-                        connect: {
-                          name: categoryPreference.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-          intermediateCustomerIngredientDislikes:
-            ingredientDislikes.length > 0
-              ? {
-                  create: ingredientDislikes.map((ingredientDislike) => {
-                    return {
-                      productIngredient: {
-                        connect: {
-                          name: ingredientDislike.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-
-          intermediateCustomerAllergens:
-            allergens.length > 0
-              ? {
-                  create: allergens.map((allergen) => {
-                    return {
-                      productAllergen: {
-                        connect: {
-                          name: allergen.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-          intermediateCustomerFlavorDislikes:
-            flavorDislikes.length > 0
-              ? {
-                  create: flavorDislikes.map((flavorDislike) => {
-                    return {
-                      productFlavor: {
-                        connect: {
-                          name: flavorDislike.name,
-                        },
-                      },
-                    };
-                  }),
-                }
-              : {},
-          intermediateCustomerUnavailableCookingMethods:
-            unavailableCookingMethods.length > 0
-              ? {
-                  create: unavailableCookingMethods.map(
-                    (unavailableCookingMethod) => {
-                      return {
-                        productCookingMethod: {
-                          connect: {
-                            name: unavailableCookingMethod.name,
-                          },
-                        },
-                      };
-                    },
-                  ),
-                }
-              : {},
-          intermediateCustomerMedicalConditions: {
-            create: medicalConditionsQuery,
-          },
-          intermediateCustomerNutritionNeeds: {
-            create: [
-              {
-                nutritionValue: BMR,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'BMR',
-                  },
-                },
-              },
-              {
-                nutritionValue: carbsMacronutrients,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'carbsMacronutrients',
-                  },
-                },
-              },
-              {
-                nutritionValue: proteinMacronutrients,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'proteinMacronutrients',
-                  },
-                },
-              },
-              {
-                nutritionValue: fatMacronutrients,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'fatMacronutrients',
-                  },
-                },
-              },
-              {
-                nutritionValue: carbsPerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'carbsPerMeal',
-                  },
-                },
-              },
-              {
-                nutritionValue: proteinPerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'proteinPerMeal',
-                  },
-                },
-              },
-              {
-                nutritionValue: fatPerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'fatPerMeal',
-                  },
-                },
-              },
-              {
-                nutritionValue: caloriePerMeal,
-                customerNutritionNeed: {
-                  connect: {
-                    name: 'caloriePerMeal',
-                  },
-                },
-              },
-            ],
+    for (let medicalCondition of medicalConditions) {
+      medicalConditionsQuery.push({
+        medicalConditionValue: 'yes',
+        customerMedicalCondition: {
+          connect: {
+            name: medicalCondition.name,
           },
         },
       });
-
-      return [{ id: customer.id, uuid: customer.uuid, email }];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: upsertCustomer failed',
-        },
-      ];
     }
+
+    const checkIfExists = await this.prisma.customers.findUnique({
+      where: { email },
+    });
+
+    if (checkIfExists) {
+      await Promise.all([
+        this.prisma.intermediateCustomerCategoryPreference.deleteMany({
+          where: { customerId: checkIfExists.id },
+        }),
+        this.prisma.intermediateCustomerIngredientDislike.deleteMany({
+          where: { customerId: checkIfExists.id },
+        }),
+        this.prisma.intermediateCustomerAllergen.deleteMany({
+          where: { customerId: checkIfExists.id },
+        }),
+        this.prisma.intermediateCustomerFlavorDislike.deleteMany({
+          where: { customerId: checkIfExists.id },
+        }),
+        this.prisma.intermediateCustomerUnavailableCookingMethod.deleteMany({
+          where: { customerId: checkIfExists.id },
+        }),
+        this.prisma.intermediateCustomerMedicalCondition.deleteMany({
+          where: { customerId: checkIfExists.id },
+        }),
+        this.prisma.intermediateCustomerNutritionNeed.deleteMany({
+          where: { customerId: checkIfExists.id },
+        }),
+      ]);
+    }
+
+    let customer = await this.prisma.customers.upsert({
+      where: { email },
+      select: {
+        id: true,
+        uuid: true,
+      },
+      create: {
+        uuid,
+        email,
+        age,
+        gender,
+        heightCm: height,
+        weightKg: weight,
+        activeLevel,
+        mealsPerDay,
+        intermediateCustomerCategoryPreferences:
+          categoryPreferences.length > 0
+            ? {
+                create: categoryPreferences.map((categoryPreference) => {
+                  return {
+                    productCategory: {
+                      connect: {
+                        name: categoryPreference.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+        intermediateCustomerIngredientDislikes:
+          ingredientDislikes.length > 0
+            ? {
+                create: ingredientDislikes.map((ingredientDislike) => {
+                  return {
+                    productIngredient: {
+                      connect: {
+                        name: ingredientDislike.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+
+        intermediateCustomerAllergens:
+          allergens.length > 0
+            ? {
+                create: allergens.map((allergen) => {
+                  return {
+                    productAllergen: {
+                      connect: {
+                        name: allergen.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+        intermediateCustomerFlavorDislikes:
+          flavorDislikes.length > 0
+            ? {
+                create: flavorDislikes.map((flavorDislike) => {
+                  return {
+                    productFlavor: {
+                      connect: {
+                        name: flavorDislike.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+        intermediateCustomerUnavailableCookingMethods:
+          unavailableCookingMethods.length > 0
+            ? {
+                create: unavailableCookingMethods.map(
+                  (unavailableCookingMethod) => {
+                    return {
+                      productCookingMethod: {
+                        connect: {
+                          name: unavailableCookingMethod.name,
+                        },
+                      },
+                    };
+                  },
+                ),
+              }
+            : {},
+        intermediateCustomerMedicalConditions: {
+          create: medicalConditionsQuery,
+        },
+        intermediateCustomerNutritionNeeds: {
+          create: [
+            {
+              nutritionValue: BMR,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'BMR',
+                },
+              },
+            },
+            {
+              nutritionValue: carbsMacronutrients,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'carbsMacronutrients',
+                },
+              },
+            },
+            {
+              nutritionValue: proteinMacronutrients,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'proteinMacronutrients',
+                },
+              },
+            },
+            {
+              nutritionValue: fatMacronutrients,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'fatMacronutrients',
+                },
+              },
+            },
+            {
+              nutritionValue: carbsPerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'carbsPerMeal',
+                },
+              },
+            },
+            {
+              nutritionValue: proteinPerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'proteinPerMeal',
+                },
+              },
+            },
+            {
+              nutritionValue: fatPerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'fatPerMeal',
+                },
+              },
+            },
+            {
+              nutritionValue: caloriePerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'caloriePerMeal',
+                },
+              },
+            },
+          ],
+        },
+      },
+      update: {
+        age,
+        gender,
+        heightCm: height,
+        weightKg: weight,
+        activeLevel,
+        mealsPerDay,
+        intermediateCustomerCategoryPreferences:
+          categoryPreferences.length > 0
+            ? {
+                create: categoryPreferences.map((categoryPreference) => {
+                  return {
+                    productCategory: {
+                      connect: {
+                        name: categoryPreference.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+        intermediateCustomerIngredientDislikes:
+          ingredientDislikes.length > 0
+            ? {
+                create: ingredientDislikes.map((ingredientDislike) => {
+                  return {
+                    productIngredient: {
+                      connect: {
+                        name: ingredientDislike.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+
+        intermediateCustomerAllergens:
+          allergens.length > 0
+            ? {
+                create: allergens.map((allergen) => {
+                  return {
+                    productAllergen: {
+                      connect: {
+                        name: allergen.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+        intermediateCustomerFlavorDislikes:
+          flavorDislikes.length > 0
+            ? {
+                create: flavorDislikes.map((flavorDislike) => {
+                  return {
+                    productFlavor: {
+                      connect: {
+                        name: flavorDislike.name,
+                      },
+                    },
+                  };
+                }),
+              }
+            : {},
+        intermediateCustomerUnavailableCookingMethods:
+          unavailableCookingMethods.length > 0
+            ? {
+                create: unavailableCookingMethods.map(
+                  (unavailableCookingMethod) => {
+                    return {
+                      productCookingMethod: {
+                        connect: {
+                          name: unavailableCookingMethod.name,
+                        },
+                      },
+                    };
+                  },
+                ),
+              }
+            : {},
+        intermediateCustomerMedicalConditions: {
+          create: medicalConditionsQuery,
+        },
+        intermediateCustomerNutritionNeeds: {
+          create: [
+            {
+              nutritionValue: BMR,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'BMR',
+                },
+              },
+            },
+            {
+              nutritionValue: carbsMacronutrients,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'carbsMacronutrients',
+                },
+              },
+            },
+            {
+              nutritionValue: proteinMacronutrients,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'proteinMacronutrients',
+                },
+              },
+            },
+            {
+              nutritionValue: fatMacronutrients,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'fatMacronutrients',
+                },
+              },
+            },
+            {
+              nutritionValue: carbsPerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'carbsPerMeal',
+                },
+              },
+            },
+            {
+              nutritionValue: proteinPerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'proteinPerMeal',
+                },
+              },
+            },
+            {
+              nutritionValue: fatPerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'fatPerMeal',
+                },
+              },
+            },
+            {
+              nutritionValue: caloriePerMeal,
+              customerNutritionNeed: {
+                connect: {
+                  name: 'caloriePerMeal',
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    return [{ id: customer.id, uuid: customer.uuid, email }];
   }
 }
