@@ -38,6 +38,7 @@
     "@nestjs/platform-fastify": "^8.2.3",
     "@nestjs/typeorm": "^8.0.2",
     "@prisma/client": "^3.6.0",
+    "@sentry/node": "^7.6.0",
     "@shopify/shopify-api": "^2.0.0",
     "@types/uuid": "^8.3.4",
     "axios": "^0.24.0",

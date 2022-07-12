@@ -73,7 +73,6 @@ export class GetPrePurchaseOptionsUsecase
     if (getAllergensError) {
       return [null, getAllergensError];
     }
-
     return [
       {
         unavailableCookingMethods: [
