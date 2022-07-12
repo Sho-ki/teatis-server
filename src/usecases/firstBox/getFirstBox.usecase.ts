@@ -39,6 +39,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       'x10230-SOU-SN20135', // LS
       'x10262-COK-SN20113',
       'x10244-SWT-SN20138',
+      'x10272-CHP-SN20144',
     ];
 
     const firstExcludeSkus = [
