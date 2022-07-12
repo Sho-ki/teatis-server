@@ -38,6 +38,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
   }: CreateCartArgs): Promise<[Cart?, Error?]> {
     const client = new GraphQLClient(endpoint, {
       headers: {
+        // TODO: To .env file
         'X-Shopify-Storefront-Access-Token': 'd710761c009d16ed459f7014d119093c',
       },
     });
