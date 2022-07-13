@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { Customer } from '@Domains/Customer';
-import { BoxType } from '../../domains/BoxType';
+import { BoxType } from '@Domains/BoxType';
 
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
@@ -102,7 +102,7 @@ export class PostPrePurchaseSurveyUsecase
         mealPlan,
       });
     if (createCustomerError) {
-      return [null, createCustomerError];
+      return [undefined, createCustomerError];
     }
 
     return [

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { CustomerPrePurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
 import { Customer } from '@Domains/Customer';
-import { PostPrePurchaseSurveyDto } from '../../controllers/discoveries/dtos/postPrePurchaseSurvey';
+import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
 
 interface CreateCustomerUsecaseArgs extends PostPrePurchaseSurveyDto {}
 
