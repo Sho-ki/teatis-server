@@ -38,7 +38,7 @@ model Customers{
   activeLevel String?
   mealsPerDay Int?
   frozenAvailable Boolean? @default(false)
-  mealPlan CustomerMealPlan?
+  boxPlan CustomerBoxPlan?
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
   intermediateCustomerAllergens IntermediateCustomerAllergen[]
@@ -56,7 +56,7 @@ model Customers{
   updatedAt DateTime  @updatedAt @default(now())
 }
 
-enum CustomerMealPlan {
+enum CustomerBoxPlan {
   SoupAndSnack
   SweetsAndSnack
   DinnerAndSnack

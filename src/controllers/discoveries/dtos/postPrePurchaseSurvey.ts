@@ -62,7 +62,7 @@ export class PostPrePurchaseSurveyDto {
 
   @IsString()
   @IsOptional()
-  mealPlan?:
+  boxPlan?:
     | 'SoupAndSnack'
     | 'SweetsAndSnack'
     | 'DinnerAndSnack'

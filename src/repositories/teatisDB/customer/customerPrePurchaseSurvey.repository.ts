@@ -27,7 +27,7 @@ interface UpsertCustomerArgs {
   proteinPerMeal: number;
   fatPerMeal: number;
   caloriePerMeal: number;
-  mealPlan?:
+  boxPlan?:
     | 'SoupAndSnack'
     | 'SweetsAndSnack'
     | 'DinnerAndSnack'
@@ -61,7 +61,7 @@ export interface CustomerPrePurchaseSurveyRepositoryInterface {
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
-    mealPlan,
+    boxPlan,
   }: UpsertCustomerArgs): Promise<[Customer?, Error?]>;
 }
 
@@ -96,7 +96,7 @@ export class CustomerPrePurchaseSurveyRepository
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
-    mealPlan,
+    boxPlan,
   }: UpsertCustomerArgs): Promise<[Customer?, Error?]> {
     try {
       let medicalConditionsQuery = [
@@ -174,7 +174,7 @@ export class CustomerPrePurchaseSurveyRepository
           weightKg: weight,
           activeLevel,
           mealsPerDay,
-          mealPlan,
+          boxPlan,
           intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {
@@ -327,7 +327,7 @@ export class CustomerPrePurchaseSurveyRepository
           weightKg: weight,
           activeLevel,
           mealsPerDay,
-          mealPlan,
+          boxPlan,
           intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {

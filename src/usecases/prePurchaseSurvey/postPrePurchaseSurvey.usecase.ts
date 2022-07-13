@@ -28,7 +28,7 @@ export interface PostPrePurchaseSurveyUsecaseInterface {
     allergens,
     email,
     unavailableCookingMethods,
-    mealPlan,
+    boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
     [PostPrePurchaseSurveyUsecaseRes, Error]
   >;
@@ -70,7 +70,7 @@ export class PostPrePurchaseSurveyUsecase
     allergens,
     email,
     unavailableCookingMethods,
-    mealPlan,
+    boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
     [PostPrePurchaseSurveyUsecaseRes, Error]
   > {
@@ -99,7 +99,7 @@ export class PostPrePurchaseSurveyUsecase
         allergens,
         email,
         unavailableCookingMethods,
-        mealPlan,
+        boxPlan,
       });
     if (createCustomerError) {
       return [undefined, createCustomerError];
