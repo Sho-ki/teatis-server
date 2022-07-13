@@ -38,8 +38,6 @@ model Customers{
   activeLevel String?
   mealsPerDay Int?
   frozenAvailable Boolean? @default(false)
-  // customerMealPlan CustomerMealPlan @relation(fields: [customerMealPlanId], references: [id])
-  // customerMealPlanId Int
   mealPlan CustomerMealPlan?
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
@@ -65,20 +63,6 @@ enum CustomerMealPlan {
   BreakfastAndSnack
   SweetsOnly
 }
-
-// model CustomerMealPlan {
-//   id            Int       @default(autoincrement()) @id
-//   name   String @unique
-//   label     String
-//   customer      Customers[]
-//   soup Int @default(0)
-//   snacks Int @default(0)
-//   sweets Int @default(0)
-//   dinner Int @default(0)
-//   breakfast Int @default(0)
-//   createdAt DateTime  @default(now())
-//   updatedAt DateTime  @updatedAt @default(now())
-// }
 
 
 model IntermediateCustomerNutritionNeed{
