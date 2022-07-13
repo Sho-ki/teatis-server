@@ -3,24 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { CustomerPrePurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
 import { Customer } from '@Domains/Customer';
+import { PostPrePurchaseSurveyDto } from '../../controllers/discoveries/dtos/postPrePurchaseSurvey';
 
-interface CreateCustomerUsecaseArgs {
-  diabetes?: string;
-  gender?: string;
-  height?: number; // in cm
-  weight?: number; // in kg
-  age?: number;
-  medicalConditions?: { name: string; label?: string }[];
-  activeLevel?: string;
-  A1c?: string;
-  mealsPerDay?: number;
-  categoryPreferences?: { name: string; label?: string }[];
-  flavorDislikes?: { name: string; label?: string }[];
-  ingredientDislikes?: { name: string; label?: string }[];
-  allergens?: { name: string; label?: string }[];
-  email: string;
-  unavailableCookingMethods?: { name: string; label?: string }[];
-}
+interface CreateCustomerUsecaseArgs extends PostPrePurchaseSurveyDto {}
 
 export interface CreateCustomerUsecaseInterface {
   createCustomer({
@@ -39,6 +24,7 @@ export interface CreateCustomerUsecaseInterface {
     allergens,
     email,
     unavailableCookingMethods,
+    mealPlan,
   }: CreateCustomerUsecaseArgs): Promise<[Customer, Error]>;
 }
 
@@ -90,6 +76,7 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
     allergens = [],
     email,
     unavailableCookingMethods = [],
+    mealPlan,
   }: CreateCustomerUsecaseArgs): Promise<[Customer, Error]> {
     //   Calculate Method: https://www.notion.so/teatis/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
     height = this.outlierValidate('height', height);
@@ -168,6 +155,7 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
         proteinPerMeal,
         fatPerMeal,
         caloriePerMeal,
+        mealPlan,
       });
     if (upsertCustomerError) {
       return [null, upsertCustomerError];

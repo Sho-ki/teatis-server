@@ -59,4 +59,13 @@ export class PostPrePurchaseSurveyDto {
   @IsArray()
   @IsOptional()
   unavailableCookingMethods?: { name: string; label?: string }[];
+
+  @IsString()
+  @IsOptional()
+  mealPlan?:
+    | 'SoupAndSnack'
+    | 'SweetsAndSnack'
+    | 'DinnerAndSnack'
+    | 'BreakfastAndSnack'
+    | 'SweetsOnly';
 }
