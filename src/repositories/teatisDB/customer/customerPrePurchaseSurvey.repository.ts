@@ -27,11 +27,7 @@ interface UpsertCustomerArgs {
   proteinPerMeal: number;
   fatPerMeal: number;
   caloriePerMeal: number;
-}
-
-interface UpsertCustomerRes {
-  customerId: number;
-  customerUuid: string;
+  boxPlan?: string[];
 }
 
 export interface CustomerPrePurchaseSurveyRepositoryInterface {
@@ -60,6 +56,7 @@ export interface CustomerPrePurchaseSurveyRepositoryInterface {
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
+    boxPlan,
   }: UpsertCustomerArgs): Promise<[Customer?, Error?]>;
 }
 
@@ -94,6 +91,7 @@ export class CustomerPrePurchaseSurveyRepository
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
+    boxPlan,
   }: UpsertCustomerArgs): Promise<[Customer?, Error?]> {
     try {
       let medicalConditionsQuery = [
@@ -130,6 +128,7 @@ export class CustomerPrePurchaseSurveyRepository
         where: { email },
       });
 
+      // ToDo: Use CalculateAddedAndDeleted Function
       if (checkIfExists) {
         await Promise.all([
           this.prisma.intermediateCustomerCategoryPreference.deleteMany({
@@ -153,9 +152,11 @@ export class CustomerPrePurchaseSurveyRepository
           this.prisma.intermediateCustomerNutritionNeed.deleteMany({
             where: { customerId: checkIfExists.id },
           }),
+          this.prisma.intermediateCustomerBoxPlan.deleteMany({
+            where: { customerId: checkIfExists.id },
+          }),
         ]);
       }
-
       let customer = await this.prisma.customers.upsert({
         where: { email },
         select: {
@@ -171,6 +172,20 @@ export class CustomerPrePurchaseSurveyRepository
           weightKg: weight,
           activeLevel,
           mealsPerDay,
+          intermediateCustomerBoxPlans:
+            boxPlan?.length > 0
+              ? {
+                  create: boxPlan.map((name) => {
+                    return {
+                      customerBoxPlan: {
+                        connect: {
+                          name,
+                        },
+                      },
+                    };
+                  }),
+                }
+              : {},
           intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {
@@ -323,6 +338,20 @@ export class CustomerPrePurchaseSurveyRepository
           weightKg: weight,
           activeLevel,
           mealsPerDay,
+          intermediateCustomerBoxPlans:
+            boxPlan?.length > 0
+              ? {
+                  create: boxPlan.map((name) => {
+                    return {
+                      customerBoxPlan: {
+                        connect: {
+                          name,
+                        },
+                      },
+                    };
+                  }),
+                }
+              : {},
           intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {
