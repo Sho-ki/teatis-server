@@ -94,6 +94,12 @@ export class CustomerGeneralRepository
       },
     });
 
+    if (response?.intermediateCustomerNutritionNeeds) {
+      return [
+        undefined,
+        { name: 'Internal Server Error', message: 'uuid is invalid' },
+      ];
+    }
     const allConditions = response?.intermediateCustomerMedicalConditions
       ? response.intermediateCustomerMedicalConditions.map(
           ({ customerMedicalCondition }) => {
@@ -165,6 +171,12 @@ export class CustomerGeneralRepository
       },
     });
     const { id, uuid } = res;
+    if (!id || !uuid) {
+      return [
+        undefined,
+        { name: 'Internal Server Error', message: 'email is invalid' },
+      ];
+    }
     const customerConditions = res?.intermediateCustomerMedicalConditions;
 
     const allConditions = customerConditions.length

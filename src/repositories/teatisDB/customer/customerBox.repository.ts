@@ -83,7 +83,12 @@ export class CustomerBoxRepository implements CustomerBoxRepositoryInterface {
         },
       },
     });
-
+    if (!res?.customerBoxItems) {
+      return [
+        undefined,
+        { name: 'Internal Server Error', message: 'Email is invalid' },
+      ];
+    }
     const products: Product[] = !res.customerBoxItems.length
       ? []
       : res.customerBoxItems.map((boxItem) => {

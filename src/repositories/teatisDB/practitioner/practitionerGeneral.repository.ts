@@ -63,6 +63,13 @@ export class PractitionerGeneralRepository
       },
     });
 
+    if (!response.email) {
+      return [
+        undefined,
+        { name: 'Internal Server Error', message: 'email is invalid' },
+      ];
+    }
+
     return [
       {
         id: response.id,

@@ -65,6 +65,7 @@ export class PractitionerBoxRepository
           product: true,
         },
       });
+
     const existingProductIds = existingProducts.map(
       ({ product }) => product.id,
     );

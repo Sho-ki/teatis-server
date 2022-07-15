@@ -51,6 +51,16 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
       },
     });
 
+    if (!res?.cartCreate?.cart?.checkoutUrl) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: "'Couldn't create your cart",
+        },
+      ];
+    }
+
     return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }];
   }
 
@@ -69,6 +79,15 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     const orderCount = res?.data?.customer?.orders_count;
     const email = res?.data?.customer?.email;
 
+    if (!orderCount || !email) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'shopifyCustomerId is invalid',
+        },
+      ];
+    }
     return [{ orderCount: orderCount, email }];
   }
 }

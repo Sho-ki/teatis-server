@@ -94,6 +94,16 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     const orderId = node?.id;
     const orderDate = node?.order_date;
 
+    if (!node || !items || !orderId || !orderDate) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'order number does not exist',
+        },
+      ];
+    }
+
     let products: Pick<Product, 'sku'>[] = [];
     for (let item of items) {
       if (!item) {
@@ -144,7 +154,15 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     const items = node?.line_items?.edges;
     const orderId = node?.id;
     const orderDate = node?.order_date;
-
+    if (!node || !items || !orderId || !orderDate) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'order number does not exist',
+        },
+      ];
+    }
     if (!hasOrdered) {
       return [
         {
@@ -202,6 +220,16 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       const orderId = node?.id;
       const orderDate = node?.order_date;
       const items = node?.line_items?.edges;
+
+      if (!node || !items || !orderId || !orderDate) {
+        return [
+          undefined,
+          {
+            name: 'Internal Server Error',
+            message: 'order number does not exist',
+          },
+        ];
+      }
 
       let products: Pick<Product, 'sku'>[] = [];
       for (let item of items) {
