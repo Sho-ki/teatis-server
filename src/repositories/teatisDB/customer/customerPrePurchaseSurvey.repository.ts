@@ -27,12 +27,7 @@ interface UpsertCustomerArgs {
   proteinPerMeal: number;
   fatPerMeal: number;
   caloriePerMeal: number;
-  boxPlan?:
-    | 'SoupAndSnack'
-    | 'SweetsAndSnack'
-    | 'DinnerAndSnack'
-    | 'BreakfastAndSnack'
-    | 'SweetsOnly';
+  boxPlan?: string[];
 }
 
 export interface CustomerPrePurchaseSurveyRepositoryInterface {
@@ -133,6 +128,7 @@ export class CustomerPrePurchaseSurveyRepository
         where: { email },
       });
 
+      // ToDo: Use CalculateAddedAndDeleted Function
       if (checkIfExists) {
         await Promise.all([
           this.prisma.intermediateCustomerCategoryPreference.deleteMany({
@@ -156,9 +152,11 @@ export class CustomerPrePurchaseSurveyRepository
           this.prisma.intermediateCustomerNutritionNeed.deleteMany({
             where: { customerId: checkIfExists.id },
           }),
+          this.prisma.intermediateCustomerBoxPlan.deleteMany({
+            where: { customerId: checkIfExists.id },
+          }),
         ]);
       }
-
       let customer = await this.prisma.customers.upsert({
         where: { email },
         select: {
@@ -174,7 +172,20 @@ export class CustomerPrePurchaseSurveyRepository
           weightKg: weight,
           activeLevel,
           mealsPerDay,
-          boxPlan,
+          intermediateCustomerBoxPlans:
+            boxPlan?.length > 0
+              ? {
+                  create: boxPlan.map((name) => {
+                    return {
+                      customerBoxPlan: {
+                        connect: {
+                          name,
+                        },
+                      },
+                    };
+                  }),
+                }
+              : {},
           intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {
@@ -327,7 +338,20 @@ export class CustomerPrePurchaseSurveyRepository
           weightKg: weight,
           activeLevel,
           mealsPerDay,
-          boxPlan,
+          intermediateCustomerBoxPlans:
+            boxPlan?.length > 0
+              ? {
+                  create: boxPlan.map((name) => {
+                    return {
+                      customerBoxPlan: {
+                        connect: {
+                          name,
+                        },
+                      },
+                    };
+                  }),
+                }
+              : {},
           intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {
