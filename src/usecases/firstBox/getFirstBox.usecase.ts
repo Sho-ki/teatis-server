@@ -49,7 +49,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       'x10231-CHP-SN20116',
       'x10221-CHP-SN20101',
     ];
-    let productCount = 15;
+    let productCount = 12;
     const [getSuggestion, getSuggestionError] =
       await this.getSuggestionUntil.getSuggestion({
         customer,
@@ -63,7 +63,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       });
 
     if (getSuggestionError) {
-      return [null, getSuggestionError];
+      return [undefined, getSuggestionError];
     }
 
     return [getSuggestion, null];

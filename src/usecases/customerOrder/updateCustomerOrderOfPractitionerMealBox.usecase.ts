@@ -138,7 +138,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.getSuggestionUtil.getSuggestion({
           customer,
-          productCount: 15,
+          productCount: 12,
         });
       orderProducts = nextBoxProductsRes.products.map((product) => {
         return { sku: product.sku };
