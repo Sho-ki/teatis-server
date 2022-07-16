@@ -35,6 +35,8 @@ import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitioner
 import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
+import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.reposity';
+import { SendEmailUseCase } from '@Usecases/sendEmail/sendEmail';
 
 @Module({
   controllers: [DiscoveriesController],
@@ -165,7 +167,8 @@ import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/custo
       provide: 'DeleteCustomerBoxUsecaseInterface',
       useClass: DeleteCustomerBoxUsecase,
     },
-
+    KlaviyoRepository,
+    SendEmailUseCase,
     TeatisJobs,
     DiscoveriesController,
     PrismaService,
