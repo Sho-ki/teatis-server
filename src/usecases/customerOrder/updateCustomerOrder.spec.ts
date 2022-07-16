@@ -213,7 +213,7 @@ describe('GetOptions', () => {
       uuid: '1234',
     });
     expect(res.status).toBe('ordered');
-    expect(error).toBeNull();
+    expect(error).toBeUndefined();
   });
 
   it('Customer has not answered the Post-Purchase survey', async () => {
@@ -229,6 +229,6 @@ describe('GetOptions', () => {
       uuid: '1234',
     });
     expect(res.status).toBe('ordered');
-    expect(error).toBeNull();
+    expect(error).toBeUndefined();
   });
 });
