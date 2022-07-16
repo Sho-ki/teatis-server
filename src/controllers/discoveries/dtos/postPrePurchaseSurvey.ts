@@ -59,4 +59,8 @@ export class PostPrePurchaseSurveyDto {
   @IsArray()
   @IsOptional()
   unavailableCookingMethods?: { name: string; label?: string }[];
+
+  @IsArray()
+  @IsOptional()
+  boxPlan?: string[];
 }

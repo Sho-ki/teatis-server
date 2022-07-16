@@ -38,6 +38,7 @@ model Customers{
   activeLevel String?
   mealsPerDay Int?
   frozenAvailable Boolean? @default(false)
+  intermediateCustomerBoxPlans IntermediateCustomerBoxPlan[]
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
   intermediateCustomerMedicalConditions IntermediateCustomerMedicalCondition[]
   intermediateCustomerAllergens IntermediateCustomerAllergen[]
@@ -51,6 +52,32 @@ model Customers{
   intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
   practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+
+model IntermediateCustomerBoxPlan{
+  customerBoxPlan    CustomerBoxPlan   @relation(fields: [customerBoxPlanId], references: [id])
+  customerBoxPlanId Int
+  customer                   Customers                @relation(fields: [customerId], references: [id])
+  customerId                Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([customerBoxPlanId, customerId])
+}
+
+model CustomerBoxPlan {
+  id            Int       @default(autoincrement()) @id
+  name   String @unique
+  label     String
+  intermediateCustomerBoxPlans      IntermediateCustomerBoxPlan[]
+  soupCount Int @default(0)
+  snackCount Int @default(0)
+  sweetsCount Int @default(0)
+  dinnerCount Int @default(0)
+  breakfastCount Int @default(0)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
