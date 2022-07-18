@@ -63,7 +63,12 @@ export class PractitionerGeneralRepository
       },
     });
 
-    if (!response.email) {
+    if (
+      !response.email ||
+      !response.id ||
+      !response.uuid ||
+      !response.firstName
+    ) {
       return [
         undefined,
         { name: 'Internal Server Error', message: 'email is invalid' },
@@ -155,6 +160,18 @@ export class PractitionerGeneralRepository
         message: true,
       },
     });
+
+    if (
+      !response.email ||
+      !response.id ||
+      !response.uuid ||
+      !response.firstName
+    ) {
+      return [
+        undefined,
+        { name: 'Internal Server Error', message: 'email is invalid' },
+      ];
+    }
 
     return [
       {

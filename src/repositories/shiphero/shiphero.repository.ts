@@ -99,7 +99,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'order number does not exist',
+          message: 'order number is invalid',
         },
       ];
     }
@@ -149,6 +149,17 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     });
 
     const hasOrdered = res?.orders?.data?.edges.length > 0;
+    if (!hasOrdered) {
+      return [
+        {
+          orderNumber: undefined,
+          products: [],
+          orderDate: undefined,
+          orderId: undefined,
+        },
+      ];
+    }
+
     const node = res?.orders?.data?.edges[0]?.node;
     const orderNumber = node?.order_number;
     const items = node?.line_items?.edges;
@@ -159,17 +170,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: 'order number does not exist',
-        },
-      ];
-    }
-    if (!hasOrdered) {
-      return [
-        {
-          orderNumber: undefined,
-          products: [],
-          orderDate: undefined,
-          orderId: undefined,
+          message: 'email is invalid',
         },
       ];
     }
@@ -226,7 +227,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
           undefined,
           {
             name: 'Internal Server Error',
-            message: 'order number does not exist',
+            message: 'email is invalid',
           },
         ];
       }

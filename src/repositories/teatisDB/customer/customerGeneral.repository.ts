@@ -152,6 +152,12 @@ export class CustomerGeneralRepository
       where: { uuid },
       select: { id: true, email: true, uuid: true },
     });
+    if (!response?.email || !response?.id || !response.uuid) {
+      return [
+        undefined,
+        { name: 'Internal Server Error', message: 'uuid is invalid' },
+      ];
+    }
 
     return [{ id: response.id, email: response.email, uuid: response.uuid }];
   }
@@ -272,6 +278,13 @@ export class CustomerGeneralRepository
     });
     if (!Object.keys(response).length) {
       return [{ id: undefined, email: undefined, uuid: undefined }];
+    }
+
+    if (!response?.email || !response?.id || !response?.uuid) {
+      return [
+        undefined,
+        { name: 'Internal Server Error', message: 'email is invalid' },
+      ];
     }
 
     return [{ id: response.id, email: response.email, uuid: response.uuid }];
