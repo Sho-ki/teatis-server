@@ -29,7 +29,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     uuid,
     email,
   }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]> {
-    let productCount = 24;
+    const productCount = 24;
 
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({ email });
