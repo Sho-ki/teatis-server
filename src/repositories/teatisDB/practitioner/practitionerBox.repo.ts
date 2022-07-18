@@ -235,6 +235,18 @@ export class PractitionerBoxRepository
       },
     });
 
+    if (
+      !response?.practitioner ||
+      !response?.intermediatePractitionerBoxProduct
+    ) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'practitionerId/label is invalid',
+        },
+      ];
+    }
     const socialMedia: SocialMedia =
       response.practitioner.practitionerSocialMedia;
     delete response.practitioner.practitionerSocialMedia;
@@ -340,6 +352,20 @@ export class PractitionerBoxRepository
         },
       },
     });
+
+    if (
+      !response?.practitioner ||
+      !response?.intermediatePractitionerBoxProduct
+    ) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'practitionerBoxUuid is invalid',
+        },
+      ];
+    }
+
     const socialMedia: SocialMedia =
       response.practitioner.practitionerSocialMedia;
     delete response.practitioner.practitionerSocialMedia;
