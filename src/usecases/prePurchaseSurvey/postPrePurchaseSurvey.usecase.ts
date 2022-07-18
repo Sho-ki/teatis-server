@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { Customer } from '@Domains/Customer';
+import { BoxType } from '@Domains/BoxType';
 
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
@@ -27,6 +28,7 @@ export interface PostPrePurchaseSurveyUsecaseInterface {
     allergens,
     email,
     unavailableCookingMethods,
+    boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
     [PostPrePurchaseSurveyUsecaseRes, Error]
   >;
@@ -41,13 +43,15 @@ export class PostPrePurchaseSurveyUsecase
     private readonly createCustomerUsecaseUtil: CreateCustomerUsecaseInterface,
   ) {}
 
-  private getCustomerBoxType(medicalConditions: string[]): string {
+  private getCustomerBoxType(medicalConditions: string[]): BoxType {
     if (medicalConditions.length <= 0) {
-      return 'HC'; // Healthy Carb
+      const type: BoxType = 'HC';
+      return type; // Healthy Carb
     }
 
     if (medicalConditions.includes('highBloodPressure')) {
-      return 'HCLS'; // Healthy Carb & Low Sodium
+      const type: BoxType = 'HCLS';
+      return type; // Healthy Carb & Low Sodium
     }
   }
   async postPrePurchaseSurvey({
@@ -66,13 +70,17 @@ export class PostPrePurchaseSurveyUsecase
     allergens,
     email,
     unavailableCookingMethods,
+    boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
     [PostPrePurchaseSurveyUsecaseRes, Error]
   > {
-    const customerMedicalConditions = medicalConditions.map((condition) => {
-      return condition.name;
-    });
-    const recommendBoxType = this.getCustomerBoxType(customerMedicalConditions);
+    const recommendBoxType: BoxType = medicalConditions
+      ? this.getCustomerBoxType(
+          medicalConditions.map((condition) => {
+            return condition.name;
+          }),
+        )
+      : 'HC';
 
     const [customer, createCustomerError]: [Customer?, Error?] =
       await this.createCustomerUsecaseUtil.createCustomer({
@@ -91,9 +99,10 @@ export class PostPrePurchaseSurveyUsecase
         allergens,
         email,
         unavailableCookingMethods,
+        boxPlan,
       });
     if (createCustomerError) {
-      return [null, createCustomerError];
+      return [undefined, createCustomerError];
     }
 
     return [
@@ -102,7 +111,7 @@ export class PostPrePurchaseSurveyUsecase
         customerUuid: customer.uuid,
         recommendBoxType,
       },
-      null,
+      undefined,
     ];
   }
 }
