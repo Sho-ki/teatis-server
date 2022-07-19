@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CreateCheckoutCartOfPractitionerBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerBoxDto';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 
 interface CreateCheckoutCartOfPractitionerBoxUsecaseRes {
   checkoutUrl: string;
@@ -11,6 +12,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
   createCheckoutCartOfPractitionerBox({
     merchandiseId,
     sellingPlanId,
+    uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
     [CreateCheckoutCartOfPractitionerBoxUsecaseRes, Error]
@@ -24,11 +26,14 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
   constructor(
     @Inject('ShopifyRepositoryInterface')
     private ShopifyRepository: ShopifyRepositoryInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async createCheckoutCartOfPractitionerBox({
     merchandiseId,
     sellingPlanId,
+    uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
     [CreateCheckoutCartOfPractitionerBoxUsecaseRes, Error]
@@ -36,6 +41,15 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
     const attributes: { key: string; value: string }[] = [
       { key: 'practitionerBoxUuid', value: practitionerBoxUuid },
     ];
+
+    const [customer, getCustomerError] =
+    await this.customerGeneralRepository.getCustomerByUuid({
+      uuid,
+    });
+
+  if (getCustomerError) {
+    return [null, getCustomerError];
+  }
 
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart({
@@ -47,6 +61,6 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
       return [null, createCheckoutCartOfPractitionerBoxError];
     }
 
-    return [{ checkoutUrl: cart.checkoutUrl }, null];
+    return [{ checkoutUrl: cart.checkoutUrl, email:customer.email }, null];
   }
 }

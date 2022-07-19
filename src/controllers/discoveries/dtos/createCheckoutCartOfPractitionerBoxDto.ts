@@ -7,6 +7,10 @@ export class CreateCheckoutCartOfPractitionerBoxDto {
   @IsString()
   sellingPlanId: string;
 
+  //  CustomerUuid
+  @IsString()
+  uuid: string;
+
   @IsString()
   practitionerBoxUuid: string;
 }
