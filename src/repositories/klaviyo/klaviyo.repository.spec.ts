@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { KlaviyoRepository } from './klaviyo.reposity';
+require('dotenv').config();
 
 describe('Klaviyo test', () => {
     let app: INestApplication;
@@ -21,9 +22,7 @@ describe('Klaviyo test', () => {
     });
     describe('post user info to klaviyo', () => {
         it('should get current user', async () => {
-            const error = null;
-            // FIX ME
-            // const error = await klaviyoRepository.postUserInfo("jestEmail@test.com", "9f90c1c1-7481-4d4f-a6af-2d06515eb3f8", "HC")
+            const error = await klaviyoRepository.postUserInfo("jestEmail@test.com", "9f90c1c1-7481-4d4f-a6af-2d06515eb3f8", "HC")
             expect(error).toBeNull();
         });
     });
