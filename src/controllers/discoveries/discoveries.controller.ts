@@ -47,7 +47,6 @@ import { GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usec
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
-import { SendEmailUseCase } from '@Usecases/sendEmail/sendEmail';
 
 // api/discovery
 @Controller('api/discovery')
@@ -86,8 +85,6 @@ export class DiscoveriesController {
     private createCheckoutCartOfPractitionerMealBoxUsecase: CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface,
     @Inject('UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface')
     private updateCustomerOrderOfPractitionerMealBoxUsecase: UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface,
-
-    private sendEmailUseCase: SendEmailUseCase,
     private teatisJob: TeatisJobs,
   ) {}
 
@@ -101,10 +98,6 @@ export class DiscoveriesController {
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
     if (error) {
       return response.status(500).send(error);
-    }
-    error = await this.sendEmailUseCase.postUserInfo(body.email, usecaseResponse.customerUuid, usecaseResponse.recommendBoxType)
-    if (error) {
-      return response.status(500).send(error)
     }
 
     return response.status(201).send(usecaseResponse);
