@@ -23,7 +23,10 @@ export class EmailController {
     @Body() body: PostCustomerInformationDto,
     @Res() response: Response,
   ) {
-    const [_, error] = await this.postEmailUsecase.postCustomerInformation(body)
+    const serverSideUrl = body.klaviyoListName === 'PotentialCustomer'
+      ? `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`
+      : `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST}/members?api_key=${process.env.KLAVIYO_API}`;
+    const [_, error] = await this.postEmailUsecase.postCustomerInformation({...body, serverSideUrl})
     if (error) {
       return response.status(500).send(error);
     }
