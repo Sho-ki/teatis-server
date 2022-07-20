@@ -36,7 +36,7 @@ import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
 import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
-import { EmailUsecase } from '@Usecases/sendEmail/sendEmail';
+import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { EmailModule } from './email/email.module';
 import { EmailController } from './email/email.controller';
 
@@ -169,10 +169,10 @@ import { EmailController } from './email/email.controller';
       provide: 'DeleteCustomerBoxUsecaseInterface',
       useClass: DeleteCustomerBoxUsecase,
     },
-      {
-        provide: 'EmailUsecaseInterface',
-        useClass: EmailUsecase,
-      },
+    {
+      provide: 'PostEmailUsecaseInterface',
+      useClass: PostEmailUsecase,
+    },
     {
       provide: 'KlaviyoRepositoryInterface',
       useClass: KlaviyoRepository,

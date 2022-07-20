@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { EmailController } from './email.controller';
-import { EmailUsecase } from '@Usecases/sendEmail/sendEmail';
 import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
+import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 
 @Module({
   controllers: [EmailController],
   providers: [
     {
-      provide: 'EmailUsecaseInterface',
-      useClass: EmailUsecase,
+      provide: 'PostEmailUsecaseInterface',
+      useClass: PostEmailUsecase,
     },
     {
       provide: 'KlaviyoRepositoryInterface',
