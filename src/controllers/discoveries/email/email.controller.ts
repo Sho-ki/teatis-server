@@ -19,7 +19,7 @@ export class EmailController {
 
   // POST: api/discovery/email
   @Post('email')
-  async getPractitionerBox(
+  async postUserInformation(
     @Body() body: PostUserInformationDto,
     @Res() response: Response,
   ) {
@@ -32,11 +32,11 @@ export class EmailController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send('klaviyo list updated successfully')
+    return response.status(200).send({status: 200, message: 'klaviyo list updated successfully'})
   }
   // DELETE: api/discovery/email
   @Delete('email')
-  async deletePractitionerBox(
+  async deleteUserInformation(
     @Body() body: Partial<PostUserInformationDto>,
     @Res() response: Response,
   ) {
@@ -47,6 +47,6 @@ export class EmailController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send('klaviyo list updated successfully')
+    return response.status(200).send({status: 200, message: 'klaviyo list updated successfully'})
   }
 }
