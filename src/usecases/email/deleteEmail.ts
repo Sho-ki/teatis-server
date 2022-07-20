@@ -2,18 +2,22 @@ import { PostCustomerInformationDto } from "@Controllers/discoveries/dtos/postCu
 import { Inject, Injectable } from "@nestjs/common";
 import { KlaviyoRepositoryInterface } from "@Repositories/klaviyo/klaviyo.repository";
 
-export interface EmailUsecaseInterface {
-  deleteUserInformation({email, klaviyoListName}: Partial<PostCustomerInformationDto>): Promise<[void, Error]>;
+interface DeleteCustomerInformationInterface {
+  email: string;
+  serverSideUrl: string;
+}
+export interface DeleteEmailUsecaseInterface {
+  deleteUserInformation({email, serverSideUrl}:DeleteCustomerInformationInterface ): Promise<[void, Error]>;
 }
 
 @Injectable()
-export class EmailUsecase implements EmailUsecaseInterface {
+export class DeleteEmailUsecase implements DeleteEmailUsecaseInterface {
   constructor(
     @Inject('KlaviyoRepositoryInterface')
     private klaviyoRepository: KlaviyoRepositoryInterface
   ){}
-  async deleteUserInformation({email, klaviyoListName}: Partial<PostCustomerInformationDto>): Promise<[void, Error]> {
-    const [_, response] = await this.klaviyoRepository.deleteUserInformation({email,klaviyoListName});
+  async deleteUserInformation({email, serverSideUrl}: DeleteCustomerInformationInterface): Promise<[void, Error]> {
+    const [_, response] = await this.klaviyoRepository.deleteUserInformation({email, serverSideUrl});
     return [_, response];
   }
 }

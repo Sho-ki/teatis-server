@@ -31,10 +31,10 @@ describe('Klaviyo test', () => {
             expect(error).toBeNull();
         });
     });
-    // describe('delete user information from klaviyo', () => {
-    //     it('should update the klaviyo list successfully', async () => {
-    //         const [_, error] = await klaviyoRepository.deleteUserInformation({email, customerUuid, recommendBoxType, serverSideUrl})
-    //         expect(error).toBeNull();
-    //     });
-    // });
+    describe('delete user information from klaviyo', () => {
+        it('should update the klaviyo list successfully', async () => {
+            const [_, error] = await klaviyoRepository.deleteUserInformation({email, serverSideUrl})
+            expect(error).toBeNull();
+        });
+    });
 });
