@@ -149,13 +149,12 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     } else {
       orderProducts = practitionerAndBox.box.products;
     }
-    customerOrderCount.orderCount <= 1
-      ? orderProducts.push(
-          { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
-          { sku: 'NP-packagingtape' }, // Packaging Tape
-          { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-        )
-      : orderProducts.push({ sku: 'NP-packagingtape' }); //   Packaging Tape
+    if(customerOrderCount.orderCount <= 1){
+      orderProducts.push(
+        { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
+        { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
+      )
+    }
 
     const transactionPrice: number = Number(subtotal_price);
 
