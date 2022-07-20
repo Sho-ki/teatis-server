@@ -23,7 +23,7 @@ export class EmailController {
     @Body() body: PostUserInformationDto,
     @Res() response: Response,
   ) {
-    const [_, error] = await this.emailUsecase.postUserInfo({
+    const [_, error] = await this.emailUsecase.postUserInformation({
       email: body.email, 
       customerUuid: body.customerUuid, 
       recommendBoxType: body.recommendBoxType, 

@@ -3,13 +3,13 @@ import { Injectable } from "@nestjs/common";
 import axios from "axios";
 
 export interface KlaviyoRepositoryInterface {
-    postUserInfo({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]>;
+    postUserInformation({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]>;
     deleteUserInformation({email, klaviyoListName}: Partial<PostUserInformationDto>): Promise<[void, Error]>;
 }
 
 @Injectable()
 export class KlaviyoRepository implements KlaviyoRepositoryInterface {
-    async postUserInfo({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]> {
+    async postUserInformation({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]> {
         let klaviyoPostURL;
         switch (klaviyoListName) {
             case "PotentialCustomer":
