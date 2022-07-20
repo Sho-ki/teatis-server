@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Inject,
   Post,
   Res,
@@ -26,6 +27,21 @@ export class EmailController {
       email: body.email, 
       customerUuid: body.customerUuid, 
       recommendBoxType: body.recommendBoxType, 
+      klaviyoListName: body.klaviyoListName
+    })
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(200).send('klaviyo list updated successfully')
+  }
+  // DELETE: api/discovery/email
+  @Delete('email')
+  async deletePractitionerBox(
+    @Body() body: Partial<PostUserInformationDto>,
+    @Res() response: Response,
+  ) {
+    const [_, error] = await this.emailUsecase.deleteUserInformation({
+      email: body.email, 
       klaviyoListName: body.klaviyoListName
     })
     if (error) {

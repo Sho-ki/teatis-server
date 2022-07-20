@@ -4,6 +4,7 @@ import { KlaviyoRepositoryInterface } from "@Repositories/klaviyo/klaviyo.reposi
 
 export interface EmailUsecaseInterface {
   postUserInfo({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]>;
+  deleteUserInformation({email, klaviyoListName}: Partial<PostUserInformationDto>): Promise<[void, Error]>;
 }
 
 @Injectable()
@@ -14,6 +15,10 @@ export class EmailUsecase implements EmailUsecaseInterface {
   ){}
   async postUserInfo({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]> {
     const [_, response] = await this.klaviyoRepository.postUserInfo({email, customerUuid, recommendBoxType, klaviyoListName});
+    return [_, response];
+  }
+  async deleteUserInformation({email, klaviyoListName}: Partial<PostUserInformationDto>): Promise<[void, Error]> {
+    const [_, response] = await this.klaviyoRepository.deleteUserInformation({email,klaviyoListName});
     return [_, response];
   }
 }
