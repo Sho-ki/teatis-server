@@ -27,7 +27,9 @@ describe('Klaviyo test', () => {
 
     describe('post user information to klaviyo', () => {
         it('should update the klaviyo list successfully', async () => {
-            const [_, error] = await klaviyoRepository.postCustomerInformation({email, customerUuid, recommendBoxType, serverSideUrl})
+            console.log({email, customerUuid, recommendBoxType, serverSideUrl})
+            const [_, error] =
+             await klaviyoRepository.postCustomerInformation({email, customerUuid, recommendBoxType, serverSideUrl})
             expect(error).toBeNull();
         });
     });
