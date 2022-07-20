@@ -22,7 +22,6 @@ export class EmailController {
     @Body() body: PostUserInformationDto,
     @Res() response: Response,
   ) {
-    console.log('body',body)
     const [_, error] = await this.emailUsecase.postUserInfo({
       email: body.email, 
       customerUuid: body.customerUuid, 

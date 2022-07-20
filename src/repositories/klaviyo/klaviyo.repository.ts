@@ -21,7 +21,7 @@ export class KlaviyoRepository implements KlaviyoRepositoryInterface {
         if (!klaviyoPostURL) return [null, {name: 'klaviyo list name not provided', message: 'please provide klaviyo list name'}]
         const userProfiles = {"profiles": [{email, customerUuid, recommendBoxType}]}
         const response = await axios.post(klaviyoPostURL, userProfiles).catch(error => error)
-        if (response.status !== 200) return [null, response];
+        if (response.status !== 200) return [null, {name: `${response.name}: Klaviyo postUserInfo`, message: response.message}];
         return [null, null];
     }
     async deleteUserInformation(email:string) {
