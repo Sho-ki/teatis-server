@@ -12,7 +12,7 @@ export class KlaviyoRepository implements KlaviyoRepositoryInterface {
         let klaviyoPostURL;
         switch (klaviyoListName) {
             case "PotentialCustomer":
-                klaviyoPostURL = `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}aa`
+                klaviyoPostURL = `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`
                 break
             case "PotentialCustomerPractitioner":
                 klaviyoPostURL = `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST}/members?api_key=${process.env.KLAVIYO_API}`
