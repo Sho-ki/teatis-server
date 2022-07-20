@@ -20,10 +20,21 @@ describe('Klaviyo test', () => {
     afterAll(() => {
         app.close();
     });
-    describe('post user info to klaviyo', () => {
-        it('should get current user', async () => {
-            const error = await klaviyoRepository.postUserInfo({email:"jestEmail@test.com", customerUuid: "9f90c1c1-7481-4d4f-a6af-2d06515eb3f8", recommendBoxType: "HC", klaviyoListName: "PotentialCustomer"})
-            expect(error[1]).toBeNull();
+    const email = "jestEmail@test.com";
+    const customerUuid = "9f90c1c1-7481-4d4f-a6af-2d06515eb3f8"
+    const recommendBoxType = "HC"
+    const klaviyoListName = "PotentialCustomer"
+
+    describe('post user information to klaviyo', () => {
+        it('should update the klaviyo list successfully', async () => {
+            const [_, error] = await klaviyoRepository.postUserInfo({email, customerUuid, recommendBoxType, klaviyoListName})
+            expect(error).toBeNull();
+        });
+    });
+    describe('delete user information from klaviyo', () => {
+        it('should update the klaviyo list successfully', async () => {
+            const [_, error] = await klaviyoRepository.deleteUserInformation({email, customerUuid, recommendBoxType, klaviyoListName})
+            expect(error).toBeNull();
         });
     });
 });
