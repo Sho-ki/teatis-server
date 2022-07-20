@@ -94,7 +94,7 @@ export class DiscoveriesController {
     @Body() body: PostPrePurchaseSurveyDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    let [usecaseResponse, error] =
+    const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
     if (error) {
       return response.status(500).send(error);

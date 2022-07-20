@@ -1,15 +1,16 @@
-import { PostUserInformationDto } from "@Controllers/discoveries/dtos/postUserInformation";
+import { PostCustomerInformationDto } from "@Controllers/discoveries/dtos/postCustomerInformation";
 import { Injectable } from "@nestjs/common";
 import axios from "axios";
 
+interface PostCustomerInformationArgs { email:string, customerUuid:string, recommendBoxType:string, klaviyoListName: "PotentialCustomer" | "PotentialCustomerPractitioner"; }
 export interface KlaviyoRepositoryInterface {
-    postUserInformation({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]>;
-    deleteUserInformation({email, klaviyoListName}: Partial<PostUserInformationDto>): Promise<[void, Error]>;
+    postCustomerInformation({email, customerUuid, recommendBoxType, klaviyoListName}: PostCustomerInformationDto): Promise<[void, Error]>;
+    deleteUserInformation({email, klaviyoListName}: Partial<PostCustomerInformationDto>): Promise<[void, Error]>;
 }
 
 @Injectable()
 export class KlaviyoRepository implements KlaviyoRepositoryInterface {
-    async postUserInformation({email, customerUuid, recommendBoxType, klaviyoListName}: PostUserInformationDto): Promise<[void, Error]> {
+    async postCustomerInformation({email, customerUuid, recommendBoxType, klaviyoListName}: PostCustomerInformationDto): Promise<[void, Error]> {
         let klaviyoPostURL;
         switch (klaviyoListName) {
             case "PotentialCustomer":
@@ -25,7 +26,7 @@ export class KlaviyoRepository implements KlaviyoRepositoryInterface {
         if (response.status !== 200) return [null, {name: `${response.name}: Klaviyo postUserInfo`, message: response.message}];
         return [null, null];
     }
-    async deleteUserInformation({email, klaviyoListName}: Partial<PostUserInformationDto>): Promise<[void, Error]> {
+    async deleteUserInformation({email, klaviyoListName}: Partial<PostCustomerInformationDto>): Promise<[void, Error]> {
         let klaviyoPostURL;
         switch (klaviyoListName) {
             case "PotentialCustomer":

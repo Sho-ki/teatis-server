@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { EmailUsecaseInterface } from '@Usecases/sendEmail/sendEmail';
-import { PostUserInformationDto } from '../dtos/postUserInformation';
+import { PostCustomerInformationDto } from '../dtos/postCustomerInformation';
 
 @Controller('api/discovery')
 export class EmailController {
@@ -19,25 +19,20 @@ export class EmailController {
 
   // POST: api/discovery/email
   @Post('email')
-  async postUserInformation(
-    @Body() body: PostUserInformationDto,
+  async postCustomerInformation(
+    @Body() body: PostCustomerInformationDto,
     @Res() response: Response,
   ) {
-    const [_, error] = await this.emailUsecase.postUserInformation({
-      email: body.email, 
-      customerUuid: body.customerUuid, 
-      recommendBoxType: body.recommendBoxType, 
-      klaviyoListName: body.klaviyoListName
-    })
+    const [_, error] = await this.emailUsecase.postCustomerInformation(body)
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send({status: 200, message: 'klaviyo list updated successfully'})
+    return response.status(200).send('klaviyo list updated successfully')
   }
   // DELETE: api/discovery/email
   @Delete('email')
   async deleteUserInformation(
-    @Body() body: Partial<PostUserInformationDto>,
+    @Body() body: Partial<PostCustomerInformationDto>,
     @Res() response: Response,
   ) {
     const [_, error] = await this.emailUsecase.deleteUserInformation({
@@ -47,6 +42,6 @@ export class EmailController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send({status: 200, message: 'klaviyo list updated successfully'})
+    return response.status(200).send('klaviyo list updated successfully')
   }
 }
