@@ -58,5 +58,13 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Create .env file
+        run: |
+          touch .env
+          echo KLAVIYO_API=${{ secrets.KLAVIYO_API }} >> .env
+          echo KLAVIYO_POTENTIAL_CUSTOMER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_LIST }} >> .env
+          echo KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }} >> .env
+          cat .env
+
       - name: Run the tests
-        run: echo "${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }}"
+        run: npm test
