@@ -6,6 +6,7 @@ import { Practitioner } from '@Domains/Practitioner';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { SocialMedia } from '@Domains/SocialMedia';
+import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -73,19 +74,9 @@ export class PractitionerBoxRepository
       const existingProductIds = existingProducts.map(
         ({ product }) => product.id,
       );
-      const existingProductIdSet = new Set(existingProductIds);
       const newProductIds = products.map((product) => product.id);
-      const newProductIdSet = new Set(newProductIds);
 
-      const productIdsToRemove = existingProductIds.filter(
-        (id) => !newProductIdSet.has(id),
-      );
-      // Delete
-
-      const productIdsToAdd = newProductIds.filter(
-        (id) => !existingProductIdSet.has(id),
-      );
-      // Add
+      const [productIdsToAdd,productIdsToRemove ] = calculateAddedAndDeletedIds(existingProductIds,newProductIds )
 
       await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
         where: {
