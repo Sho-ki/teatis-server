@@ -59,4 +59,4 @@ jobs:
         run: npm install
 
       - name: Run the tests
-        run: echo "$KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST"
+        run: echo "${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }}"
