@@ -5,6 +5,7 @@ import { GetFirstBoxDto } from '@Controllers/discoveries/dtos/getFirstBox';
 
 import { DisplayProduct } from '@Domains/Product';
 import { GetSuggestionInterface } from '../utils/getSuggestion';
+import { PRODUCT_COUNT } from '../utils/productCount';
 
 export interface GetFirstBoxRes {
   products: DisplayProduct[];
@@ -49,7 +50,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       'x10231-CHP-SN20116',
       'x10221-CHP-SN20101',
     ];
-    let productCount = 15;
+    const productCount = PRODUCT_COUNT;
     const [getSuggestion, getSuggestionError] =
       await this.getSuggestionUntil.getSuggestion({
         customer,
@@ -63,7 +64,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       });
 
     if (getSuggestionError) {
-      return [null, getSuggestionError];
+      return [undefined, getSuggestionError];
     }
 
     return [getSuggestion, null];

@@ -11,6 +11,7 @@ import { CreateCustomerUsecaseInterface } from '@Usecases/utils/createCustomer';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
+import { PRODUCT_COUNT } from '../utils/productCount';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -123,7 +124,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.getSuggestionUtil.getSuggestion({
           customer,
-          productCount: 15,
+          productCount: PRODUCT_COUNT,
         });
       orderProducts = nextBoxProductsRes.products.map((product) => {
         return { sku: product.sku };
