@@ -59,4 +59,8 @@ jobs:
         run: npm install
 
       - name: Run the tests
-        run: npm test
+        run: npm test   
+          env:
+            KLAVIYO_API: ${{ secrets.KLAVIYO_API }}
+            KLAVIYO_POTENTIAL_CUSTOMER_LIST: ${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_LIST }}
+            KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST: ${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }}
