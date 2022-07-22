@@ -157,9 +157,6 @@ export class GetSuggestion implements GetSuggestionInterface {
     if (getCustomerUnwantError) {
       return [null, getCustomerUnwantError];
     }
-    // if (nextWantProducts && nextWantProducts.length > 0) {
-    //   productCount -= nextWantProducts.length;
-    // }
 
     const [
       [customerMedicalCondition, getCustomerMedicalConditionError],
@@ -265,10 +262,24 @@ export class GetSuggestion implements GetSuggestionInterface {
     }
 
     if (nextUnwantProducts && nextUnwantProducts.length > 0) {
+      // FYI: How a SKU is composed
+      // XXXX-YYYY-ZZZZ
+      // (Product Number) - (Product Category) - (Product Vendor)
+      const unwantVendors: string[] = nextUnwantProducts.map(({ sku }) => {
+        return sku.split('-')[2];
+      });
+      const unwantAllProducts: Product[] = allProducts
+        .filter(({ sku }) => {
+          return unwantVendors.includes(sku.split('-')[2]);
+        })
+        .map(({ id, label, name, sku }) => {
+          return { id, label, name, sku };
+        });
+
       allProducts = this.filterProducts({
         filterType: 'unwant',
         customerFilter: {
-          id: nextUnwantProducts.map(({ id }) => {
+          id: unwantAllProducts.map(({ id }) => {
             return id;
           }),
         },
