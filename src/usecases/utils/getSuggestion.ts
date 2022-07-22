@@ -157,9 +157,9 @@ export class GetSuggestion implements GetSuggestionInterface {
     if (getCustomerUnwantError) {
       return [null, getCustomerUnwantError];
     }
-    if (nextWantProducts && nextWantProducts.length > 0) {
-      productCount -= nextWantProducts.length;
-    }
+    // if (nextWantProducts && nextWantProducts.length > 0) {
+    //   productCount -= nextWantProducts.length;
+    // }
 
     const [
       [customerMedicalCondition, getCustomerMedicalConditionError],
@@ -356,7 +356,6 @@ export class GetSuggestion implements GetSuggestionInterface {
         customerShippableProducts.products.push(shippableProduct);
       }
     }
-
     customerShippableProducts = {
       ...customerShippableProducts,
       necessary_responses: productCount - nextBoxProducts.products.length,
