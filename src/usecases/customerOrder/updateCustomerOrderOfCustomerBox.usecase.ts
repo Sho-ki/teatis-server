@@ -10,6 +10,7 @@ import { Product } from '@Domains/Product';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
+import { PRODUCT_COUNT } from '../utils/productCount';
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
   extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
@@ -127,7 +128,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.getSuggestionUtil.getSuggestion({
           customer,
-          productCount: 12,
+          productCount: PRODUCT_COUNT,
         });
       orderProducts = nextBoxProductsRes.products.map((product) => {
         return { sku: product.sku };

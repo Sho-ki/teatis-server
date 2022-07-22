@@ -18,7 +18,7 @@ async function main() {
       label: 'Protein Macronutrients',
     },
     {
-      name: 'fat Macronutrients',
+      name: 'fatMacronutrients',
       label: 'Fat Macronutrients',
     },
     {
@@ -189,103 +189,103 @@ async function main() {
     });
   }
 
-  const providerData = JSON.parse(
-    fs.readFileSync('./defaultData/provider.json', 'utf8'),
-  );
+  // const providerData = JSON.parse(
+  //   fs.readFileSync('./defaultData/provider.json', 'utf8'),
+  // );
 
-  for (let productPovider of providerData.productPoviders) {
-    await prisma.productProvider.upsert({
-      where: { provider: productPovider.provider },
-      update: { provider: productPovider.provider },
-      create: {
-        provider: productPovider.provider,
-      },
-    });
-  }
+  // for (let productPovider of providerData.productPoviders) {
+  //   await prisma.productProvider.upsert({
+  //     where: { provider: productPovider.provider },
+  //     update: { provider: productPovider.provider },
+  //     create: {
+  //       provider: productPovider.provider,
+  //     },
+  //   });
+  // }
 
-  const flavorData = JSON.parse(
-    fs.readFileSync('./defaultData/flavor.json', 'utf8'),
-  );
+  // const flavorData = JSON.parse(
+  //   fs.readFileSync('./defaultData/flavor.json', 'utf8'),
+  // );
 
-  for (let flavor of flavorData.flavors) {
-    await prisma.productFlavor.upsert({
-      where: { name: flavor.name },
-      create: { name: flavor.name, label: flavor.label },
-      update: { name: flavor.name, label: flavor.label },
-    });
-  }
+  // for (let flavor of flavorData.flavors) {
+  //   await prisma.productFlavor.upsert({
+  //     where: { name: flavor.name },
+  //     create: { name: flavor.name, label: flavor.label },
+  //     update: { name: flavor.name, label: flavor.label },
+  //   });
+  // }
 
-  const categoryData = JSON.parse(
-    fs.readFileSync('./defaultData/category.json', 'utf8'),
-  );
+  // const categoryData = JSON.parse(
+  //   fs.readFileSync('./defaultData/category.json', 'utf8'),
+  // );
 
-  for (let category of categoryData.categories) {
-    await prisma.productCategory.upsert({
-      where: { name: category.name },
-      create: { name: category.name, label: category.label, src: category.src },
-      update: { name: category.name, label: category.label, src: category.src },
-    });
-  }
+  // for (let category of categoryData.categories) {
+  //   await prisma.productCategory.upsert({
+  //     where: { name: category.name },
+  //     create: { name: category.name, label: category.label, src: category.src },
+  //     update: { name: category.name, label: category.label, src: category.src },
+  //   });
+  // }
 
-  const allergenData = JSON.parse(
-    fs.readFileSync('./defaultData/allergen.json', 'utf8'),
-  );
+  // const allergenData = JSON.parse(
+  //   fs.readFileSync('./defaultData/allergen.json', 'utf8'),
+  // );
 
-  for (let allergen of allergenData.allergens) {
-    await prisma.productAllergen.upsert({
-      where: { name: allergen.name },
-      create: { name: allergen.name, label: allergen.label },
-      update: { name: allergen.name, label: allergen.label },
-    });
-  }
+  // for (let allergen of allergenData.allergens) {
+  //   await prisma.productAllergen.upsert({
+  //     where: { name: allergen.name },
+  //     create: { name: allergen.name, label: allergen.label },
+  //     update: { name: allergen.name, label: allergen.label },
+  //   });
+  // }
 
-  const ingredientData = JSON.parse(
-    fs.readFileSync('./defaultData/ingredient.json', 'utf8'),
-  );
+  // const ingredientData = JSON.parse(
+  //   fs.readFileSync('./defaultData/ingredient.json', 'utf8'),
+  // );
 
-  for (let ingredient of ingredientData.ingredients) {
-    await prisma.productIngredient.upsert({
-      where: { name: ingredient.name },
-      create: { name: ingredient.name, label: ingredient.label },
-      update: { name: ingredient.name, label: ingredient.label },
-    });
-  }
+  // for (let ingredient of ingredientData.ingredients) {
+  //   await prisma.productIngredient.upsert({
+  //     where: { name: ingredient.name },
+  //     create: { name: ingredient.name, label: ingredient.label },
+  //     update: { name: ingredient.name, label: ingredient.label },
+  //   });
+  // }
 
-  const cookingMethodsData = JSON.parse(
-    fs.readFileSync('./defaultData/cookingMethod.json', 'utf8'),
-  );
+  // const cookingMethodsData = JSON.parse(
+  //   fs.readFileSync('./defaultData/cookingMethod.json', 'utf8'),
+  // );
 
-  for (let cookingMethod of cookingMethodsData.cookingMethods) {
-    await prisma.productCookingMethod.upsert({
-      where: { name: cookingMethod.name },
-      create: { name: cookingMethod.name, label: cookingMethod.label },
-      update: { name: cookingMethod.name, label: cookingMethod.label },
-    });
-  }
+  // for (let cookingMethod of cookingMethodsData.cookingMethods) {
+  //   await prisma.productCookingMethod.upsert({
+  //     where: { name: cookingMethod.name },
+  //     create: { name: cookingMethod.name, label: cookingMethod.label },
+  //     update: { name: cookingMethod.name, label: cookingMethod.label },
+  //   });
+  // }
 
-  const vendorsData = JSON.parse(
-    fs.readFileSync('./defaultData/vendor.json', 'utf8'),
-  );
+  // const vendorsData = JSON.parse(
+  //   fs.readFileSync('./defaultData/vendor.json', 'utf8'),
+  // );
 
-  for (let vendor of vendorsData.vendors) {
-    await prisma.productVendor.upsert({
-      where: { name: vendor.name },
-      create: { name: vendor.name, label: vendor.label },
-      update: { name: vendor.name, label: vendor.label },
-    });
-  }
+  // for (let vendor of vendorsData.vendors) {
+  //   await prisma.productVendor.upsert({
+  //     where: { name: vendor.name },
+  //     create: { name: vendor.name, label: vendor.label },
+  //     update: { name: vendor.name, label: vendor.label },
+  //   });
+  // }
 
-  const foodTypesData = JSON.parse(
-    fs.readFileSync('./defaultData/foodType.json', 'utf8'),
-  );
+  // const foodTypesData = JSON.parse(
+  //   fs.readFileSync('./defaultData/foodType.json', 'utf8'),
+  // );
 
-  for (let foodType of foodTypesData.foodTypes) {
-    await prisma.productFoodType.upsert({
-      where: { name: foodType.name },
-      create: { name: foodType.name, label: foodType.label },
-      update: { name: foodType.name, label: foodType.label },
-    });
-  }
+  // for (let foodType of foodTypesData.foodTypes) {
+  //   await prisma.productFoodType.upsert({
+  //     where: { name: foodType.name },
+  //     create: { name: foodType.name, label: foodType.label },
+  //     update: { name: foodType.name, label: foodType.label },
+  //   });
+  // }
 
   const medicalConditionsData = JSON.parse(
     fs.readFileSync('./defaultData/medicalCondition.json', 'utf8'),
