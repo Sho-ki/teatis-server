@@ -84,9 +84,9 @@ model CustomerBoxPlan {
 
 
 model IntermediateCustomerNutritionNeed{
-  customerNutritionNeed    CustomerNutritionNeed   @relation(fields: [customerNutritionNeedId], references: [id])
+  customerNutritionNeed   CustomerNutritionNeed   @relation(fields: [customerNutritionNeedId], references: [id])
   customerNutritionNeedId Int
-  customer                   Customers                @relation(fields: [customerId], references: [id])
+  customer                Customers                @relation(fields: [customerId], references: [id])
   customerId                Int
   nutritionValue            Int
   createdAt DateTime  @default(now())
@@ -107,7 +107,7 @@ model CustomerNutritionNeed{
 
 model IntermediateCustomerMedicalCondition{
   medicalConditionValue String
-  customerMedicalCondition CustomerMedicalCondition @relation(fields: [customerMedicalConditionId], references: [id])
+  customerMedicalCondition   CustomerMedicalCondition @relation(fields: [customerMedicalConditionId], references: [id])
   customerMedicalConditionId Int
   customer                   Customers                @relation(fields: [customerId], references: [id])
   customerId                Int
