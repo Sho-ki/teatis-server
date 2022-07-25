@@ -13,7 +13,6 @@ interface GetNextBoxUsecaseRes {
 export interface GetNextBoxUsecaseInterface {
   getNextBox({
     uuid,
-    email,
   }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]>;
 }
 
@@ -28,15 +27,11 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
 
   async getNextBox({
     uuid,
-    email,
   }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]> {
     const productCount = PRODUCT_COUNT * 2;
 
     const [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomer({ email });
-
-    // const [customer, getCustomerError] =
-    //   await this.customerGeneralRepository.getCustomerByUuid({ uuid });
+      await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [undefined, getCustomerError];

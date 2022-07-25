@@ -10,15 +10,16 @@ import {
   SurveyQuestions,
 } from 'src/domains/PostPurchaseSurvey';
 import { DisplayProduct, Product } from '@Domains/Product';
+import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
-  email: string;
+  uuid: string;
   orderNumber?: string;
 }
 
 export interface GetPostPurchaseSurveyUsecaseInterface {
   getPostPurchaseSurvey({
-    email,
+    uuid,
     orderNumber,
   }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]>;
 }
@@ -36,19 +37,27 @@ export class GetPostPurchaseSurveyUsecase
     private customerPostPurchaseSurveyRepository: CustomerPostPurchaseSurveyRepositoryInterface,
     @Inject('ProductGeneralRepositoryInterface')
     private productGeneralRepository: ProductGeneralRepositoryInterface,
+     @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async getPostPurchaseSurvey({
-    email,
+    uuid,
     orderNumber,
   }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]> {
     // Get last order products from shiphero
+
+    const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({uuid});
+
+    if(getCustomerError){
+      return [undefined, getCustomerError]
+    }
 
     const [customerOrder, getOrderError] = orderNumber
       ? await this.shipheroRepository.getCustomerOrderByOrderNumber({
           orderNumber,
         })
-      : await this.shipheroRepository.getLastCustomerOrder({ email });
+      : await this.shipheroRepository.getLastCustomerOrder({ email:customer.email });
 
     if (getOrderError) {
       return [null, getOrderError];
@@ -96,7 +105,7 @@ export class GetPostPurchaseSurveyUsecase
 
     const [customerAnswer, getCustomerAnswersError] =
       await this.customerPostPurchaseSurveyRepository.getCustomerAnswers({
-        email,
+        email:customer.email,
         orderNumber: customerOrder.orderNumber,
       });
     if (getCustomerAnswersError) {
