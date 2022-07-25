@@ -127,12 +127,12 @@ export class DiscoveriesController {
     @Query() body: GetPostPurchaseSurveyInfoDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const email = body.email;
+    const uuid = body.uuid;
     const orderNumber = body.orderNumber;
 
     const [usecaseResponse, error] =
       await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
-        email,
+        uuid,
         orderNumber,
       });
 
@@ -369,11 +369,13 @@ export class DiscoveriesController {
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
-  // @Post('job')
-  // async dataMigrate() {
-  //   // await this.teatisJob.databaseMigrate();
-  //   const res = await this.teatisJob.getCustomerBox();
+  @Post('job')
+  async dataMigrate() {
+    // await this.teatisJob.databaseMigrate();
+    // const res = await this.teatisJob.getCustomerBox();
+     const res = await this.teatisJob.storeUuidInKlaviyo();
 
-  //   return res;
-  // }
+
+    return res;
+  }
 }
