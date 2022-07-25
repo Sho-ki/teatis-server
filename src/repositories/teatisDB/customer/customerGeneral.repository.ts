@@ -68,282 +68,225 @@ export class CustomerGeneralRepository
   async getCustomerNutrition({
     uuid,
   }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]> {
-    try {
-      const response = await this.prisma.customers.findUnique({
-        where: { uuid },
-        select: {
-          mealsPerDay: true,
-          intermediateCustomerMedicalConditions: {
-            select: { customerMedicalCondition: { select: { name: true } } },
+    const response = await this.prisma.customers.findUnique({
+      where: { uuid },
+      select: {
+        mealsPerDay: true,
+        intermediateCustomerMedicalConditions: {
+          select: { customerMedicalCondition: { select: { name: true } } },
+        },
+        intermediateCustomerNutritionNeeds: {
+          where: {
+            customerNutritionNeed: {
+              OR: [
+                { name: 'caloriePerMeal' },
+                { name: 'fatPerMeal' },
+                { name: 'proteinPerMeal' },
+                { name: 'carbsPerMeal' },
+              ],
+            },
           },
-          intermediateCustomerNutritionNeeds: {
-            where: {
-              customerNutritionNeed: {
-                OR: [
-                  { name: 'caloriePerMeal' },
-                  { name: 'fatPerMeal' },
-                  { name: 'proteinPerMeal' },
-                  { name: 'carbsPerMeal' },
-                ],
-              },
-            },
-            select: {
-              nutritionValue: true,
-              customerNutritionNeed: { select: { name: true } },
-            },
+          select: {
+            nutritionValue: true,
+            customerNutritionNeed: { select: { name: true } },
           },
         },
-      });
+      },
+    });
 
-      const allConditions = response?.intermediateCustomerMedicalConditions
-        ? response.intermediateCustomerMedicalConditions.map(
-            ({ customerMedicalCondition }) => {
-              return customerMedicalCondition.name;
-            },
-          )
-        : [];
-      const sodiumPerMeal = allConditions.includes('highBloodPressure')
-        ? Math.round(1800 / (response?.mealsPerDay || 4))
-        : Math.round(2100 / (response?.mealsPerDay || 4));
-
-      let nutritions: NutritionNeed = {
-        // Set the default values
-        carbsPerMeal: 50,
-        proteinPerMeal: 30,
-        fatPerMeal: 20,
-        caloriePerMeal: 400,
-        sodiumPerMeal,
-      };
-
-      if (!response?.intermediateCustomerNutritionNeeds) {
-        throw new Error();
-      }
-      for (let {
-        customerNutritionNeed,
-        nutritionValue,
-      } of response?.intermediateCustomerNutritionNeeds) {
-        nutritions = {
-          ...nutritions,
-          [customerNutritionNeed.name]: nutritionValue,
-        };
-      }
-
-      return [nutritions];
-    } catch (e) {
+    if (response?.intermediateCustomerNutritionNeeds) {
       return [
         undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomerNutrition failed',
-        },
+        { name: 'Internal Server Error', message: 'uuid is invalid' },
       ];
     }
+    const allConditions = response?.intermediateCustomerMedicalConditions
+      ? response.intermediateCustomerMedicalConditions.map(
+          ({ customerMedicalCondition }) => {
+            return customerMedicalCondition.name;
+          },
+        )
+      : [];
+    const sodiumPerMeal = allConditions.includes('highBloodPressure')
+      ? Math.round(1800 / (response?.mealsPerDay || 4))
+      : Math.round(2100 / (response?.mealsPerDay || 4));
+
+    let nutritions: NutritionNeed = {
+      // Set the default values
+      carbsPerMeal: 50,
+      proteinPerMeal: 30,
+      fatPerMeal: 20,
+      caloriePerMeal: 400,
+      sodiumPerMeal,
+    };
+
+    for (let {
+      customerNutritionNeed,
+      nutritionValue,
+    } of response?.intermediateCustomerNutritionNeeds) {
+      nutritions = {
+        ...nutritions,
+        [customerNutritionNeed.name]: nutritionValue,
+      };
+    }
+
+    return [nutritions];
   }
 
   async updateCustomerEmailByUuid({
     uuid,
     newEmail,
   }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]> {
-    try {
-      const response = await this.prisma.customers.update({
-        where: { uuid },
-        data: { email: newEmail },
-        select: { id: true },
-      });
-      return [{ id: response.id, email: newEmail, uuid }];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: updateCustomerEmailByUuid failed',
-        },
-      ];
-    }
+    const response = await this.prisma.customers.update({
+      where: { uuid },
+      data: { email: newEmail },
+      select: { id: true },
+    });
+    return [{ id: response.id, email: newEmail, uuid }];
   }
 
   async getCustomerByUuid({
     uuid,
   }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]> {
-    try {
-      const response = await this.prisma.customers.findUnique({
-        where: { uuid },
-        select: { id: true, email: true, uuid: true },
-      });
-
-      if (!response?.email || !response?.id || !response.uuid) {
-        throw new Error();
-      }
-      return [{ id: response.id, email: response.email, uuid: response.uuid }];
-    } catch (e) {
+    const response = await this.prisma.customers.findUnique({
+      where: { uuid },
+      select: { id: true, email: true, uuid: true },
+    });
+    if (!response?.email || !response?.id || !response.uuid) {
       return [
         undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomerByUuid failed',
-        },
+        { name: 'Internal Server Error', message: 'uuid is invalid' },
       ];
     }
+
+    return [{ id: response.id, email: response.email, uuid: response.uuid }];
   }
   async getCustomerMedicalCondition({
     email,
   }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
   > {
-    try {
-      const res = await this.prisma.customers.findUnique({
-        where: { email },
-        select: {
-          id: true,
-          uuid: true,
-          intermediateCustomerMedicalConditions: {
-            select: { customerMedicalCondition: { select: { name: true } } },
-          },
+    const res = await this.prisma.customers.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        uuid: true,
+        intermediateCustomerMedicalConditions: {
+          select: { customerMedicalCondition: { select: { name: true } } },
         },
-      });
-      const { id, uuid } = res;
-      const customerConditions = res?.intermediateCustomerMedicalConditions;
-      if (customerConditions === undefined || !id || !uuid) {
-        throw new Error();
-      }
-      const allConditions = customerConditions.length
-        ? customerConditions.map((condition) => {
-            return condition.customerMedicalCondition.name;
-          })
-        : [];
-
-      return [
-        {
-          highBloodPressure: allConditions.includes('highBloodPressure'),
-          highCholesterol: allConditions.includes('highCholesterol'),
-          id,
-          email,
-          uuid,
-        },
-      ];
-    } catch (e) {
+      },
+    });
+    const { id, uuid } = res;
+    if (!id || !uuid) {
       return [
         undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomerMedicalCondition failed',
-        },
+        { name: 'Internal Server Error', message: 'email is invalid' },
       ];
     }
+    const customerConditions = res?.intermediateCustomerMedicalConditions;
+
+    const allConditions = customerConditions.length
+      ? customerConditions.map((condition) => {
+          return condition.customerMedicalCondition.name;
+        })
+      : [];
+
+    return [
+      {
+        highBloodPressure: allConditions.includes('highBloodPressure'),
+        highCholesterol: allConditions.includes('highCholesterol'),
+        id,
+        email,
+        uuid,
+      },
+    ];
   }
 
   async getCustomerPreference({
     email,
     type,
   }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]> {
-    try {
-      let customerPreference: number[] = [];
-      switch (type) {
-        case 'flavorDislikes':
-          await this.prisma.intermediateCustomerFlavorDislike
-            .findMany({
-              where: { customer: { email } },
-              select: { productFlavorId: true },
-            })
-            .then((response) => {
-              customerPreference = response.length
-                ? response.map((flavor) => {
-                    return flavor.productFlavorId;
-                  })
-                : [];
-            })
-            .catch((e) => {
-              throw new Error();
-            });
-          break;
-        case 'allergens':
-          await this.prisma.intermediateCustomerAllergen
-            .findMany({
-              where: { customer: { email } },
-              select: { productAllergenId: true },
-            })
-            .then((response) => {
-              customerPreference = response.length
-                ? response.map((allergen) => {
-                    return allergen.productAllergenId;
-                  })
-                : [];
-            })
-            .catch((e) => {
-              throw new Error();
-            });
-          break;
-        case 'unavailableCookingMethods':
-          await this.prisma.intermediateCustomerUnavailableCookingMethod
-            .findMany({
-              where: { customer: { email } },
-              select: { productCookingMethodId: true },
-            })
-            .then((response) => {
-              customerPreference = response.length
-                ? response.map((cookingMethod) => {
-                    return cookingMethod.productCookingMethodId;
-                  })
-                : [];
-            })
-            .catch((e) => {
-              throw new Error();
-            });
-          break;
-        case 'categoryPreferences':
-          await this.prisma.intermediateCustomerCategoryPreference
-            .findMany({
-              where: { customer: { email } },
-              select: { productCategoryId: true },
-            })
-            .then((response) => {
-              customerPreference = response.length
-                ? response.map((category) => {
-                    return category.productCategoryId;
-                  })
-                : [];
-            })
-            .catch((e) => {
-              throw new Error();
-            });
-          break;
-        default:
-          break;
-      }
-
-      return [{ id: customerPreference }];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: `Server Side Error: get${type} failed`,
-        },
-      ];
+    let customerPreference: number[] = [];
+    switch (type) {
+      case 'flavorDislikes':
+        await this.prisma.intermediateCustomerFlavorDislike
+          .findMany({
+            where: { customer: { email } },
+            select: { productFlavorId: true },
+          })
+          .then((response) => {
+            customerPreference = response.length
+              ? response.map((flavor) => {
+                  return flavor.productFlavorId;
+                })
+              : [];
+          });
+        break;
+      case 'allergens':
+        await this.prisma.intermediateCustomerAllergen
+          .findMany({
+            where: { customer: { email } },
+            select: { productAllergenId: true },
+          })
+          .then((response) => {
+            customerPreference = response.length
+              ? response.map((allergen) => {
+                  return allergen.productAllergenId;
+                })
+              : [];
+          });
+        break;
+      case 'unavailableCookingMethods':
+        await this.prisma.intermediateCustomerUnavailableCookingMethod
+          .findMany({
+            where: { customer: { email } },
+            select: { productCookingMethodId: true },
+          })
+          .then((response) => {
+            customerPreference = response.length
+              ? response.map((cookingMethod) => {
+                  return cookingMethod.productCookingMethodId;
+                })
+              : [];
+          });
+        break;
+      case 'categoryPreferences':
+        await this.prisma.intermediateCustomerCategoryPreference
+          .findMany({
+            where: { customer: { email } },
+            select: { productCategoryId: true },
+          })
+          .then((response) => {
+            customerPreference = response.length
+              ? response.map((category) => {
+                  return category.productCategoryId;
+                })
+              : [];
+          });
+        break;
+      default:
+        break;
     }
+
+    return [{ id: customerPreference }];
   }
 
   async getCustomer({ email }: GetCustomerArgs): Promise<[Customer?, Error?]> {
-    try {
-      const response = await this.prisma.customers.findUnique({
-        where: { email },
-        select: { id: true, email: true, uuid: true },
-      });
-      if (!Object.keys(response).length) {
-        return [{ id: undefined, email: undefined, uuid: undefined }];
-      }
-      if (!response?.email || !response?.id || !response?.uuid) {
-        throw new Error();
-      }
-      return [{ id: response.id, email: response.email, uuid: response.uuid }];
-    } catch (e) {
+    const response = await this.prisma.customers.findUnique({
+      where: { email },
+      select: { id: true, email: true, uuid: true },
+    });
+    if (!Object.keys(response).length) {
+      return [{ id: undefined, email: undefined, uuid: undefined }];
+    }
+
+    if (!response?.email || !response?.id || !response?.uuid) {
       return [
         undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getCustomer failed',
-        },
+        { name: 'Internal Server Error', message: 'email is invalid' },
       ];
     }
+
+    return [{ id: response.id, email: response.email, uuid: response.uuid }];
   }
 }

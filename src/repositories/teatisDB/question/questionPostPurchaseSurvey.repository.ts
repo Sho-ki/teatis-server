@@ -22,79 +22,67 @@ export class QuestionPostPurchaseSurveyRepository
   async getSurveyQuestions({
     surveyName,
   }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]> {
-    try {
-      const response = await this.prisma.survey.findUnique({
-        where: { name: surveyName },
-        select: {
-          id: true,
-          name: true,
-          label: true,
-          intermediateSurveyQuestions: {
-            orderBy: { displayOrder: 'asc' },
-            select: {
-              surveyQuestion: {
-                select: {
-                  id: true,
-                  name: true,
-                  label: true,
-                  questionCategory: {
-                    select: { name: true },
-                  },
-                  mustBeAnswered: true,
-                  instruction: true,
-                  placeholder: true,
-                  surveyQuestionAnswerType: {
-                    select: { name: true },
-                  },
-                  surveyQuestionOptions: {
-                    select: { label: true, id: true, name: true },
-                  },
+    const response = await this.prisma.survey.findUnique({
+      where: { name: surveyName },
+      select: {
+        id: true,
+        name: true,
+        label: true,
+        intermediateSurveyQuestions: {
+          orderBy: { displayOrder: 'asc' },
+          select: {
+            surveyQuestion: {
+              select: {
+                id: true,
+                name: true,
+                label: true,
+                questionCategory: {
+                  select: { name: true },
+                },
+                mustBeAnswered: true,
+                instruction: true,
+                placeholder: true,
+                surveyQuestionAnswerType: {
+                  select: { name: true },
+                },
+                surveyQuestionOptions: {
+                  select: { label: true, id: true, name: true },
                 },
               },
             },
           },
         },
-      });
-      let surveyQuestions: Question[] = [];
-      for (let question of response?.intermediateSurveyQuestions || []) {
-        let surveyQuestion: Question = {
-          id: question.surveyQuestion.id,
-          name: question.surveyQuestion.name,
-          label: question.surveyQuestion.label,
-          mustBeAnswered: question.surveyQuestion.mustBeAnswered,
-          instruction: question.surveyQuestion.instruction || '',
-          placeholder: question.surveyQuestion.placeholder || '',
-          answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
+      },
+    });
+    let surveyQuestions: Question[] = [];
+    for (let question of response?.intermediateSurveyQuestions || []) {
+      let surveyQuestion: Question = {
+        id: question.surveyQuestion.id,
+        name: question.surveyQuestion.name,
+        label: question.surveyQuestion.label,
+        mustBeAnswered: question.surveyQuestion.mustBeAnswered,
+        instruction: question.surveyQuestion.instruction || '',
+        placeholder: question.surveyQuestion.placeholder || '',
+        answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
 
-          options: question.surveyQuestion.surveyQuestionOptions,
-        };
-        surveyQuestions.push(surveyQuestion);
-      }
-
-      const { id, name, label } = response as {
-        id: number;
-        name: string;
-        label: string;
+        options: question.surveyQuestion.surveyQuestionOptions,
       };
-      if (!id || !name || !label) {
-        throw new Error();
-      }
-      return [
-        {
-          id,
-          name,
-          label,
-          surveyQuestions,
-        },
-      ];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: getSurveyQuestions failed',
-        },
-      ];
+      surveyQuestions.push(surveyQuestion);
     }
+
+    const { id, name, label } = response as {
+      id: number;
+      name: string;
+      label: string;
+    };
+
+    return [
+      {
+        id,
+        name,
+        label,
+        surveyQuestions,
+      },
+    ];
   }
 }

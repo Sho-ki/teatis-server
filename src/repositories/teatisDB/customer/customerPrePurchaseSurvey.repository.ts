@@ -93,25 +93,25 @@ export class CustomerPrePurchaseSurveyRepository
     caloriePerMeal,
     boxPlan,
   }: UpsertCustomerArgs): Promise<[Customer?, Error?]> {
-    try {
-      let medicalConditionsQuery = [
-        {
-          medicalConditionValue: A1c,
-          customerMedicalCondition: {
-            connect: {
-              name: 'A1c',
-            },
+    let medicalConditionsQuery = [
+      {
+        medicalConditionValue: A1c,
+        customerMedicalCondition: {
+          connect: {
+            name: 'A1c',
           },
         },
-        {
-          medicalConditionValue: diabetes,
-          customerMedicalCondition: {
-            connect: {
-              name: 'diabetes',
-            },
+      },
+      {
+        medicalConditionValue: diabetes,
+        customerMedicalCondition: {
+          connect: {
+            name: 'diabetes',
           },
         },
-      ];
+      },
+    ];
+
 
       for (let medicalCondition of medicalConditions) {
         medicalConditionsQuery.push({
@@ -498,16 +498,7 @@ export class CustomerPrePurchaseSurveyRepository
           },
         },
       });
-
-      return [{ id: customer.id, uuid: customer.uuid, email }];
-    } catch (e) {
-      return [
-        undefined,
-        {
-          name: 'Internal Server Error',
-          message: 'Server Side Error: upsertCustomer failed',
-        },
-      ];
-    }
+    // }
+    return [{ id: customer.id, uuid: customer.uuid, email }];
   }
 }
