@@ -369,13 +369,13 @@ export class DiscoveriesController {
   }
 
   // When you migrate the data (Discoveries -> Customer etc...)
-  @Post('job')
-  async dataMigrate() {
-    // await this.teatisJob.databaseMigrate();
-    // const res = await this.teatisJob.getCustomerBox();
-     const res = await this.teatisJob.storeUuidInKlaviyo();
+  // @Post('job')
+  // async dataMigrate() {
+  //   // await this.teatisJob.databaseMigrate();
+  //   // const res = await this.teatisJob.getCustomerBox();
+  //    const res = await this.teatisJob.storeUuidInKlaviyo();
 
 
-    return res;
-  }
+  //   return res;
+  // }
 }
