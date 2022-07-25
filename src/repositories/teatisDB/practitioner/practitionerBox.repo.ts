@@ -67,14 +67,6 @@ export class PractitionerBoxRepository
         },
       });
 
-
-      const existingProducts =
-        await this.prisma.intermediatePractitionerBoxProduct.findMany({
-          where: { practitionerBox: { AND: [{ label, practitionerId }] } },
-          select: {
-            product: true,
-          },
-        });
       const existingProductIds = existingProducts.map(
         ({ product }) => product.id,
       );
