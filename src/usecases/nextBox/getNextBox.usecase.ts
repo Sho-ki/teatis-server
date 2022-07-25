@@ -4,6 +4,7 @@ import { GetNextBoxDto } from '@Controllers/discoveries/dtos/getNextBox';
 import { DisplayProduct, Product } from '@Domains/Product';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { PRODUCT_COUNT } from '../utils/productCount';
 
 interface GetNextBoxUsecaseRes {
   products: DisplayProduct[];
@@ -29,7 +30,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     uuid,
     email,
   }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]> {
-    let productCount = 30;
+    const productCount = PRODUCT_COUNT * 2;
 
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({ email });

@@ -88,7 +88,6 @@ export class DiscoveriesController {
     private createCheckoutCartOfPractitionerMealBoxUsecase: CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface,
     @Inject('UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface')
     private updateCustomerOrderOfPractitionerMealBoxUsecase: UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface,
-
     private teatisJob: TeatisJobs,
   ) {}
 

@@ -10,6 +10,7 @@ import { Product } from '@Domains/Product';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
+import { PRODUCT_COUNT } from '../utils/productCount';
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
   extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
@@ -63,7 +64,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
         });
 
       if (getCustomerError) {
-        return [null, getCustomerError];
+        return [undefined, getCustomerError];
       }
     }
 
@@ -74,7 +75,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
         status: 'scheduled',
       });
     if (orderQueueError) {
-      return [null, orderQueueError];
+      return [undefined, orderQueueError];
     }
 
     let orderProducts: Pick<Product, 'sku'>[] = [];
@@ -87,7 +88,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
         orderNumber: name,
       });
     if (orderError) {
-      return [null, orderError];
+      return [undefined, orderError];
     }
     const HCBox: number = 6618823458871;
     const HCLSBox: number = 6618823753783;
@@ -103,7 +104,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
             status: orderQueue.status,
             orderDate: orderQueue.orderDate,
           },
-          null,
+          undefined,
         ];
       }
     }
@@ -112,14 +113,14 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
         shopifyCustomerId: shopifyCustomer.id,
       });
     if (getOrderCountError) {
-      return [null, getOrderCountError];
+      return [undefined, getOrderCountError];
     }
     const [products, getCustomerBoxProductsError] =
       await this.customerBoxRepository.getCustomerBoxProducts({
         email: customer.email,
       });
     if (getCustomerBoxProductsError) {
-      return [null, getCustomerBoxProductsError];
+      return [undefined, getCustomerBoxProductsError];
     }
 
     if (!products.length) {
@@ -127,25 +128,24 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       const [nextBoxProductsRes, nextBoxProductsError] =
         await this.getSuggestionUtil.getSuggestion({
           customer,
-          productCount: 15,
+          productCount: PRODUCT_COUNT,
         });
       orderProducts = nextBoxProductsRes.products.map((product) => {
         return { sku: product.sku };
       });
       if (nextBoxProductsError) {
-        return [null, nextBoxProductsError];
+        return [undefined, nextBoxProductsError];
       }
     } else {
       orderProducts = products;
     }
-    customerOrderCount.orderCount <= 1
-      ? orderProducts.push(
-          { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
-          { sku: 'NP-packagingtape' }, // Packaging Tape
-          { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-        )
-      : orderProducts.push({ sku: 'NP-packagingtape' }); //   Packaging Tape
-
+    if(customerOrderCount.orderCount <= 1){
+      orderProducts.push(
+        { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
+        { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
+      )
+    }
+      
     const [customerOrder, updateOrderError] =
       await this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
@@ -153,7 +153,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
         orderNumber: name,
       });
     if (updateOrderError) {
-      return [null, updateOrderError];
+      return [undefined, updateOrderError];
     }
 
     [orderQueue, orderQueueError] =
@@ -163,7 +163,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
         status: 'ordered',
       });
     if (orderQueueError) {
-      return [null, orderQueueError];
+      return [undefined, orderQueueError];
     }
 
     return [
@@ -173,7 +173,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
         status: orderQueue.status,
         orderDate: orderQueue.orderDate,
       },
-      null,
+      undefined,
     ];
   }
 }
