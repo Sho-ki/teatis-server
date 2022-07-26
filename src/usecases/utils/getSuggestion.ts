@@ -272,9 +272,7 @@ export class GetSuggestion implements GetSuggestionInterface {
         .filter(({ sku }) => {
           return unwantVendors.includes(sku.split('-')[2]);
         })
-        .map(({ id, label, name, sku }) => {
-          return { id, label, name, sku };
-        });
+        .map(products => products);
 
       allProducts = this.filterProducts({
         filterType: 'unwant',
