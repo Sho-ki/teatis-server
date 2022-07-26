@@ -3,25 +3,22 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CreateCheckoutCartOfCustomerOriginalBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfCustomerOriginalBoxDto';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
-import { Customer } from '@Domains/Customer';
+import { ReturnValueType } from '../../filter/customerError';
+import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
 
-interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseRes {
-  checkoutUrl: string;
-  email?: string;
-}
 export interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface {
   createCheckoutCartOfCustomerOriginalBox({
     merchandiseId,
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CreateCheckoutCartOfCustomerOriginalBoxUsecaseRes, Error]
+  ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
 @Injectable()
 export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
-  implements CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface
+implements CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface
 {
   constructor(
     @Inject('ShopifyRepositoryInterface')
@@ -35,15 +32,11 @@ export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CreateCheckoutCartOfCustomerOriginalBoxUsecaseRes, Error]
+  ReturnValueType<CustomerCheckoutCart>
   > {
-    const attributes: { key: string; value: string }[] = [
-      { key: 'uuid', value: uuid },
-    ];
+    const attributes: { key: string, value: string }[] = [{ key: 'uuid', value: uuid }];
     const [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomerByUuid({
-        uuid,
-      });
+      await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [null, getCustomerError];

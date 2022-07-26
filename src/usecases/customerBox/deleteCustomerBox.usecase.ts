@@ -5,17 +5,18 @@ import { Status } from 'src/domains/Status';
 import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
+import { ReturnValueType } from '../../filter/customerError';
 
 export interface DeleteCustomerBoxUsecaseInterface {
   deleteCustomerBox({
     customer,
     name,
-  }: DeleteCustomerBoxDto): Promise<[Status, Error]>;
+  }: DeleteCustomerBoxDto): Promise<ReturnValueType<Status>>;
 }
 
 @Injectable()
 export class DeleteCustomerBoxUsecase
-  implements DeleteCustomerBoxUsecaseInterface
+implements DeleteCustomerBoxUsecaseInterface
 {
   constructor(
     @Inject('CustomerBoxRepositoryInterface')
@@ -31,33 +32,29 @@ export class DeleteCustomerBoxUsecase
   async deleteCustomerBox({
     customer: shopifyCustomer,
     name,
-  }: DeleteCustomerBoxDto): Promise<[Status, Error]> {
+  }: DeleteCustomerBoxDto): Promise<ReturnValueType<Status>> {
     const [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomer({
-        email: shopifyCustomer.email,
-      });
+      await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
     if (getCustomerError) {
-      return [null, getCustomerError];
+      return [undefined, getCustomerError];
     }
 
-    const [_product, deleteCustomerBoxProductError] =
-      await this.customerBoxRepository.deleteCustomerBoxProduct({
-        customerId: customer.id,
-      });
+    const [, deleteCustomerBoxProductError] =
+      await this.customerBoxRepository.deleteCustomerBoxProduct({ customerId: customer.id });
     if (deleteCustomerBoxProductError) {
-      return [null, deleteCustomerBoxProductError];
+      return [undefined, deleteCustomerBoxProductError];
     }
 
-    const [shipOrderQueue, shipOrderQueueError] =
+    const [, shipOrderQueueError] =
       await this.orderQueueRepository.updateOrderQueue({
         customerId: customer.id,
         orderNumber: name,
         status: 'fulfilled',
       });
     if (shipOrderQueueError) {
-      return [null, shipOrderQueueError];
+      return [undefined, shipOrderQueueError];
     }
 
-    return [{ status: 'Success' }, null];
+    return [{ success: true }, undefined];
   }
 }

@@ -3,11 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateCheckoutCartOfPractitionerBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerBoxDto';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
+import { ReturnValueType } from '../../filter/customerError';
 
-interface CreateCheckoutCartOfPractitionerBoxUsecaseRes {
-  checkoutUrl: string;
-  email?: string;
-}
 export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
   createCheckoutCartOfPractitionerBox({
     merchandiseId,
@@ -15,13 +13,13 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
     uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    [CreateCheckoutCartOfPractitionerBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
 @Injectable()
 export class CreateCheckoutCartOfPractitionerBoxUsecase
-  implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
+implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShopifyRepositoryInterface')
@@ -36,20 +34,16 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
     uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    [CreateCheckoutCartOfPractitionerBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   > {
-    const attributes: { key: string; value: string }[] = [
-      { key: 'practitionerBoxUuid', value: practitionerBoxUuid },
-    ];
+    const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }];
 
     const [customer, getCustomerError] =
-    await this.customerGeneralRepository.getCustomerByUuid({
-      uuid,
-    });
+    await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
-  if (getCustomerError) {
-    return [null, getCustomerError];
-  }
+    if (getCustomerError) {
+      return [null, getCustomerError];
+    }
 
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart({
@@ -61,6 +55,6 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
       return [null, createCheckoutCartOfPractitionerBoxError];
     }
 
-    return [{ checkoutUrl: cart.checkoutUrl, email:customer.email }, null];
+    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, undefined];
   }
 }

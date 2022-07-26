@@ -4,18 +4,19 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
 import { Status } from '@Domains/Status';
 import { UpdateCustomerBoxDto } from '@Controllers/discoveries/dtos/updateCustomerBox';
+import { ReturnValueType } from '../../filter/customerError';
 
 export interface UpdateCustomerBoxUsecaseInterface {
   updateCustomerBox({
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<[Status, Error]>;
+  }: UpdateCustomerBoxDto): Promise<ReturnValueType< Status>>;
 }
 
 @Injectable()
 export class UpdateCustomerBoxUsecase
-  implements UpdateCustomerBoxUsecaseInterface
+implements UpdateCustomerBoxUsecaseInterface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
@@ -28,37 +29,30 @@ export class UpdateCustomerBoxUsecase
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<[Status, Error]> {
+  }: UpdateCustomerBoxDto): Promise<ReturnValueType<Status>>{
     const [customer, getCustomerError] = uuid
       ? await this.customerGeneralRepository.getCustomerByUuid({ uuid })
       : await this.customerGeneralRepository.getCustomer({ email });
     if (getCustomerError) {
-      return [null, getCustomerError];
+      return [undefined, getCustomerError];
     }
 
-    const [_product, deleteCustomerBoxProductError] =
-      await this.customerBoxRepository.deleteCustomerBoxProduct({
-        customerId: customer.id,
-      });
+    const [, deleteCustomerBoxProductError] =
+      await this.customerBoxRepository.deleteCustomerBoxProduct({ customerId: customer.id });
     if (deleteCustomerBoxProductError) {
-      return [null, deleteCustomerBoxProductError];
+      return [undefined, deleteCustomerBoxProductError];
     }
 
-    const [product, postCustomerBoxProductError] =
+    const [, postCustomerBoxProductError] =
       await this.customerBoxRepository.postCustomerBoxProduct({
         customerId: customer.id,
         products,
       });
 
     if (postCustomerBoxProductError) {
-      return [null, postCustomerBoxProductError];
+      return [undefined, postCustomerBoxProductError];
     }
 
-    return [
-      {
-        status: 'Success',
-      },
-      null,
-    ];
+    return [{ success: true }, undefined];
   }
 }

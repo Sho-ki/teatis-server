@@ -12,6 +12,7 @@ import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
+import { ReturnValueType } from '../../filter/customerError';
 
 interface UpdateCustomerOrderOfPractitionerMealBoxArgs
   extends Pick<
@@ -30,14 +31,12 @@ export interface UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface {
     line_items,
     uuid,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerMealBoxArgs): Promise<
-    [OrderQueue?, Error?]
-  >;
+  }: UpdateCustomerOrderOfPractitionerMealBoxArgs):  Promise<ReturnValueType<OrderQueue>>;
 }
 
 @Injectable()
 export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
-  implements UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface
+implements UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepositoryInterface')
@@ -63,13 +62,10 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     line_items,
     uuid,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerMealBoxArgs): Promise<
-    [OrderQueue?, Error?]
-  > {
+  }: UpdateCustomerOrderOfPractitionerMealBoxArgs): Promise<ReturnValueType<OrderQueue>>
+  {
     let [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomer({
-        email: shopifyCustomer.email,
-      });
+      await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
 
     if (!customer.id) {
       [customer, getCustomerError] =
@@ -83,7 +79,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       }
     }
 
-    let [orderQueueScheduled, orderQueueScheduledError] =
+    const [orderQueueScheduled, orderQueueScheduledError] =
       await this.orderQueueRepository.updateOrderQueue({
         customerId: customer?.id,
         orderNumber: name,
@@ -99,9 +95,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     });
 
     const [order, orderError] =
-      await this.shipheroRepository.getCustomerOrderByOrderNumber({
-        orderNumber: name,
-      });
+      await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
       return [undefined, orderError];
     }
@@ -121,16 +115,12 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       ];
     }
     const [customerOrderCount, getOrderCountError] =
-      await this.shopifyRepository.getOrderCount({
-        shopifyCustomerId: shopifyCustomer.id,
-      });
+      await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
-      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
-        practitionerBoxUuid,
-      });
+      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
       return [undefined, getPractitionerAndBoxByUuidError];
     }
@@ -154,16 +144,12 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       orderProducts.push(
         { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-      )
+      );
     }
 
-    const transactionPrice: number = Number(subtotal_price);
+    const transactionPrice = Number(subtotal_price);
 
-    const [
-      [customerOrder, updateOrderError],
-      [practitionerBoxHistory, createPractitionerBoxHistoryError],
-      [orderQueueOrdered, orderQueueOrderedError],
-    ] = await Promise.all([
+    const [[, updateOrderError], [, createPractitionerBoxHistoryError], [orderQueueOrdered, orderQueueOrderedError]] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,

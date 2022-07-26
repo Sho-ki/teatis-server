@@ -11,6 +11,7 @@ import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.reposi
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PRODUCT_COUNT } from '../utils/productCount';
+import { ReturnValueType } from '../../filter/customerError';
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
   extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
@@ -23,12 +24,12 @@ export interface UpdateCustomerOrderOfCustomerBoxUsecaseInterface {
     customer,
     line_items,
     uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]>;
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<ReturnValueType<OrderQueue>>;
 }
 
 @Injectable()
 export class UpdateCustomerOrderOfCustomerBoxUsecase
-  implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
+implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepositoryInterface')
@@ -50,11 +51,9 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     customer: shopifyCustomer,
     line_items,
     uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]> {
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
     let [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomer({
-        email: shopifyCustomer.email,
-      });
+      await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
 
     if (!customer.id) {
       [customer, getCustomerError] =
@@ -84,14 +83,12 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     });
 
     const [order, orderError] =
-      await this.shipheroRepository.getCustomerOrderByOrderNumber({
-        orderNumber: name,
-      });
+      await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
       return [undefined, orderError];
     }
-    const HCBox: number = 6618823458871;
-    const HCLSBox: number = 6618823753783;
+    const HCBox = 6618823458871;
+    const HCLSBox = 6618823753783;
     if (order.products.length > 1) {
       if (
         purchasedProducts.includes(HCBox) ||
@@ -109,16 +106,12 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       }
     }
     const [customerOrderCount, getOrderCountError] =
-      await this.shopifyRepository.getOrderCount({
-        shopifyCustomerId: shopifyCustomer.id,
-      });
+      await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
     const [products, getCustomerBoxProductsError] =
-      await this.customerBoxRepository.getCustomerBoxProducts({
-        email: customer.email,
-      });
+      await this.customerBoxRepository.getCustomerBoxProducts({ email: customer.email });
     if (getCustomerBoxProductsError) {
       return [undefined, getCustomerBoxProductsError];
     }
@@ -143,10 +136,10 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       orderProducts.push(
         { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-      )
+      );
     }
-      
-    const [customerOrder, updateOrderError] =
+
+    const [, updateOrderError] =
       await this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,

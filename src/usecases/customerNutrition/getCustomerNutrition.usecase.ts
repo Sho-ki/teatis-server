@@ -2,35 +2,23 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { GetCustomerNutritionDto } from '@Controllers/discoveries/dtos/getCustomerNutrition';
-
-interface GetCustomerNutritionUsecaseRes {
-  carbsPerMeal: number;
-  proteinPerMeal: number;
-  fatPerMeal: number;
-  sodiumPerMeal: number;
-  caloriePerMeal: number;
-}
+import { NutritionNeedPerMeal } from '../../domains/NutritionNeedPerMeal';
+import { ReturnValueType } from '../../filter/customerError';
 
 export interface GetCustomerNutritionUsecaseInterface {
-  getCustomerNutrition({
-    uuid,
-  }: GetCustomerNutritionDto): Promise<[GetCustomerNutritionUsecaseRes, Error]>;
+  getCustomerNutrition({ uuid }: GetCustomerNutritionDto): Promise<ReturnValueType<NutritionNeedPerMeal>>;
 }
 
 @Injectable()
 export class GetCustomerNutritionUsecase
-  implements GetCustomerNutritionUsecaseInterface
+implements GetCustomerNutritionUsecaseInterface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
-  async getCustomerNutrition({
-    uuid,
-  }: GetCustomerNutritionDto): Promise<
-    [GetCustomerNutritionUsecaseRes, Error]
-  > {
+  async getCustomerNutrition({ uuid }: GetCustomerNutritionDto):  Promise<ReturnValueType<NutritionNeedPerMeal>> {
     const [customerNutrition, getCustomerNutritionError] =
       await this.customerGeneralRepository.getCustomerNutrition({ uuid });
 

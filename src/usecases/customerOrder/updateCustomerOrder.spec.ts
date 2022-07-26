@@ -38,15 +38,11 @@ describe('GetOptions', () => {
   beforeEach(async () => {
     MockedCustomerGeneralRepository = {
       getCustomer: () =>
-        Promise.resolve<[Customer?, Error?]>([
-          { id: 1, email: 'teatis@teatis.com', uuid: '12345657' },
-        ]),
+        Promise.resolve<[Customer?, Error?]>([{ id: 1, email: 'teatis@teatis.com', uuid: '12345657' }]),
     };
     MockedOrderQueueRepository = {
       updateOrderQueue: () =>
-        Promise.resolve<[OrderQueue?, Error?]>([
-          { customerId: 1, status: 'ordered', orderNumber: '12345' },
-        ]),
+        Promise.resolve<[OrderQueue?, Error?]>([{ customerId: 1, status: 'ordered', orderNumber: '12345' }]),
     };
     MockedShipheroRepository = {
       getCustomerOrderByOrderNumber: () =>
@@ -68,17 +64,14 @@ describe('GetOptions', () => {
     };
     MockedCustomerBoxRepository = {
       getCustomerBoxProducts: () =>
-        Promise.resolve<[Product[]?, Error?]>([
-          [{ sku: '987654321', id: 1, name: 'test', label: 'Test' }],
-        ]),
+        Promise.resolve<[Product[]?, Error?]>([[{ sku: '987654321', id: 1, name: 'test', label: 'Test' }]]),
     };
     MockedShopifyRepository = {
       getOrderCount: () =>
-        Promise.resolve<[CustomerOrderCount?, Error?]>([
-          { orderCount: 1, email: 'test@test.com' },
-        ]),
+        Promise.resolve<[CustomerOrderCount?, Error?]>([{ orderCount: 1, email: 'test@test.com' }]),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     MockedNextBoxUtil = {
       getSuggestion: () =>
         Promise.resolve<[GetSuggestionRes, Error]>([
@@ -126,6 +119,7 @@ describe('GetOptions', () => {
         ]),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     MockedGetSuggestionInterface = {
       getSuggestion: () =>
         Promise.resolve<[GetSuggestionRes, Error]>([
@@ -218,10 +212,7 @@ describe('GetOptions', () => {
 
   it('Customer has not answered the Post-Purchase survey', async () => {
     MockedCustomerBoxRepository.getCustomerBoxProducts = () =>
-      Promise.resolve<[Product[], Error]>([
-        [{ id: 1, name: 'test', label: 'Test', sku: '123' }],
-        null,
-      ]);
+      Promise.resolve<[Product[], Error]>([[{ id: 1, name: 'test', label: 'Test', sku: '123' }], null]);
     const [res, error] = await usecase.updateCustomerOrderOfCustomerBox({
       name: '#1111',
       customer: { email: 'teatis@teatis.com', id: 4321 },

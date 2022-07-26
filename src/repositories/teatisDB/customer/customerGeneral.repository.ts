@@ -3,7 +3,7 @@ import { Customer } from '@Domains/Customer';
 
 import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
-import { NutritionNeed } from '@Domains/NutritionNeed';
+import { NutritionNeedPerMeal } from '@Domains/NutritionNeedPerMeal';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 
 export interface GetCustomerArgs {
@@ -38,20 +38,12 @@ interface GetCustomerNutritionArgs {
 
 export interface CustomerGeneralRepositoryInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<[Customer?, Error?]>;
-  getCustomerPreference({
-    email,
-  }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]>;
-  getCustomerMedicalCondition({
-    email,
-  }: GetCustomerMedicalConditionArgs): Promise<
+  getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]>;
+  getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
   >;
-  getCustomerNutrition({
-    uuid,
-  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]>;
-  getCustomerByUuid({
-    uuid,
-  }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]>;
+  getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<[NutritionNeedPerMeal?, Error?]>;
+  getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]>;
 
   updateCustomerEmailByUuid({
     uuid,
@@ -61,20 +53,16 @@ export interface CustomerGeneralRepositoryInterface {
 
 @Injectable()
 export class CustomerGeneralRepository
-  implements CustomerGeneralRepositoryInterface
+implements CustomerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async getCustomerNutrition({
-    uuid,
-  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]> {
+  async getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<[NutritionNeedPerMeal?, Error?]> {
     const response = await this.prisma.customers.findUnique({
       where: { uuid },
       select: {
         mealsPerDay: true,
-        intermediateCustomerMedicalConditions: {
-          select: { customerMedicalCondition: { select: { name: true } } },
-        },
+        intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: { select: { name: true } } } },
         intermediateCustomerNutritionNeeds: {
           where: {
             customerNutritionNeed: {
@@ -95,23 +83,20 @@ export class CustomerGeneralRepository
     });
 
     if (response?.intermediateCustomerNutritionNeeds) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'uuid is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
     }
     const allConditions = response?.intermediateCustomerMedicalConditions
       ? response.intermediateCustomerMedicalConditions.map(
-          ({ customerMedicalCondition }) => {
-            return customerMedicalCondition.name;
-          },
-        )
+        ({ customerMedicalCondition }) => {
+          return customerMedicalCondition.name;
+        },
+      )
       : [];
     const sodiumPerMeal = allConditions.includes('highBloodPressure')
       ? Math.round(1800 / (response?.mealsPerDay || 4))
       : Math.round(2100 / (response?.mealsPerDay || 4));
 
-    let nutritions: NutritionNeed = {
+    let nutritions: NutritionNeedPerMeal = {
       // Set the default values
       carbsPerMeal: 50,
       proteinPerMeal: 30,
@@ -120,10 +105,10 @@ export class CustomerGeneralRepository
       sodiumPerMeal,
     };
 
-    for (let {
+    for (const {
       customerNutritionNeed,
       nutritionValue,
-    } of response?.intermediateCustomerNutritionNeeds) {
+    } of response.intermediateCustomerNutritionNeeds) {
       nutritions = {
         ...nutritions,
         [customerNutritionNeed.name]: nutritionValue,
@@ -145,25 +130,18 @@ export class CustomerGeneralRepository
     return [{ id: response.id, email: newEmail, uuid }];
   }
 
-  async getCustomerByUuid({
-    uuid,
-  }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]> {
+  async getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]> {
     const response = await this.prisma.customers.findUnique({
       where: { uuid },
       select: { id: true, email: true, uuid: true },
     });
     if (!response?.email || !response?.id || !response.uuid) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'uuid is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
     }
 
     return [{ id: response.id, email: response.email, uuid: response.uuid }];
   }
-  async getCustomerMedicalCondition({
-    email,
-  }: GetCustomerMedicalConditionArgs): Promise<
+  async getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
   > {
     const res = await this.prisma.customers.findUnique({
@@ -171,24 +149,19 @@ export class CustomerGeneralRepository
       select: {
         id: true,
         uuid: true,
-        intermediateCustomerMedicalConditions: {
-          select: { customerMedicalCondition: { select: { name: true } } },
-        },
+        intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: { select: { name: true } } } },
       },
     });
     const { id, uuid } = res;
     if (!id || !uuid) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
     const customerConditions = res?.intermediateCustomerMedicalConditions;
 
     const allConditions = customerConditions.length
       ? customerConditions.map((condition) => {
-          return condition.customerMedicalCondition.name;
-        })
+        return condition.customerMedicalCondition.name;
+      })
       : [];
 
     return [
@@ -217,8 +190,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((flavor) => {
-                  return flavor.productFlavorId;
-                })
+                return flavor.productFlavorId;
+              })
               : [];
           });
         break;
@@ -231,8 +204,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((allergen) => {
-                  return allergen.productAllergenId;
-                })
+                return allergen.productAllergenId;
+              })
               : [];
           });
         break;
@@ -245,8 +218,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((cookingMethod) => {
-                  return cookingMethod.productCookingMethodId;
-                })
+                return cookingMethod.productCookingMethodId;
+              })
               : [];
           });
         break;
@@ -259,8 +232,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((category) => {
-                  return category.productCategoryId;
-                })
+                return category.productCategoryId;
+              })
               : [];
           });
         break;
@@ -281,10 +254,7 @@ export class CustomerGeneralRepository
     }
 
     if (!response?.email || !response?.id || !response?.uuid) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
     return [{ id: response.id, email: response.email, uuid: response.uuid }];

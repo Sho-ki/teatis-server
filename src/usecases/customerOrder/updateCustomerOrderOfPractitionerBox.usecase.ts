@@ -12,6 +12,7 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
+import { ReturnValueType } from '../../filter/customerError';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -28,12 +29,12 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     subtotal_price,
     line_items,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue, Error]>;
+  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>>;
 }
 
 @Injectable()
 export class UpdateCustomerOrderOfPractitionerBoxUsecase
-  implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
+implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepositoryInterface')
@@ -58,24 +59,22 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     subtotal_price,
     line_items,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue, Error]> {
-    let [customer, getCustomerError] =
-      await this.createCustomerUtil.createCustomer({
-        email: shopifyCustomer.email,
-      });
+  }: UpdateCustomerOrderOfPractitionerBoxArgs):  Promise<ReturnValueType<OrderQueue>> {
+    const [customer, getCustomerError] =
+      await this.createCustomerUtil.createCustomer({ email: shopifyCustomer.email });
 
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
 
-    let [orderQueueScheduled, orderQueueScheduledError] =
+    const [orderQueueScheduled, orderQueueScheduledError] =
       await this.orderQueueRepository.updateOrderQueue({
         customerId: customer?.id,
         orderNumber: name,
         status: 'scheduled',
       });
     if (orderQueueScheduledError) {
-      return [null, orderQueueScheduledError];
+      return [undefined, orderQueueScheduledError];
     }
 
     let orderProducts: Pick<Product, 'sku'>[] = [];
@@ -84,11 +83,9 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     });
 
     const [order, orderError] =
-      await this.shipheroRepository.getCustomerOrderByOrderNumber({
-        orderNumber: name,
-      });
+      await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
-      return [null, orderError];
+      return [undefined, orderError];
     }
     const PractitionerBox = 6666539204663;
     if (
@@ -102,22 +99,18 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
           status: orderQueueScheduled.status,
           orderDate: orderQueueScheduled.orderDate,
         },
-        null,
+        undefined,
       ];
     }
     const [customerOrderCount, getOrderCountError] =
-      await this.shopifyRepository.getOrderCount({
-        shopifyCustomerId: shopifyCustomer.id,
-      });
+      await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
     if (getOrderCountError) {
-      return [null, getOrderCountError];
+      return [undefined, getOrderCountError];
     }
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
-      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
-        practitionerBoxUuid,
-      });
+      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
-      return [null, getPractitionerAndBoxByUuidError];
+      return [undefined, getPractitionerAndBoxByUuidError];
     }
     if (!practitionerAndBox.box.products.length) {
       // analyze
@@ -130,7 +123,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
         return { sku: product.sku };
       });
       if (nextBoxProductsError) {
-        return [null, nextBoxProductsError];
+        return [undefined, nextBoxProductsError];
       }
     } else {
       orderProducts = practitionerAndBox.box.products;
@@ -139,16 +132,12 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
       orderProducts.push(
         { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-      )
+      );
     }
 
-    const transactionPrice: number = Number(subtotal_price);
+    const transactionPrice = Number(subtotal_price);
 
-    const [
-      [customerOrder, updateOrderError],
-      [practitionerBoxHistory, createPractitionerBoxHistoryError],
-      [orderQueueOrdered, orderQueueOrderedError],
-    ] = await Promise.all([
+    const [[, updateOrderError], [, createPractitionerBoxHistoryError], [orderQueueOrdered, orderQueueOrderedError]] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
@@ -171,13 +160,13 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     ]);
 
     if (updateOrderError) {
-      return [null, updateOrderError];
+      return [undefined, updateOrderError];
     }
     if (createPractitionerBoxHistoryError) {
-      return [null, createPractitionerBoxHistoryError];
+      return [undefined, createPractitionerBoxHistoryError];
     }
     if (orderQueueOrderedError) {
-      return [null, orderQueueOrderedError];
+      return [undefined, orderQueueOrderedError];
     }
 
     return [
@@ -187,7 +176,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
         status: orderQueueOrdered.status,
         orderDate: orderQueueOrdered.orderDate,
       },
-      null,
+      undefined,
     ];
   }
 }
