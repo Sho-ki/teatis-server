@@ -279,9 +279,7 @@ export class GetSuggestion implements GetSuggestionInterface {
       allProducts = this.filterProducts({
         filterType: 'unwant',
         customerFilter: {
-          id: unwantAllProducts.map(({ id }) => {
-            return id;
-          }),
+          id: unwantAllProducts.map(({ id }) => id ),
         },
         products: allProducts,
         nextWantProducts,
