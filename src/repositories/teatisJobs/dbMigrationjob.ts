@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { PrismaService } from '../../prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { ShipheroRepositoryInterface } from '../shiphero/shiphero.repository';
+import axios from 'axios';
 
 interface typeformTmp {
   diabetes: string;
@@ -35,9 +36,14 @@ interface typeformTmp {
   email: string;
 }
 
-interface setMedicalCondition {
-  None: string;
-  email: string;
+interface KlaviyoArgs {
+   profiles: [
+        {
+        email: string,
+        customerUuid:string;
+    recommendBoxType:"HC"|"HCLS";
+        }
+    ]
 }
 
 interface TeatisJobsInterface {
@@ -53,6 +59,39 @@ export class TeatisJobs implements TeatisJobsInterface {
     private shipheroRepository: ShipheroRepositoryInterface,
   ) {}
 
+  async storeUuidInKlaviyo():Promise<any>{
+    for(let i = 0; i < 5000; i += 100){
+    const customers = await this.prisma.customers.findMany({
+      where:{id:{lte:i+99, gte:i }},
+      select:{
+        id:true,
+        email:true,
+        uuid:true,
+        intermediateCustomerMedicalConditions:{
+          where:{customerMedicalConditionId:6}
+        }
+      }
+    })
+  
+    let args = {profiles:[]}
+
+    for(let customer of customers){
+      const recommendBoxType = 
+      customer.intermediateCustomerMedicalConditions.length?"HCLS":"HC"
+      args.profiles.push({
+        email: customer.email,
+        customerUuid:customer.uuid,
+        recommendBoxType,
+      })
+    }
+    
+      await axios.post( `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`, args).catch(error => error)
+    }
+  }
+
+  
+
+  
   async getCustomerBox(): Promise<any> {
     const customerPref = await this.prisma.customers.findMany({
       where: {

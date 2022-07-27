@@ -34,13 +34,15 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       return [undefined, getCustomerError];
     }
     const firstIncludeSkus = [
-      'x10245-GUM-SN20102',
-      'x10208-CHC-SN20124',
-      'x10204-SWT-SN20114',
-      'x10230-SOU-SN20135', // LS
-      'x10262-COK-SN20113',
+      'x10263-BAR-SN20154',
       'x10244-SWT-SN20138',
-      'x10272-CHP-SN20144',
+      'x10230-SOU-SN20135', // LS
+      'x10239-RTD-SN20139',
+      'x10262-COK-SN20113',
+      'x10261-CHP-SN20133',
+      'x10212-CHP-SN20153',
+      'x10325-JRK-SN20177',
+      'x10217-CHP-SN20144',
     ];
 
     const firstExcludeSkus = [
@@ -66,7 +68,6 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
     if (getSuggestionError) {
       return [undefined, getSuggestionError];
     }
-
     return [getSuggestion, null];
   }
 }

@@ -16,31 +16,24 @@ export class UpdateShipheoKeyUsecase
   ) {}
 
   async updateShipheroKey(): Promise<[string?, Error?]> {
-    try {
-      const [newToken, getNewTokenError] =
-        await this.shipheroAuthRepository.getNewToken();
-      if (getNewTokenError) {
-        return [undefined, getNewTokenError];
-      }
-
-      // Instantiates a client
-      const client = new SecretManagerServiceClient();
-      const parent = 'projects/441786500914/secrets/shiphero_key';
-
-      const [version] = await client.addSecretVersion({
-        parent: parent,
-        payload: {
-          data: Buffer.from(`Bearer ${newToken}`, 'utf8'),
-        },
-      });
-      console.info(`Added secret version ${version.name}`);
-
-      return ['OK'];
-    } catch (e) {
-      return [
-        undefined,
-        { name: 'failed', message: 'updateShipheroKey Failed' },
-      ];
+    const [newToken, getNewTokenError] =
+      await this.shipheroAuthRepository.getNewToken();
+    if (getNewTokenError) {
+      return [undefined, getNewTokenError];
     }
+
+    // Instantiates a client
+    const client = new SecretManagerServiceClient();
+    const parent = 'projects/441786500914/secrets/shiphero_key';
+
+    const [version] = await client.addSecretVersion({
+      parent: parent,
+      payload: {
+        data: Buffer.from(`Bearer ${newToken}`, 'utf8'),
+      },
+    });
+    console.info(`Added secret version ${version.name}`);
+
+    return ['OK'];
   }
 }

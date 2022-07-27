@@ -3,11 +3,14 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Inject,
   Param,
   Post,
   Query,
   Res,
+  UseFilters,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -124,12 +127,12 @@ export class DiscoveriesController {
     @Query() body: GetPostPurchaseSurveyInfoDto,
     @Res() response: Response,
   ): Promise<Response<any | Error>> {
-    const email = body.email;
+    const uuid = body.uuid;
     const orderNumber = body.orderNumber;
 
     const [usecaseResponse, error] =
       await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
-        email,
+        uuid,
         orderNumber,
       });
 
@@ -369,7 +372,9 @@ export class DiscoveriesController {
   // @Post('job')
   // async dataMigrate() {
   //   // await this.teatisJob.databaseMigrate();
-  //   const res = await this.teatisJob.getCustomerBox();
+  //   // const res = await this.teatisJob.getCustomerBox();
+  //    const res = await this.teatisJob.storeUuidInKlaviyo();
+
 
   //   return res;
   // }

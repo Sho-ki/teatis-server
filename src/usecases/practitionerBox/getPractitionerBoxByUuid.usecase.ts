@@ -21,17 +21,13 @@ export class GetPractitionerBoxByUuidUsecase
   async getPractitionerBoxByUuid({
     practitionerBoxUuid,
   }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
-    try {
-      const [practitionerAndBox, getPractitionerAndBoxError] =
-        await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
-          practitionerBoxUuid,
-        });
-      if (getPractitionerAndBoxError) {
-        return [undefined, getPractitionerAndBoxError];
-      }
-      return [practitionerAndBox];
-    } catch (e) {
-      return [undefined, e];
+    const [practitionerAndBox, getPractitionerAndBoxError] =
+      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
+        practitionerBoxUuid,
+      });
+    if (getPractitionerAndBoxError) {
+      return [undefined, getPractitionerAndBoxError];
     }
+    return [practitionerAndBox];
   }
 }
