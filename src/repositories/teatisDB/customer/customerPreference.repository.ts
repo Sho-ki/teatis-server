@@ -9,7 +9,7 @@ interface GetNextWantArgs {
   orderNumber: string;
 }
 
-interface GetNextUnwantArgs {
+interface GetNextUnwantedArgs {
   email: string;
 }
 
@@ -19,7 +19,7 @@ interface GetAverageScoresArgs {
 
 export interface CustomerPreferenceRepositoryInterface {
   getNextWant({ orderNumber }: GetNextWantArgs): Promise<[Product[]?, Error?]>;
-  getNextUnwant({ email }: GetNextUnwantArgs): Promise<[Product[]?, Error?]>;
+  getNextUnwanted({ email }: GetNextUnwantedArgs): Promise<[Product[]?, Error?]>;
   getAverageScores({
     email,
   }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]>;
@@ -60,9 +60,9 @@ export class CustomerPreferenceRepository
       
   }
 
-  async getNextUnwant({
+  async getNextUnwanted({
     email,
-  }: GetNextUnwantArgs): Promise<[Product[]?, Error?]> {
+  }: GetNextUnwantedArgs): Promise<[Product[]?, Error?]> {
     
       const response = await this.prisma.surveyQuestionAnswer.findMany({
         where: {
@@ -71,10 +71,10 @@ export class CustomerPreferenceRepository
         select: {
           product: {
             select: { id: true, label: true, externalSku: true, name: true },
-          },
+          },  
         },
       });
-      const nextUnwantProducts: Product[] = response.length
+      const nextUnwantedProducts: Product[] = response.length
         ? response.map(({ product }) => {
             return {
               id: product.id,
@@ -84,7 +84,7 @@ export class CustomerPreferenceRepository
             };
           })
         : [];
-      return [nextUnwantProducts];
+      return [nextUnwantedProducts];
     
   }
 
