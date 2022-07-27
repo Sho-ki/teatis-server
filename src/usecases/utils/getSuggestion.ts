@@ -34,7 +34,7 @@ interface FilterProductsArgs {
     | 'flavorDislikes'
     | 'allergens'
     | 'unavailableCookingMethods'
-    | 'unwant';
+    | 'unwanted';
   customerFilter: { id?: number[]; sku?: string[] };
   products: DisplayAnalyzeProduct[];
   nextWantProducts?: Product[];
@@ -100,7 +100,7 @@ export class GetSuggestion implements GetSuggestionInterface {
             }
           }
           return true;
-        case 'unwant':
+        case 'unwanted':
           return (
             !customerFilter.id.includes(product.id) ||
             nextWantProducts.some((nextWant) => nextWant.id === product.id)
@@ -133,7 +133,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     const [
       [scores, getAverageScoresError],
       [nextWantProducts, getNextWantError],
-      [nextUnwantProducts, getCustomerUnwantError],
+      [nextUnwantedProducts, getCustomerUnwantedError],
     ] = !isFirstOrder
       ? await Promise.all([
           this.customerPreferenceRepository.getAverageScores({
@@ -142,7 +142,7 @@ export class GetSuggestion implements GetSuggestionInterface {
           this.customerPreferenceRepository.getNextWant({
             orderNumber: lastCustomerOrder.orderNumber,
           }),
-          this.customerPreferenceRepository.getNextUnwant({
+          this.customerPreferenceRepository.getNextUnwanted({
             email: customer.email,
           }),
         ])
@@ -154,8 +154,8 @@ export class GetSuggestion implements GetSuggestionInterface {
     if (getNextWantError) {
       return [null, getNextWantError];
     }
-    if (getCustomerUnwantError) {
-      return [null, getCustomerUnwantError];
+    if (getCustomerUnwantedError) {
+      return [null, getCustomerUnwantedError];
     }
 
     const [
@@ -261,25 +261,26 @@ export class GetSuggestion implements GetSuggestionInterface {
       return [null, customerCategoryPreferencesError];
     }
 
-    if (nextUnwantProducts && nextUnwantProducts.length > 0) {
+    if (nextUnwantedProducts && nextUnwantedProducts.length > 0) {
       // FYI: How a SKU is composed
       // XXXX-YYYY-ZZZZ
       // (Product Number) - (Product Category) - (Product Vendor)
-      const unwantVendors: string[] = nextUnwantProducts.map(({ sku }) => {
+      const unwantedVendors: string[] = nextUnwantedProducts.map(({ sku }) => {
         return sku.split('-')[2];
       });
-      const unwantAllProducts: Product[] = allProducts
+      const unwantedAllProducts: Product[] = allProducts
         .filter(({ sku }) => {
-          return unwantVendors.includes(sku.split('-')[2]);
+          return unwantedVendors.includes(sku.split('-')[2]);
         })
         .map(({ id, label, name, sku }) => {
           return { id, label, name, sku };
         });
 
+        console.log(unwantedAllProducts)
       allProducts = this.filterProducts({
-        filterType: 'unwant',
+        filterType: 'unwanted',
         customerFilter: {
-          id: unwantAllProducts.map(({ id }) => {
+          id: unwantedAllProducts.map(({ id }) => {
             return id;
           }),
         },
