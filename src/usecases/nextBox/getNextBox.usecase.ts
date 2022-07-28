@@ -5,8 +5,8 @@ import { DisplayProduct, Product } from '@Domains/Product';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
-
-interface GetNextBoxUsecaseRes {
+// TODO : Use DisplayProduct[] as Response
+export interface GetNextBoxUsecaseRes {
   products: DisplayProduct[];
 }
 

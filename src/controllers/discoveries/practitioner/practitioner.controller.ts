@@ -12,6 +12,7 @@ import { CreatePractitionerDto } from '../dtos/createPractitioner';
 import { Response } from 'express';
 import { GetPractitionerDto } from '../dtos/getPractitioner';
 import { GetPractitionerUsecaseInterface } from '@Usecases/practitioner/getPractitioner.usecase';
+import { Practitioner } from '@Domains/Practitioner';
 
 @Controller('api/discovery')
 export class PractitionerController {
@@ -25,7 +26,7 @@ export class PractitionerController {
   @Post('practitioner')
   async postPractitioner(
     @Body() body: CreatePractitionerDto,
-    @Res() response: Response,
+    @Res() response: Response<Practitioner | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.createPractitionerUsecase.createPractitioner(body);
@@ -37,7 +38,7 @@ export class PractitionerController {
   @Get('practitioner')
   async getPractitioner(
     @Query() body: GetPractitionerDto,
-    @Res() response: Response,
+    @Res() response:  Response<Practitioner | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.getPractitionerUsecase.getPractitioner(body);

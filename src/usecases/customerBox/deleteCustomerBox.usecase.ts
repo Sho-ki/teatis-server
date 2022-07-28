@@ -58,6 +58,6 @@ export class DeleteCustomerBoxUsecase
       return [null, shipOrderQueueError];
     }
 
-    return [{ status: 'Success' }, null];
+    return [{ success: true }, null];
   }
 }

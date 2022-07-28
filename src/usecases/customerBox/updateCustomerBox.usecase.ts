@@ -56,7 +56,7 @@ export class UpdateCustomerBoxUsecase
 
     return [
       {
-        status: 'Success',
+        success: true,
       },
       null,
     ];

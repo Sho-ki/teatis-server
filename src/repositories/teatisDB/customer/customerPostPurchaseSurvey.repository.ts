@@ -4,6 +4,7 @@ import { Answer } from '@Domains/Answer';
 import { CustomerAnswer } from '@Domains/CustomerAnswer';
 
 import { PrismaService } from '../../../prisma.service';
+import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
 
 interface GetCustomerAnswersArgs {
   email: string;
@@ -37,10 +38,6 @@ interface PostPostPurchaseSurveyCustomerAnswerArgs {
   currentMaxAnswerCount: number;
 }
 
-interface PostPostPurchaseSurveyCustomerAnswerRes {
-  id: number;
-}
-
 interface CheckIsNewSurveyAnswerArgs {
   orderNumber: string;
   currentMaxAnswerCount: number;
@@ -68,7 +65,7 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
     reason,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerRes?, Error?]
+    [PostPurchaseSurveyAnswer?, Error?]
   >;
 
   getAnswerCount({
@@ -206,7 +203,7 @@ export class CustomerPostPurchaseSurveyRepository
     reason,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerRes?, Error?]
+    [PostPurchaseSurveyAnswer?, Error?]
   > {
     let prismaQuery: Prisma.SurveyQuestionAnswerUpsertArgs = {
       where: {

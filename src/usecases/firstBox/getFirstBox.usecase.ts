@@ -6,7 +6,7 @@ import { GetFirstBoxDto } from '@Controllers/discoveries/dtos/getFirstBox';
 import { DisplayProduct } from '@Domains/Product';
 import { GetSuggestionInterface } from '../utils/getSuggestion';
 import { PRODUCT_COUNT } from '../utils/productCount';
-
+// TODO : Use DisplayProduct[] as Response
 export interface GetFirstBoxRes {
   products: DisplayProduct[];
 }
