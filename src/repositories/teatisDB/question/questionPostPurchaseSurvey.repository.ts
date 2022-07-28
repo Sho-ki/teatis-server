@@ -8,20 +8,16 @@ interface GetSurveyQuestionsArgs {
 }
 
 export interface QuestionPostPurchaseSurveyRepositoryInterface {
-  getSurveyQuestions({
-    surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]>;
+  getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]>;
 }
 
 @Injectable()
 export class QuestionPostPurchaseSurveyRepository
-  implements QuestionPostPurchaseSurveyRepositoryInterface
+implements QuestionPostPurchaseSurveyRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async getSurveyQuestions({
-    surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]> {
+  async getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]> {
     const response = await this.prisma.survey.findUnique({
       where: { name: surveyName },
       select: {
@@ -36,27 +32,21 @@ export class QuestionPostPurchaseSurveyRepository
                 id: true,
                 name: true,
                 label: true,
-                questionCategory: {
-                  select: { name: true },
-                },
+                questionCategory: { select: { name: true } },
                 mustBeAnswered: true,
                 instruction: true,
                 placeholder: true,
-                surveyQuestionAnswerType: {
-                  select: { name: true },
-                },
-                surveyQuestionOptions: {
-                  select: { label: true, id: true, name: true },
-                },
+                surveyQuestionAnswerType: { select: { name: true } },
+                surveyQuestionOptions: { select: { label: true, id: true, name: true } },
               },
             },
           },
         },
       },
     });
-    let surveyQuestions: Question[] = [];
-    for (let question of response?.intermediateSurveyQuestions || []) {
-      let surveyQuestion: Question = {
+    const surveyQuestions: Question[] = [];
+    for (const question of response?.intermediateSurveyQuestions || []) {
+      const surveyQuestion: Question = {
         id: question.surveyQuestion.id,
         name: question.surveyQuestion.name,
         label: question.surveyQuestion.label,

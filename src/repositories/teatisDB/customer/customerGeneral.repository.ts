@@ -82,7 +82,7 @@ implements CustomerGeneralRepositoryInterface
       },
     });
 
-    if (response?.intermediateCustomerNutritionNeeds) {
+    if (!response?.intermediateCustomerNutritionNeeds) {
       return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
     }
     const allConditions = response?.intermediateCustomerMedicalConditions

@@ -8,7 +8,6 @@ import { GetPrePurchaseOptionsUsecase } from './getPrePurchaseOptions.usecase';
 
 describe('GetOptions', () => {
   let usecase: GetPrePurchaseOptionsUsecase;
-  let repo: ProductGeneralRepositoryInterface;
   let MockedProductGeneralRepository: Partial<ProductGeneralRepositoryInterface>;
 
   beforeEach(async () => {
@@ -18,16 +17,16 @@ describe('GetOptions', () => {
           target === 'flavor'
             ? [{ id: 1, name: 'mint', label: 'Mint' }]
             : target === 'category'
-            ? [{ id: 1, name: 'chips', label: 'Chips' }]
-            : target === 'cookingMethod'
-            ? [{ id: 1, name: 'shake', label: 'Shake' }]
-            : target === 'ingredient'
-            ? [{ id: 1, name: 'nut', label: 'Nut' }]
-            : target === 'allergen'
-            ? [{ id: 1, name: 'fish', label: 'Fish' }]
-            : target === 'foodType'
-            ? [{ id: 1, name: 'organic', label: 'Organic' }]
-            : [],
+              ? [{ id: 1, name: 'chips', label: 'Chips' }]
+              : target === 'cookingMethod'
+                ? [{ id: 1, name: 'shake', label: 'Shake' }]
+                : target === 'ingredient'
+                  ? [{ id: 1, name: 'nut', label: 'Nut' }]
+                  : target === 'allergen'
+                    ? [{ id: 1, name: 'fish', label: 'Fish' }]
+                    : target === 'foodType'
+                      ? [{ id: 1, name: 'organic', label: 'Organic' }]
+                      : [],
           null,
         ]),
     };
@@ -51,17 +50,14 @@ describe('GetOptions', () => {
     const [res, error] = await usecase.getPrePurchaseOptions();
     expect(res.flavorDislikes[0].name).toBe('mint');
     expect(res.allergens[0].name).toBe('none');
-    expect(error).toBeNull();
+    expect(error).toBeUndefined();
   });
 
   it('throws an error if no options are found', async () => {
-    MockedProductGeneralRepository.getOptions = ({ target }: GetOptionsArgs) =>
-      Promise.resolve<[ProductFeature[], Error]>([
-        null,
-        { name: 'Not found error', message: 'Options not found' },
-      ]);
+    MockedProductGeneralRepository.getOptions = () =>
+      Promise.resolve<[ProductFeature[], Error]>([null, { name: 'Not found error', message: 'Options not found' }]);
     const [res, error] = await usecase.getPrePurchaseOptions();
     expect(error.name).toBe('Not found error');
-    expect(res).toBe(null);
+    expect(res).toBeUndefined();
   });
 });

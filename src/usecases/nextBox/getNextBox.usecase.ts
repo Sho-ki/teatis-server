@@ -1,19 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { GetNextBoxDto } from '@Controllers/discoveries/dtos/getNextBox';
-import { DisplayProduct, Product } from '@Domains/Product';
+import { DisplayProduct } from '@Domains/Product';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
+import { ReturnValueType } from '../../filter/customerError';
 
-interface GetNextBoxUsecaseRes {
+export interface GetNextBoxUsecaseRes {
   products: DisplayProduct[];
 }
 
 export interface GetNextBoxUsecaseInterface {
-  getNextBox({
-    uuid,
-  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]>;
+  getNextBox({ uuid }: GetNextBoxDto): Promise<ReturnValueType<GetNextBoxUsecaseRes>>;
 }
 
 @Injectable()
@@ -25,9 +24,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
-  async getNextBox({
-    uuid,
-  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]> {
+  async getNextBox({ uuid }: GetNextBoxDto): Promise<ReturnValueType<GetNextBoxUsecaseRes>> {
     const productCount = PRODUCT_COUNT * 2;
 
     const [customer, getCustomerError] =

@@ -18,12 +18,8 @@ export interface UpdateCustomerBoxArgs {
 }
 
 export interface CustomerBoxRepositoryInterface {
-  getCustomerBoxProducts({
-    email,
-  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]>;
-  deleteCustomerBoxProduct({
-    customerId,
-  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]>;
+  getCustomerBoxProducts({ email }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]>;
+  deleteCustomerBoxProduct({ customerId }: DeleteCustomerBoxArgs): Promise<[void?, Error?]>;
 
   postCustomerBoxProduct({
     customerId,
@@ -35,14 +31,8 @@ export interface CustomerBoxRepositoryInterface {
 export class CustomerBoxRepository implements CustomerBoxRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
-  async deleteCustomerBoxProduct({
-    customerId,
-  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]> {
-    await this.prisma.customerBoxItems.deleteMany({
-      where: {
-        customerId,
-      },
-    });
+  async deleteCustomerBoxProduct({ customerId }: DeleteCustomerBoxArgs): Promise<[void?, Error?]> {
+    await this.prisma.customerBoxItems.deleteMany({ where: { customerId } });
 
     return [];
   }
@@ -51,13 +41,11 @@ export class CustomerBoxRepository implements CustomerBoxRepositoryInterface {
     customerId,
     products,
   }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]> {
-    let data: Prisma.Enumerable<Prisma.CustomerBoxItemsCreateManyInput> = [];
-    for (let product of products) {
+    const data: Prisma.Enumerable<Prisma.CustomerBoxItemsCreateManyInput> = [];
+    for (const product of products) {
       if (product?.id) data.push({ customerId, productId: product?.id });
     }
-    const createCustomerBox = await this.prisma.customerBoxItems.createMany({
-      data,
-    });
+    await this.prisma.customerBoxItems.createMany({ data });
 
     const customerProducts = await this.prisma.product.findMany({
       where: { OR: products },
@@ -72,33 +60,24 @@ export class CustomerBoxRepository implements CustomerBoxRepositoryInterface {
     return [productsRes];
   }
 
-  async getCustomerBoxProducts({
-    email,
-  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]> {
+  async getCustomerBoxProducts({ email }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]> {
     const res = await this.prisma.customers.findUnique({
       where: { email },
-      select: {
-        customerBoxItems: {
-          select: { product: true },
-        },
-      },
+      select: { customerBoxItems: { select: { product: true } } },
     });
     if (!res?.customerBoxItems) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
     const products: Product[] = !res.customerBoxItems.length
       ? []
       : res.customerBoxItems.map((boxItem) => {
-          return {
-            sku: boxItem.product.externalSku,
-            id: boxItem.product.id,
-            name: boxItem.product.name,
-            label: boxItem.product.label,
-          };
-        });
+        return {
+          sku: boxItem.product.externalSku,
+          id: boxItem.product.id,
+          name: boxItem.product.name,
+          label: boxItem.product.label,
+        };
+      });
     return [products];
   }
 }

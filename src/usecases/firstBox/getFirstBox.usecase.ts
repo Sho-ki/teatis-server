@@ -6,13 +6,14 @@ import { GetFirstBoxDto } from '@Controllers/discoveries/dtos/getFirstBox';
 import { DisplayProduct } from '@Domains/Product';
 import { GetSuggestionInterface } from '../utils/getSuggestion';
 import { PRODUCT_COUNT } from '../utils/productCount';
+import { ReturnValueType } from '../../filter/customerError';
 
 export interface GetFirstBoxRes {
   products: DisplayProduct[];
 }
 
 export interface GetFirstBoxUsecaseInterface {
-  getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]>;
+  getFirstBox({ uuid }: GetFirstBoxDto): Promise<ReturnValueType<GetFirstBoxRes>>;
 }
 
 @Injectable()
@@ -24,7 +25,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
-  async getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]> {
+  async getFirstBox({ uuid }: GetFirstBoxDto): Promise<ReturnValueType<GetFirstBoxRes>> {
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 

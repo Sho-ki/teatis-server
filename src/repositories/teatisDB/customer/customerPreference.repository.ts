@@ -9,7 +9,7 @@ interface GetNextWantArgs {
   orderNumber: string;
 }
 
-interface GetNextUnwantArgs {
+interface GetNextUnwantedArgs {
   email: string;
 }
 
@@ -19,105 +19,82 @@ interface GetAverageScoresArgs {
 
 export interface CustomerPreferenceRepositoryInterface {
   getNextWant({ orderNumber }: GetNextWantArgs): Promise<[Product[]?, Error?]>;
-  getNextUnwant({ email }: GetNextUnwantArgs): Promise<[Product[]?, Error?]>;
-  getAverageScores({
-    email,
-  }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]>;
+  getNextUnwanted({ email }: GetNextUnwantedArgs): Promise<[Product[]?, Error?]>;
+  getAverageScores({ email }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]>;
 }
 
 @Injectable()
 export class CustomerPreferenceRepository
-  implements CustomerPreferenceRepositoryInterface
+implements CustomerPreferenceRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async getNextWant({
-    orderNumber,
-  }: GetNextWantArgs): Promise<[Product[]?, Error?]> {
-    
-      const response = await this.prisma.surveyQuestionAnswer.findMany({
-        where: {
-          AND: [{ orderNumber }, { answerNumeric: 6 }],
-        },
-        select: {
-          product: {
-            select: { id: true, name: true, label: true, externalSku: true },
-          },
-        },
-      });
-      const nextWantProducts: Product[] = response.length
-        ? response.map(({ product }) => {
-            return {
-              id: product.id,
-              name: product.name,
-              sku: product.externalSku,
-              label: product.label,
-            };
-          })
-        : [];
-      return [nextWantProducts];
-    
-      
+  async getNextWant({ orderNumber }: GetNextWantArgs): Promise<[Product[]?, Error?]> {
+
+    const response = await this.prisma.surveyQuestionAnswer.findMany({
+      where: { AND: [{ orderNumber }, { answerNumeric: 6 }] },
+      select: { product: { select: { id: true, name: true, label: true, externalSku: true } } },
+    });
+    const nextWantProducts: Product[] = response.length
+      ? response.map(({ product }) => {
+        return {
+          id: product.id,
+          name: product.name,
+          sku: product.externalSku,
+          label: product.label,
+        };
+      })
+      : [];
+    return [nextWantProducts];
+
   }
 
-  async getNextUnwant({
-    email,
-  }: GetNextUnwantArgs): Promise<[Product[]?, Error?]> {
-    
-      const response = await this.prisma.surveyQuestionAnswer.findMany({
-        where: {
-          AND: [{ customer: { email } }, { answerNumeric: 1 }],
-        },
-        select: {
-          product: {
-            select: { id: true, label: true, externalSku: true, name: true },
-          },
-        },
-      });
-      const nextUnwantProducts: Product[] = response.length
-        ? response.map(({ product }) => {
-            return {
-              id: product.id,
-              name: product.name,
-              sku: product.externalSku,
-              label: product.label,
-            };
-          })
-        : [];
-      return [nextUnwantProducts];
-    
+  async getNextUnwanted({ email }: GetNextUnwantedArgs): Promise<[Product[]?, Error?]> {
+
+    const response = await this.prisma.surveyQuestionAnswer.findMany({
+      where: { AND: [{ customer: { email } }, { answerNumeric: 1 }] },
+      select: { product: { select: { id: true, label: true, externalSku: true, name: true } } },
+    });
+    const nextUnwantedProducts: Product[] = response.length
+      ? response.map(({ product }) => {
+        return {
+          id: product.id,
+          name: product.name,
+          sku: product.externalSku,
+          label: product.label,
+        };
+      })
+      : [];
+    return [nextUnwantedProducts];
+
   }
 
-  async getAverageScores({
-    email,
-  }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]> {
-    
-      const res = await this.prisma.surveyQuestionAnswer.findMany({
-        where: { customer: { email }, answerNumeric: { not: null } },
-        select: {
-          product: {
-            select: { productCategoryId: true, productFlavorId: true },
-          },
-          answerNumeric: true,
-        },
-      });
-      let flavorLikesAverages: { [key: string]: number } = {};
-      let categoryLikesAverages: { [key: string]: number } = {};
+  async getAverageScores({ email }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]> {
 
-      for (let data of res) {
-        const flavorId = data.product.productFlavorId;
-        const categoryId = data.product.productCategoryId;
-        const score = data.answerNumeric;
-        flavorLikesAverages[flavorId] = !flavorLikesAverages[flavorId]
-          ? score
-          : Math.round(((flavorLikesAverages[flavorId] + score) / 2) * 10) / 10;
+    const res = await this.prisma.surveyQuestionAnswer.findMany({
+      where: { customer: { email }, answerNumeric: { not: null } },
+      select: {
+        product: { select: { productCategoryId: true, productFlavorId: true } },
+        answerNumeric: true,
+      },
+    });
+    const flavorLikesAverages: { [key: string]: number } = {};
+    const categoryLikesAverages: { [key: string]: number } = {};
 
-        categoryLikesAverages[categoryId] = !categoryLikesAverages[categoryId]
-          ? score
-          : Math.round(((categoryLikesAverages[categoryId] + score) / 2) * 10) /
+    for (const data of res) {
+      const flavorId = data.product.productFlavorId;
+      const categoryId = data.product.productCategoryId;
+      const score = data.answerNumeric;
+      flavorLikesAverages[flavorId] = !flavorLikesAverages[flavorId]
+        ? score
+        : Math.round(((flavorLikesAverages[flavorId] + score) / 2) * 10) / 10;
+
+      categoryLikesAverages[categoryId] = !categoryLikesAverages[categoryId]
+        ? score
+        : Math.round(((categoryLikesAverages[categoryId] + score) / 2) * 10) /
             10;
-      }
-      return [{ flavorLikesAverages, categoryLikesAverages }];
-    
+    }
+    return [{ flavorLikesAverages, categoryLikesAverages }];
+
   }
 }

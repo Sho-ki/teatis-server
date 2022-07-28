@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { UpsertProductDto } from '@Controllers/ops/product/dtos/upsertProduct';
 import { Product } from '@Domains/Product';
+import { ReturnValueType } from '../../filter/customerError';
 
 export interface UpsertProductUsecaseInterface {
   upsertProduct({
@@ -27,7 +28,7 @@ export interface UpsertProductUsecaseInterface {
     ingredientIds,
     cookingMethodIds,
     nutritionFact,
-  }: UpsertProductDto): Promise<[Product?, Error?]>;
+  }: UpsertProductDto): Promise<ReturnValueType<Product>>;
 }
 
 @Injectable()
@@ -59,7 +60,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
     ingredientIds: newProductIngredientIds,
     cookingMethodIds: newProductCookingMethodIds,
     nutritionFact,
-  }: UpsertProductDto): Promise<[Product?, Error?]> {
+  }: UpsertProductDto): Promise<ReturnValueType<Product>> {
     // Transaction
     const [updatedProduct, upsertProductError] =
       await this.productGeneralRepository.performAtomicOperations(
@@ -86,7 +87,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
           if (upsertProductError) {
             return [undefined, upsertProductError];
           }
-          const [cookingMethods, upsertCookingMethodsError] =
+          const [, upsertCookingMethodsError] =
             await this.productGeneralRepository.upsertProductCookingMethodSet({
               newProductCookingMethodIds,
               productId: product.id,
@@ -95,7 +96,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
             return [undefined, upsertCookingMethodsError];
           }
 
-          const [ingredients, upsertIngredientsError] =
+          const [, upsertIngredientsError] =
             await this.productGeneralRepository.upsertProductIngredientSet({
               newProductIngredientIds,
               productId: product.id,
@@ -103,7 +104,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
           if (upsertIngredientsError) {
             return [undefined, upsertIngredientsError];
           }
-          const [allergen, upsertAllergenError] =
+          const [, upsertAllergenError] =
             await this.productGeneralRepository.upsertProductAllergenSet({
               newProductAllergenIds,
               productId: product.id,
@@ -111,7 +112,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
           if (upsertAllergenError) {
             return [undefined, upsertAllergenError];
           }
-          const [foodType, upsertFoodTypesError] =
+          const [, upsertFoodTypesError] =
             await this.productGeneralRepository.upsertProductFoodTypeSet({
               newProductFoodTypeIds,
               productId: product.id,
@@ -119,7 +120,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
           if (upsertFoodTypesError) {
             return [undefined, upsertFoodTypesError];
           }
-          const [image, upsertImagesError] =
+          const [, upsertImagesError] =
             await this.productGeneralRepository.upsertProductImageSet({
               newProductImages,
               productId: product.id,

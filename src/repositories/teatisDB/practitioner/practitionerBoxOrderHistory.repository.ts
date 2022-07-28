@@ -42,7 +42,7 @@ export interface PractitionerBoxOrderHistoryRepositoryInterface {
 
 @Injectable()
 export class PractitionerBoxOrderHistoryRepository
-  implements PractitionerBoxOrderHistoryRepositoryInterface
+implements PractitionerBoxOrderHistoryRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
   async updatePractitionerBoxOrderHistory({

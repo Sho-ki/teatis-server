@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { KlaviyoRepositoryInterface } from '@Repositories/klaviyo/klaviyo.repository';
+import { ReturnValueType } from '../../filter/customerError';
 
 interface PostCustomerInformationInterface {
   email: string;
@@ -8,7 +9,7 @@ interface PostCustomerInformationInterface {
   serverSideUrl: string;
 }
 export interface PostEmailUsecaseInterface {
-  postCustomerInformation({ email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface): Promise<[void, Error]>;
+  postCustomerInformation({ email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface): Promise<ReturnValueType<void>>;
 }
 
 @Injectable()
@@ -17,8 +18,11 @@ export class PostEmailUsecase implements PostEmailUsecaseInterface {
     @Inject('KlaviyoRepositoryInterface')
     private klaviyoRepository: KlaviyoRepositoryInterface
   ){}
-  async postCustomerInformation({ email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface): Promise<[void, Error]> {
+  async postCustomerInformation({ email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface): Promise<ReturnValueType<void>> {
     const [_, response] = await this.klaviyoRepository.postCustomerInformation({ email, customerUuid, recommendBoxType, serverSideUrl });
-    return [_, response];
+    if(response){
+      return [undefined, response];
+    }
+    return [_];
   }
 }

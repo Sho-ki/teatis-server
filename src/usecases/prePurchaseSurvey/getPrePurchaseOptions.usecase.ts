@@ -2,23 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
-
-export interface GetPrePurchaseOptionsUsecaseRes {
-  unavailableCookingMethods: ProductFeature[];
-  allergens: ProductFeature[];
-  ingredientDislikes: ProductFeature[];
-  // foodType: ProductFeature[];
-  flavorDislikes: ProductFeature[];
-  categoryPreferences: ProductFeature[];
-}
+import { ReturnValueType } from '../../filter/customerError';
+import { ProductOptions } from '../../domains/ProductOptions';
 
 export interface GetPrePurchaseOptionsUsecaseInterface {
-  getPrePurchaseOptions(): Promise<[GetPrePurchaseOptionsUsecaseRes, Error]>;
+  getPrePurchaseOptions(): Promise<ReturnValueType<ProductOptions>>;
 }
 
 @Injectable()
 export class GetPrePurchaseOptionsUsecase
-  implements GetPrePurchaseOptionsUsecaseInterface
+implements GetPrePurchaseOptionsUsecaseInterface
 {
   constructor(
     @Inject('ProductGeneralRepositoryInterface')
@@ -36,9 +29,7 @@ export class GetPrePurchaseOptionsUsecase
     return list;
   }
 
-  async getPrePurchaseOptions(): Promise<
-    [GetPrePurchaseOptionsUsecaseRes, Error]
-  > {
+  async getPrePurchaseOptions(): Promise<ReturnValueType<ProductOptions>>{
     const [
       [cookingMethods, getCookMethodsError],
       [categories, getCategoriesError],
@@ -56,33 +47,27 @@ export class GetPrePurchaseOptionsUsecase
     ]);
 
     if (getCookMethodsError) {
-      return [null, getCookMethodsError];
+      return [undefined, getCookMethodsError];
     }
     if (getCategoriesError) {
-      return [null, getCategoriesError];
+      return [undefined, getCategoriesError];
     }
     if (getFlavorsError) {
-      return [null, getFlavorsError];
+      return [undefined, getFlavorsError];
     }
     // if (getFoodTypesError) {
-    //   return [null, getFoodTypesError];
+    //   return [undefined, getFoodTypesError];
     // }
     if (getIngredientsError) {
-      return [null, getIngredientsError];
+      return [undefined, getIngredientsError];
     }
     if (getAllergensError) {
-      return [null, getAllergensError];
+      return [undefined, getAllergensError];
     }
     return [
       {
-        unavailableCookingMethods: [
-          { id: 0, name: 'none', label: 'None' },
-          ...this.sortOptions(cookingMethods),
-        ],
-        allergens: [
-          { id: 0, name: 'none', label: 'None' },
-          ...this.sortOptions(allergens),
-        ],
+        unavailableCookingMethods: [{ id: 0, name: 'none', label: 'None' }, ...this.sortOptions(cookingMethods)],
+        allergens: [{ id: 0, name: 'none', label: 'None' }, ...this.sortOptions(allergens)],
         ingredientDislikes: this.sortOptions(ingredients),
         // foodType: [
         //   { id: 0, name: 'none', label: 'None' },
@@ -91,7 +76,7 @@ export class GetPrePurchaseOptionsUsecase
         flavorDislikes: this.sortOptions(flavors),
         categoryPreferences: categories,
       },
-      null,
+      undefined,
     ];
   }
 }

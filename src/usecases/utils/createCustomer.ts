@@ -5,7 +5,7 @@ import { CustomerPrePurchaseSurveyRepositoryInterface } from '@Repositories/teat
 import { Customer } from '@Domains/Customer';
 import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
 
-interface CreateCustomerUsecaseArgs extends PostPrePurchaseSurveyDto {}
+type CreateCustomerUsecaseArgs = PostPrePurchaseSurveyDto;
 
 export interface CreateCustomerUsecaseInterface {
   createCustomer({
@@ -123,10 +123,10 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
         break;
     }
 
-    let carbsPerMeal = Math.round(carbsMacronutrients * 0.25);
-    let proteinPerMeal = Math.round(proteinMacronutrients * 0.25);
-    let fatPerMeal = Math.round(fatMacronutrients * 0.25);
-    let caloriePerMeal = Math.round(BMR * 0.25);
+    const carbsPerMeal = Math.round(carbsMacronutrients * 0.25);
+    const proteinPerMeal = Math.round(proteinMacronutrients * 0.25);
+    const fatPerMeal = Math.round(fatMacronutrients * 0.25);
+    const caloriePerMeal = Math.round(BMR * 0.25);
 
     const uuid = uuidv4();
     const [customer, upsertCustomerError] =

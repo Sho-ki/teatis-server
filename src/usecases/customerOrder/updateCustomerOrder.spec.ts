@@ -5,10 +5,7 @@ import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.reposi
 import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
-import {
-  PostPrePurchaseSurveyUsecaseInterface,
-  PostPrePurchaseSurveyUsecaseRes,
-} from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { PostPrePurchaseSurveyUsecaseInterface } from '../prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 
 import { Customer } from '@Domains/Customer';
 import { OrderQueue } from '@Domains/OrderQueue';
@@ -23,6 +20,8 @@ import {
   GetSuggestionInterface,
   GetSuggestionRes,
 } from '@Usecases/utils/getSuggestion';
+import { CustomerBoxType } from '../../domains/CustomerBoxType';
+import { ReturnValueType } from '../../filter/customerError';
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface;
@@ -109,7 +108,7 @@ describe('GetOptions', () => {
 
     MockedPostPrePurchaseSurveyUsecase = {
       postPrePurchaseSurvey: () =>
-        Promise.resolve<[PostPrePurchaseSurveyUsecaseRes, Error]>([
+        Promise.resolve<ReturnValueType<CustomerBoxType>>([
           {
             customerId: 1,
             customerUuid: '123',

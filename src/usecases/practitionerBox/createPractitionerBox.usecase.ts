@@ -4,6 +4,7 @@ import { CreatePractitionerBoxDto } from '@Controllers/discoveries/dtos/createPr
 import { v4 as uuidv4 } from 'uuid';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
+import { ReturnValueType } from '../../filter/customerError';
 
 export interface CreatePractitionerBoxUsecaseInterface {
   createPractitionerBox({
@@ -12,12 +13,12 @@ export interface CreatePractitionerBoxUsecaseInterface {
     label,
     description,
     note,
-  }: CreatePractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]>;
+  }: CreatePractitionerBoxDto): Promise<ReturnValueType<PractitionerAndBox>>;
 }
 
 @Injectable()
 export class CreatePractitionerBoxUsecase
-  implements CreatePractitionerBoxUsecaseInterface
+implements CreatePractitionerBoxUsecaseInterface
 {
   constructor(
     @Inject('PractitionerBoxRepositoryInterface')
@@ -29,7 +30,7 @@ export class CreatePractitionerBoxUsecase
     label,
     description,
     note,
-  }: CreatePractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
+  }: CreatePractitionerBoxDto): Promise<ReturnValueType<PractitionerAndBox>> {
     const practitionerBoxUuid = uuidv4();
 
     const [practitionerBoxProduct, createPractitionerBoxProductError] =
@@ -41,7 +42,9 @@ export class CreatePractitionerBoxUsecase
         description,
         note,
       });
-
+    if(createPractitionerBoxProductError){
+      return [undefined, createPractitionerBoxProductError];
+    }
     return [practitionerBoxProduct];
   }
 }

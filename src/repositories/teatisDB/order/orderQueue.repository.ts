@@ -26,7 +26,7 @@ export class OrderQueueRepository implements OrderQueueRepositoryInterface {
     orderNumber,
     status,
   }: UpdateOrderQueueArgs): Promise<[OrderQueue?, Error?]> {
-    let actionDate = new Date();
+    const actionDate = new Date();
     if (status === 'scheduled') {
       actionDate.setMinutes(actionDate.getMinutes() + 3);
     }
@@ -43,15 +43,15 @@ export class OrderQueueRepository implements OrderQueueRepositoryInterface {
       update:
         status === 'fulfilled'
           ? {
-              fulfilledAt: actionDate.toISOString(),
-              status,
-            }
+            fulfilledAt: actionDate.toISOString(),
+            status,
+          }
           : status === 'ordered'
-          ? {
+            ? {
               orderedAt: actionDate.toISOString(),
               status,
             }
-          : {},
+            : {},
     });
 
     return [

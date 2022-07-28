@@ -1,16 +1,11 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Inject,
-  Param,
   Post,
   Query,
   Res,
-  UseFilters,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,17 +19,14 @@ import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSu
 import { UpdateCustomerBoxDto } from './dtos/updateCustomerBox';
 import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
-import {
-  GetPrePurchaseOptionsUsecaseInterface,
-  GetPrePurchaseOptionsUsecaseRes,
-} from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
+import { GetPrePurchaseOptionsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { UpdateCustomerOrderOfCustomerBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
-import { GetNextBoxUsecaseInterface } from '@Usecases/nextBox/getNextBox.usecase';
+import { GetNextBoxUsecaseInterface, GetNextBoxUsecaseRes } from '@Usecases/nextBox/getNextBox.usecase';
 import { GetNextBoxDto } from './dtos/getNextBox';
 import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
 import { GetCustomerNutritionUsecaseInterface } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
@@ -46,10 +38,14 @@ import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/c
 import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
 import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxDto } from './dtos/getFirstBox';
-import { GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
+import { GetFirstBoxRes, GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
+import { CustomerBoxType } from '../../domains/CustomerBoxType';
+import { ProductOptions } from '../../domains/ProductOptions';
+import { PostPurchaseSurvey } from '../../domains/PostPurchaseSurvey';
+import { Status } from '../../domains/Status';
 
 // api/discovery
 @Controller('api/discovery')
@@ -90,13 +86,12 @@ export class DiscoveriesController {
     private updateCustomerOrderOfPractitionerMealBoxUsecase: UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface,
     private teatisJob: TeatisJobs,
   ) {}
-
   // POST: api/discovery/pre-purchase-survey
   @Post('pre-purchase-survey')
   async postPrePurchaseSurvey(
     @Body() body: PostPrePurchaseSurveyDto,
     @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+  ): Promise<Response<CustomerBoxType | Error>> {
     const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
     if (error) {
@@ -105,12 +100,11 @@ export class DiscoveriesController {
 
     return response.status(201).send(usecaseResponse);
   }
-
   // GET: api/discovery/pre-purchase-options
   @Get('pre-purchase-options')
   async getPrePurchaseOptions(
     @Res() response: Response,
-  ): Promise<Response<GetPrePurchaseOptionsUsecaseRes | Error>> {
+  ): Promise<Response<ProductOptions | Error>> {
     const [usecaseResponse, error] =
       await this.getPrePurchaseOptionsUsecase.getPrePurchaseOptions();
 
@@ -126,7 +120,7 @@ export class DiscoveriesController {
   async getPostPurchaseSurvey(
     @Query() body: GetPostPurchaseSurveyInfoDto,
     @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+  ): Promise<Response<PostPurchaseSurvey | Error>> {
     const uuid = body.uuid;
     const orderNumber = body.orderNumber;
 
@@ -147,7 +141,7 @@ export class DiscoveriesController {
   async getNextBox(
     @Query() body: GetNextBoxDto,
     @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+  ): Promise<Response<GetNextBoxUsecaseRes | Error>> {
     const [usecaseResponse, error] = await this.getNextBoxUsecase.getNextBox(
       body,
     );
@@ -163,7 +157,7 @@ export class DiscoveriesController {
   async getFirstBox(
     @Query() body: GetFirstBoxDto,
     @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+  ): Promise<Response<GetFirstBoxRes | Error>> {
     const [usecaseResponse, error] = await this.getFirstBoxUsecase.getFirstBox(
       body,
     );
@@ -193,18 +187,14 @@ export class DiscoveriesController {
   async deleteCustomerBox(
     @Body() body: DeleteCustomerBoxDto,
     @Res() response: Response,
-  ): Promise<Response<any | Error>> {
-    let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
-    for (let noteAttribute of body.note_attributes) {
+  ): Promise<Response<Status | Error>> {
+    let noteAttributes = {} as { uuid?: string, practitionerBoxUuid?: string };
+    for (const noteAttribute of body.note_attributes) {
       if (noteAttribute.name === 'uuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          uuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { uuid: noteAttribute.value });
       }
       if (noteAttribute.name === 'practitionerBoxUuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          practitionerBoxUuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { practitionerBoxUuid: noteAttribute.value });
       }
     }
     const noteAttributesKeys = Object.keys(noteAttributes);
@@ -217,14 +207,14 @@ export class DiscoveriesController {
       if (error) {
         return response.status(500).send(error);
       }
-      return response.status(200).send({ status: 'OK' });
+      return response.status(200).send(usecaseResponse);
     } else {
       const [usecaseResponse, error] =
         await this.deleteCustomerBoxUsecase.deleteCustomerBox(body);
       if (error) {
         return response.status(500).send(error);
       }
-      return response.status(200).send({ status: usecaseResponse.status });
+      return response.status(200).send(usecaseResponse);
     }
   }
 
@@ -233,18 +223,14 @@ export class DiscoveriesController {
   async createOrder(
     @Body() body: UpdateCustomerOrderDto,
     @Res() response: Response,
-  ): Promise<Response<any | Error>> {
-    let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
-    for (let noteAttribute of body.note_attributes) {
+  ): Promise<Response<OrderQueue | Error>> {
+    let noteAttributes = {} as { uuid?: string, practitionerBoxUuid?: string };
+    for (const noteAttribute of body.note_attributes) {
       if (noteAttribute.name === 'uuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          uuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { uuid: noteAttribute.value });
       }
       if (noteAttribute.name === 'practitionerBoxUuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          practitionerBoxUuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { practitionerBoxUuid: noteAttribute.value });
       }
     }
     const noteAttributesKeys = Object.keys(noteAttributes);
@@ -374,7 +360,6 @@ export class DiscoveriesController {
   //   // await this.teatisJob.databaseMigrate();
   //   // const res = await this.teatisJob.getCustomerBox();
   //    const res = await this.teatisJob.storeUuidInKlaviyo();
-
 
   //   return res;
   // }

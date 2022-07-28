@@ -8,7 +8,7 @@ export interface UpdateShipheoKeyUsecaseInterface {
 
 @Injectable()
 export class UpdateShipheoKeyUsecase
-  implements UpdateShipheoKeyUsecaseInterface
+implements UpdateShipheoKeyUsecaseInterface
 {
   constructor(
     @Inject('ShipheroAuthRepositoryInterface')
@@ -26,13 +26,10 @@ export class UpdateShipheoKeyUsecase
     const client = new SecretManagerServiceClient();
     const parent = 'projects/441786500914/secrets/shiphero_key';
 
-    const [version] = await client.addSecretVersion({
-      parent: parent,
-      payload: {
-        data: Buffer.from(`Bearer ${newToken}`, 'utf8'),
-      },
+    await client.addSecretVersion({
+      parent,
+      payload: { data: Buffer.from(`Bearer ${newToken}`, 'utf8') },
     });
-    console.info(`Added secret version ${version.name}`);
 
     return ['OK'];
   }

@@ -4,12 +4,8 @@ import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPreP
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { Customer } from '@Domains/Customer';
 import { BoxType } from '@Domains/BoxType';
-
-export interface PostPrePurchaseSurveyUsecaseRes {
-  customerId: number;
-  customerUuid: string;
-  recommendBoxType: string;
-}
+import { CustomerBoxType } from '../../domains/CustomerBoxType';
+import { ReturnValueType } from '../../filter/customerError';
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
@@ -29,14 +25,11 @@ export interface PostPrePurchaseSurveyUsecaseInterface {
     email,
     unavailableCookingMethods,
     boxPlan,
-  }: PostPrePurchaseSurveyDto): Promise<
-    [PostPrePurchaseSurveyUsecaseRes, Error]
-  >;
-}
+  }: PostPrePurchaseSurveyDto): Promise<ReturnValueType<CustomerBoxType>>;}
 
 @Injectable()
 export class PostPrePurchaseSurveyUsecase
-  implements PostPrePurchaseSurveyUsecaseInterface
+implements PostPrePurchaseSurveyUsecaseInterface
 {
   constructor(
     @Inject('CreateCustomerUsecaseInterface')
@@ -71,15 +64,13 @@ export class PostPrePurchaseSurveyUsecase
     email,
     unavailableCookingMethods,
     boxPlan,
-  }: PostPrePurchaseSurveyDto): Promise<
-    [PostPrePurchaseSurveyUsecaseRes, Error]
-  > {
+  }: PostPrePurchaseSurveyDto): Promise<ReturnValueType<CustomerBoxType>> {
     const recommendBoxType: BoxType = medicalConditions
       ? this.getCustomerBoxType(
-          medicalConditions.map((condition) => {
-            return condition.name;
-          }),
-        )
+        medicalConditions.map((condition) => {
+          return condition.name;
+        }),
+      )
       : 'HC';
 
     const [customer, createCustomerError]: [Customer?, Error?] =

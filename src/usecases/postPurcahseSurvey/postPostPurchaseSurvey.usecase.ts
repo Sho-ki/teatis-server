@@ -1,8 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PostPostPurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPostPurchaseSurvey';
-import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
-import { QuestionPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/question/questionPostPurchaseSurvey.repository';
 import { CustomerPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
 
 export interface PostPostPurchaseSurveyUsecaseInterface {
@@ -16,6 +14,7 @@ export interface PostPostPurchaseSurveyUsecaseInterface {
     title,
     content,
     reason,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }: PostPostPurchaseSurveyDto): Promise<any>;
 }
 
@@ -25,7 +24,7 @@ interface PostPostPurchaseSurveyRes {
 
 @Injectable()
 export class PostPostPurchaseSurveyUsecase
-  implements PostPostPurchaseSurveyUsecaseInterface
+implements PostPostPurchaseSurveyUsecaseInterface
 {
   constructor(
     @Inject('CustomerPostPurchaseSurveyRepositoryInterface')
@@ -43,10 +42,8 @@ export class PostPostPurchaseSurveyUsecase
     content,
     reason,
   }: PostPostPurchaseSurveyDto): Promise<[PostPostPurchaseSurveyRes, Error]> {
-    let [answerCount, answerCountError] =
-      await this.customerPostPurchaseSurveyRepository.getAnswerCount({
-        customerId,
-      });
+    const [answerCount, answerCountError] =
+      await this.customerPostPurchaseSurveyRepository.getAnswerCount({ customerId });
     if (answerCountError) {
       return [null, answerCountError];
     }
@@ -58,6 +55,9 @@ export class PostPostPurchaseSurveyUsecase
           orderNumber,
           currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
         });
+      if(checkIsNewSurveyAnswerError){
+        return [undefined, checkIsNewSurveyAnswerError];
+      }
       if (checkIsNewSurveyAnswer.isNewSurveyAnswer) {
         answerCount.currentMaxAnswerCount += 1;
       }
@@ -78,6 +78,9 @@ export class PostPostPurchaseSurveyUsecase
           currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
         },
       );
-    return [{ id: postProductFeedbackRes.id }, null];
+    if(postProductFeedbackError){
+      return [undefined, postProductFeedbackError];
+    }
+    return [{ id: postProductFeedbackRes.id }, undefined];
   }
 }

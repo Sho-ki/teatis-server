@@ -22,9 +22,7 @@ interface getPractitionerArgs {
 }
 
 export interface PractitionerGeneralRepositoryInterface {
-  getPractitioner({
-    email,
-  }: getPractitionerArgs): Promise<[Practitioner?, Error?]>;
+  getPractitioner({ email }: getPractitionerArgs): Promise<[Practitioner?, Error?]>;
   createPractitioner({
     firstName,
     lastName,
@@ -42,12 +40,10 @@ export interface PractitionerGeneralRepositoryInterface {
 
 @Injectable()
 export class PractitionerGeneralRepository
-  implements PractitionerGeneralRepositoryInterface
+implements PractitionerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
-  async getPractitioner({
-    email,
-  }: getPractitionerArgs): Promise<[Practitioner?, Error?]> {
+  async getPractitioner({ email }: getPractitionerArgs): Promise<[Practitioner?, Error?]> {
     const response = await this.prisma.practitioner.findUnique({
       where: { email },
       select: {
@@ -69,10 +65,7 @@ export class PractitionerGeneralRepository
       !response.uuid ||
       !response.firstName
     ) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
     return [
@@ -167,10 +160,7 @@ export class PractitionerGeneralRepository
       !response.uuid ||
       !response.firstName
     ) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
     return [
