@@ -13,7 +13,7 @@ export interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface {
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CustomerCheckoutCart, Error]
+    [CustomerCheckoutCart?, Error?]
   >;
 }
 
@@ -33,7 +33,7 @@ export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CustomerCheckoutCart, Error]
+    [CustomerCheckoutCart?, Error?]
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'uuid', value: uuid },

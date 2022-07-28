@@ -21,7 +21,7 @@ export interface GetPostPurchaseSurveyUsecaseInterface {
   getPostPurchaseSurvey({
     uuid,
     orderNumber,
-  }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]>;
+  }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey?, Error?]>;
 }
 
 @Injectable()
@@ -44,7 +44,7 @@ export class GetPostPurchaseSurveyUsecase
   async getPostPurchaseSurvey({
     uuid,
     orderNumber,
-  }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]> {
+  }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey?, Error?]> {
     // Get last order products from shiphero
 
     const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({uuid});

@@ -25,7 +25,7 @@ export interface CreateCustomerUsecaseInterface {
     email,
     unavailableCookingMethods,
     boxPlan,
-  }: CreateCustomerUsecaseArgs): Promise<[Customer, Error]>;
+  }: CreateCustomerUsecaseArgs): Promise<[Customer?, Error?]>;
 }
 
 @Injectable()
@@ -77,7 +77,7 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
     email,
     unavailableCookingMethods = [],
     boxPlan,
-  }: CreateCustomerUsecaseArgs): Promise<[Customer, Error]> {
+  }: CreateCustomerUsecaseArgs): Promise<[Customer?, Error?]> {
     //   Calculate Method: https://www.notion.so/teatis/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
     height = this.outlierValidate('height', height);
     weight = this.outlierValidate('weight', weight);

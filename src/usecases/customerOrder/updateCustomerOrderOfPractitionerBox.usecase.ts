@@ -28,7 +28,7 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     subtotal_price,
     line_items,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue, Error]>;
+  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue?, Error?]>;
 }
 
 @Injectable()
@@ -58,7 +58,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     subtotal_price,
     line_items,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue, Error]> {
+  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue?, Error?]> {
     let [customer, getCustomerError] =
       await this.createCustomerUtil.createCustomer({
         email: shopifyCustomer.email,

@@ -13,7 +13,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
     uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    [CustomerCheckoutCart, Error]
+    [CustomerCheckoutCart?, Error?]
   >;
 }
 
@@ -34,7 +34,7 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
     uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    [CustomerCheckoutCart, Error]
+    [CustomerCheckoutCart?, Error?]
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'practitionerBoxUuid', value: practitionerBoxUuid },

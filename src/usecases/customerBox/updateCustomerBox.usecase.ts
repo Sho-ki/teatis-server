@@ -10,7 +10,7 @@ export interface UpdateCustomerBoxUsecaseInterface {
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<[Status, Error]>;
+  }: UpdateCustomerBoxDto): Promise<[Status?, Error?]>;
 }
 
 @Injectable()
@@ -28,7 +28,7 @@ export class UpdateCustomerBoxUsecase
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<[Status, Error]> {
+  }: UpdateCustomerBoxDto): Promise<[Status?, Error?]> {
     const [customer, getCustomerError] = uuid
       ? await this.customerGeneralRepository.getCustomerByUuid({ uuid })
       : await this.customerGeneralRepository.getCustomer({ email });

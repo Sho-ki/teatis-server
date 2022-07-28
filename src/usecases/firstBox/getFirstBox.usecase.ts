@@ -12,7 +12,7 @@ export interface GetFirstBoxRes {
 }
 
 export interface GetFirstBoxUsecaseInterface {
-  getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]>;
+  getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes?, Error?]>;
 }
 
 @Injectable()
@@ -26,7 +26,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
 
   async getFirstBox({
     uuid,
-  }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]> {
+  }: GetFirstBoxDto): Promise<[GetFirstBoxRes?, Error?]> {
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 

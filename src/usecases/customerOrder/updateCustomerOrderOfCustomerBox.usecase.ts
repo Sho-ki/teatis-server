@@ -23,7 +23,7 @@ export interface UpdateCustomerOrderOfCustomerBoxUsecaseInterface {
     customer,
     line_items,
     uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]>;
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue?, Error?]>;
 }
 
 @Injectable()
@@ -50,7 +50,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     customer: shopifyCustomer,
     line_items,
     uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]> {
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue?, Error?]> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({
         email: shopifyCustomer.email,

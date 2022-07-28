@@ -13,7 +13,7 @@ export interface GetNextBoxUsecaseRes {
 export interface GetNextBoxUsecaseInterface {
   getNextBox({
     uuid,
-  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]>;
+  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes?, Error?]>;
 }
 
 @Injectable()
@@ -27,7 +27,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
 
   async getNextBox({
     uuid,
-  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]> {
+  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes?, Error?]> {
     const productCount = PRODUCT_COUNT * 2;
 
     const [customer, getCustomerError] =

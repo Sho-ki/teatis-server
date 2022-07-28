@@ -10,7 +10,7 @@ export interface DeleteCustomerBoxUsecaseInterface {
   deleteCustomerBox({
     customer,
     name,
-  }: DeleteCustomerBoxDto): Promise<[Status, Error]>;
+  }: DeleteCustomerBoxDto): Promise<[Status?, Error?]>;
 }
 
 @Injectable()
@@ -31,7 +31,7 @@ export class DeleteCustomerBoxUsecase
   async deleteCustomerBox({
     customer: shopifyCustomer,
     name,
-  }: DeleteCustomerBoxDto): Promise<[Status, Error]> {
+  }: DeleteCustomerBoxDto): Promise<[Status?, Error?]> {
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({
         email: shopifyCustomer.email,

@@ -26,7 +26,6 @@ import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
   GetPrePurchaseOptionsUsecaseInterface,
-  GetPrePurchaseOptionsUsecaseRes,
 } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
@@ -56,6 +55,7 @@ import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
 import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
 import { ProductOptions } from '@Domains/ProductOptions';
 import { CustomerBoxType } from '@Domains/CustomerBoxType';
+import { NutritionNeed } from '../../domains/NutritionNeed';
 
 // api/discovery
 @Controller('api/discovery')
@@ -364,7 +364,7 @@ export class DiscoveriesController {
   @Get('customer-nutrition')
   async getCustomerNutrition(
     @Query() body: GetCustomerNutritionDto,
-    @Res() response: Response,
+    @Res() response: Response<NutritionNeed | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.getCustomerNutritionUsecase.getCustomerNutrition(body);
