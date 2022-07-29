@@ -49,6 +49,8 @@ describe('GetOptions', () => {
         ]),
     };
     MockedShipheroRepository = {
+      updateOrderHoldUntilDate: () =>
+        Promise.resolve<[void?, Error?]>([]),
       getCustomerOrderByOrderNumber: () =>
         Promise.resolve<[CustomerOrder?, Error?]>([
           {
