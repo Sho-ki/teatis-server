@@ -44,13 +44,14 @@
     "axios": "^0.24.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
-    "dotenv": "^10.0.0",
+    "dotenv": "^16.0.1",
     "graphql": "^16.2.0",
     "graphql-request": "^3.7.0",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.4.0",
@@ -94,6 +95,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFiles": [
+      "<rootDir>/../test/setup.ts"
+    ]
   }
 }
