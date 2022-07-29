@@ -163,6 +163,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
       [customerOrder, updateOrderError],
       [practitionerBoxHistory, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
+      [,updateOrderHoldUntilDateError]
     ] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
@@ -183,6 +184,9 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
         orderNumber: name,
         status: 'ordered',
       }),
+       this.shipheroRepository.updateOrderHoldUntilDate({
+        orderId: order.orderId,
+      }),
     ]);
 
     if (updateOrderError) {
@@ -193,6 +197,9 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     }
     if (orderQueueOrderedError) {
       return [undefined, orderQueueOrderedError];
+    }
+    if(updateOrderHoldUntilDateError){
+      return [undefined, updateOrderHoldUntilDateError];
     }
 
     return [

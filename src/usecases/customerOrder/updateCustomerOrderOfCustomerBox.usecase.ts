@@ -146,16 +146,22 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
       )
     }
       
-    const [customerOrder, updateOrderError] =
-      await this.shipheroRepository.updateCustomerOrder({
+    const [[customerOrder, updateOrderError], [,updateOrderHoldUntilDateError]] = await Promise.all([
+       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
-      });
+      }),
+       this.shipheroRepository.updateOrderHoldUntilDate({
+        orderId: order.orderId,
+      }),
+    ]);
     if (updateOrderError) {
       return [undefined, updateOrderError];
     }
-
+    if(updateOrderHoldUntilDateError){
+      return [undefined, updateOrderHoldUntilDateError]
+    }
     [orderQueue, orderQueueError] =
       await this.orderQueueRepository.updateOrderQueue({
         customerId: customer?.id,

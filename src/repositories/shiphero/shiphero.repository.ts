@@ -23,6 +23,10 @@ interface CreateOrderArgs {
   orderNumber: string;
 }
 
+interface UpdateOrderHoldUntilDateArgs {
+  orderId: string;
+}
+
 export interface GetOrderByOrderNumberArgs {
   orderNumber: string;
 }
@@ -30,6 +34,7 @@ export interface GetOrderByOrderNumberArgs {
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepositoryInterface {
+  updateOrderHoldUntilDate({orderId}: UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>
   getLastCustomerOrder({
     email,
   }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]>;
@@ -262,6 +267,33 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     return [customerOrders];
   }
 
+  async updateOrderHoldUntilDate({orderId}:UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>{
+      const client = new GraphQLClient(endpoint, {
+          headers: {
+            authorization: process.env.SHIPHERO_API_KEY,
+          } as HeadersInit,
+        });
+      const holdUntilDate = new Date();
+        holdUntilDate.setHours(holdUntilDate.getHours() + 24);
+      const mutation = gql`
+        mutation {
+          order_update(
+            data: {
+              order_id: "${orderId}"
+              hold_until_date: "${holdUntilDate.toISOString().replace(/T/, ' ').replace(/\..+/, '')}"
+            }
+          ) {
+            request_id
+            complexity
+            order {
+              hold_until_date
+            }
+          }
+        }`;
+    await client.request(mutation);
+    return []
+  }
+
   async updateCustomerOrder({
     orderId,
     products,
@@ -284,14 +316,13 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
      }, `);
       ct++;
     }
-
+   
     const mutation = gql`
     mutation {
       order_add_line_items (
         data: {	
           order_id: "${orderId}"
           line_items: [${orderProducts}]
-               
         }
       ) {
         request_id
@@ -299,7 +330,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     }
   `;
     await client.request(mutation);
-
+ 
     return [{ orderId, orderNumber, products }];
   }
 }
