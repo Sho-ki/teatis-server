@@ -11,6 +11,7 @@ interface GetOrderCountArgs {
 }
 
 interface CreateCartArgs {
+  discountCode?: string
   merchandiseId: string;
   sellingPlanId: string;
   attributes: { key: string; value: string }[];
@@ -21,6 +22,7 @@ export interface ShopifyRepositoryInterface {
     shopifyCustomerId,
   }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]>;
   createCart({
+    discountCode,
     merchandiseId,
     sellingPlanId,
     attributes,
@@ -32,6 +34,7 @@ const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
 @Injectable()
 export class ShopifyRepository implements ShopifyRepositoryInterface {
   async createCart({
+    discountCode,
     merchandiseId,
     sellingPlanId,
     attributes,
@@ -43,9 +46,11 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
       },
     });
     const sdk = getSdk(client);
-
     const res: CreateCartMutation = await sdk.CreateCart({
       input: {
+        discountCodes: [
+          discountCode
+        ],
         attributes,
         lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
       },
