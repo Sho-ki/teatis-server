@@ -4,6 +4,7 @@ import { CreateCheckoutCartOfPractitionerBoxDto } from '@Controllers/discoveries
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
+import { ReturnValueType } from '../../filter/customError';
 
 
 export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
@@ -13,7 +14,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
     uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    [CustomerCheckoutCart?, Error?]
+    ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -34,7 +35,7 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
     uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    [CustomerCheckoutCart?, Error?]
+    ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'practitionerBoxUuid', value: practitionerBoxUuid },

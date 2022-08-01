@@ -5,6 +5,7 @@ import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
+import { ReturnValueType } from '../../../filter/customError';
 
 export interface GetCustomerArgs {
   email: string;
@@ -37,10 +38,10 @@ interface GetCustomerNutritionArgs {
 }
 
 export interface CustomerGeneralRepositoryInterface {
-  getCustomer({ email }: GetCustomerArgs): Promise<[Customer?, Error?]>;
+  getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
   getCustomerPreference({
     email,
-  }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]>;
+  }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>>;
   getCustomerMedicalCondition({
     email,
   }: GetCustomerMedicalConditionArgs): Promise<
@@ -48,15 +49,15 @@ export interface CustomerGeneralRepositoryInterface {
   >;
   getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]>;
+  }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>>;
   getCustomerByUuid({
     uuid,
-  }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]>;
+  }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
 
   updateCustomerEmailByUuid({
     uuid,
     newEmail,
-  }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]>;
+  }: UpdateEmailByUuidArgs): Promise<ReturnValueType<Customer>>;
 }
 
 @Injectable()
@@ -67,7 +68,7 @@ export class CustomerGeneralRepository
 
   async getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionArgs): Promise<[NutritionNeed?, Error?]> {
+  }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>> {
     const response = await this.prisma.customers.findUnique({
       where: { uuid },
       select: {
@@ -136,7 +137,7 @@ export class CustomerGeneralRepository
   async updateCustomerEmailByUuid({
     uuid,
     newEmail,
-  }: UpdateEmailByUuidArgs): Promise<[Customer?, Error?]> {
+  }: UpdateEmailByUuidArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.update({
       where: { uuid },
       data: { email: newEmail },
@@ -147,7 +148,7 @@ export class CustomerGeneralRepository
 
   async getCustomerByUuid({
     uuid,
-  }: GetCustomerByUuidArgs): Promise<[Customer?, Error?]> {
+  }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({
       where: { uuid },
       select: { id: true, email: true, uuid: true },
@@ -205,7 +206,7 @@ export class CustomerGeneralRepository
   async getCustomerPreference({
     email,
     type,
-  }: GetCustomerPreferenceArgs): Promise<[Preference?, Error?]> {
+  }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>> {
     let customerPreference: number[] = [];
     switch (type) {
       case 'flavorDislikes':
@@ -271,7 +272,7 @@ export class CustomerGeneralRepository
     return [{ id: customerPreference }];
   }
 
-  async getCustomer({ email }: GetCustomerArgs): Promise<[Customer?, Error?]> {
+  async getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({
       where: { email },
       select: { id: true, email: true, uuid: true },

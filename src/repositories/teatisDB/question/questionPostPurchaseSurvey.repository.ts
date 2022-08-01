@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Question } from '@Domains/Question';
 import { SurveyQuestion } from '@Domains/SurveyQuestion';
 import { PrismaService } from '../../../prisma.service';
+import { ReturnValueType } from '../../../filter/customError';
 
 interface GetSurveyQuestionsArgs {
   surveyName: string;
@@ -10,7 +11,7 @@ interface GetSurveyQuestionsArgs {
 export interface QuestionPostPurchaseSurveyRepositoryInterface {
   getSurveyQuestions({
     surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]>;
+  }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>>;
 }
 
 @Injectable()
@@ -21,7 +22,7 @@ export class QuestionPostPurchaseSurveyRepository
 
   async getSurveyQuestions({
     surveyName,
-  }: GetSurveyQuestionsArgs): Promise<[SurveyQuestion?, Error?]> {
+  }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>> {
     const response = await this.prisma.survey.findUnique({
       where: { name: surveyName },
       select: {

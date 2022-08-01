@@ -3,12 +3,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { GetCustomerNutritionDto } from '@Controllers/discoveries/dtos/getCustomerNutrition';
 import { NutritionNeed } from '@Domains/NutritionNeed';
+import { ReturnValueType } from '../../filter/customError';
+
 
 
 export interface GetCustomerNutritionUsecaseInterface {
   getCustomerNutrition({
     uuid,
-  }: GetCustomerNutritionDto): Promise<[NutritionNeed?, Error?]>;
+  }: GetCustomerNutritionDto): Promise<ReturnValueType<NutritionNeed>>;
 }
 
 @Injectable()
@@ -23,7 +25,7 @@ export class GetCustomerNutritionUsecase
   async getCustomerNutrition({
     uuid,
   }: GetCustomerNutritionDto): Promise<
-    [NutritionNeed?, Error?]
+    ReturnValueType<NutritionNeed>
   > {
     const [customerNutrition, getCustomerNutritionError] =
       await this.customerGeneralRepository.getCustomerNutrition({ uuid });
