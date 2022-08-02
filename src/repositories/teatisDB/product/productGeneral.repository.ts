@@ -812,6 +812,13 @@ export class ProductGeneralRepository
             },
           },
         },
+        intermediateProductIngredients: {
+          select: {
+            productIngredient: {
+              select: { id: true, name: true, label: true },
+            },
+          },
+        },
       },
     });
 
@@ -890,7 +897,18 @@ export class ProductGeneralRepository
                   },
                 )
               : [],
-
+           ingredients:
+            product.intermediateProductIngredients?.length > 0
+              ? product.intermediateProductIngredients.map(
+                  (ingredient): ProductFeature => {
+                    return {
+                      id: ingredient.productIngredient.id,
+                      name: ingredient.productIngredient.name,
+                      label: ingredient.productIngredient.label,
+                    };
+                  },
+                )
+              : [],
           nutritionFact: {
             calorie: product?.productNutritionFact?.calories || 0,
             totalFat: product?.productNutritionFact?.totalFatG || 0,

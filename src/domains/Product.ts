@@ -20,6 +20,7 @@ export interface AnalyzeProduct extends Product {
   vendor: ProductFeature;
   flavor: ProductFeature;
   category: ProductFeature;
+  ingredients:  ProductFeature[];
   allergens: ProductFeature[];
   cookingMethods: ProductFeature[];
 }
@@ -38,6 +39,7 @@ export interface FullProduct extends Product {
   allergens: ProductFeature[];
   allergenLabel: string;
   foodTypes: ProductFeature[];
+  ingredients:  ProductFeature[];
   cookingMethods: ProductFeature[];
   nutritionFact: NutritionFact;
 }

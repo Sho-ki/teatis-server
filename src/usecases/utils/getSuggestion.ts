@@ -30,6 +30,7 @@ export interface GetSuggestionRes {
 
 interface FilterProductsArgs {
   filterType:
+    | 'ingredientDislikes'
     | 'inventory'
     | 'flavorDislikes'
     | 'allergens'
@@ -94,6 +95,16 @@ export class GetSuggestion implements GetSuggestionInterface {
           for (let cookingMethod of product.cookingMethods) {
             if (
               customerFilter.id.includes(cookingMethod.id) &&
+              !nextWantProducts.some((nextWant) => nextWant.id === product.id)
+            ) {
+              return false;
+            }
+          }
+          return true;
+        case 'ingredientDislikes':
+          for (let ingredient of product.ingredients) {
+            if (
+              customerFilter.id.includes(ingredient.id) &&
               !nextWantProducts.some((nextWant) => nextWant.id === product.id)
             ) {
               return false;
@@ -168,6 +179,7 @@ export class GetSuggestion implements GetSuggestionInterface {
         customerUnavailableCookingMethodsError,
       ],
       [customerCategoryPreferences, customerCategoryPreferencesError],
+      [customerIngredientDislikes, customerIngredientDislikesError],
     ] = await Promise.all([
       this.customerGeneralRepository.getCustomerMedicalCondition({
         email: customer.email,
@@ -188,6 +200,10 @@ export class GetSuggestion implements GetSuggestionInterface {
       this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
         type: 'categoryPreferences',
+      }),
+       this.customerGeneralRepository.getCustomerPreference({
+        email: customer.email,
+        type: 'ingredients',
       }),
     ]);
 
@@ -252,6 +268,18 @@ export class GetSuggestion implements GetSuggestionInterface {
       allProducts = this.filterProducts({
         filterType: 'unavailableCookingMethods',
         customerFilter: customerUnavailableCookingMethods,
+        products: allProducts,
+        nextWantProducts,
+      });
+    }
+
+    if (customerIngredientDislikesError) {
+      return [null, customerIngredientDislikesError];
+    }
+    if (customerIngredientDislikes.id.length > 0) {
+      allProducts = this.filterProducts({
+        filterType: 'ingredientDislikes',
+        customerFilter: customerIngredientDislikes,
         products: allProducts,
         nextWantProducts,
       });
