@@ -15,6 +15,7 @@ interface GetCustomerPreferenceArgs {
     | 'flavorDislikes'
     | 'allergens'
     | 'unavailableCookingMethods'
+    | 'ingredients'
     | 'categoryPreferences';
   email: string;
 }
@@ -260,6 +261,20 @@ export class CustomerGeneralRepository
             customerPreference = response.length
               ? response.map((category) => {
                   return category.productCategoryId;
+                })
+              : [];
+          });
+        break;
+       case 'ingredients':
+        await this.prisma.intermediateCustomerIngredientDislike
+          .findMany({
+            where: { customer: { email } },
+            select: { productIngredientId: true },
+          })
+          .then((response) => {
+            customerPreference = response.length
+              ? response.map((category) => {
+                  return category.productIngredientId;
                 })
               : [];
           });
