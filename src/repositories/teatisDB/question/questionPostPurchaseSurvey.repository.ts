@@ -2,27 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { Question } from '@Domains/Question';
 import { SurveyQuestion } from '@Domains/SurveyQuestion';
 import { PrismaService } from '../../../prisma.service';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface GetSurveyQuestionsArgs {
   surveyName: string;
 }
 
 export interface QuestionPostPurchaseSurveyRepositoryInterface {
-  getSurveyQuestions({
-    surveyName,
-  }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>>;
+  getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>>;
 }
 
 @Injectable()
 export class QuestionPostPurchaseSurveyRepository
-  implements QuestionPostPurchaseSurveyRepositoryInterface
+implements QuestionPostPurchaseSurveyRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async getSurveyQuestions({
-    surveyName,
-  }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>> {
+  async getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>> {
     const response = await this.prisma.survey.findUnique({
       where: { name: surveyName },
       select: {
@@ -37,27 +33,21 @@ export class QuestionPostPurchaseSurveyRepository
                 id: true,
                 name: true,
                 label: true,
-                questionCategory: {
-                  select: { name: true },
-                },
+                questionCategory: { select: { name: true } },
                 mustBeAnswered: true,
                 instruction: true,
                 placeholder: true,
-                surveyQuestionAnswerType: {
-                  select: { name: true },
-                },
-                surveyQuestionOptions: {
-                  select: { label: true, id: true, name: true },
-                },
+                surveyQuestionAnswerType: { select: { name: true } },
+                surveyQuestionOptions: { select: { label: true, id: true, name: true } },
               },
             },
           },
         },
       },
     });
-    let surveyQuestions: Question[] = [];
-    for (let question of response?.intermediateSurveyQuestions || []) {
-      let surveyQuestion: Question = {
+    const surveyQuestions: Question[] = [];
+    for (const question of response?.intermediateSurveyQuestions || []) {
+      const surveyQuestion: Question = {
         id: question.surveyQuestion.id,
         name: question.surveyQuestion.name,
         label: question.surveyQuestion.label,

@@ -7,7 +7,7 @@ import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -28,9 +28,8 @@ interface createPractitionerAndBoxArgs {
 }
 
 export interface PractitionerBoxRepositoryInterface {
-  getPractitionerAndBoxByUuid({
-    practitionerBoxUuid,
-  }: getPractitionerAndBoxByUuidArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
+  Promise<ReturnValueType<PractitionerAndBox>>;
 
   getPractitionerAndBoxByLabel({
     practitionerId,
@@ -49,7 +48,7 @@ export interface PractitionerBoxRepositoryInterface {
 
 @Injectable()
 export class PractitionerBoxRepository
-  implements PractitionerBoxRepositoryInterface
+implements PractitionerBoxRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
   async createPractitionerAndBox({
@@ -63,17 +62,15 @@ export class PractitionerBoxRepository
     const existingProducts =
       await this.prisma.intermediatePractitionerBoxProduct.findMany({
         where: { practitionerBox: { AND: [{ label, practitionerId }] } },
-        select: {
-          product: true,
-        },
+        select: { product: true },
       });
 
-      const existingProductIds = existingProducts.map(
-        ({ product }) => product.id,
-      );
-      const newProductIds = products.map((product) => product.id);
+    const existingProductIds = existingProducts.map(
+      ({ product }) => product.id,
+    );
+    const newProductIds = products.map((product) => product.id);
 
-      const [productIdsToAdd,productIdsToRemove ] = calculateAddedAndDeletedIds(existingProductIds,newProductIds )
+    const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
 
     await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
       where: {
@@ -111,11 +108,7 @@ export class PractitionerBoxRepository
         },
       },
       select: {
-        intermediatePractitionerBoxProduct: {
-          select: {
-            product: true,
-          },
-        },
+        intermediatePractitionerBoxProduct: { select: { product: true } },
         id: true,
         uuid: true,
         label: true,
@@ -186,9 +179,7 @@ export class PractitionerBoxRepository
                 id: true,
                 productVendor: { select: { label: true } },
                 externalSku: true,
-                productImages: {
-                  select: { id: true, src: true, position: true },
-                },
+                productImages: { select: { id: true, src: true, position: true } },
                 expertComment: true,
                 label: true,
                 name: true,
@@ -246,32 +237,32 @@ export class PractitionerBoxRepository
     const boxProducts: DisplayProduct[] = response
       .intermediatePractitionerBoxProduct.length
       ? response.intermediatePractitionerBoxProduct.map(({ product }) => {
-          return {
-            id: product.id,
-            sku: product.externalSku,
-            name: product.name,
-            label: product.label,
-            expertComment: product.expertComment,
-            ingredientLabel: product.ingredientLabel,
-            images: product.productImages,
-            allergenLabel: product.allergenLabel,
-            vendor: product.productVendor.label,
-            nutritionFact: {
-              calorie: product.productNutritionFact.calories,
-              totalFat: product.productNutritionFact.totalFatG,
-              saturatedFat: product.productNutritionFact.saturatedFatG,
-              transFat: product.productNutritionFact.transFatG,
-              cholesterole: product.productNutritionFact.cholesteroleMg,
-              sodium: product.productNutritionFact.sodiumMg,
-              totalCarbohydrate:
+        return {
+          id: product.id,
+          sku: product.externalSku,
+          name: product.name,
+          label: product.label,
+          expertComment: product.expertComment,
+          ingredientLabel: product.ingredientLabel,
+          images: product.productImages,
+          allergenLabel: product.allergenLabel,
+          vendor: product.productVendor.label,
+          nutritionFact: {
+            calorie: product.productNutritionFact.calories,
+            totalFat: product.productNutritionFact.totalFatG,
+            saturatedFat: product.productNutritionFact.saturatedFatG,
+            transFat: product.productNutritionFact.transFatG,
+            cholesterole: product.productNutritionFact.cholesteroleMg,
+            sodium: product.productNutritionFact.sodiumMg,
+            totalCarbohydrate:
                 product.productNutritionFact.totalCarbohydrateG,
-              dietaryFiber: product.productNutritionFact.dietaryFiberG,
-              totalSugar: product.productNutritionFact.totalSugarG,
-              addedSugar: product.productNutritionFact.addedSugarG,
-              protein: product.productNutritionFact.proteinG,
-            },
-          };
-        })
+            dietaryFiber: product.productNutritionFact.dietaryFiberG,
+            totalSugar: product.productNutritionFact.totalSugarG,
+            addedSugar: product.productNutritionFact.addedSugarG,
+            protein: product.productNutritionFact.proteinG,
+          },
+        };
+      })
       : [];
 
     const practitionerBox: PractitionerBox = {
@@ -291,9 +282,8 @@ export class PractitionerBoxRepository
     ];
   }
 
-  async getPractitionerAndBoxByUuid({
-    practitionerBoxUuid,
-  }: getPractitionerAndBoxByUuidArgs): Promise<ReturnValueType<PractitionerAndBox>> {
+  async getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
+  Promise<ReturnValueType<PractitionerAndBox>> {
     const response = await this.prisma.practitionerBox.findUnique({
       where: { uuid: practitionerBoxUuid },
       select: {
@@ -304,9 +294,7 @@ export class PractitionerBoxRepository
                 id: true,
                 productVendor: { select: { label: true } },
                 externalSku: true,
-                productImages: {
-                  select: { id: true, src: true, position: true },
-                },
+                productImages: { select: { id: true, src: true, position: true } },
                 expertComment: true,
                 label: true,
                 name: true,
@@ -365,32 +353,32 @@ export class PractitionerBoxRepository
     const boxProducts: DisplayProduct[] = response
       .intermediatePractitionerBoxProduct.length
       ? response.intermediatePractitionerBoxProduct.map(({ product }) => {
-          return {
-            id: product.id,
-            sku: product.externalSku,
-            name: product.name,
-            label: product.label,
-            expertComment: product.expertComment,
-            ingredientLabel: product.ingredientLabel,
-            images: product.productImages,
-            allergenLabel: product.allergenLabel,
-            vendor: product.productVendor.label,
-            nutritionFact: {
-              calorie: product.productNutritionFact.calories,
-              totalFat: product.productNutritionFact.totalFatG,
-              saturatedFat: product.productNutritionFact.saturatedFatG,
-              transFat: product.productNutritionFact.transFatG,
-              cholesterole: product.productNutritionFact.cholesteroleMg,
-              sodium: product.productNutritionFact.sodiumMg,
-              totalCarbohydrate:
+        return {
+          id: product.id,
+          sku: product.externalSku,
+          name: product.name,
+          label: product.label,
+          expertComment: product.expertComment,
+          ingredientLabel: product.ingredientLabel,
+          images: product.productImages,
+          allergenLabel: product.allergenLabel,
+          vendor: product.productVendor.label,
+          nutritionFact: {
+            calorie: product.productNutritionFact.calories,
+            totalFat: product.productNutritionFact.totalFatG,
+            saturatedFat: product.productNutritionFact.saturatedFatG,
+            transFat: product.productNutritionFact.transFatG,
+            cholesterole: product.productNutritionFact.cholesteroleMg,
+            sodium: product.productNutritionFact.sodiumMg,
+            totalCarbohydrate:
                 product.productNutritionFact.totalCarbohydrateG,
-              dietaryFiber: product.productNutritionFact.dietaryFiberG,
-              totalSugar: product.productNutritionFact.totalSugarG,
-              addedSugar: product.productNutritionFact.addedSugarG,
-              protein: product.productNutritionFact.proteinG,
-            },
-          };
-        })
+            dietaryFiber: product.productNutritionFact.dietaryFiberG,
+            totalSugar: product.productNutritionFact.totalSugarG,
+            addedSugar: product.productNutritionFact.addedSugarG,
+            protein: product.productNutritionFact.proteinG,
+          },
+        };
+      })
       : [];
 
     const practitionerBox: PractitionerBox = {

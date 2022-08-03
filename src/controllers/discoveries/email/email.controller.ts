@@ -31,11 +31,11 @@ export class EmailController {
     const serverSideUrl = body.klaviyoListName === 'PotentialCustomer'
       ? `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`
       : `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST}/members?api_key=${process.env.KLAVIYO_API}`;
-    const [usecaseResponse, error] = await this.postEmailUsecase.postCustomerInformation({...body, serverSideUrl})
+    const [usecaseResponse, error] = await this.postEmailUsecase.postCustomerInformation({ ...body, serverSideUrl });
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(usecaseResponse)
+    return response.status(200).send(usecaseResponse);
   }
   // DELETE: api/discovery/email
   @Delete('email')
@@ -46,10 +46,10 @@ export class EmailController {
     const serverSideUrl = body.klaviyoListName === 'PotentialCustomer'
       ? `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`
       : `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST}/members?api_key=${process.env.KLAVIYO_API}`;
-    const [usecaseResponse, error] = await this.deleteEmailUsecase.deleteUserInformation({...body, serverSideUrl})
+    const [usecaseResponse, error] = await this.deleteEmailUsecase.deleteUserInformation({ ...body, serverSideUrl });
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(usecaseResponse)
+    return response.status(200).send(usecaseResponse);
   }
 }

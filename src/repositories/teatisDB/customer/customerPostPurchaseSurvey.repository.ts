@@ -5,7 +5,7 @@ import { CustomerAnswer } from '@Domains/CustomerAnswer';
 
 import { PrismaService } from '../../../prisma.service';
 import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface GetCustomerAnswersArgs {
   email: string;
@@ -29,8 +29,8 @@ interface PostPostPurchaseSurveyCustomerAnswerArgs {
   answer: {
     text?: string;
     numeric?: number;
-    singleOption?: { id: number; label: string; name: string };
-    multipleOptions?: { id: number; label: string; name: string }[];
+    singleOption?: { id: number, label: string, name: string };
+    multipleOptions?: { id: number, label: string, name: string }[];
     bool?: boolean;
   };
   title?: string;
@@ -69,9 +69,7 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
     ReturnValueType<PostPurchaseSurveyAnswer>
   >;
 
-  getAnswerCount({
-    customerId,
-  }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]>;
+  getAnswerCount({ customerId }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]>;
 
   checkIsNewSurveyAnswer({
     orderNumber,
@@ -81,7 +79,7 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
 
 @Injectable()
 export class CustomerPostPurchaseSurveyRepository
-  implements CustomerPostPurchaseSurveyRepositoryInterface
+implements CustomerPostPurchaseSurveyRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
@@ -95,19 +93,13 @@ export class CustomerPostPurchaseSurveyRepository
       where: { orderNumber, answerCount: currentMaxAnswerCount },
       _max: { answerCount: true },
     });
-    return [
-      { isNewSurveyAnswer: count._max.answerCount !== currentMaxAnswerCount },
-    ];
+    return [{ isNewSurveyAnswer: count._max.answerCount !== currentMaxAnswerCount }];
   }
 
-  async getAnswerCount({
-    customerId,
-  }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]> {
+  async getAnswerCount({ customerId }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]> {
     const res = await this.prisma.surveyQuestionAnswer.aggregate({
       where: { customerId },
-      _max: {
-        answerCount: true,
-      },
+      _max: { answerCount: true },
     });
     const currentMaxAnswerCount = res?._max?.answerCount;
 
@@ -118,7 +110,7 @@ export class CustomerPostPurchaseSurveyRepository
     email,
     orderNumber,
   }: GetCustomerAnswersArgs): Promise<ReturnValueType<CustomerAnswer>> {
-    let getCustomerRes = await this.prisma.customers.findUnique({
+    const getCustomerRes = await this.prisma.customers.findUnique({
       where: { email },
       select: {
         id: true,
@@ -133,13 +125,8 @@ export class CustomerPostPurchaseSurveyRepository
             answerText: true,
             answerNumeric: true,
             answerBool: true,
-            intermediateSurveyQuestionAnswerProduct: {
-              select: {
-                surveyQuestionOption: {
-                  select: { label: true, id: true, name: true },
-                },
-              },
-            },
+            intermediateSurveyQuestionAnswerProduct:
+            { select: { surveyQuestionOption: { select: { label: true, id: true, name: true } } } },
             responseId: true,
             reason: true,
             title: true,
@@ -152,9 +139,9 @@ export class CustomerPostPurchaseSurveyRepository
       },
     });
 
-    let customerAnswers: Answer[] = [];
-    for (let customerAnswer of getCustomerRes.surveyQuestionAnswer) {
-      let answer: Answer = {
+    const customerAnswers: Answer[] = [];
+    for (const customerAnswer of getCustomerRes.surveyQuestionAnswer) {
+      const answer: Answer = {
         id: customerAnswer.id,
         surveyQuestionId: customerAnswer.surveyQuestionId,
         answer: {
@@ -164,10 +151,10 @@ export class CustomerPostPurchaseSurveyRepository
           multipleOptionIds:
             customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
               ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
-                  (option) => {
-                    return option.surveyQuestionOption.id;
-                  },
-                )
+                (option) => {
+                  return option.surveyQuestionOption.id;
+                },
+              )
               : [],
           bool: customerAnswer.answerBool,
         },
@@ -207,9 +194,7 @@ export class CustomerPostPurchaseSurveyRepository
     ReturnValueType<PostPurchaseSurveyAnswer>
   > {
     let prismaQuery: Prisma.SurveyQuestionAnswerUpsertArgs = {
-      where: {
-        responseId,
-      },
+      where: { responseId },
       create: undefined,
       update: undefined,
     };
@@ -217,20 +202,12 @@ export class CustomerPostPurchaseSurveyRepository
       prismaQuery = {
         ...prismaQuery,
         create: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
+          customer: { connect: { id: customerId } },
+          surveyQuestion: { connect: { id } },
           product: productId
-            ? {
-                connect: { id: productId },
-              }
+            ? { connect: { id: productId } }
             : {},
-          answerOption: {
-            connect: { id: answer.singleOption.id },
-          },
+          answerOption: { connect: { id: answer.singleOption.id } },
           responseId,
           title,
           content,
@@ -239,20 +216,12 @@ export class CustomerPostPurchaseSurveyRepository
           answerCount: currentMaxAnswerCount,
         },
         update: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
+          customer: { connect: { id: customerId } },
+          surveyQuestion: { connect: { id } },
           product: productId
-            ? {
-                connect: { id: productId },
-              }
+            ? { connect: { id: productId } }
             : {},
-          answerOption: {
-            connect: { id: answer.singleOption.id },
-          },
+          answerOption: { connect: { id: answer.singleOption.id } },
           responseId,
           title,
           content,
@@ -265,17 +234,11 @@ export class CustomerPostPurchaseSurveyRepository
       prismaQuery = {
         ...prismaQuery,
         create: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
+          customer: { connect: { id: customerId } },
+          surveyQuestion: { connect: { id } },
 
           product: productId
-            ? {
-                connect: { id: productId },
-              }
+            ? { connect: { id: productId } }
             : {},
           responseId,
           title,
@@ -290,15 +253,9 @@ export class CustomerPostPurchaseSurveyRepository
           },
         },
         update: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
-          product: {
-            connect: { id: productId },
-          },
+          customer: { connect: { id: customerId } },
+          surveyQuestion: { connect: { id } },
+          product: { connect: { id: productId } },
           responseId,
           title,
           content,
@@ -318,16 +275,10 @@ export class CustomerPostPurchaseSurveyRepository
       prismaQuery = {
         ...prismaQuery,
         create: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
+          customer: { connect: { id: customerId } },
+          surveyQuestion: { connect: { id } },
           product: productId
-            ? {
-                connect: { id: productId },
-              }
+            ? { connect: { id: productId } }
             : {},
           answerBool: answer.bool,
           answerNumeric: answer.numeric,
@@ -340,16 +291,10 @@ export class CustomerPostPurchaseSurveyRepository
           answerCount: currentMaxAnswerCount,
         },
         update: {
-          customer: {
-            connect: { id: customerId },
-          },
-          surveyQuestion: {
-            connect: { id: id },
-          },
+          customer: { connect: { id: customerId } },
+          surveyQuestion: { connect: { id } },
           product: productId
-            ? {
-                connect: { id: productId },
-              }
+            ? { connect: { id: productId } }
             : {},
           answerBool: answer.bool,
           answerNumeric: answer.numeric,

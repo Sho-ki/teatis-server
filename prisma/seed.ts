@@ -39,7 +39,7 @@ async function main() {
     },
   ];
 
-  for (let customerNutritionItem of customerNutritionItems) {
+  for (const customerNutritionItem of customerNutritionItems) {
     await prisma.customerNutritionNeed.upsert({
       where: { name: customerNutritionItem.name },
       update: {},
@@ -82,7 +82,7 @@ async function main() {
     },
   ];
 
-  for (let surveyCreationItem of surveyCreationItems) {
+  for (const surveyCreationItem of surveyCreationItems) {
     const surveyQuery = await prisma.survey.upsert({
       where: { name: surveyCreationItem.surveyName },
       create: {
@@ -148,7 +148,7 @@ async function main() {
       },
     });
     if (surveyCreationItem.question['options']) {
-      for (let option of surveyCreationItem.question['options']) {
+      for (const option of surveyCreationItem.question['options']) {
         await prisma.surveyQuestionOption.upsert({
           where: {
             QuestionOptionIdentifier: {
@@ -291,7 +291,7 @@ async function main() {
     fs.readFileSync('./defaultData/medicalCondition.json', 'utf8'),
   );
 
-  for (let medicalCondition of medicalConditionsData.medicalConditions) {
+  for (const medicalCondition of medicalConditionsData.medicalConditions) {
     await prisma.customerMedicalCondition.upsert({
       where: { name: medicalCondition.name },
       create: { name: medicalCondition.name, label: medicalCondition.label },
@@ -302,6 +302,7 @@ async function main() {
 
 main()
   .catch((e) => {
+    // eslint-disable-next-line no-console
     console.error(e);
     process.exit(1);
   })

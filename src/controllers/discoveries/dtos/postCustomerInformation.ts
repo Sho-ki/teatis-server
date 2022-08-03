@@ -2,14 +2,14 @@ import { IsEmail, IsString } from 'class-validator';
 
 export class PostCustomerInformationDto {
   @IsEmail()
-  email: string;
+    email: string;
 
   @IsString()
-  customerUuid: string;
+    customerUuid: string;
 
   @IsString()
-  recommendBoxType: string;
+    recommendBoxType: string;
 
   @IsString()
-  klaviyoListName: "PotentialCustomer" | "PotentialCustomerPractitioner";
+    klaviyoListName: 'PotentialCustomer' | 'PotentialCustomerPractitioner';
 }

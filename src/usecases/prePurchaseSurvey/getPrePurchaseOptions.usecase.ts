@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
 import { ProductOptions } from '../../domains/ProductOptions';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 export interface GetPrePurchaseOptionsUsecaseInterface {
   getPrePurchaseOptions(): Promise<ReturnValueType<ProductOptions>>;
@@ -11,7 +11,7 @@ export interface GetPrePurchaseOptionsUsecaseInterface {
 
 @Injectable()
 export class GetPrePurchaseOptionsUsecase
-  implements GetPrePurchaseOptionsUsecaseInterface
+implements GetPrePurchaseOptionsUsecaseInterface
 {
   constructor(
     @Inject('ProductGeneralRepositoryInterface')
@@ -31,7 +31,7 @@ export class GetPrePurchaseOptionsUsecase
 
   async getPrePurchaseOptions(): Promise<
     ReturnValueType<ProductOptions>
-  > {
+    > {
     const [
       [cookingMethods, getCookMethodsError],
       [categories, getCategoriesError],
@@ -68,14 +68,8 @@ export class GetPrePurchaseOptionsUsecase
     }
     return [
       {
-        unavailableCookingMethods: [
-          { id: 0, name: 'none', label: 'None' },
-          ...this.sortOptions(cookingMethods),
-        ],
-        allergens: [
-          { id: 0, name: 'none', label: 'None' },
-          ...this.sortOptions(allergens),
-        ],
+        unavailableCookingMethods: [{ id: 0, name: 'none', label: 'None' }, ...this.sortOptions(cookingMethods)],
+        allergens: [{ id: 0, name: 'none', label: 'None' }, ...this.sortOptions(allergens)],
         ingredientDislikes: this.sortOptions(ingredients),
         // foodType: [
         //   { id: 0, name: 'none', label: 'None' },

@@ -2,15 +2,15 @@ import { IsString } from 'class-validator';
 
 export class CreateCheckoutCartOfPractitionerBoxOldDto {
   @IsString()
-  merchandiseId: string;
+    merchandiseId: string;
 
   @IsString()
-  sellingPlanId: string;
+    sellingPlanId: string;
 
   //  CustomerUuid
   @IsString()
-  uuid: string;
+    uuid: string;
 
   @IsString()
-  practitionerBoxUuid: string;
+    practitionerBoxUuid: string;
 }

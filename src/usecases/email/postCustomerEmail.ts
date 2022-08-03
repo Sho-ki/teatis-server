@@ -1,8 +1,7 @@
-import { PostCustomerInformationDto } from "@Controllers/discoveries/dtos/postCustomerInformation";
-import { Inject, Injectable } from "@nestjs/common";
-import { KlaviyoRepositoryInterface } from "@Repositories/klaviyo/klaviyo.repository";
+import { Inject, Injectable } from '@nestjs/common';
+import { KlaviyoRepositoryInterface } from '@Repositories/klaviyo/klaviyo.repository';
 import { Status } from '@Domains/Status';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface PostCustomerInformationInterface {
   email: string;
@@ -11,7 +10,8 @@ interface PostCustomerInformationInterface {
   serverSideUrl: string;
 }
 export interface PostEmailUsecaseInterface {
-  postCustomerInformation({email, customerUuid, recommendBoxType, serverSideUrl}: PostCustomerInformationInterface): Promise<ReturnValueType<Status>>;
+  postCustomerInformation({ email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface):
+  Promise<ReturnValueType<Status>>;
 }
 
 @Injectable()
@@ -20,11 +20,14 @@ export class PostEmailUsecase implements PostEmailUsecaseInterface {
     @Inject('KlaviyoRepositoryInterface')
     private klaviyoRepository: KlaviyoRepositoryInterface
   ){}
-  async postCustomerInformation({email, customerUuid, recommendBoxType, serverSideUrl}: PostCustomerInformationInterface): Promise<ReturnValueType<Status>> {
-    const [, error] = await this.klaviyoRepository.postCustomerInformation({email, customerUuid, recommendBoxType, serverSideUrl});
+  async postCustomerInformation(
+    { email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface):
+  Promise<ReturnValueType<Status>> {
+    const [, error] = await this.klaviyoRepository.postCustomerInformation(
+      { email, customerUuid, recommendBoxType, serverSideUrl });
     if(error){
-      return [undefined, error]
+      return [undefined, error];
     }
-    return [{success:true}];
+    return [{ success: true }];
   }
 }

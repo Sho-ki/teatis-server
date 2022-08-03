@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateCheckoutCartOfPractitionerBoxOldDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerBoxOldDto';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
 
 export interface CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface {
@@ -19,7 +19,7 @@ export interface CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface {
 
 @Injectable()
 export class CreateCheckoutCartOfPractitionerBoxOldUsecase
-  implements CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface
+implements CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface
 {
   constructor(
     @Inject('ShopifyRepositoryInterface')
@@ -36,18 +36,14 @@ export class CreateCheckoutCartOfPractitionerBoxOldUsecase
   }: CreateCheckoutCartOfPractitionerBoxOldDto):  Promise<
     ReturnValueType<CustomerCheckoutCart>
   > {
-    const attributes: { key: string; value: string }[] = [
-      { key: 'practitionerBoxUuid', value: practitionerBoxUuid },
-    ];
+    const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }];
 
     const [customer, getCustomerError] =
-    await this.customerGeneralRepository.getCustomerByUuid({
-      uuid,
-    });
+    await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
-  if (getCustomerError) {
-    return [null, getCustomerError];
-  }
+    if (getCustomerError) {
+      return [null, getCustomerError];
+    }
 
     const [cart, createCheckoutCartOfPractitionerBoxOldError] =
       await this.ShopifyRepository.createCart({
@@ -59,6 +55,6 @@ export class CreateCheckoutCartOfPractitionerBoxOldUsecase
       return [null, createCheckoutCartOfPractitionerBoxOldError];
     }
 
-    return [{ checkoutUrl: cart.checkoutUrl, email:customer.email }, null];
+    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, null];
   }
 }

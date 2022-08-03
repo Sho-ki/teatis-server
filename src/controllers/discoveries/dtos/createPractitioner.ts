@@ -2,40 +2,40 @@ import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class CreatePractitionerDto {
   @IsString()
-  firstName: string;
+    firstName: string;
 
   @IsString()
   @IsOptional()
-  middleName?: string;
+    middleName?: string;
 
   @IsString()
   @IsOptional()
-  lastName?: string;
+    lastName?: string;
 
   @IsString()
   @IsOptional()
-  profileImage?: string;
+    profileImage?: string;
 
   @IsString()
   @IsOptional()
-  message?: string;
+    message?: string;
 
   @IsEmail()
-  email: string;
+    email: string;
 
   @IsString()
   @IsOptional()
-  instagram?: string;
+    instagram?: string;
 
   @IsString()
   @IsOptional()
-  facebook?: string;
+    facebook?: string;
 
   @IsString()
   @IsOptional()
-  twitter?: string;
+    twitter?: string;
 
   @IsString()
   @IsOptional()
-  website?: string;
+    website?: string;
 }

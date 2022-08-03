@@ -4,8 +4,7 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
 import { Status } from '@Domains/Status';
 import { UpdateCustomerBoxDto } from '@Controllers/discoveries/dtos/updateCustomerBox';
-import { ReturnValueType } from '../../filter/customError';
-
+import { ReturnValueType } from '@Filters/customError';
 
 export interface UpdateCustomerBoxUsecaseInterface {
   updateCustomerBox({
@@ -17,7 +16,7 @@ export interface UpdateCustomerBoxUsecaseInterface {
 
 @Injectable()
 export class UpdateCustomerBoxUsecase
-  implements UpdateCustomerBoxUsecaseInterface
+implements UpdateCustomerBoxUsecaseInterface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
@@ -38,15 +37,13 @@ export class UpdateCustomerBoxUsecase
       return [null, getCustomerError];
     }
 
-    const [_product, deleteCustomerBoxProductError] =
-      await this.customerBoxRepository.deleteCustomerBoxProduct({
-        customerId: customer.id,
-      });
+    const [, deleteCustomerBoxProductError] =
+      await this.customerBoxRepository.deleteCustomerBoxProduct({ customerId: customer.id });
     if (deleteCustomerBoxProductError) {
       return [null, deleteCustomerBoxProductError];
     }
 
-    const [product, postCustomerBoxProductError] =
+    const [, postCustomerBoxProductError] =
       await this.customerBoxRepository.postCustomerBoxProduct({
         customerId: customer.id,
         products,
@@ -56,11 +53,6 @@ export class UpdateCustomerBoxUsecase
       return [null, postCustomerBoxProductError];
     }
 
-    return [
-      {
-        success: true,
-      },
-      null,
-    ];
+    return [{ success: true }, null];
   }
 }

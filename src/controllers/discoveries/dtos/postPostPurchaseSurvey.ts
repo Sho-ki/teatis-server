@@ -1,8 +1,4 @@
 import {
-  IsArray,
-  IsBoolean,
-  IsEmail,
-  IsInt,
   IsNumber,
   IsObject,
   IsOptional,
@@ -11,39 +7,39 @@ import {
 
 export class PostPostPurchaseSurveyDto {
   @IsNumber()
-  id: number;
+    id: number;
 
   @IsNumber()
-  customerId: number;
+    customerId: number;
 
   @IsString()
-  orderNumber: string;
+    orderNumber: string;
 
   @IsString()
-  responseId: string;
+    responseId: string;
 
   @IsObject()
-  answer: {
+    answer: {
     text?: string;
     numeric?: number;
-    singleOption?: { id: number; label: string; name: string };
-    multipleOptions?: { id: number; label: string; name: string }[];
+    singleOption?: { id: number, label: string, name: string };
+    multipleOptions?: { id: number, label: string, name: string }[];
     bool?: boolean;
   };
 
   @IsOptional()
   @IsString()
-  title?: string;
+    title?: string;
 
   @IsOptional()
   @IsString()
-  content?: string;
+    content?: string;
 
   @IsOptional()
   @IsNumber()
-  productId?: number;
+    productId?: number;
 
   @IsOptional()
   @IsString()
-  reason?: string;
+    reason?: string;
 }

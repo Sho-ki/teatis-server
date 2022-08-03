@@ -1,3 +1,7 @@
+/* eslint-disable array-bracket-newline */
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import { PrismaService } from '../../prisma.service';
@@ -39,11 +43,11 @@ interface typeformTmp {
 interface KlaviyoArgs {
    profiles: [
         {
-        email: string,
+        email: string;
         customerUuid:string;
-    recommendBoxType:"HC"|"HCLS";
+    recommendBoxType:'HC'|'HCLS';
         }
-    ]
+    ];
 }
 
 interface TeatisJobsInterface {
@@ -61,42 +65,36 @@ export class TeatisJobs implements TeatisJobsInterface {
 
   async storeUuidInKlaviyo():Promise<any>{
     for(let i = 0; i < 5000; i += 100){
-    const customers = await this.prisma.customers.findMany({
-      where:{id:{lte:i+99, gte:i }},
-      select:{
-        id:true,
-        email:true,
-        uuid:true,
-        intermediateCustomerMedicalConditions:{
-          where:{customerMedicalConditionId:6}
-        }
-      }
-    })
-  
-    let args = {profiles:[]}
+      const customers = await this.prisma.customers.findMany({
+        where: { id: { lte: i+99, gte: i } },
+        select: {
+          id: true,
+          email: true,
+          uuid: true,
+          intermediateCustomerMedicalConditions: { where: { customerMedicalConditionId: 6 } },
+        },
+      });
 
-    for(let customer of customers){
-      const recommendBoxType = 
-      customer.intermediateCustomerMedicalConditions.length?"HCLS":"HC"
-      args.profiles.push({
-        email: customer.email,
-        customerUuid:customer.uuid,
-        recommendBoxType,
-      })
-    }
-    
-      await axios.post( `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`, args).catch(error => error)
+      const args = { profiles: [] };
+
+      for(const customer of customers){
+        const recommendBoxType =
+      customer.intermediateCustomerMedicalConditions.length?'HCLS':'HC';
+        args.profiles.push({
+          email: customer.email,
+          customerUuid: customer.uuid,
+          recommendBoxType,
+        });
+      }
+
+      await axios.post( `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`, args).catch(error => error);
     }
   }
 
-  
-
-  
   async getCustomerBox(): Promise<any> {
     const customerPref = await this.prisma.customers.findMany({
       where: {
-        OR: [
-          // email
+        OR: [// email
         ].map((email) => {
           return { email };
         }),
@@ -104,20 +102,16 @@ export class TeatisJobs implements TeatisJobsInterface {
       select: {
         id: true,
         email: true,
-        intermediateCustomerCategoryPreferences: {
-          select: { productCategory: { select: { name: true } } },
-        },
+        intermediateCustomerCategoryPreferences: { select: { productCategory: { select: { name: true } } } },
       },
     });
 
-    let customerInfo = [];
-    for (let customer of customerPref) {
-      const [dataSet, err] = await this.shipheroRepository.getCustomerOrders({
-        email: customer.email,
-      });
+    const customerInfo = [];
+    for (const customer of customerPref) {
+      const [dataSet, err] = await this.shipheroRepository.getCustomerOrders({ email: customer.email });
 
-      let orderInfo = [];
-      for (let orderData of dataSet) {
+      const orderInfo = [];
+      for (const orderData of dataSet) {
         const productBySku = await this.prisma.product.findMany({
           where: {
             OR: orderData.products.map((product) => {
@@ -136,7 +130,7 @@ export class TeatisJobs implements TeatisJobsInterface {
           }),
         });
       }
-      let customerOrders = {
+      const customerOrders = {
         customerId: customer.id,
         customerCategory: customer.intermediateCustomerCategoryPreferences.map(
           (e) => {
@@ -156,10 +150,8 @@ export class TeatisJobs implements TeatisJobsInterface {
     const emailList = [];
 
     console.log(emailList.length);
-    for (let email of emailList) {
-      const res = await this.prisma.customers.findUnique({
-        where: { email },
-      });
+    for (const email of emailList) {
+      const res = await this.prisma.customers.findUnique({ where: { email } });
       if (!res?.email) {
         count += 1;
       }
@@ -173,7 +165,7 @@ export class TeatisJobs implements TeatisJobsInterface {
 
     const customer: typeformTmp[] = data.data.slice();
 
-    for (let cu of customer) {
+    for (const cu of customer) {
       console.log(cu);
       let gender = cu.gender;
       if (gender === 'Non binary') {
@@ -245,12 +237,12 @@ export class TeatisJobs implements TeatisJobsInterface {
           break;
       }
 
-      let carbsPerMeal = Math.round(carbsMacronutrients * 0.25);
-      let proteinPerMeal = Math.round(proteinMacronutrients * 0.25);
-      let fatPerMeal = Math.round(fatMacronutrients * 0.25);
-      let caloriePerMeal = Math.round(BMR * 0.25);
+      const carbsPerMeal = Math.round(carbsMacronutrients * 0.25);
+      const proteinPerMeal = Math.round(proteinMacronutrients * 0.25);
+      const fatPerMeal = Math.round(fatMacronutrients * 0.25);
+      const caloriePerMeal = Math.round(BMR * 0.25);
 
-      let medicalConditionsObj = {
+      const medicalConditionsObj = {
         highBloodPressure: cu.highBloodPressure,
         heartDiseases: cu.heartDiseases,
         highCholesterol: cu.highCholesterol,
@@ -281,11 +273,11 @@ export class TeatisJobs implements TeatisJobsInterface {
         targetA1c = 'unknown';
       }
 
-      let mediKeys = Object.keys(medicalConditionsObj);
-      let filteredMediArr = mediKeys.filter((key) => {
+      const mediKeys = Object.keys(medicalConditionsObj);
+      const filteredMediArr = mediKeys.filter((key) => {
         return medicalConditionsObj[key] !== '';
       });
-      let mediQuery = [
+      const mediQuery = [
         {
           medicalConditionValue: a1c,
           customerMedicalCondition: {
@@ -305,7 +297,7 @@ export class TeatisJobs implements TeatisJobsInterface {
           },
         },
       ];
-      for (let medi of filteredMediArr) {
+      for (const medi of filteredMediArr) {
         mediQuery.push({
           medicalConditionValue: 'yes',
           customerMedicalCondition: {
@@ -317,7 +309,7 @@ export class TeatisJobs implements TeatisJobsInterface {
         });
       }
 
-      let cateObj = {
+      const cateObj = {
         mealShake: cu.mealShake,
         oatmeal: cu.oatmeal,
         oatBar: cu.oatBar,
@@ -325,13 +317,13 @@ export class TeatisJobs implements TeatisJobsInterface {
         cereal: cu.cereal,
         soup: cu.soup,
       };
-      let cateObjKeys = Object.keys(cateObj);
-      let filteredCateArr = cateObjKeys.filter((key) => {
+      const cateObjKeys = Object.keys(cateObj);
+      const filteredCateArr = cateObjKeys.filter((key) => {
         return cateObj[key] !== '';
       });
 
-      let cateQuery = [];
-      for (let cate of filteredCateArr) {
+      const cateQuery = [];
+      for (const cate of filteredCateArr) {
         cateQuery.push({
           productCategory: {
             connectOrCreate: {
@@ -353,7 +345,7 @@ export class TeatisJobs implements TeatisJobsInterface {
         });
       }
       console.log(cu.allergies);
-      let alleQuery = [];
+      const alleQuery = [];
       if (
         cu.allergies.includes('tree nut') ||
         cu.allergies.includes('Tree nut')
@@ -481,15 +473,9 @@ export class TeatisJobs implements TeatisJobsInterface {
           heightCm: height,
           weightKg: weight,
           activeLevel,
-          intermediateCustomerAllergens: {
-            create: alleQuery,
-          },
-          intermediateCustomerMedicalConditions: {
-            create: mediQuery,
-          },
-          intermediateCustomerCategoryPreferences: {
-            create: cateQuery,
-          },
+          intermediateCustomerAllergens: { create: alleQuery },
+          intermediateCustomerMedicalConditions: { create: mediQuery },
+          intermediateCustomerCategoryPreferences: { create: cateQuery },
           intermediateCustomerNutritionNeeds: {
             create: [
               {

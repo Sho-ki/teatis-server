@@ -5,11 +5,10 @@ import {
 } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
 import { GetPrePurchaseOptionsUsecase } from './getPrePurchaseOptions.usecase';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 describe('GetOptions', () => {
   let usecase: GetPrePurchaseOptionsUsecase;
-  let repo: ProductGeneralRepositoryInterface;
   let MockedProductGeneralRepository: Partial<ProductGeneralRepositoryInterface>;
 
   beforeEach(async () => {
@@ -19,16 +18,16 @@ describe('GetOptions', () => {
           target === 'flavor'
             ? [{ id: 1, name: 'mint', label: 'Mint' }]
             : target === 'category'
-            ? [{ id: 1, name: 'chips', label: 'Chips' }]
-            : target === 'cookingMethod'
-            ? [{ id: 1, name: 'shake', label: 'Shake' }]
-            : target === 'ingredient'
-            ? [{ id: 1, name: 'nut', label: 'Nut' }]
-            : target === 'allergen'
-            ? [{ id: 1, name: 'fish', label: 'Fish' }]
-            : target === 'foodType'
-            ? [{ id: 1, name: 'organic', label: 'Organic' }]
-            : [],
+              ? [{ id: 1, name: 'chips', label: 'Chips' }]
+              : target === 'cookingMethod'
+                ? [{ id: 1, name: 'shake', label: 'Shake' }]
+                : target === 'ingredient'
+                  ? [{ id: 1, name: 'nut', label: 'Nut' }]
+                  : target === 'allergen'
+                    ? [{ id: 1, name: 'fish', label: 'Fish' }]
+                    : target === 'foodType'
+                      ? [{ id: 1, name: 'organic', label: 'Organic' }]
+                      : [],
           null,
         ]),
     };
@@ -56,11 +55,8 @@ describe('GetOptions', () => {
   });
 
   it('throws an error if no options are found', async () => {
-    MockedProductGeneralRepository.getOptions = ({ target }: GetOptionsArgs) =>
-      Promise.resolve<ReturnValueType<ProductFeature[]>>([
-        null,
-        { name: 'Not found error', message: 'Options not found' },
-      ]);
+    MockedProductGeneralRepository.getOptions = () =>
+      Promise.resolve<ReturnValueType<ProductFeature[]>>([null, { name: 'Not found error', message: 'Options not found' }]);
     const [res, error] = await usecase.getPrePurchaseOptions();
     expect(error.name).toBe('Not found error');
     expect(res).toBe(null);

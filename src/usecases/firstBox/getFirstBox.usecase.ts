@@ -24,9 +24,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
-  async getFirstBox({
-    uuid,
-  }: GetFirstBoxDto): Promise<[GetFirstBoxRes?, Error?]> {
+  async getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes?, Error?]> {
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 

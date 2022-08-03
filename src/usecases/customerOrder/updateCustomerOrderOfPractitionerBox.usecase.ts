@@ -12,8 +12,7 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
-import { ReturnValueType } from '../../filter/customError';
-
+import { ReturnValueType } from '@Filters/customError';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -35,7 +34,7 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
 
 @Injectable()
 export class UpdateCustomerOrderOfPractitionerBoxUsecase
-  implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
+implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepositoryInterface')
@@ -61,16 +60,14 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     line_items,
     practitionerBoxUuid,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
-    let [customer, getCustomerError] =
-      await this.createCustomerUtil.createCustomer({
-        email: shopifyCustomer.email,
-      });
+    const [customer, getCustomerError] =
+      await this.createCustomerUtil.createCustomer({ email: shopifyCustomer.email });
 
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
 
-    let [orderQueueScheduled, orderQueueScheduledError] =
+    const [orderQueueScheduled, orderQueueScheduledError] =
       await this.orderQueueRepository.updateOrderQueue({
         customerId: customer?.id,
         orderNumber: name,
@@ -86,9 +83,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     });
 
     const [order, orderError] =
-      await this.shipheroRepository.getCustomerOrderByOrderNumber({
-        orderNumber: name,
-      });
+      await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
       return [null, orderError];
     }
@@ -108,16 +103,12 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
       ];
     }
     const [customerOrderCount, getOrderCountError] =
-      await this.shopifyRepository.getOrderCount({
-        shopifyCustomerId: shopifyCustomer.id,
-      });
+      await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
     if (getOrderCountError) {
       return [null, getOrderCountError];
     }
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
-      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
-        practitionerBoxUuid,
-      });
+      await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
       return [null, getPractitionerAndBoxByUuidError];
     }
@@ -141,16 +132,16 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
       orderProducts.push(
         { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-      )
+      );
     }
 
-    const transactionPrice: number = Number(subtotal_price);
+    const transactionPrice = Number(subtotal_price);
 
     const [
-      [customerOrder, updateOrderError],
-      [practitionerBoxHistory, createPractitionerBoxHistoryError],
+      [, updateOrderError],
+      [, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
-       [,updateOrderHoldUntilDateError]
+      [, updateOrderHoldUntilDateError],
     ] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
@@ -171,9 +162,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
         orderNumber: name,
         status: 'ordered',
       }),
-        this.shipheroRepository.updateOrderHoldUntilDate({
-        orderId: order.orderId,
-      }),
+      this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
     ]);
 
     if (updateOrderError) {
