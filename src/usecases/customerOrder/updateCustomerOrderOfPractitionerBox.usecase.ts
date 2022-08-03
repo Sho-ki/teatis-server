@@ -12,6 +12,8 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
+import { ReturnValueType } from '../../filter/customError';
+
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -28,7 +30,7 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     subtotal_price,
     line_items,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue?, Error?]>;
+  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>>;
 }
 
 @Injectable()
@@ -58,7 +60,7 @@ export class UpdateCustomerOrderOfPractitionerBoxUsecase
     subtotal_price,
     line_items,
     practitionerBoxUuid,
-  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<[OrderQueue?, Error?]> {
+  }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
     let [customer, getCustomerError] =
       await this.createCustomerUtil.createCustomer({
         email: shopifyCustomer.email,

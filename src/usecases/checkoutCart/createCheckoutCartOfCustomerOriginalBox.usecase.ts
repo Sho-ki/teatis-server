@@ -5,6 +5,7 @@ import { CreateCheckoutCartOfCustomerOriginalBoxDto } from '@Controllers/discove
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { Customer } from '@Domains/Customer';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
+import { ReturnValueType } from '../../filter/customError';
 
 
 export interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface {
@@ -13,7 +14,7 @@ export interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface {
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CustomerCheckoutCart?, Error?]
+    ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -33,7 +34,7 @@ export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CustomerCheckoutCart?, Error?]
+    ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'uuid', value: uuid },

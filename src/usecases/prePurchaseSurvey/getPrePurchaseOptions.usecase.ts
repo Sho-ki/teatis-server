@@ -3,9 +3,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
 import { ProductOptions } from '../../domains/ProductOptions';
+import { ReturnValueType } from '../../filter/customError';
 
 export interface GetPrePurchaseOptionsUsecaseInterface {
-  getPrePurchaseOptions(): Promise<[ProductOptions?, Error?]>;
+  getPrePurchaseOptions(): Promise<ReturnValueType<ProductOptions>>;
 }
 
 @Injectable()
@@ -29,7 +30,7 @@ export class GetPrePurchaseOptionsUsecase
   }
 
   async getPrePurchaseOptions(): Promise<
-    [ProductOptions?, Error?]
+    ReturnValueType<ProductOptions>
   > {
     const [
       [cookingMethods, getCookMethodsError],
