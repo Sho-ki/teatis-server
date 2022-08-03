@@ -24,6 +24,7 @@ interface GetSuggestionArgs {
   excludeProducts?: Pick<Product, 'sku'>[];
 }
 
+// TODO : Use DisplayProduct[] as Response
 export interface GetSuggestionRes {
   products: DisplayProduct[];
 }
@@ -47,7 +48,7 @@ export interface GetSuggestionInterface {
     productCount,
     includeProducts,
     excludeProducts,
-  }: GetSuggestionArgs): Promise<[GetSuggestionRes, Error]>;
+  }: GetSuggestionArgs): Promise<[GetSuggestionRes?, Error?]>;
 }
 
 @Injectable()
@@ -129,7 +130,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     productCount,
     includeProducts = [],
     excludeProducts = [],
-  }: GetSuggestionArgs): Promise<[GetSuggestionRes, Error]> {
+  }: GetSuggestionArgs): Promise<[GetSuggestionRes?, Error?]> {
     let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
       await this.shipheroRepository.getLastCustomerOrder({

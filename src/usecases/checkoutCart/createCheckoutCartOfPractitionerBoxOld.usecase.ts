@@ -3,11 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateCheckoutCartOfPractitionerBoxOldDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerBoxOldDto';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { ReturnValueType } from '../../filter/customError';
+import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
 
-interface CreateCheckoutCartOfPractitionerBoxOldUsecaseRes {
-  checkoutUrl: string;
-  email?: string;
-}
 export interface CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface {
   createCheckoutCartOfPractitionerBoxOld({
     merchandiseId,
@@ -15,7 +13,7 @@ export interface CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface {
     uuid,
     practitionerBoxUuid,
   }: CreateCheckoutCartOfPractitionerBoxOldDto): Promise<
-    [CreateCheckoutCartOfPractitionerBoxOldUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -35,8 +33,8 @@ export class CreateCheckoutCartOfPractitionerBoxOldUsecase
     sellingPlanId,
     uuid,
     practitionerBoxUuid,
-  }: CreateCheckoutCartOfPractitionerBoxOldDto): Promise<
-    [CreateCheckoutCartOfPractitionerBoxOldUsecaseRes, Error]
+  }: CreateCheckoutCartOfPractitionerBoxOldDto):  Promise<
+    ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'practitionerBoxUuid', value: practitionerBoxUuid },

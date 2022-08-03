@@ -4,6 +4,7 @@ import { AverageScores } from '@Domains/AverageScores';
 import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
+import { ReturnValueType } from '../../../filter/customError';
 
 interface GetNextWantArgs {
   orderNumber: string;
@@ -18,8 +19,8 @@ interface GetAverageScoresArgs {
 }
 
 export interface CustomerPreferenceRepositoryInterface {
-  getNextWant({ orderNumber }: GetNextWantArgs): Promise<[Product[]?, Error?]>;
-  getNextUnwanted({ email }: GetNextUnwantedArgs): Promise<[Product[]?, Error?]>;
+  getNextWant({ orderNumber }: GetNextWantArgs): Promise<ReturnValueType<Product[]>>;
+  getNextUnwanted({ email }: GetNextUnwantedArgs): Promise<ReturnValueType<Product[]>>;
   getAverageScores({
     email,
   }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]>;
@@ -33,7 +34,7 @@ export class CustomerPreferenceRepository
 
   async getNextWant({
     orderNumber,
-  }: GetNextWantArgs): Promise<[Product[]?, Error?]> {
+  }: GetNextWantArgs): Promise<ReturnValueType<Product[]>> {
     
       const response = await this.prisma.surveyQuestionAnswer.findMany({
         where: {
@@ -62,7 +63,7 @@ export class CustomerPreferenceRepository
 
   async getNextUnwanted({
     email,
-  }: GetNextUnwantedArgs): Promise<[Product[]?, Error?]> {
+  }: GetNextUnwantedArgs): Promise<ReturnValueType<Product[]>> {
     
       const response = await this.prisma.surveyQuestionAnswer.findMany({
         where: {

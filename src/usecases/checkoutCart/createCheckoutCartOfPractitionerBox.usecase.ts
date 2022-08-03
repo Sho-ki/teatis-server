@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
+import { ReturnValueType } from '../../filter/customError';
+
+
 import { PractitionerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
-import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 
-interface CreateCheckoutCartOfPractitionerBoxUsecaseRes {
-  checkoutUrl: string;
-  email: string;
-}
 export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
   createCheckoutCartOfPractitionerBox({
     // boxType,
@@ -17,7 +17,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
     uuid,
     practitionerBoxUuid,
   }: PractitionerBoxDto): Promise<
-    [CreateCheckoutCartOfPractitionerBoxUsecaseRes, Error]
+     ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -38,7 +38,7 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
   uuid,
   practitionerBoxUuid
   }: PractitionerBoxDto): Promise<
-    [CreateCheckoutCartOfPractitionerBoxUsecaseRes, Error]
+     ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'practitionerBoxUuid', value: practitionerBoxUuid },
