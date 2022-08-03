@@ -6,13 +6,13 @@ import { GetFirstBoxDto } from '@Controllers/discoveries/dtos/getFirstBox';
 import { DisplayProduct } from '@Domains/Product';
 import { GetSuggestionInterface } from '../utils/getSuggestion';
 import { PRODUCT_COUNT } from '../utils/productCount';
-
+// TODO : Use DisplayProduct[] as Response
 export interface GetFirstBoxRes {
   products: DisplayProduct[];
 }
 
 export interface GetFirstBoxUsecaseInterface {
-  getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]>;
+  getFirstBox({ uuid }: GetFirstBoxDto): Promise<[GetFirstBoxRes?, Error?]>;
 }
 
 @Injectable()
@@ -26,7 +26,7 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
 
   async getFirstBox({
     uuid,
-  }: GetFirstBoxDto): Promise<[GetFirstBoxRes, Error]> {
+  }: GetFirstBoxDto): Promise<[GetFirstBoxRes?, Error?]> {
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 

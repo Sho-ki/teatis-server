@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
+import { ReturnValueType } from '../../../filter/customError';
 
 export interface UpdatePractitionerBoxOrderHistoryArgs {
   orderNumber: string;
@@ -32,12 +33,12 @@ export interface PractitionerBoxOrderHistoryRepositoryInterface {
     status,
     customerId,
     practitionerBoxId,
-  }: CreatePractitionerBoxOrderHistoryArgs): Promise<[void?, Error?]>;
+  }: CreatePractitionerBoxOrderHistoryArgs): Promise<ReturnValueType<void>>;
 
   updatePractitionerBoxOrderHistory({
     orderNumber,
     status,
-  }: UpdatePractitionerBoxOrderHistoryArgs): Promise<[void?, Error?]>;
+  }: UpdatePractitionerBoxOrderHistoryArgs): Promise<ReturnValueType<void>>;
 }
 
 @Injectable()
@@ -48,7 +49,7 @@ export class PractitionerBoxOrderHistoryRepository
   async updatePractitionerBoxOrderHistory({
     orderNumber,
     status,
-  }: UpdatePractitionerBoxOrderHistoryArgs): Promise<[void?, Error?]> {
+  }: UpdatePractitionerBoxOrderHistoryArgs): Promise<ReturnValueType<void>> {
     await this.prisma.practitionerCustomerOrderHistory.update({
       where: { orderNumber },
       data: {
@@ -57,7 +58,7 @@ export class PractitionerBoxOrderHistoryRepository
       },
     });
 
-    return [];
+    return [,];
   }
 
   async createPractitionerBoxOrderHistory({
@@ -66,7 +67,7 @@ export class PractitionerBoxOrderHistoryRepository
     status,
     customerId,
     practitionerBoxId,
-  }: CreatePractitionerBoxOrderHistoryArgs): Promise<[void?, Error?]> {
+  }: CreatePractitionerBoxOrderHistoryArgs): Promise<ReturnValueType<void>> {
     await this.prisma.practitionerCustomerOrderHistory.upsert({
       where: { orderNumber },
       create: {
@@ -79,6 +80,6 @@ export class PractitionerBoxOrderHistoryRepository
       update: {},
     });
 
-    return [];
+    return [,];
   }
 }

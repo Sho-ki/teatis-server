@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShipheroKeyController } from './shipheroKey.controller';
 import {UpdateShipheoKeyUsecaseInterface} from "@Usecases/shipheroKey/updateShipheroKey.usecase";
+import { Status } from '@Domains/Status';
+import { ReturnValueType } from '../../filter/customError';
 
 describe('ShipheroKeyController', () => {
   let controller: ShipheroKeyController;
@@ -13,8 +15,8 @@ describe('ShipheroKeyController', () => {
           provide: 'UpdateShipheoKeyUsecaseInterface',
           useValue: {
             updateShipheroKey: () =>
-              Promise.resolve<[string?, Error?]>([
-                "Some string returned by ShipHero",
+              Promise.resolve<ReturnValueType<Status>>([
+                {success:true},
               ]),
           } as UpdateShipheoKeyUsecaseInterface
         },

@@ -3,11 +3,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerMealBox';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
+import { ReturnValueType } from '../../filter/customError';
 
-interface CreateCheckoutCartOfPractitionerMealBoxUsecaseRes {
-  checkoutUrl: string;
-  email: string;
-}
+
 export interface CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface {
   createCheckoutCartOfPractitionerMealBox({
     merchandiseId,
@@ -15,7 +14,7 @@ export interface CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface {
     practitionerBoxUuid,
     uuid,
   }: CreateCheckoutCartOfPractitionerMealBoxDto): Promise<
-    [CreateCheckoutCartOfPractitionerMealBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -36,7 +35,7 @@ export class CreateCheckoutCartOfPractitionerMealBoxUsecase
     practitionerBoxUuid,
     uuid,
   }: CreateCheckoutCartOfPractitionerMealBoxDto): Promise<
-    [CreateCheckoutCartOfPractitionerMealBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'practitionerBoxUuid', value: practitionerBoxUuid },

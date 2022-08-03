@@ -4,6 +4,8 @@ import { Answer } from '@Domains/Answer';
 import { CustomerAnswer } from '@Domains/CustomerAnswer';
 
 import { PrismaService } from '../../../prisma.service';
+import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
+import { ReturnValueType } from '../../../filter/customError';
 
 interface GetCustomerAnswersArgs {
   email: string;
@@ -37,10 +39,6 @@ interface PostPostPurchaseSurveyCustomerAnswerArgs {
   currentMaxAnswerCount: number;
 }
 
-interface PostPostPurchaseSurveyCustomerAnswerRes {
-  id: number;
-}
-
 interface CheckIsNewSurveyAnswerArgs {
   orderNumber: string;
   currentMaxAnswerCount: number;
@@ -54,7 +52,7 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
   getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<[CustomerAnswer?, Error?]>;
+  }: GetCustomerAnswersArgs): Promise<ReturnValueType<CustomerAnswer>>;
 
   postPostPurchaseSurveyCustomerAnswer({
     id,
@@ -68,7 +66,7 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
     reason,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerRes?, Error?]
+    ReturnValueType<PostPurchaseSurveyAnswer>
   >;
 
   getAnswerCount({
@@ -119,7 +117,7 @@ export class CustomerPostPurchaseSurveyRepository
   async getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<[CustomerAnswer?, Error?]> {
+  }: GetCustomerAnswersArgs): Promise<ReturnValueType<CustomerAnswer>> {
     let getCustomerRes = await this.prisma.customers.findUnique({
       where: { email },
       select: {
@@ -206,7 +204,7 @@ export class CustomerPostPurchaseSurveyRepository
     reason,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    [PostPostPurchaseSurveyCustomerAnswerRes?, Error?]
+    ReturnValueType<PostPurchaseSurveyAnswer>
   > {
     let prismaQuery: Prisma.SurveyQuestionAnswerUpsertArgs = {
       where: {

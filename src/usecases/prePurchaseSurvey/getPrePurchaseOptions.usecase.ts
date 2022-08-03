@@ -2,18 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
-
-export interface GetPrePurchaseOptionsUsecaseRes {
-  unavailableCookingMethods: ProductFeature[];
-  allergens: ProductFeature[];
-  ingredientDislikes: ProductFeature[];
-  // foodType: ProductFeature[];
-  flavorDislikes: ProductFeature[];
-  categoryPreferences: ProductFeature[];
-}
+import { ProductOptions } from '../../domains/ProductOptions';
+import { ReturnValueType } from '../../filter/customError';
 
 export interface GetPrePurchaseOptionsUsecaseInterface {
-  getPrePurchaseOptions(): Promise<[GetPrePurchaseOptionsUsecaseRes, Error]>;
+  getPrePurchaseOptions(): Promise<ReturnValueType<ProductOptions>>;
 }
 
 @Injectable()
@@ -37,7 +30,7 @@ export class GetPrePurchaseOptionsUsecase
   }
 
   async getPrePurchaseOptions(): Promise<
-    [GetPrePurchaseOptionsUsecaseRes, Error]
+    ReturnValueType<ProductOptions>
   > {
     const [
       [cookingMethods, getCookMethodsError],
