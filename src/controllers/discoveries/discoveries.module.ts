@@ -23,9 +23,8 @@ import { CustomerPreferenceRepository } from '@Repositories/teatisDB/customer/cu
 import { AnalyzePreferenceRepository } from '@Repositories/dataAnalyze/dataAnalyze.respository';
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
-import { CreateCheckoutCartOfCustomerOriginalBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
 import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
-import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { CreateCheckoutCartOfPractitionerBoxOldUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBoxOld.usecase';
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
 import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
@@ -39,10 +38,17 @@ import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
 import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { EmailModule } from './email/email.module';
 import { EmailController } from './email/email.controller';
+import { CreateCheckoutCartOfCustomerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
+import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+    
+    {
+      provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
+      useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
+    },
     {
       provide: 'UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface',
       useClass: UpdateCustomerOrderOfPractitionerMealBoxUsecase,
@@ -64,8 +70,8 @@ import { EmailController } from './email/email.controller';
       useClass: PractitionerBoxOrderHistoryRepository,
     },
     {
-      provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
-      useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
+      provide: 'CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface',
+      useClass: CreateCheckoutCartOfPractitionerBoxOldUsecase,
     },
     {
       provide: 'PractitionerBoxRepositoryInterface',
@@ -84,8 +90,8 @@ import { EmailController } from './email/email.controller';
       useClass: GetCustomerNutritionUsecase,
     },
     {
-      provide: 'CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface',
-      useClass: CreateCheckoutCartOfCustomerOriginalBoxUsecase,
+      provide: 'CreateCheckoutCartOfCustomerBoxUsecaseInterface',
+      useClass: CreateCheckoutCartOfCustomerBoxUsecase,
     },
     {
       provide: 'GetSuggestionInterface',
