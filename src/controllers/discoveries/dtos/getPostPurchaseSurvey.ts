@@ -1,10 +1,10 @@
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import {  IsOptional, IsString } from 'class-validator';
 
 export class GetPostPurchaseSurveyInfoDto {
   @IsString()
-  uuid: string;
+    uuid: string;
 
   @IsOptional()
   @IsString()
-  orderNumber?: string;
+    orderNumber?: string;
 }

@@ -1,6 +1,5 @@
 import {
   IsArray,
-  IsEmail,
   IsNumber,
   IsOptional,
   IsString,
@@ -8,19 +7,19 @@ import {
 
 export class CreatePractitionerBoxDto {
   @IsNumber()
-  practitionerId: number;
+    practitionerId: number;
 
   @IsArray()
-  products: { id: number }[];
+    products: { id: number }[];
 
   @IsString()
-  label: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
+    label: string;
 
   @IsString()
   @IsOptional()
-  note?: string;
+    description?: string;
+
+  @IsString()
+  @IsOptional()
+    note?: string;
 }

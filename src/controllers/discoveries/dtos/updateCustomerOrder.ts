@@ -2,18 +2,18 @@ import { IsArray, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCustomerOrderDto {
   @IsString()
-  name: string;
+    name: string;
 
   @IsString()
-  subtotal_price: string;
+    subtotal_price: string;
 
   @IsObject()
-  customer: { email: string; id: number };
+    customer: { email: string, id: number };
 
   @IsArray()
-  line_items: { product_id: number }[];
+    line_items: { product_id: number }[];
 
   @IsArray()
   @IsOptional()
-  note_attributes?: { name: string; value: string }[];
+    note_attributes?: { name: string, value: string }[];
 }

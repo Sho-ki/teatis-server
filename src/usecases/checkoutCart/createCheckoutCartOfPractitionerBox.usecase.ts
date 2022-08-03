@@ -3,8 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
-import { ReturnValueType } from '../../filter/customError';
-
+import { ReturnValueType } from '@Filters/customError';
 
 import { PractitionerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
 import { DISCOUNT_CODES } from '../utils/discountCode';
@@ -23,7 +22,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
 
 @Injectable()
 export class CreateCheckoutCartOfPractitionerBoxUsecase
-  implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
+implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShopifyRepositoryInterface')
@@ -33,29 +32,24 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
   ) {}
 
   async createCheckoutCartOfPractitionerBox({
-//   boxType,
-//   deliveryInterval,
-  uuid,
-  practitionerBoxUuid
+    //   boxType,
+    //   deliveryInterval,
+    uuid,
+    practitionerBoxUuid,
   }: PractitionerBoxDto): Promise<
      ReturnValueType<CustomerCheckoutCart>
   > {
-    const attributes: { key: string; value: string }[] = [
-      { key: 'practitionerBoxUuid', value: practitionerBoxUuid },
-      { key: 'uuid', value: uuid },
-    ];
+    const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }, { key: 'uuid', value: uuid }];
 
     const [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomerByUuid({
-        uuid,
-      });
+      await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [null, getCustomerError];
     }
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart({
-        discountCode:DISCOUNT_CODES.firstPurchase,
+        discountCode: DISCOUNT_CODES.firstPurchase,
         merchandiseId: PRACTITIONER_BOX_PLANS.merchandiseId,
         sellingPlanId: PRACTITIONER_BOX_PLANS.sellingPlanId,
         attributes,

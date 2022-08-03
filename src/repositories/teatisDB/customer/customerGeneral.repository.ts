@@ -5,7 +5,7 @@ import { PrismaService } from '../../../prisma.service';
 import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 export interface GetCustomerArgs {
   email: string;
@@ -40,20 +40,12 @@ interface GetCustomerNutritionArgs {
 
 export interface CustomerGeneralRepositoryInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
-  getCustomerPreference({
-    email,
-  }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>>;
-  getCustomerMedicalCondition({
-    email,
-  }: GetCustomerMedicalConditionArgs): Promise<
+  getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>>;
+  getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
   >;
-  getCustomerNutrition({
-    uuid,
-  }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>>;
-  getCustomerByUuid({
-    uuid,
-  }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
+  getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>>;
+  getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
 
   updateCustomerEmailByUuid({
     uuid,
@@ -63,20 +55,16 @@ export interface CustomerGeneralRepositoryInterface {
 
 @Injectable()
 export class CustomerGeneralRepository
-  implements CustomerGeneralRepositoryInterface
+implements CustomerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async getCustomerNutrition({
-    uuid,
-  }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>> {
+  async getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>> {
     const response = await this.prisma.customers.findUnique({
       where: { uuid },
       select: {
         mealsPerDay: true,
-        intermediateCustomerMedicalConditions: {
-          select: { customerMedicalCondition: { select: { name: true } } },
-        },
+        intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: { select: { name: true } } } },
         intermediateCustomerNutritionNeeds: {
           where: {
             customerNutritionNeed: {
@@ -97,17 +85,14 @@ export class CustomerGeneralRepository
     });
 
     if (!response?.intermediateCustomerNutritionNeeds) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'uuid is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
     }
     const allConditions = response?.intermediateCustomerMedicalConditions
       ? response.intermediateCustomerMedicalConditions.map(
-          ({ customerMedicalCondition }) => {
-            return customerMedicalCondition.name;
-          },
-        )
+        ({ customerMedicalCondition }) => {
+          return customerMedicalCondition.name;
+        },
+      )
       : [];
     const sodiumPerMeal = allConditions.includes('highBloodPressure')
       ? Math.round(1800 / (response?.mealsPerDay || 4))
@@ -122,10 +107,10 @@ export class CustomerGeneralRepository
       sodiumPerMeal,
     };
 
-    for (let {
+    for (const {
       customerNutritionNeed,
       nutritionValue,
-    } of response?.intermediateCustomerNutritionNeeds) {
+    } of response.intermediateCustomerNutritionNeeds) {
       nutritions = {
         ...nutritions,
         [customerNutritionNeed.name]: nutritionValue,
@@ -147,25 +132,18 @@ export class CustomerGeneralRepository
     return [{ id: response.id, email: newEmail, uuid }];
   }
 
-  async getCustomerByUuid({
-    uuid,
-  }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
+  async getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({
       where: { uuid },
       select: { id: true, email: true, uuid: true },
     });
     if (!response?.email || !response?.id || !response.uuid) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'uuid is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
     }
 
     return [{ id: response.id, email: response.email, uuid: response.uuid }];
   }
-  async getCustomerMedicalCondition({
-    email,
-  }: GetCustomerMedicalConditionArgs): Promise<
+  async getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
   > {
     const res = await this.prisma.customers.findUnique({
@@ -173,24 +151,19 @@ export class CustomerGeneralRepository
       select: {
         id: true,
         uuid: true,
-        intermediateCustomerMedicalConditions: {
-          select: { customerMedicalCondition: { select: { name: true } } },
-        },
+        intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: { select: { name: true } } } },
       },
     });
     const { id, uuid } = res;
     if (!id || !uuid) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
     const customerConditions = res?.intermediateCustomerMedicalConditions;
 
     const allConditions = customerConditions.length
       ? customerConditions.map((condition) => {
-          return condition.customerMedicalCondition.name;
-        })
+        return condition.customerMedicalCondition.name;
+      })
       : [];
 
     return [
@@ -219,8 +192,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((flavor) => {
-                  return flavor.productFlavorId;
-                })
+                return flavor.productFlavorId;
+              })
               : [];
           });
         break;
@@ -233,8 +206,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((allergen) => {
-                  return allergen.productAllergenId;
-                })
+                return allergen.productAllergenId;
+              })
               : [];
           });
         break;
@@ -247,8 +220,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((cookingMethod) => {
-                  return cookingMethod.productCookingMethodId;
-                })
+                return cookingMethod.productCookingMethodId;
+              })
               : [];
           });
         break;
@@ -261,12 +234,12 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((category) => {
-                  return category.productCategoryId;
-                })
+                return category.productCategoryId;
+              })
               : [];
           });
         break;
-       case 'ingredients':
+      case 'ingredients':
         await this.prisma.intermediateCustomerIngredientDislike
           .findMany({
             where: { customer: { email } },
@@ -275,8 +248,8 @@ export class CustomerGeneralRepository
           .then((response) => {
             customerPreference = response.length
               ? response.map((category) => {
-                  return category.productIngredientId;
-                })
+                return category.productIngredientId;
+              })
               : [];
           });
         break;
@@ -297,10 +270,7 @@ export class CustomerGeneralRepository
     }
 
     if (!response?.email || !response?.id || !response?.uuid) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
     return [{ id: response.id, email: response.email, uuid: response.uuid }];

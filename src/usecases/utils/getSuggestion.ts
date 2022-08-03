@@ -37,7 +37,7 @@ interface FilterProductsArgs {
     | 'allergens'
     | 'unavailableCookingMethods'
     | 'unwanted';
-  customerFilter: { id?: number[]; sku?: string[] };
+  customerFilter: { id?: number[], sku?: string[] };
   products: DisplayAnalyzeProduct[];
   nextWantProducts?: Product[];
 }
@@ -83,7 +83,7 @@ export class GetSuggestion implements GetSuggestionInterface {
             nextWantProducts.includes(product)
           );
         case 'allergens':
-          for (let allergen of product.allergens) {
+          for (const allergen of product.allergens) {
             if (
               customerFilter.id.includes(allergen.id) &&
               !nextWantProducts.some((nextWant) => nextWant.id === product.id)
@@ -93,7 +93,7 @@ export class GetSuggestion implements GetSuggestionInterface {
           }
           return true;
         case 'unavailableCookingMethods':
-          for (let cookingMethod of product.cookingMethods) {
+          for (const cookingMethod of product.cookingMethods) {
             if (
               customerFilter.id.includes(cookingMethod.id) &&
               !nextWantProducts.some((nextWant) => nextWant.id === product.id)
@@ -103,7 +103,7 @@ export class GetSuggestion implements GetSuggestionInterface {
           }
           return true;
         case 'ingredientDislikes':
-          for (let ingredient of product.ingredients) {
+          for (const ingredient of product.ingredients) {
             if (
               customerFilter.id.includes(ingredient.id) &&
               !nextWantProducts.some((nextWant) => nextWant.id === product.id)
@@ -133,31 +133,18 @@ export class GetSuggestion implements GetSuggestionInterface {
   }: GetSuggestionArgs): Promise<[GetSuggestionRes?, Error?]> {
     let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
-      await this.shipheroRepository.getLastCustomerOrder({
-        email: customer.email,
-      });
+      await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
     if (getLastCustomerOrderError) {
       return [null, getLastCustomerOrderError];
     }
     if (lastCustomerOrder.products.length === 0) {
       isFirstOrder = true;
     }
-    const [
-      [scores, getAverageScoresError],
-      [nextWantProducts, getNextWantError],
-      [nextUnwantedProducts, getCustomerUnwantedError],
-    ] = !isFirstOrder
-      ? await Promise.all([
-          this.customerPreferenceRepository.getAverageScores({
-            email: customer.email,
-          }),
-          this.customerPreferenceRepository.getNextWant({
-            orderNumber: lastCustomerOrder.orderNumber,
-          }),
-          this.customerPreferenceRepository.getNextUnwanted({
-            email: customer.email,
-          }),
-        ])
+    const [[scores, getAverageScoresError], [nextWantProducts, getNextWantError], [nextUnwantedProducts, getCustomerUnwantedError]]
+    =
+    !isFirstOrder
+      ? await Promise.all(
+        [this.customerPreferenceRepository.getAverageScores({ email: customer.email }), this.customerPreferenceRepository.getNextWant({ orderNumber: lastCustomerOrder.orderNumber }), this.customerPreferenceRepository.getNextUnwanted({ email: customer.email })])
       : [[], [], []];
 
     if (getAverageScoresError) {
@@ -175,16 +162,11 @@ export class GetSuggestion implements GetSuggestionInterface {
       [noInventoryProducts, getNoInventoryProductsError],
       [customerFlavorDislikes, customerFlavorDislikesError],
       [customerAllergens, customerAllergensError],
-      [
-        customerUnavailableCookingMethods,
-        customerUnavailableCookingMethodsError,
-      ],
+      [customerUnavailableCookingMethods, customerUnavailableCookingMethodsError],
       [customerCategoryPreferences, customerCategoryPreferencesError],
       [customerIngredientDislikes, customerIngredientDislikesError],
     ] = await Promise.all([
-      this.customerGeneralRepository.getCustomerMedicalCondition({
-        email: customer.email,
-      }),
+      this.customerGeneralRepository.getCustomerMedicalCondition({ email: customer.email }),
       this.shipheroRepository.getNoInventoryProducts(),
       this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
@@ -202,7 +184,7 @@ export class GetSuggestion implements GetSuggestionInterface {
         email: customer.email,
         type: 'categoryPreferences',
       }),
-       this.customerGeneralRepository.getCustomerPreference({
+      this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
         type: 'ingredients',
       }),
@@ -212,10 +194,8 @@ export class GetSuggestion implements GetSuggestionInterface {
       return [null, getCustomerMedicalConditionError];
     }
 
-    let [displayAnalyzeProducts, getDisplayAnalyzeProductsError] =
-      await this.productGeneralRepository.getAllProducts({
-        medicalConditions: customerMedicalCondition,
-      });
+    const [displayAnalyzeProducts, getDisplayAnalyzeProductsError] =
+      await this.productGeneralRepository.getAllProducts({ medicalConditions: customerMedicalCondition });
     if (getDisplayAnalyzeProductsError) {
       return [null, getDisplayAnalyzeProductsError];
     }
@@ -303,7 +283,6 @@ export class GetSuggestion implements GetSuggestionInterface {
         })
         .map(products => products);
 
-        console.log(unwantedAllProducts)
       allProducts = this.filterProducts({
         filterType: 'unwanted',
         customerFilter: {
@@ -315,7 +294,22 @@ export class GetSuggestion implements GetSuggestionInterface {
         nextWantProducts,
       });
     }
-    const allCategories = [18, 19, 7, 15, 17, 6, 4, 3, 13, 25, 11, 26, 14, 10];
+    const allCategories = [
+      18,
+      19,
+      7,
+      15,
+      17,
+      6,
+      4,
+      3,
+      13,
+      25,
+      11,
+      26,
+      14,
+      10,
+    ];
     const favoriteCategories = customerCategoryPreferences.id.length
       ? customerCategoryPreferences.id
       : allCategories; // when nothing is selected, choose all the categories
@@ -324,9 +318,9 @@ export class GetSuggestion implements GetSuggestionInterface {
       products: [],
       user_fav_categories: favoriteCategories,
     };
-    let nextBoxProducts: GetSuggestionRes = { products: [] };
+    const nextBoxProducts: GetSuggestionRes = { products: [] };
 
-    for (let product of allProducts) {
+    for (const product of allProducts) {
       const {
         id,
         sku,
@@ -384,7 +378,7 @@ export class GetSuggestion implements GetSuggestionInterface {
             scores?.categoryLikesAverages[product.category.id] || 5,
         };
         if (!isFirstOrder) {
-          for (let lastSentProduct of lastCustomerOrder.products) {
+          for (const lastSentProduct of lastCustomerOrder.products) {
             if (product.sku === lastSentProduct.sku) {
               shippableProduct = { ...shippableProduct, is_sent_1: 1 };
               break;
@@ -417,8 +411,8 @@ export class GetSuggestion implements GetSuggestionInterface {
     if (analyzedProductsError) {
       return [null, analyzedProductsError];
     }
-    for (let product of allProducts) {
-      for (let analyzedProduct of analyzedProductsRes.products) {
+    for (const product of allProducts) {
+      for (const analyzedProduct of analyzedProductsRes.products) {
         if (product.id === analyzedProduct.product_id) {
           const {
             id,

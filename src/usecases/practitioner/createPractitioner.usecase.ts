@@ -4,7 +4,7 @@ import { CreatePractitionerDto } from '@Controllers/discoveries/dtos/createPract
 import { v4 as uuidv4 } from 'uuid';
 import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { Practitioner } from '@Domains/Practitioner';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 export interface CreatePractitionerUsecaseInterface {
   createPractitioner({
@@ -23,7 +23,7 @@ export interface CreatePractitionerUsecaseInterface {
 
 @Injectable()
 export class CreatePractitionerUsecase
-  implements CreatePractitionerUsecaseInterface
+implements CreatePractitionerUsecaseInterface
 {
   constructor(
     @Inject('PractitionerGeneralRepositoryInterface')
@@ -57,6 +57,9 @@ export class CreatePractitionerUsecase
         website,
         uuid,
       });
+    if(createPractitionerError){
+      return [undefined, createPractitionerError];
+    }
     return [
       {
         firstName: practitionerSocialMedia.firstName,

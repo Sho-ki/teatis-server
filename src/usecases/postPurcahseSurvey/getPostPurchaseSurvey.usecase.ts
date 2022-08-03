@@ -9,9 +9,9 @@ import {
   PostPurchaseSurvey,
   SurveyQuestions,
 } from 'src/domains/PostPurchaseSurvey';
-import { DisplayProduct, Product } from '@Domains/Product';
+import { DisplayProduct } from '@Domains/Product';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   uuid: string;
@@ -27,7 +27,7 @@ export interface GetPostPurchaseSurveyUsecaseInterface {
 
 @Injectable()
 export class GetPostPurchaseSurveyUsecase
-  implements GetPostPurchaseSurveyUsecaseInterface
+implements GetPostPurchaseSurveyUsecaseInterface
 {
   constructor(
     @Inject('ShipheroRepositoryInterface')
@@ -48,30 +48,26 @@ export class GetPostPurchaseSurveyUsecase
   }: GetPostPurchaseSurveyUsecaseArgs): Promise<ReturnValueType<PostPurchaseSurvey>> {
     // Get last order products from shiphero
 
-    const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({uuid});
+    const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if(getCustomerError){
-      return [undefined, getCustomerError]
+      return [undefined, getCustomerError];
     }
 
     const [customerOrder, getOrderError] = orderNumber
-      ? await this.shipheroRepository.getCustomerOrderByOrderNumber({
-          orderNumber,
-        })
-      : await this.shipheroRepository.getLastCustomerOrder({ email:customer.email });
+      ? await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber })
+      : await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
 
     if (getOrderError) {
       return [null, getOrderError];
     }
     const [displayProducts, getProductDetailError] =
-      await this.productGeneralRepository.getProductsBySku({
-        products: customerOrder.products,
-      });
+      await this.productGeneralRepository.getProductsBySku({ products: customerOrder.products });
 
     if (getProductDetailError) {
       return [null, getProductDetailError];
     }
-    let detailedProductList: Pick<
+    const detailedProductList: Pick<
       DisplayProduct,
       'id' | 'sku' | 'label' | 'images' | 'vendor'
     >[] = customerOrder.products.map((orderProduct) => {
@@ -97,30 +93,27 @@ export class GetPostPurchaseSurveyUsecase
     });
 
     const [surveyQuestion, getPostPurchaseQuestionsError] =
-      await this.questionPostPurchaseSurveyRepository.getSurveyQuestions({
-        surveyName: 'post-purchase',
-      });
+      await this.questionPostPurchaseSurveyRepository.getSurveyQuestions({ surveyName: 'post-purchase' });
     if (getPostPurchaseQuestionsError) {
       return [null, getPostPurchaseQuestionsError];
     }
 
     const [customerAnswer, getCustomerAnswersError] =
       await this.customerPostPurchaseSurveyRepository.getCustomerAnswers({
-        email:customer.email,
+        email: customer.email,
         orderNumber: customerOrder.orderNumber,
       });
     if (getCustomerAnswersError) {
       return [null, getCustomerAnswersError];
     }
 
-    let personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
+    const personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
       orderNumber: customerOrder.orderNumber,
       customerId: customerAnswer.id,
       surveyQuestions: [],
     };
     surveyQuestion.surveyQuestions.map((question) => {
-      let personalizedQuestion: SurveyQuestions;
-      personalizedQuestion = {
+      const personalizedQuestion:SurveyQuestions = {
         ...question,
         answer: {
           text: undefined,
@@ -138,15 +131,15 @@ export class GetPostPurchaseSurveyUsecase
       };
 
       if (question.label.includes('${PRODUCT_NAME}')) {
-        for (let product of detailedProductList) {
+        for (const product of detailedProductList) {
           if (!product) continue;
           const replacedLabel = question.label.replace(
             '${PRODUCT_NAME}',
             product.label,
           );
-          let images = [];
+          const images = [];
           if (product.images.length > 0) {
-            for (let image of product.images) {
+            for (const image of product.images) {
               images.push({
                 src: image.src,
                 position: image.position,
@@ -176,8 +169,8 @@ export class GetPostPurchaseSurveyUsecase
         );
       }
     });
-    for (let question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
-      for (let customerAns of customerAnswer.customerAnswers) {
+    for (const question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
+      for (const customerAns of customerAnswer.customerAnswers) {
         if (
           question?.name === 'productLineUp' &&
           customerAns?.answer?.text !== null

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
@@ -156,7 +158,6 @@ export type Article = HasMetafields & Node & OnlineStorePublishable & {
   title: Scalars['String'];
 };
 
-
 /** An article in an online store blog. */
 export type ArticleCommentsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -166,25 +167,21 @@ export type ArticleCommentsArgs = {
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
 
-
 /** An article in an online store blog. */
 export type ArticleContentArgs = {
   truncateAt?: InputMaybe<Scalars['Int']>;
 };
-
 
 /** An article in an online store blog. */
 export type ArticleExcerptArgs = {
   truncateAt?: InputMaybe<Scalars['Int']>;
 };
 
-
 /** An article in an online store blog. */
 export type ArticleMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** An article in an online store blog. */
 export type ArticleMetafieldsArgs = {
@@ -338,12 +335,10 @@ export type Blog = HasMetafields & Node & OnlineStorePublishable & {
   title: Scalars['String'];
 };
 
-
 /** An online store blog. */
 export type BlogArticleByHandleArgs = {
   handle: Scalars['String'];
 };
-
 
 /** An online store blog. */
 export type BlogArticlesArgs = {
@@ -356,13 +351,11 @@ export type BlogArticlesArgs = {
   sortKey?: InputMaybe<ArticleSortKeys>;
 };
 
-
 /** An online store blog. */
 export type BlogMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** An online store blog. */
 export type BlogMetafieldsArgs = {
@@ -457,7 +450,6 @@ export type Cart = Node & {
   /** The date and time when the cart was updated. */
   updatedAt: Scalars['DateTime'];
 };
-
 
 /** A cart represents the merchandise that a buyer intends to purchase, and the estimated cost associated with the cart. To learn how to interact with a cart during a customer's session, refer to [Manage a cart with the Storefront API](https://shopify.dev/api/examples/cart). */
 export type CartLinesArgs = {
@@ -839,7 +831,6 @@ export type Checkout = Node & {
   webUrl: Scalars['URL'];
 };
 
-
 /** A container for all the information required to checkout items and pay. */
 export type CheckoutDiscountApplicationsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -848,7 +839,6 @@ export type CheckoutDiscountApplicationsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
-
 
 /** A container for all the information required to checkout items and pay. */
 export type CheckoutLineItemsArgs = {
@@ -1550,19 +1540,16 @@ export type Collection = HasMetafields & Node & OnlineStorePublishable & {
   updatedAt: Scalars['DateTime'];
 };
 
-
 /** A collection represents a grouping of products that a shop owner can create to organize them or make their shops easier to browse. */
 export type CollectionDescriptionArgs = {
   truncateAt?: InputMaybe<Scalars['Int']>;
 };
-
 
 /** A collection represents a grouping of products that a shop owner can create to organize them or make their shops easier to browse. */
 export type CollectionMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** A collection represents a grouping of products that a shop owner can create to organize them or make their shops easier to browse. */
 export type CollectionMetafieldsArgs = {
@@ -1573,7 +1560,6 @@ export type CollectionMetafieldsArgs = {
   namespace?: InputMaybe<Scalars['String']>;
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
-
 
 /** A collection represents a grouping of products that a shop owner can create to organize them or make their shops easier to browse. */
 export type CollectionProductsArgs = {
@@ -1638,7 +1624,6 @@ export type Comment = Node & {
   /** A globally-unique identifier. */
   id: Scalars['ID'];
 };
-
 
 /** A comment on an article. */
 export type CommentContentArgs = {
@@ -2644,7 +2629,6 @@ export type Customer = HasMetafields & {
   updatedAt: Scalars['DateTime'];
 };
 
-
 /** A customer represents a customer account with the shop. Customer accounts store contact information for the customer, saving logged-in customers the trouble of having to provide it at every checkout. */
 export type CustomerAddressesArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -2654,13 +2638,11 @@ export type CustomerAddressesArgs = {
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
 
-
 /** A customer represents a customer account with the shop. Customer accounts store contact information for the customer, saving logged-in customers the trouble of having to provide it at every checkout. */
 export type CustomerMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** A customer represents a customer account with the shop. Customer accounts store contact information for the customer, saving logged-in customers the trouble of having to provide it at every checkout. */
 export type CustomerMetafieldsArgs = {
@@ -2671,7 +2653,6 @@ export type CustomerMetafieldsArgs = {
   namespace?: InputMaybe<Scalars['String']>;
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
-
 
 /** A customer represents a customer account with the shop. Customer accounts store contact information for the customer, saving logged-in customers the trouble of having to provide it at every checkout. */
 export type CustomerOrdersArgs = {
@@ -3227,7 +3208,6 @@ export type Fulfillment = {
   trackingInfo: Array<FulfillmentTrackingInfo>;
 };
 
-
 /** Represents a single fulfillment in an order. */
 export type FulfillmentFulfillmentLineItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -3236,7 +3216,6 @@ export type FulfillmentFulfillmentLineItemsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
-
 
 /** Represents a single fulfillment in an order. */
 export type FulfillmentTrackingInfoArgs = {
@@ -3305,13 +3284,11 @@ export type HasMetafields = {
   metafields: MetafieldConnection;
 };
 
-
 /** Represents information about the metafields associated to the specified resource. */
 export type HasMetafieldsMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** Represents information about the metafields associated to the specified resource. */
 export type HasMetafieldsMetafieldsArgs = {
@@ -3369,7 +3346,6 @@ export type Image = {
   width?: Maybe<Scalars['Int']>;
 };
 
-
 /** Represents an image resource. */
 export type ImageTransformedSrcArgs = {
   crop?: InputMaybe<CropRegion>;
@@ -3378,7 +3354,6 @@ export type ImageTransformedSrcArgs = {
   preferredContentType?: InputMaybe<ImageContentType>;
   scale?: InputMaybe<Scalars['Int']>;
 };
-
 
 /** Represents an image resource. */
 export type ImageUrlArgs = {
@@ -3620,7 +3595,6 @@ export type MailingAddress = Node & {
   /** The zip or postal code of the address. */
   zip?: Maybe<Scalars['String']>;
 };
-
 
 /** Represents a mailing address for customers and shipping. */
 export type MailingAddressFormattedArgs = {
@@ -4081,13 +4055,11 @@ export type Mutation = {
   customerUpdate?: Maybe<CustomerUpdatePayload>;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartAttributesUpdateArgs = {
   attributes: Array<AttributeInput>;
   cartId: Scalars['ID'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartBuyerIdentityUpdateArgs = {
@@ -4095,12 +4067,10 @@ export type MutationCartBuyerIdentityUpdateArgs = {
   cartId: Scalars['ID'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartCreateArgs = {
   input?: InputMaybe<CartInput>;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartDiscountCodesUpdateArgs = {
@@ -4108,13 +4078,11 @@ export type MutationCartDiscountCodesUpdateArgs = {
   discountCodes?: InputMaybe<Array<Scalars['String']>>;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartLinesAddArgs = {
   cartId: Scalars['ID'];
   lines: Array<CartLineInput>;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartLinesRemoveArgs = {
@@ -4122,13 +4090,11 @@ export type MutationCartLinesRemoveArgs = {
   lineIds: Array<Scalars['ID']>;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartLinesUpdateArgs = {
   cartId: Scalars['ID'];
   lines: Array<CartLineUpdateInput>;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartNoteUpdateArgs = {
@@ -4136,13 +4102,11 @@ export type MutationCartNoteUpdateArgs = {
   note?: InputMaybe<Scalars['String']>;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutAttributesUpdateArgs = {
   checkoutId: Scalars['ID'];
   input: CheckoutAttributesUpdateInput;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutAttributesUpdateV2Args = {
@@ -4150,12 +4114,10 @@ export type MutationCheckoutAttributesUpdateV2Args = {
   input: CheckoutAttributesUpdateV2Input;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCompleteFreeArgs = {
   checkoutId: Scalars['ID'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCompleteWithCreditCardArgs = {
@@ -4163,13 +4125,11 @@ export type MutationCheckoutCompleteWithCreditCardArgs = {
   payment: CreditCardPaymentInput;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCompleteWithCreditCardV2Args = {
   checkoutId: Scalars['ID'];
   payment: CreditCardPaymentInputV2;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCompleteWithTokenizedPaymentArgs = {
@@ -4177,13 +4137,11 @@ export type MutationCheckoutCompleteWithTokenizedPaymentArgs = {
   payment: TokenizedPaymentInput;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCompleteWithTokenizedPaymentV2Args = {
   checkoutId: Scalars['ID'];
   payment: TokenizedPaymentInputV2;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCompleteWithTokenizedPaymentV3Args = {
@@ -4191,13 +4149,11 @@ export type MutationCheckoutCompleteWithTokenizedPaymentV3Args = {
   payment: TokenizedPaymentInputV3;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCreateArgs = {
   input: CheckoutCreateInput;
   queueToken?: InputMaybe<Scalars['String']>;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCustomerAssociateArgs = {
@@ -4205,25 +4161,21 @@ export type MutationCheckoutCustomerAssociateArgs = {
   customerAccessToken: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCustomerAssociateV2Args = {
   checkoutId: Scalars['ID'];
   customerAccessToken: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCustomerDisassociateArgs = {
   checkoutId: Scalars['ID'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutCustomerDisassociateV2Args = {
   checkoutId: Scalars['ID'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutDiscountCodeApplyArgs = {
@@ -4231,19 +4183,16 @@ export type MutationCheckoutDiscountCodeApplyArgs = {
   discountCode: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutDiscountCodeApplyV2Args = {
   checkoutId: Scalars['ID'];
   discountCode: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutDiscountCodeRemoveArgs = {
   checkoutId: Scalars['ID'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutEmailUpdateArgs = {
@@ -4251,13 +4200,11 @@ export type MutationCheckoutEmailUpdateArgs = {
   email: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutEmailUpdateV2Args = {
   checkoutId: Scalars['ID'];
   email: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutGiftCardApplyArgs = {
@@ -4265,13 +4212,11 @@ export type MutationCheckoutGiftCardApplyArgs = {
   giftCardCode: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutGiftCardRemoveArgs = {
   appliedGiftCardId: Scalars['ID'];
   checkoutId: Scalars['ID'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutGiftCardRemoveV2Args = {
@@ -4279,13 +4224,11 @@ export type MutationCheckoutGiftCardRemoveV2Args = {
   checkoutId: Scalars['ID'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutGiftCardsAppendArgs = {
   checkoutId: Scalars['ID'];
   giftCardCodes: Array<Scalars['String']>;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutLineItemsAddArgs = {
@@ -4293,13 +4236,11 @@ export type MutationCheckoutLineItemsAddArgs = {
   lineItems: Array<CheckoutLineItemInput>;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutLineItemsRemoveArgs = {
   checkoutId: Scalars['ID'];
   lineItemIds: Array<Scalars['ID']>;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutLineItemsReplaceArgs = {
@@ -4307,13 +4248,11 @@ export type MutationCheckoutLineItemsReplaceArgs = {
   lineItems: Array<CheckoutLineItemInput>;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutLineItemsUpdateArgs = {
   checkoutId: Scalars['ID'];
   lineItems: Array<CheckoutLineItemUpdateInput>;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutShippingAddressUpdateArgs = {
@@ -4321,13 +4260,11 @@ export type MutationCheckoutShippingAddressUpdateArgs = {
   shippingAddress: MailingAddressInput;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutShippingAddressUpdateV2Args = {
   checkoutId: Scalars['ID'];
   shippingAddress: MailingAddressInput;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCheckoutShippingLineUpdateArgs = {
@@ -4335,30 +4272,25 @@ export type MutationCheckoutShippingLineUpdateArgs = {
   shippingRateHandle: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerAccessTokenCreateArgs = {
   input: CustomerAccessTokenCreateInput;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerAccessTokenCreateWithMultipassArgs = {
   multipassToken: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerAccessTokenDeleteArgs = {
   customerAccessToken: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerAccessTokenRenewArgs = {
   customerAccessToken: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerActivateArgs = {
@@ -4366,13 +4298,11 @@ export type MutationCustomerActivateArgs = {
   input: CustomerActivateInput;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerActivateByUrlArgs = {
   activationUrl: Scalars['URL'];
   password: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerAddressCreateArgs = {
@@ -4380,13 +4310,11 @@ export type MutationCustomerAddressCreateArgs = {
   customerAccessToken: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerAddressDeleteArgs = {
   customerAccessToken: Scalars['String'];
   id: Scalars['ID'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerAddressUpdateArgs = {
@@ -4395,12 +4323,10 @@ export type MutationCustomerAddressUpdateArgs = {
   id: Scalars['ID'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerCreateArgs = {
   input: CustomerCreateInput;
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerDefaultAddressUpdateArgs = {
@@ -4408,12 +4334,10 @@ export type MutationCustomerDefaultAddressUpdateArgs = {
   customerAccessToken: Scalars['String'];
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerRecoverArgs = {
   email: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerResetArgs = {
@@ -4421,13 +4345,11 @@ export type MutationCustomerResetArgs = {
   input: CustomerResetInput;
 };
 
-
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerResetByUrlArgs = {
   password: Scalars['String'];
   resetUrl: Scalars['URL'];
 };
-
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCustomerUpdateArgs = {
@@ -4565,7 +4487,6 @@ export type Order = HasMetafields & Node & {
   totalTaxV2?: Maybe<MoneyV2>;
 };
 
-
 /** An order is a customer’s completed request to purchase one or more products from a shop. An order is created when a customer completes the checkout process, during which time they provides an email address, billing address and payment information. */
 export type OrderDiscountApplicationsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -4574,7 +4495,6 @@ export type OrderDiscountApplicationsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
-
 
 /** An order is a customer’s completed request to purchase one or more products from a shop. An order is created when a customer completes the checkout process, during which time they provides an email address, billing address and payment information. */
 export type OrderLineItemsArgs = {
@@ -4585,13 +4505,11 @@ export type OrderLineItemsArgs = {
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
 
-
 /** An order is a customer’s completed request to purchase one or more products from a shop. An order is created when a customer completes the checkout process, during which time they provides an email address, billing address and payment information. */
 export type OrderMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** An order is a customer’s completed request to purchase one or more products from a shop. An order is created when a customer completes the checkout process, during which time they provides an email address, billing address and payment information. */
 export type OrderMetafieldsArgs = {
@@ -4602,7 +4520,6 @@ export type OrderMetafieldsArgs = {
   namespace?: InputMaybe<Scalars['String']>;
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
-
 
 /** An order is a customer’s completed request to purchase one or more products from a shop. An order is created when a customer completes the checkout process, during which time they provides an email address, billing address and payment information. */
 export type OrderSuccessfulFulfillmentsArgs = {
@@ -4779,13 +4696,11 @@ export type Page = HasMetafields & Node & OnlineStorePublishable & {
   updatedAt: Scalars['DateTime'];
 };
 
-
 /** Shopify merchants can create pages to hold static HTML content. Each Page object represents a custom page on the online store. */
 export type PageMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** Shopify merchants can create pages to hold static HTML content. Each Page object represents a custom page on the online store. */
 export type PageMetafieldsArgs = {
@@ -5030,7 +4945,6 @@ export type Product = HasMetafields & Node & OnlineStorePublishable & {
   vendor: Scalars['String'];
 };
 
-
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
  * For example, a digital download (such as a movie, music or ebook file) also qualifies as a product, as do services (such as equipment rental, work for hire, customization of another product or an extended warranty).
@@ -5043,7 +4957,6 @@ export type ProductCollectionsArgs = {
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
 
-
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
  * For example, a digital download (such as a movie, music or ebook file) also qualifies as a product, as do services (such as equipment rental, work for hire, customization of another product or an extended warranty).
@@ -5051,7 +4964,6 @@ export type ProductCollectionsArgs = {
 export type ProductDescriptionArgs = {
   truncateAt?: InputMaybe<Scalars['Int']>;
 };
-
 
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
@@ -5066,7 +4978,6 @@ export type ProductImagesArgs = {
   sortKey?: InputMaybe<ProductImageSortKeys>;
 };
 
-
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
  * For example, a digital download (such as a movie, music or ebook file) also qualifies as a product, as do services (such as equipment rental, work for hire, customization of another product or an extended warranty).
@@ -5080,7 +4991,6 @@ export type ProductMediaArgs = {
   sortKey?: InputMaybe<ProductMediaSortKeys>;
 };
 
-
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
  * For example, a digital download (such as a movie, music or ebook file) also qualifies as a product, as do services (such as equipment rental, work for hire, customization of another product or an extended warranty).
@@ -5089,7 +4999,6 @@ export type ProductMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
@@ -5104,7 +5013,6 @@ export type ProductMetafieldsArgs = {
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
 
-
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
  * For example, a digital download (such as a movie, music or ebook file) also qualifies as a product, as do services (such as equipment rental, work for hire, customization of another product or an extended warranty).
@@ -5112,7 +5020,6 @@ export type ProductMetafieldsArgs = {
 export type ProductOptionsArgs = {
   first?: InputMaybe<Scalars['Int']>;
 };
-
 
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
@@ -5126,7 +5033,6 @@ export type ProductSellingPlanGroupsArgs = {
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
 
-
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
  * For example, a digital download (such as a movie, music or ebook file) also qualifies as a product, as do services (such as equipment rental, work for hire, customization of another product or an extended warranty).
@@ -5134,7 +5040,6 @@ export type ProductSellingPlanGroupsArgs = {
 export type ProductVariantBySelectedOptionsArgs = {
   selectedOptions: Array<SelectedOptionInput>;
 };
-
 
 /**
  * A product represents an individual item for sale in a Shopify store. Products are often physical, but they don't have to be.
@@ -5362,13 +5267,11 @@ export type ProductVariant = HasMetafields & Node & {
   weightUnit: WeightUnit;
 };
 
-
 /** A product variant represents a different version of a product, such as differing sizes or differing colors. */
 export type ProductVariantMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** A product variant represents a different version of a product, such as differing sizes or differing colors. */
 export type ProductVariantMetafieldsArgs = {
@@ -5380,7 +5283,6 @@ export type ProductVariantMetafieldsArgs = {
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
 
-
 /** A product variant represents a different version of a product, such as differing sizes or differing colors. */
 export type ProductVariantSellingPlanAllocationsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -5389,7 +5291,6 @@ export type ProductVariantSellingPlanAllocationsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   reverse?: InputMaybe<Scalars['Boolean']>;
 };
-
 
 /** A product variant represents a different version of a product, such as differing sizes or differing colors. */
 export type ProductVariantStoreAvailabilityArgs = {
@@ -5521,7 +5422,6 @@ export type QueryRoot = {
   shop: Shop;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootArticlesArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -5533,19 +5433,16 @@ export type QueryRootArticlesArgs = {
   sortKey?: InputMaybe<ArticleSortKeys>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootBlogArgs = {
   handle?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootBlogByHandleArgs = {
   handle: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootBlogsArgs = {
@@ -5558,12 +5455,10 @@ export type QueryRootBlogsArgs = {
   sortKey?: InputMaybe<BlogSortKeys>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCartArgs = {
   id: Scalars['ID'];
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCollectionArgs = {
@@ -5571,12 +5466,10 @@ export type QueryRootCollectionArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCollectionByHandleArgs = {
   handle: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCollectionsArgs = {
@@ -5589,12 +5482,10 @@ export type QueryRootCollectionsArgs = {
   sortKey?: InputMaybe<CollectionSortKeys>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCustomerArgs = {
   customerAccessToken: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootLocationsArgs = {
@@ -5607,18 +5498,15 @@ export type QueryRootLocationsArgs = {
   sortKey?: InputMaybe<LocationSortKeys>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootNodeArgs = {
   id: Scalars['ID'];
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootNodesArgs = {
   ids: Array<Scalars['ID']>;
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootPageArgs = {
@@ -5626,12 +5514,10 @@ export type QueryRootPageArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootPageByHandleArgs = {
   handle: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootPagesArgs = {
@@ -5644,37 +5530,31 @@ export type QueryRootPagesArgs = {
   sortKey?: InputMaybe<PageSortKeys>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootProductArgs = {
   handle?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootProductByHandleArgs = {
   handle: Scalars['String'];
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootProductRecommendationsArgs = {
   productId: Scalars['ID'];
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootProductTagsArgs = {
   first: Scalars['Int'];
 };
 
-
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootProductTypesArgs = {
   first: Scalars['Int'];
 };
-
 
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootProductsArgs = {
@@ -5850,7 +5730,6 @@ export type SellingPlanGroup = {
   sellingPlans: SellingPlanConnection;
 };
 
-
 /** Represents a selling method. For example, 'Subscribe and save' is a selling method where customers pay for goods or services per delivery. A selling plan group contains individual selling plans. */
 export type SellingPlanGroupSellingPlansArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -5972,13 +5851,11 @@ export type Shop = HasMetafields & {
   termsOfService?: Maybe<ShopPolicy>;
 };
 
-
 /** Shop represents a collection of the general settings and information about the shop. */
 export type ShopMetafieldArgs = {
   key: Scalars['String'];
   namespace: Scalars['String'];
 };
-
 
 /** Shop represents a collection of the general settings and information about the shop. */
 export type ShopMetafieldsArgs = {
@@ -6334,9 +6211,7 @@ export type CreateCartMutationVariables = Exact<{
   input: CartInput;
 }>;
 
-
 export type CreateCartMutation = { __typename?: 'Mutation', cartCreate?: { __typename?: 'CartCreatePayload', cart?: { __typename?: 'Cart', checkoutUrl: any, id: string, attributes: Array<{ __typename?: 'Attribute', key: string, value?: string | null }>, buyerIdentity: { __typename?: 'CartBuyerIdentity', email?: string | null } } | null } | null };
-
 
 export const CreateCartDocument = gql`
     mutation CreateCart($input: CartInput!) {
@@ -6358,14 +6233,13 @@ export const CreateCartDocument = gql`
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
 
-
 const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    CreateCart(variables: CreateCartMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateCartMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateCartMutation>(CreateCartDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateCart');
-    }
+    CreateCart(variables: CreateCartMutationVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<CreateCartMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateCartMutation>(CreateCartDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'CreateCart');
+    },
   };
 }
 export type Sdk = ReturnType<typeof getSdk>;

@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ShipheroAuthRepositoryInterface } from '@Repositories/shiphero/shipheroAuth.repository';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import { Status } from '@Domains/Status';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 export interface UpdateShipheoKeyUsecaseInterface {
   updateShipheroKey(): Promise<ReturnValueType<Status>>;
@@ -10,7 +10,7 @@ export interface UpdateShipheoKeyUsecaseInterface {
 
 @Injectable()
 export class UpdateShipheoKeyUsecase
-  implements UpdateShipheoKeyUsecaseInterface
+implements UpdateShipheoKeyUsecaseInterface
 {
   constructor(
     @Inject('ShipheroAuthRepositoryInterface')
@@ -28,14 +28,11 @@ export class UpdateShipheoKeyUsecase
     const client = new SecretManagerServiceClient();
     const parent = 'projects/441786500914/secrets/shiphero_key';
 
-    const [version] = await client.addSecretVersion({
-      parent: parent,
-      payload: {
-        data: Buffer.from(`Bearer ${newToken}`, 'utf8'),
-      },
+    await client.addSecretVersion({
+      parent,
+      payload: { data: Buffer.from(`Bearer ${newToken}`, 'utf8') },
     });
-    console.info(`Added secret version ${version.name}`);
 
-    return [{success:true}];
+    return [{ success: true }];
   }
 }

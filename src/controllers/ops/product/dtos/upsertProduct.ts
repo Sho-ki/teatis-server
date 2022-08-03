@@ -8,74 +8,74 @@ import {
 
 export class UpsertProductDto {
   @IsString()
-  activeStatus: 'active' | 'inactive';
+    activeStatus: 'active' | 'inactive';
 
   @IsString()
-  preservationStyle: 'normal' | 'refrigerated' | 'frozen';
-
-  @IsString()
-  @IsOptional()
-  allergenLabel?: string;
+    preservationStyle: 'normal' | 'refrigerated' | 'frozen';
 
   @IsString()
   @IsOptional()
-  ingredientLabel?: string;
+    allergenLabel?: string;
 
   @IsString()
   @IsOptional()
-  expertComment?: string;
-
-  @IsNumber()
-  @IsOptional()
-  WSP?: number;
-
-  @IsNumber()
-  @IsOptional()
-  MSP?: number;
-
-  @IsString()
-  label: string;
-
-  @IsString()
-  name: string;
-
-  @IsNumber()
-  productProviderId: number;
+    ingredientLabel?: string;
 
   @IsString()
   @IsOptional()
-  upcCode?: string;
+    expertComment?: string;
 
   @IsNumber()
-  flavorId: number;
+  @IsOptional()
+    WSP?: number;
 
   @IsNumber()
-  categoryId: number;
-
-  @IsNumber()
-  vendorId: number;
+  @IsOptional()
+    MSP?: number;
 
   @IsString()
-  externalSku: string;
+    label: string;
+
+  @IsString()
+    name: string;
+
+  @IsNumber()
+    productProviderId: number;
+
+  @IsString()
+  @IsOptional()
+    upcCode?: string;
+
+  @IsNumber()
+    flavorId: number;
+
+  @IsNumber()
+    categoryId: number;
+
+  @IsNumber()
+    vendorId: number;
+
+  @IsString()
+    externalSku: string;
 
   @IsArray()
-  allergenIds: number[];
+    allergenIds: number[];
 
   @IsArray()
-  foodTypeIds: number[];
+    foodTypeIds: number[];
 
   @IsArray()
-  images: { src: string; position: number }[];
+    images: { src: string, position: number }[];
 
   @IsArray()
-  ingredientIds: number[];
+    ingredientIds: number[];
 
   @IsArray()
-  cookingMethodIds: number[];
+    cookingMethodIds: number[];
 
   @IsObject()
   @IsOptional()
-  nutritionFact: {
+    nutritionFact: {
     quantity?: number;
     servingSize?: number;
     calories?: number;

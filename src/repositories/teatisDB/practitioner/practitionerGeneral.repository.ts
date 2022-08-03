@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Practitioner } from '@Domains/Practitioner';
 
 import { PrismaService } from '../../../prisma.service';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface createPractitionerArgs {
   firstName: string;
@@ -23,9 +23,7 @@ interface getPractitionerArgs {
 }
 
 export interface PractitionerGeneralRepositoryInterface {
-  getPractitioner({
-    email,
-  }: getPractitionerArgs): Promise<ReturnValueType<Practitioner>>;
+  getPractitioner({ email }: getPractitionerArgs): Promise<ReturnValueType<Practitioner>>;
   createPractitioner({
     firstName,
     lastName,
@@ -43,12 +41,10 @@ export interface PractitionerGeneralRepositoryInterface {
 
 @Injectable()
 export class PractitionerGeneralRepository
-  implements PractitionerGeneralRepositoryInterface
+implements PractitionerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
-  async getPractitioner({
-    email,
-  }: getPractitionerArgs): Promise<ReturnValueType<Practitioner>> {
+  async getPractitioner({ email }: getPractitionerArgs): Promise<ReturnValueType<Practitioner>> {
     const response = await this.prisma.practitioner.findUnique({
       where: { email },
       select: {
@@ -70,10 +66,7 @@ export class PractitionerGeneralRepository
       !response.uuid ||
       !response.firstName
     ) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
     return [
@@ -168,10 +161,7 @@ export class PractitionerGeneralRepository
       !response.uuid ||
       !response.firstName
     ) {
-      return [
-        undefined,
-        { name: 'Internal Server Error', message: 'email is invalid' },
-      ];
+      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
     return [

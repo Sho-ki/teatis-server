@@ -4,12 +4,12 @@ import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitioner
 import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
 import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 describe('PractitionerBoxController', () => {
   let controller: PractitionerBoxController;
 
-  let mockBox: PractitionerAndBox = {
+  const mockBox: PractitionerAndBox = {
     box: undefined,
     email: '',
     firstName: '',

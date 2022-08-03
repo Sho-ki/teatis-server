@@ -37,14 +37,12 @@ import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/custo
 import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
 import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { EmailModule } from './email/email.module';
-import { EmailController } from './email/email.controller';
 import { CreateCheckoutCartOfCustomerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
-    
     {
       provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
       useClass: CreateCheckoutCartOfPractitionerBoxUsecase,

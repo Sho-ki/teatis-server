@@ -1,3 +1,1 @@
-export const DISCOUNT_CODES = {
-    firstPurchase: "SNACK10"
-}
+export const DISCOUNT_CODES = { firstPurchase: 'SNACK10' };

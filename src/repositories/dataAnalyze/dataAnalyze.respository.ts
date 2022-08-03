@@ -35,7 +35,7 @@ export interface AnalyzePreferenceRepositoryInterface {
 
 @Injectable()
 export class AnalyzePreferenceRepository
-  implements AnalyzePreferenceRepositoryInterface
+implements AnalyzePreferenceRepositoryInterface
 {
   async getAnalyzedProducts({
     products,

@@ -3,64 +3,64 @@ import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 export class PostPrePurchaseSurveyDto {
   @IsString()
   @IsOptional()
-  diabetes?: string;
+    diabetes?: string;
 
   @IsString()
   @IsOptional()
-  gender?: string;
+    gender?: string;
 
   @IsNumber()
   @IsOptional()
-  height?: number; // in cm
+    height?: number; // in cm
 
   @IsNumber()
   @IsOptional()
-  weight?: number; // in kg
+    weight?: number; // in kg
 
   @IsNumber()
   @IsOptional()
-  age?: number;
+    age?: number;
 
   @IsArray()
   @IsOptional()
-  medicalConditions?: { name: string; label?: string }[];
+    medicalConditions?: { name: string, label?: string }[];
 
   @IsString()
   @IsOptional()
-  activeLevel?: string;
+    activeLevel?: string;
 
   @IsString()
   @IsOptional()
-  A1c?: string;
+    A1c?: string;
 
   @IsNumber()
   @IsOptional()
-  mealsPerDay?: number;
+    mealsPerDay?: number;
 
   @IsArray()
   @IsOptional()
-  categoryPreferences?: { name: string; label?: string }[];
+    categoryPreferences?: { name: string, label?: string }[];
 
   @IsArray()
   @IsOptional()
-  flavorDislikes?: { name: string; label?: string }[];
+    flavorDislikes?: { name: string, label?: string }[];
 
   @IsArray()
   @IsOptional()
-  ingredientDislikes?: { name: string; label?: string }[];
+    ingredientDislikes?: { name: string, label?: string }[];
 
   @IsArray()
   @IsOptional()
-  allergens?: { name: string; label?: string }[];
+    allergens?: { name: string, label?: string }[];
 
   @IsString()
-  email: string;
+    email: string;
 
   @IsArray()
   @IsOptional()
-  unavailableCookingMethods?: { name: string; label?: string }[];
+    unavailableCookingMethods?: { name: string, label?: string }[];
 
   @IsArray()
   @IsOptional()
-  boxPlan?: string[];
+    boxPlan?: string[];
 }

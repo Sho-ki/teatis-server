@@ -14,7 +14,8 @@
       "@Usecases/*": ["src/usecases/*"],
       "@Domains/*": ["src/domains/*"],
       "@Repositories/*": ["src/repositories/*"],
-      "@Controllers/*": ["src/controllers/*"]
+      "@Controllers/*": ["src/controllers/*"],
+      "@Filters/*": ["src/filter/*"]
     },
     // "strict": true,
     "incremental": true,

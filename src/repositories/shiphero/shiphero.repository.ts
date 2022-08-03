@@ -8,7 +8,7 @@ import {
   getSdk,
 } from './generated/graphql';
 import { CustomerOrder } from '@Domains/CustomerOrder';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface GetLastOrderArgs {
   email: string;
@@ -35,15 +35,11 @@ export interface GetOrderByOrderNumberArgs {
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepositoryInterface {
-  updateOrderHoldUntilDate({orderId}: UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>
-  getLastCustomerOrder({
-    email,
-  }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
+  updateOrderHoldUntilDate({ orderId }: UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>;
+  getLastCustomerOrder({ email }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
   getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>>;
-  getCustomerOrderByOrderNumber({
-    orderNumber,
-  }: GetOrderByOrderNumberArgs): Promise<ReturnValueType<CustomerOrder>>;
+  getCustomerOrderByOrderNumber({ orderNumber }: GetOrderByOrderNumberArgs): Promise<ReturnValueType<CustomerOrder>>;
 
   updateCustomerOrder({
     orderId,
@@ -51,26 +47,21 @@ export interface ShipheroRepositoryInterface {
     orderNumber,
   }: CreateOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
-  getCustomerOrders({
-    email,
-  }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>>;
+  getCustomerOrders({ email }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>>;
 }
 
 @Injectable()
 export class ShipheroRepository implements ShipheroRepositoryInterface {
   async getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>> {
-    const client = new GraphQLClient(endpoint, {
-      headers: {
-        authorization: process.env.SHIPHERO_API_KEY,
-      } as HeadersInit,
-    });
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
 
-    let res: GetProductInventoryQuery = await sdk.getProductInventory();
+    const res: GetProductInventoryQuery = await sdk.getProductInventory();
     const allProducts = res?.products?.data?.edges;
 
-    let nonInventorySkus: Pick<Product, 'sku'>[] = [];
-    for (let product of allProducts) {
+    const nonInventorySkus: Pick<Product, 'sku'>[] = [];
+    for (const product of allProducts) {
       const wareHouseProducts = product?.node?.warehouse_products;
       const onHand = wareHouseProducts ? wareHouseProducts[0]?.on_hand : 0;
       const productSku = product?.node?.sku;
@@ -81,19 +72,14 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     return [nonInventorySkus];
   }
 
-  async getCustomerOrderByOrderNumber({
-    orderNumber,
-  }: GetOrderByOrderNumberArgs): Promise<ReturnValueType<CustomerOrder>> {
-    const client = new GraphQLClient(endpoint, {
-      headers: {
-        authorization: process.env.SHIPHERO_API_KEY,
-      } as HeadersInit,
-    });
+  async getCustomerOrderByOrderNumber({ orderNumber }: GetOrderByOrderNumberArgs):
+  Promise<ReturnValueType<CustomerOrder>>
+  {
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
     const res: GetLastOrderByEmailQuery =
-      await sdk.getOrderProductsByOrderNumber({
-        orderNumber,
-      });
+      await sdk.getOrderProductsByOrderNumber({ orderNumber });
 
     const node = res?.orders?.data?.edges[0]?.node;
     const items = node?.line_items?.edges;
@@ -110,8 +96,8 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       ];
     }
 
-    let products: Pick<Product, 'sku'>[] = [];
-    for (let item of items) {
+    const products: Pick<Product, 'sku'>[] = [];
+    for (const item of items) {
       if (!item) {
         continue;
       }
@@ -122,7 +108,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
         itemNode?.fulfillment_status !== 'canceled'
       ) {
         const kitComponents = itemNode?.product?.kit_components || [];
-        for (let component of kitComponents) {
+        for (const component of kitComponents) {
           if (component?.sku) {
             products.push({ sku: component.sku });
           }
@@ -140,19 +126,12 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       },
     ];
   }
-  async getLastCustomerOrder({
-    email,
-  }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
-    const client = new GraphQLClient(endpoint, {
-      headers: {
-        authorization: process.env.SHIPHERO_API_KEY,
-      } as HeadersInit,
-    });
+  async getLastCustomerOrder({ email }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
 
-    const res: GetLastOrderByEmailQuery = await sdk.getLastOrderByEmail({
-      email,
-    });
+    const res: GetLastOrderByEmailQuery = await sdk.getLastOrderByEmail({ email });
 
     const hasOrdered = res?.orders?.data?.edges.length > 0;
     if (!hasOrdered) {
@@ -181,8 +160,8 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       ];
     }
 
-    let products: Pick<Product, 'sku'>[] = [];
-    for (let item of items) {
+    const products: Pick<Product, 'sku'>[] = [];
+    for (const item of items) {
       if (!item) {
         continue;
       }
@@ -193,7 +172,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
         itemNode?.fulfillment_status !== 'canceled'
       ) {
         const kitComponents = itemNode?.product?.kit_components || [];
-        for (let component of kitComponents) {
+        for (const component of kitComponents) {
           if (component?.sku) {
             products.push({ sku: component.sku });
           }
@@ -206,22 +185,15 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     return [{ orderNumber, products, orderDate, orderId }];
   }
 
-  async getCustomerOrders({
-    email,
-  }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>> {
-    const client = new GraphQLClient(endpoint, {
-      headers: {
-        authorization: process.env.SHIPHERO_API_KEY,
-      } as HeadersInit,
-    });
+  async getCustomerOrders({ email }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>> {
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
 
-    let res: GetLastOrderByEmailQuery = await sdk.getCustomerOrderByEmail({
-      email,
-    });
+    const res: GetLastOrderByEmailQuery = await sdk.getCustomerOrderByEmail({ email });
 
-    let customerOrders: CustomerOrder[] = [];
-    for (let edge of res?.orders?.data?.edges || []) {
+    const customerOrders: CustomerOrder[] = [];
+    for (const edge of res?.orders?.data?.edges || []) {
       const node = edge?.node;
       const orderNumber = node?.order_number;
       const orderId = node?.id;
@@ -238,8 +210,8 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
         ];
       }
 
-      let products: Pick<Product, 'sku'>[] = [];
-      for (let item of items) {
+      const products: Pick<Product, 'sku'>[] = [];
+      for (const item of items) {
         if (!item) {
           continue;
         }
@@ -250,7 +222,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
           itemNode?.fulfillment_status !== 'canceled'
         ) {
           const kitComponents = itemNode?.product?.kit_components || [];
-          for (let component of kitComponents) {
+          for (const component of kitComponents) {
             if (component?.sku) {
               products.push({ sku: component.sku });
             }
@@ -268,15 +240,13 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     return [customerOrders];
   }
 
-  async updateOrderHoldUntilDate({orderId}:UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>{
-      const client = new GraphQLClient(endpoint, {
-          headers: {
-            authorization: process.env.SHIPHERO_API_KEY,
-          } as HeadersInit,
-        });
-      const holdUntilDate = new Date();
-        holdUntilDate.setHours(holdUntilDate.getHours() + 24);
-      const mutation = gql`
+  async updateOrderHoldUntilDate({ orderId }:UpdateOrderHoldUntilDateArgs):
+  Promise<[void?, Error?]>{
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
+    const holdUntilDate = new Date();
+    holdUntilDate.setHours(holdUntilDate.getHours() + 24);
+    const mutation = gql`
         mutation {
           order_update(
             data: {
@@ -292,7 +262,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
           }
         }`;
     await client.request(mutation);
-    return []
+    return [];
   }
 
   async updateCustomerOrder({
@@ -300,15 +270,12 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     products,
     orderNumber,
   }: CreateOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
-    const client = new GraphQLClient(endpoint, {
-      headers: {
-        authorization: process.env.SHIPHERO_API_KEY,
-      } as HeadersInit,
-    });
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
 
     let orderProducts = '';
     let ct = 1;
-    for (let product of products) {
+    for (const product of products) {
       orderProducts += String(`{
         sku: "${product.sku}",
         partner_line_item_id: "${product.sku}_${orderNumber}_#${ct}",
@@ -317,7 +284,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
      }, `);
       ct++;
     }
-   
+
     const mutation = gql`
     mutation {
       order_add_line_items (
@@ -331,7 +298,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     }
   `;
     await client.request(mutation);
- 
+
     return [{ orderId, orderNumber, products }];
   }
 }
