@@ -26,7 +26,6 @@ import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import {
   GetPrePurchaseOptionsUsecaseInterface,
-  GetPrePurchaseOptionsUsecaseRes,
 } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
@@ -34,7 +33,7 @@ import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurv
 import { UpdateCustomerOrderOfCustomerBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
-import { GetNextBoxUsecaseInterface } from '@Usecases/nextBox/getNextBox.usecase';
+import { GetNextBoxUsecaseInterface, GetNextBoxUsecaseRes } from '@Usecases/nextBox/getNextBox.usecase';
 import { GetNextBoxDto } from './dtos/getNextBox';
 import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
 import { GetCustomerNutritionUsecaseInterface } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
@@ -46,10 +45,17 @@ import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/c
 import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
 import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxDto } from './dtos/getFirstBox';
-import { GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
+import { GetFirstBoxRes, GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
+import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
+import { Status } from '@Domains/Status';
+import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
+import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
+import { ProductOptions } from '@Domains/ProductOptions';
+import { CustomerBoxType } from '@Domains/CustomerBoxType';
+import { NutritionNeed } from '../../domains/NutritionNeed';
 
 // api/discovery
 @Controller('api/discovery')
@@ -95,8 +101,8 @@ export class DiscoveriesController {
   @Post('pre-purchase-survey')
   async postPrePurchaseSurvey(
     @Body() body: PostPrePurchaseSurveyDto,
-    @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+    @Res() response: Response<CustomerBoxType | Error>,
+  ) {
     const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
     if (error) {
@@ -109,8 +115,8 @@ export class DiscoveriesController {
   // GET: api/discovery/pre-purchase-options
   @Get('pre-purchase-options')
   async getPrePurchaseOptions(
-    @Res() response: Response,
-  ): Promise<Response<GetPrePurchaseOptionsUsecaseRes | Error>> {
+    @Res() response: Response<ProductOptions | Error>,
+  ) {
     const [usecaseResponse, error] =
       await this.getPrePurchaseOptionsUsecase.getPrePurchaseOptions();
 
@@ -125,8 +131,8 @@ export class DiscoveriesController {
   @Get('post-purchase-survey')
   async getPostPurchaseSurvey(
     @Query() body: GetPostPurchaseSurveyInfoDto,
-    @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+    @Res() response: Response<PostPurchaseSurvey | Error>,
+  ) {
     const uuid = body.uuid;
     const orderNumber = body.orderNumber;
 
@@ -146,8 +152,8 @@ export class DiscoveriesController {
   @Get('next-box-survey')
   async getNextBox(
     @Query() body: GetNextBoxDto,
-    @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+    @Res() response: Response<GetNextBoxUsecaseRes | Error>,
+  ) {
     const [usecaseResponse, error] = await this.getNextBoxUsecase.getNextBox(
       body,
     );
@@ -162,8 +168,8 @@ export class DiscoveriesController {
   @Get('first-box')
   async getFirstBox(
     @Query() body: GetFirstBoxDto,
-    @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+    @Res() response: Response<GetFirstBoxRes | Error>,
+  ) {
     const [usecaseResponse, error] = await this.getFirstBoxUsecase.getFirstBox(
       body,
     );
@@ -178,7 +184,7 @@ export class DiscoveriesController {
   @Post('post-purchase-survey')
   async postPostPurchaseSurvey(
     @Body() body: PostPostPurchaseSurveyDto,
-    @Res() response: Response,
+    @Res() response: Response<PostPurchaseSurveyAnswer | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.postPostPurchaseSurveyUsecase.postPostPurchaseSurvey(body);
@@ -192,8 +198,8 @@ export class DiscoveriesController {
   @Post('delete-customer-box-webhook')
   async deleteCustomerBox(
     @Body() body: DeleteCustomerBoxDto,
-    @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+    @Res() response: Response<Status | Error>,
+  ) {
     let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
     for (let noteAttribute of body.note_attributes) {
       if (noteAttribute.name === 'uuid') {
@@ -217,14 +223,14 @@ export class DiscoveriesController {
       if (error) {
         return response.status(500).send(error);
       }
-      return response.status(200).send({ status: 'OK' });
+      return response.status(200).send(usecaseResponse);
     } else {
       const [usecaseResponse, error] =
         await this.deleteCustomerBoxUsecase.deleteCustomerBox(body);
       if (error) {
         return response.status(500).send(error);
       }
-      return response.status(200).send({ status: usecaseResponse.status });
+      return response.status(200).send(usecaseResponse);
     }
   }
 
@@ -232,8 +238,8 @@ export class DiscoveriesController {
   @Post('order-update-webhook')
   async createOrder(
     @Body() body: UpdateCustomerOrderDto,
-    @Res() response: Response,
-  ): Promise<Response<any | Error>> {
+    @Res() response:  Response<OrderQueue | Error>,
+  ) {
     let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
     for (let noteAttribute of body.note_attributes) {
       if (noteAttribute.name === 'uuid') {
@@ -296,7 +302,7 @@ export class DiscoveriesController {
   @Post('update-customer-box')
   async createCustomerBox(
     @Body() body: UpdateCustomerBoxDto,
-    @Res() response: Response,
+    @Res() response: Response<Status | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.updateCustomerBoxUsecase.updateCustomerBox(body);
@@ -310,7 +316,7 @@ export class DiscoveriesController {
   @Post('customer-original-box-cart')
   async createCheckoutCartOfCustomerOriginalBox(
     @Body() body: CreateCheckoutCartOfCustomerOriginalBoxDto,
-    @Res() response: Response,
+    @Res() response: Response<CustomerCheckoutCart | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.createCheckoutCartOfCustomerOriginalBoxUsecase.createCheckoutCartOfCustomerOriginalBox(
@@ -326,7 +332,7 @@ export class DiscoveriesController {
   @Post('practitioner-box-cart')
   async createPractitionerBoxCart(
     @Body() body: CreateCheckoutCartOfPractitionerBoxDto,
-    @Res() response: Response,
+    @Res() response: Response<CustomerCheckoutCart | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.createCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
@@ -342,7 +348,7 @@ export class DiscoveriesController {
   @Post('practitioner-meal-box-cart')
   async createPractitionerMealBoxCart(
     @Body() body: CreateCheckoutCartOfPractitionerMealBoxDto,
-    @Res() response: Response,
+    @Res() response: Response<CustomerCheckoutCart | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.createCheckoutCartOfPractitionerMealBoxUsecase.createCheckoutCartOfPractitionerMealBox(
@@ -358,7 +364,7 @@ export class DiscoveriesController {
   @Get('customer-nutrition')
   async getCustomerNutrition(
     @Query() body: GetCustomerNutritionDto,
-    @Res() response: Response,
+    @Res() response: Response<NutritionNeed | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.getCustomerNutritionUsecase.getCustomerNutrition(body);

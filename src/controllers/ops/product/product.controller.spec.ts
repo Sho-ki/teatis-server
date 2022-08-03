@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductController } from './product.controller';
 import {UpsertProductUsecaseInterface} from "@Usecases/product/upsertProduct.usecase";
 import {Product} from "@Domains/Product";
+import { ReturnValueType } from '../../../filter/customError';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -14,7 +15,7 @@ describe('ProductController', () => {
           provide: 'UpsertProductUsecaseInterface',
           useValue: {
             upsertProduct: () =>
-              Promise.resolve<[Product?, Error?]>([
+              Promise.resolve<ReturnValueType<Product>>([
                 {
                   id: 1,
                   name: "product_test_1",

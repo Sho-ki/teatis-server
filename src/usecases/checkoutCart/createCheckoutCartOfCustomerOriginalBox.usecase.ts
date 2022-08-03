@@ -4,18 +4,17 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CreateCheckoutCartOfCustomerOriginalBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfCustomerOriginalBoxDto';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { Customer } from '@Domains/Customer';
+import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
+import { ReturnValueType } from '../../filter/customError';
 
-interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseRes {
-  checkoutUrl: string;
-  email?: string;
-}
+
 export interface CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface {
   createCheckoutCartOfCustomerOriginalBox({
     merchandiseId,
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CreateCheckoutCartOfCustomerOriginalBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -35,7 +34,7 @@ export class CreateCheckoutCartOfCustomerOriginalBoxUsecase
     sellingPlanId,
     uuid,
   }: CreateCheckoutCartOfCustomerOriginalBoxDto): Promise<
-    [CreateCheckoutCartOfCustomerOriginalBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'uuid', value: uuid },

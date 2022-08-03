@@ -3,6 +3,7 @@ import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 import { Prisma } from '@prisma/client';
+import { ReturnValueType } from '../../../filter/customError';
 
 export interface DeleteCustomerBoxArgs {
   customerId: number;
@@ -20,15 +21,15 @@ export interface UpdateCustomerBoxArgs {
 export interface CustomerBoxRepositoryInterface {
   getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]>;
+  }: GetCustomerBoxProductsArgs): Promise<ReturnValueType<Product[]>>;
   deleteCustomerBoxProduct({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]>;
+  }: DeleteCustomerBoxArgs): Promise<ReturnValueType<void>>;
 
   postCustomerBoxProduct({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]>;
+  }: UpdateCustomerBoxArgs): Promise<ReturnValueType<Product[]>>;
 }
 
 @Injectable()
@@ -37,20 +38,20 @@ export class CustomerBoxRepository implements CustomerBoxRepositoryInterface {
 
   async deleteCustomerBoxProduct({
     customerId,
-  }: DeleteCustomerBoxArgs): Promise<[void?, Error?]> {
+  }: DeleteCustomerBoxArgs): Promise<ReturnValueType<void>> {
     await this.prisma.customerBoxItems.deleteMany({
       where: {
         customerId,
       },
     });
 
-    return [];
+    return [,];
   }
 
   async postCustomerBoxProduct({
     customerId,
     products,
-  }: UpdateCustomerBoxArgs): Promise<[Product[]?, Error?]> {
+  }: UpdateCustomerBoxArgs): Promise<ReturnValueType<Product[]>> {
     let data: Prisma.Enumerable<Prisma.CustomerBoxItemsCreateManyInput> = [];
     for (let product of products) {
       if (product?.id) data.push({ customerId, productId: product?.id });
@@ -74,7 +75,7 @@ export class CustomerBoxRepository implements CustomerBoxRepositoryInterface {
 
   async getCustomerBoxProducts({
     email,
-  }: GetCustomerBoxProductsArgs): Promise<[Product[]?, Error?]> {
+  }: GetCustomerBoxProductsArgs): Promise<ReturnValueType<Product[]>> {
     const res = await this.prisma.customers.findUnique({
       where: { email },
       select: {

@@ -4,6 +4,8 @@ import { PostPostPurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPos
 import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
 import { QuestionPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/question/questionPostPurchaseSurvey.repository';
 import { CustomerPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
+import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
+import { ReturnValueType } from '../../filter/customError';
 
 export interface PostPostPurchaseSurveyUsecaseInterface {
   postPostPurchaseSurvey({
@@ -16,7 +18,7 @@ export interface PostPostPurchaseSurveyUsecaseInterface {
     title,
     content,
     reason,
-  }: PostPostPurchaseSurveyDto): Promise<any>;
+  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>>;
 }
 
 interface PostPostPurchaseSurveyRes {
@@ -42,7 +44,7 @@ export class PostPostPurchaseSurveyUsecase
     title,
     content,
     reason,
-  }: PostPostPurchaseSurveyDto): Promise<[PostPostPurchaseSurveyRes, Error]> {
+  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>> {
     let [answerCount, answerCountError] =
       await this.customerPostPurchaseSurveyRepository.getAnswerCount({
         customerId,

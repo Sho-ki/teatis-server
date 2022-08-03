@@ -5,15 +5,15 @@ import { DisplayProduct, Product } from '@Domains/Product';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
-
-interface GetNextBoxUsecaseRes {
+// TODO : Use DisplayProduct[] as Response
+export interface GetNextBoxUsecaseRes {
   products: DisplayProduct[];
 }
 
 export interface GetNextBoxUsecaseInterface {
   getNextBox({
     uuid,
-  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]>;
+  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes?, Error?]>;
 }
 
 @Injectable()
@@ -27,7 +27,7 @@ export class GetNextBoxUsecase implements GetNextBoxUsecaseInterface {
 
   async getNextBox({
     uuid,
-  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes, Error]> {
+  }: GetNextBoxDto): Promise<[GetNextBoxUsecaseRes?, Error?]> {
     const productCount = PRODUCT_COUNT * 2;
 
     const [customer, getCustomerError] =

@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { UpsertProductDto } from '@Controllers/ops/product/dtos/upsertProduct';
 import { Product } from '@Domains/Product';
+import { ReturnValueType } from '../../filter/customError';
 
 export interface UpsertProductUsecaseInterface {
   upsertProduct({
@@ -27,7 +28,7 @@ export interface UpsertProductUsecaseInterface {
     ingredientIds,
     cookingMethodIds,
     nutritionFact,
-  }: UpsertProductDto): Promise<[Product?, Error?]>;
+  }: UpsertProductDto): Promise<ReturnValueType<Product>>;
 }
 
 @Injectable()
@@ -59,11 +60,11 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
     ingredientIds: newProductIngredientIds,
     cookingMethodIds: newProductCookingMethodIds,
     nutritionFact,
-  }: UpsertProductDto): Promise<[Product?, Error?]> {
+  }: UpsertProductDto): Promise<ReturnValueType<Product>> {
     // Transaction
     const [updatedProduct, upsertProductError] =
       await this.productGeneralRepository.performAtomicOperations(
-        async (): Promise<[Product?, Error?]> => {
+        async (): Promise<ReturnValueType<Product>> => {
           const [product, upsertProductError] =
             await this.productGeneralRepository.upsertProduct({
               activeStatus,
