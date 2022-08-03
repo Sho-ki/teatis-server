@@ -30,13 +30,10 @@ export class PractitionerBoxController {
   @Get('practitioner-box')
   async getPractitionerBox(
     @Query()
-    query: GetPractitionerBoxDto,
+      query: GetPractitionerBoxDto,
     @Res() response: Response<PractitionerAndBox | Error>,
   ) {
-    let [usecaseResponse, error]: [PractitionerAndBox, Error] = [
-      undefined,
-      undefined,
-    ];
+    let [usecaseResponse, error]: [PractitionerAndBox, Error] = [undefined, undefined];
 
     if (query.practitionerBoxUuid) {
       [usecaseResponse, error] =
@@ -48,7 +45,7 @@ export class PractitionerBoxController {
         await this.getPractitionerBoxByLabelUsecase.getPractitionerBoxByLabel(
           query,
         );
-    } 
+    }
 
     if (error) {
       return response.status(500).send(error);

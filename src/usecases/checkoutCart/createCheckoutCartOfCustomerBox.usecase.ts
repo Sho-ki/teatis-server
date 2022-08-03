@@ -2,12 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
-import { Customer } from '@Domains/Customer';
 import { CustomerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
 import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 export interface CreateCheckoutCartOfCustomerBoxUsecaseInterface {
   createCheckoutCartOfCustomerBox({
@@ -22,7 +21,7 @@ export interface CreateCheckoutCartOfCustomerBoxUsecaseInterface {
 
 @Injectable()
 export class CreateCheckoutCartOfCustomerBoxUsecase
-  implements CreateCheckoutCartOfCustomerBoxUsecaseInterface
+implements CreateCheckoutCartOfCustomerBoxUsecaseInterface
 {
   constructor(
     @Inject('ShopifyRepositoryInterface')
@@ -33,24 +32,19 @@ export class CreateCheckoutCartOfCustomerBoxUsecase
 
   async createCheckoutCartOfCustomerBox({
     boxName,
-    boxType,
     deliveryInterval,
     uuid,
   }: CustomerBoxDto): Promise<
     ReturnValueType<CustomerCheckoutCart>
   > {
-    const attributes: { key: string; value: string }[] = [
-      { key: 'uuid', value: uuid },
-    ];
+    const attributes: { key: string, value: string }[] = [{ key: 'uuid', value: uuid }];
     const [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomerByUuid({
-        uuid,
-      });
+      await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if (getCustomerError) {
       return [null, getCustomerError];
     }
     let merchandiseId:string,
-        sellingPlanId:string = undefined
+      sellingPlanId:string = undefined;
     if(boxName==='HC'){
       switch(deliveryInterval){
         case 1:
@@ -69,7 +63,7 @@ export class CreateCheckoutCartOfCustomerBoxUsecase
           merchandiseId = CUSTOMER_BOX_PLANS.HC.TWELVE.merchandiseId;
           sellingPlanId = CUSTOMER_BOX_PLANS.HC.TWELVE.sellingPlanId;
           break;
-        default:break
+        default:break;
       }
     }else if(boxName==='HCLS'){
       switch(deliveryInterval){
@@ -89,12 +83,12 @@ export class CreateCheckoutCartOfCustomerBoxUsecase
           merchandiseId = CUSTOMER_BOX_PLANS.HCLS.TWELVE.merchandiseId;
           sellingPlanId = CUSTOMER_BOX_PLANS.HCLS.TWELVE.sellingPlanId;
           break;
-        default:break
+        default:break;
       }
     }
     const [cart, createCheckoutCartOfCustomerBoxError] =
       await this.ShopifyRepository.createCart({
-        discountCode:DISCOUNT_CODES.firstPurchase,
+        discountCode: DISCOUNT_CODES.firstPurchase,
         merchandiseId,
         sellingPlanId,
         attributes,

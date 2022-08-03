@@ -4,8 +4,7 @@ import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.reposi
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerMealBox';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
-import { ReturnValueType } from '../../filter/customError';
-
+import { ReturnValueType } from '@Filters/customError';
 
 export interface CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface {
   createCheckoutCartOfPractitionerMealBox({
@@ -20,7 +19,7 @@ export interface CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface {
 
 @Injectable()
 export class CreateCheckoutCartOfPractitionerMealBoxUsecase
-  implements CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface
+implements CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface
 {
   constructor(
     @Inject('ShopifyRepositoryInterface')
@@ -37,15 +36,10 @@ export class CreateCheckoutCartOfPractitionerMealBoxUsecase
   }: CreateCheckoutCartOfPractitionerMealBoxDto): Promise<
     ReturnValueType<CustomerCheckoutCart>
   > {
-    const attributes: { key: string; value: string }[] = [
-      { key: 'practitionerBoxUuid', value: practitionerBoxUuid },
-      { key: 'uuid', value: uuid },
-    ];
+    const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }, { key: 'uuid', value: uuid }];
 
     const [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomerByUuid({
-        uuid,
-      });
+      await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [null, getCustomerError];

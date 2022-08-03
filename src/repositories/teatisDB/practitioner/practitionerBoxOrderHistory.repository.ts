@@ -1,8 +1,10 @@
+/* eslint-disable no-sparse-arrays */
+/* eslint-disable comma-spacing */
 import { Injectable } from '@nestjs/common';
 import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 export interface UpdatePractitionerBoxOrderHistoryArgs {
   orderNumber: string;
@@ -43,7 +45,7 @@ export interface PractitionerBoxOrderHistoryRepositoryInterface {
 
 @Injectable()
 export class PractitionerBoxOrderHistoryRepository
-  implements PractitionerBoxOrderHistoryRepositoryInterface
+implements PractitionerBoxOrderHistoryRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
   async updatePractitionerBoxOrderHistory({

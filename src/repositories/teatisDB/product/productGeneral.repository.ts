@@ -9,14 +9,14 @@ import {
 import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { Prisma } from '@prisma/client';
-import { ReturnValueType } from '../../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
 }
 
 interface GetAllProductsArgs {
-  medicalConditions: { highBloodPressure: boolean; highCholesterol: boolean };
+  medicalConditions: { highBloodPressure: boolean, highCholesterol: boolean };
 }
 
 export interface GetOptionsArgs {
@@ -124,12 +124,8 @@ export interface ProductGeneralRepositoryInterface {
     nutritionFact,
   }: UpsertProductArgs): Promise<ReturnValueType<Product>>;
 
-  getProductsBySku({
-    products,
-  }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>>;
-  getAllProducts({
-    medicalConditions,
-  }: GetAllProductsArgs): Promise<ReturnValueType<DisplayAnalyzeProduct[]>>;
+  getProductsBySku({ products }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>>;
+  getAllProducts({ medicalConditions }: GetAllProductsArgs): Promise<ReturnValueType<DisplayAnalyzeProduct[]>>;
   getOptions({ target }: GetOptionsArgs): Promise<ReturnValueType<ProductFeature[]>>;
 
   upsertProductIngredientSet({
@@ -162,7 +158,7 @@ export interface ProductGeneralRepositoryInterface {
 
 @Injectable()
 export class ProductGeneralRepository
-  implements ProductGeneralRepositoryInterface
+implements ProductGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
@@ -170,16 +166,11 @@ export class ProductGeneralRepository
     return this.prisma.$transaction(transactionBlock);
   }
 
-  private async getExistingProductIngredients({
-    productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  private async getExistingProductIngredients({ productId }: GetExistingProductFeaturesArgs):
+  Promise<ReturnValueType<ProductFeature[]>> {
     const response = await this.prisma.intermediateProductIngredient.findMany({
-      where: {
-        product: { id: productId },
-      },
-      select: {
-        productIngredient: true,
-      },
+      where: { product: { id: productId } },
+      select: { productIngredient: true },
     });
 
     return [
@@ -192,16 +183,11 @@ export class ProductGeneralRepository
       }),
     ];
   }
-  private async getExistingProductAllergens({
-    productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  private async getExistingProductAllergens({ productId }: GetExistingProductFeaturesArgs):
+  Promise<ReturnValueType<ProductFeature[]>> {
     const response = await this.prisma.intermediateProductAllergen.findMany({
-      where: {
-        product: { id: productId },
-      },
-      select: {
-        productAllergen: true,
-      },
+      where: { product: { id: productId } },
+      select: { productAllergen: true },
     });
 
     return [
@@ -214,17 +200,12 @@ export class ProductGeneralRepository
       }),
     ];
   }
-  private async getExistingProductCookingMethods({
-    productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  private async getExistingProductCookingMethods({ productId }: GetExistingProductFeaturesArgs):
+  Promise<ReturnValueType<ProductFeature[]>> {
     const response =
       await this.prisma.intermediateProductCookingMethod.findMany({
-        where: {
-          product: { id: productId },
-        },
-        select: {
-          productCookingMethod: true,
-        },
+        where: { product: { id: productId } },
+        select: { productCookingMethod: true },
       });
 
     return [
@@ -237,16 +218,11 @@ export class ProductGeneralRepository
       }),
     ];
   }
-  private async getExistingProductFoodTypes({
-    productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  private async getExistingProductFoodTypes({ productId }: GetExistingProductFeaturesArgs):
+  Promise<ReturnValueType<ProductFeature[]>> {
     const response = await this.prisma.intermediateProductFoodType.findMany({
-      where: {
-        product: { id: productId },
-      },
-      select: {
-        productFoodType: true,
-      },
+      where: { product: { id: productId } },
+      select: { productFoodType: true },
     });
 
     return [
@@ -259,13 +235,10 @@ export class ProductGeneralRepository
       }),
     ];
   }
-  private async getExistingProductImages({
-    productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductImage[]>> {
+  private async getExistingProductImages({ productId }: GetExistingProductFeaturesArgs):
+  Promise<ReturnValueType<ProductImage[]>> {
     const response = await this.prisma.productImage.findMany({
-      where: {
-        product: { id: productId },
-      },
+      where: { product: { id: productId } },
       select: {
         id: true,
         src: true,
@@ -317,7 +290,6 @@ export class ProductGeneralRepository
             return { productAllergenId, productId };
           }),
         }),
-        ,
       ]);
 
       const response = await prisma.intermediateProductAllergen.findMany({
@@ -373,7 +345,6 @@ export class ProductGeneralRepository
             return { productFoodTypeId, productId };
           }),
         }),
-        ,
       ]);
 
       const response = await prisma.intermediateProductFoodType.findMany({
@@ -396,10 +367,8 @@ export class ProductGeneralRepository
     productId,
   }: UpsertProductCookingMethodSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
     return await this.prisma.$transaction(async (prisma) => {
-      const [
-        existingProductCookingMethods,
-        getExistingProductCookingMethodsError,
-      ] = await this.getExistingProductCookingMethods({ productId });
+      const [existingProductCookingMethods, getExistingProductCookingMethodsError] =
+      await this.getExistingProductCookingMethods({ productId });
       if (getExistingProductCookingMethodsError) {
         return [
           undefined,
@@ -433,7 +402,6 @@ export class ProductGeneralRepository
             return { productCookingMethodId, productId };
           }),
         }),
-        ,
       ]);
 
       const response = await prisma.intermediateProductCookingMethod.findMany({
@@ -490,7 +458,6 @@ export class ProductGeneralRepository
             return { productIngredientId, productId };
           }),
         }),
-        ,
       ]);
 
       const response = await prisma.intermediateProductIngredient.findMany({
@@ -579,9 +546,7 @@ export class ProductGeneralRepository
       if (newMainProductImage?.id !== currentMainProductImageId) {
         await prisma.product.update({
           where: { id: productId },
-          data: {
-            mainProductImageId: newMainProductImage.id,
-          },
+          data: { mainProductImageId: newMainProductImage.id },
         });
       }
 
@@ -655,9 +620,7 @@ export class ProductGeneralRepository
         productCategoryId: categoryId,
         productVendorId: vendorId,
         externalSku,
-        productNutritionFact: {
-          create: productNutritionInput,
-        },
+        productNutritionFact: { create: productNutritionInput },
       },
       update: {
         activeStatus,
@@ -697,15 +660,11 @@ export class ProductGeneralRepository
       externalSku: sku,
       name: productName,
       label: productLabel,
-      mainProductImageId,
-      productImages,
     } = response;
 
     return [{ id, sku, name: productName, label: productLabel }];
   }
-  async getProductsBySku({
-    products,
-  }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>> {
+  async getProductsBySku({ products }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>> {
     const res = await this.prisma.product.findMany({
       where: {
         OR: products.map((product) => {
@@ -755,9 +714,7 @@ export class ProductGeneralRepository
     return [displayProducts];
   }
 
-  async getAllProducts({
-    medicalConditions,
-  }: GetAllProductsArgs): Promise<ReturnValueType<DisplayAnalyzeProduct[]>> {
+  async getAllProducts({ medicalConditions }: GetAllProductsArgs): Promise<ReturnValueType<DisplayAnalyzeProduct[]>> {
     const res = await this.prisma.product.findMany({
       where: {
         activeStatus: 'active',
@@ -792,34 +749,14 @@ export class ProductGeneralRepository
             proteinG: true,
           },
         },
-        intermediateProductAllergens: {
-          select: {
-            productAllergen: {
-              select: { id: true, name: true, label: true },
-            },
-          },
-        },
-        intermediateProductFoodTypes: {
-          select: {
-            productFoodType: {
-              select: { id: true, name: true, label: true },
-            },
-          },
-        },
-        intermediateProductCookingMethods: {
-          select: {
-            productCookingMethod: {
-              select: { id: true, name: true, label: true },
-            },
-          },
-        },
-        intermediateProductIngredients: {
-          select: {
-            productIngredient: {
-              select: { id: true, name: true, label: true },
-            },
-          },
-        },
+        intermediateProductAllergens:
+        { select: { productAllergen: { select: { id: true, name: true, label: true } } } },
+        intermediateProductFoodTypes:
+        { select: { productFoodType: { select: { id: true, name: true, label: true } } } },
+        intermediateProductCookingMethods:
+        { select: { productCookingMethod: { select: { id: true, name: true, label: true } } } },
+        intermediateProductIngredients:
+        { select: { productIngredient: { select: { id: true, name: true, label: true } } } },
       },
     });
 
@@ -835,80 +772,80 @@ export class ProductGeneralRepository
           sku: product.externalSku,
           vendor: product?.productVendor?.id
             ? {
-                id: product.productVendor.id,
-                label: product.productVendor.label,
-              }
+              id: product.productVendor.id,
+              label: product.productVendor.label,
+            }
             : {},
           images: product?.productImages
             ? product.productImages.map((image): ProductImage => {
-                return {
-                  id: image.id,
-                  position: image.position,
-                  src: image.src,
-                };
-              })
+              return {
+                id: image.id,
+                position: image.position,
+                src: image.src,
+              };
+            })
             : [],
           flavor: product?.productFlavor?.id
             ? {
-                id: product.productFlavor.id,
-                name: product.productFlavor.name,
-                label: product.productFlavor.label,
-              }
+              id: product.productFlavor.id,
+              name: product.productFlavor.name,
+              label: product.productFlavor.label,
+            }
             : {},
           category: product?.productCategory?.id
             ? {
-                id: product.productCategory.id,
-                name: product.productCategory.name,
-                label: product.productCategory.label,
-              }
+              id: product.productCategory.id,
+              name: product.productCategory.name,
+              label: product.productCategory.label,
+            }
             : {},
           allergens:
             product.intermediateProductAllergens?.length > 0
               ? product.intermediateProductAllergens.map(
-                  (allergen): ProductFeature => {
-                    return {
-                      id: allergen.productAllergen.id,
-                      name: allergen.productAllergen.name,
-                      label: allergen.productAllergen.label,
-                    };
-                  },
-                )
+                (allergen): ProductFeature => {
+                  return {
+                    id: allergen.productAllergen.id,
+                    name: allergen.productAllergen.name,
+                    label: allergen.productAllergen.label,
+                  };
+                },
+              )
               : [],
           foodTypes:
             product.intermediateProductFoodTypes?.length > 0
               ? product.intermediateProductFoodTypes.map(
-                  (foodType): ProductFeature => {
-                    return {
-                      id: foodType.productFoodType.id,
-                      name: foodType.productFoodType.name,
-                      label: foodType.productFoodType.label,
-                    };
-                  },
-                )
+                (foodType): ProductFeature => {
+                  return {
+                    id: foodType.productFoodType.id,
+                    name: foodType.productFoodType.name,
+                    label: foodType.productFoodType.label,
+                  };
+                },
+              )
               : [],
           cookingMethods:
             product.intermediateProductCookingMethods?.length > 0
               ? product.intermediateProductCookingMethods.map(
-                  (cookingMethod): ProductFeature => {
-                    return {
-                      id: cookingMethod.productCookingMethod.id,
-                      name: cookingMethod.productCookingMethod.name,
-                      label: cookingMethod.productCookingMethod.label,
-                    };
-                  },
-                )
+                (cookingMethod): ProductFeature => {
+                  return {
+                    id: cookingMethod.productCookingMethod.id,
+                    name: cookingMethod.productCookingMethod.name,
+                    label: cookingMethod.productCookingMethod.label,
+                  };
+                },
+              )
               : [],
-           ingredients:
+          ingredients:
             product.intermediateProductIngredients?.length > 0
               ? product.intermediateProductIngredients.map(
-                  (ingredient): ProductFeature => {
-                    return {
-                      id: ingredient.productIngredient.id,
-                      name: ingredient.productIngredient.name,
-                      label: ingredient.productIngredient.label,
-                    };
-                  },
-                )
+                (ingredient): ProductFeature => {
+                  return {
+                    id: ingredient.productIngredient.id,
+                    name: ingredient.productIngredient.name,
+                    label: ingredient.productIngredient.label,
+                  };
+                },
+              )
               : [],
           nutritionFact: {
             calorie: product?.productNutritionFact?.calories || 0,
@@ -929,42 +866,34 @@ export class ProductGeneralRepository
     ];
   }
 
-  async getOptions({
-    target,
-  }: GetOptionsArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  async getOptions({ target }: GetOptionsArgs): Promise<ReturnValueType<ProductFeature[]>> {
     let getOptionsRes: ProductFeature[] = [];
     switch (target) {
       case 'cookingMethod':
         getOptionsRes = await this.prisma.productCookingMethod.findMany({
-          select: { id: true, name: true, label: true },
+          select:
+          { id: true, name: true, label: true },
         });
         break;
       case 'flavor':
-        getOptionsRes = await this.prisma.productFlavor.findMany({
-          select: { id: true, name: true, label: true },
-        });
+        getOptionsRes = await this.prisma.productFlavor.findMany({ select: { id: true, name: true, label: true } });
         break;
       case 'category':
         getOptionsRes = await this.prisma.productCategory.findMany({
-          select: { id: true, name: true, label: true, src: true },
+          select:
+          { id: true, name: true, label: true, src: true },
         });
 
         break;
       case 'foodType':
-        getOptionsRes = await this.prisma.productFoodType.findMany({
-          select: { id: true, name: true, label: true },
-        });
+        getOptionsRes = await this.prisma.productFoodType.findMany({ select: { id: true, name: true, label: true } });
         break;
       case 'allergen':
-        getOptionsRes = await this.prisma.productAllergen.findMany({
-          select: { id: true, name: true, label: true },
-        });
+        getOptionsRes = await this.prisma.productAllergen.findMany({ select: { id: true, name: true, label: true } });
 
         break;
       case 'ingredient':
-        getOptionsRes = await this.prisma.productIngredient.findMany({
-          select: { id: true, name: true, label: true },
-        });
+        getOptionsRes = await this.prisma.productIngredient.findMany({ select: { id: true, name: true, label: true } });
         break;
       default:
         break;

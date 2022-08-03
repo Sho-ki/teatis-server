@@ -1,16 +1,11 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Inject,
-  Param,
   Post,
   Query,
   Res,
-  UseFilters,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,9 +19,7 @@ import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSu
 import { UpdateCustomerBoxDto } from './dtos/updateCustomerBox';
 import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
-import {
-  GetPrePurchaseOptionsUsecaseInterface,
-} from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
+import { GetPrePurchaseOptionsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
@@ -203,17 +196,13 @@ export class DiscoveriesController {
     @Body() body: DeleteCustomerBoxDto,
     @Res() response: Response<Status | Error>,
   ) {
-    let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
-    for (let noteAttribute of body.note_attributes) {
+    let noteAttributes = {} as { uuid?: string, practitionerBoxUuid?: string };
+    for (const noteAttribute of body.note_attributes) {
       if (noteAttribute.name === 'uuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          uuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { uuid: noteAttribute.value });
       }
       if (noteAttribute.name === 'practitionerBoxUuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          practitionerBoxUuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { practitionerBoxUuid: noteAttribute.value });
       }
     }
     const noteAttributesKeys = Object.keys(noteAttributes);
@@ -243,17 +232,13 @@ export class DiscoveriesController {
     @Body() body: UpdateCustomerOrderDto,
     @Res() response:  Response<OrderQueue | Error>,
   ) {
-    let noteAttributes = {} as { uuid?: string; practitionerBoxUuid?: string };
-    for (let noteAttribute of body.note_attributes) {
+    let noteAttributes = {} as { uuid?: string, practitionerBoxUuid?: string };
+    for (const noteAttribute of body.note_attributes) {
       if (noteAttribute.name === 'uuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          uuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { uuid: noteAttribute.value });
       }
       if (noteAttribute.name === 'practitionerBoxUuid') {
-        noteAttributes = Object.assign(noteAttributes, {
-          practitionerBoxUuid: noteAttribute.value,
-        });
+        noteAttributes = Object.assign(noteAttributes, { practitionerBoxUuid: noteAttribute.value });
       }
     }
     const noteAttributesKeys = Object.keys(noteAttributes);
@@ -321,29 +306,29 @@ export class DiscoveriesController {
     @Body() body: CreateCheckoutCartDto,
     @Res() response: Response<CustomerCheckoutCart | Error>,
   ) {
-    const {boxType} = body;
+    const { boxType } = body;
 
     if(boxType === 'CustomerBox'){
-    const [usecaseResponse, error] =
+      const [usecaseResponse, error] =
       await this.createCheckoutCartOfCustomerBoxUsecase.createCheckoutCartOfCustomerBox(
         body,
       );
-    if (error) {
-      return response.status(500).send(error);
-    }
-    return response.status(201).send(usecaseResponse);
+      if (error) {
+        return response.status(500).send(error);
+      }
+      return response.status(201).send(usecaseResponse);
     } else if(boxType === 'PractitionerBox'){
       const [usecaseResponse, error] =
       await this.CreateCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
         body,
       );
-    if (error) {
-      return response.status(500).send(error);
+      if (error) {
+        return response.status(500).send(error);
+      }
+      return response.status(201).send(usecaseResponse);
+
     }
-    return response.status(201).send(usecaseResponse);
-      
-    }
-    
+
   }
 
   // Post: api/discovery/practitioner-box-cart
@@ -398,7 +383,6 @@ export class DiscoveriesController {
   //   // await this.teatisJob.databaseMigrate();
   //   // const res = await this.teatisJob.getCustomerBox();
   //    const res = await this.teatisJob.storeUuidInKlaviyo();
-
 
   //   return res;
   // }

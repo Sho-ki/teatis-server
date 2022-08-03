@@ -5,8 +5,7 @@ import { Status } from 'src/domains/Status';
 import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
-import { ReturnValueType } from '../../filter/customError';
-
+import { ReturnValueType } from '@Filters/customError';
 
 export interface DeleteCustomerBoxUsecaseInterface {
   deleteCustomerBox({
@@ -17,7 +16,7 @@ export interface DeleteCustomerBoxUsecaseInterface {
 
 @Injectable()
 export class DeleteCustomerBoxUsecase
-  implements DeleteCustomerBoxUsecaseInterface
+implements DeleteCustomerBoxUsecaseInterface
 {
   constructor(
     @Inject('CustomerBoxRepositoryInterface')
@@ -35,22 +34,18 @@ export class DeleteCustomerBoxUsecase
     name,
   }: DeleteCustomerBoxDto): Promise<ReturnValueType<Status>> {
     const [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomer({
-        email: shopifyCustomer.email,
-      });
+      await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
     if (getCustomerError) {
       return [null, getCustomerError];
     }
 
-    const [_product, deleteCustomerBoxProductError] =
-      await this.customerBoxRepository.deleteCustomerBoxProduct({
-        customerId: customer.id,
-      });
+    const [, deleteCustomerBoxProductError] =
+      await this.customerBoxRepository.deleteCustomerBoxProduct({ customerId: customer.id });
     if (deleteCustomerBoxProductError) {
       return [null, deleteCustomerBoxProductError];
     }
 
-    const [shipOrderQueue, shipOrderQueueError] =
+    const [, shipOrderQueueError] =
       await this.orderQueueRepository.updateOrderQueue({
         customerId: customer.id,
         orderNumber: name,

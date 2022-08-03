@@ -5,7 +5,7 @@ import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { Customer } from '@Domains/Customer';
 import { BoxType } from '@Domains/BoxType';
 import { CustomerBoxType } from '../../domains/CustomerBoxType';
-import { ReturnValueType } from '../../filter/customError';
+import { ReturnValueType } from '@Filters/customError';
 
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
@@ -38,7 +38,7 @@ export interface PostPrePurchaseSurveyUsecaseInterface {
 
 @Injectable()
 export class PostPrePurchaseSurveyUsecase
-  implements PostPrePurchaseSurveyUsecaseInterface
+implements PostPrePurchaseSurveyUsecaseInterface
 {
   constructor(
     @Inject('CreateCustomerUsecaseInterface')
@@ -78,10 +78,10 @@ export class PostPrePurchaseSurveyUsecase
   > {
     const recommendBoxType: BoxType = medicalConditions
       ? this.getCustomerBoxType(
-          medicalConditions.map((condition) => {
-            return condition.name;
-          }),
-        )
+        medicalConditions.map((condition) => {
+          return condition.name;
+        }),
+      )
       : 'HC';
 
     const [customer, createCustomerError]: ReturnValueType<Customer> =

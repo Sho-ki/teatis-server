@@ -11,16 +11,14 @@ interface GetOrderCountArgs {
 }
 
 interface CreateCartArgs {
-  discountCode?: string
+  discountCode?: string;
   merchandiseId: string;
   sellingPlanId: string;
-  attributes: { key: string; value: string }[];
+  attributes: { key: string, value: string }[];
 }
 
 export interface ShopifyRepositoryInterface {
-  getOrderCount({
-    shopifyCustomerId,
-  }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]>;
+  getOrderCount({ shopifyCustomerId }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]>;
   createCart({
     discountCode,
     merchandiseId,
@@ -48,9 +46,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     const sdk = getSdk(client);
     const res: CreateCartMutation = await sdk.CreateCart({
       input: {
-        discountCodes: [
-          discountCode
-        ],
+        discountCodes: [discountCode],
         attributes,
         lines: [{ sellingPlanId, merchandiseId, quantity: 1 }],
       },
@@ -61,7 +57,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
         undefined,
         {
           name: 'Internal Server Error',
-          message: "'Couldn't create your cart",
+          message: '\'Couldn\'t create your cart',
         },
       ];
     }
@@ -69,9 +65,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }];
   }
 
-  async getOrderCount({
-    shopifyCustomerId,
-  }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]> {
+  async getOrderCount({ shopifyCustomerId }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]> {
     const res = await axios.get<ShopifyGetCustomerRes>(
       `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
       {
@@ -93,6 +87,6 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
         },
       ];
     }
-    return [{ orderCount: orderCount, email }];
+    return [{ orderCount, email }];
   }
 }

@@ -3,13 +3,13 @@ import { IsEmail, IsOptional, IsString } from 'class-validator';
 export class GetPractitionerBoxDto {
   @IsString()
   @IsOptional()
-  practitionerBoxUuid?: string;
+    practitionerBoxUuid?: string;
 
   @IsString()
   @IsOptional()
-  label?: string;
+    label?: string;
 
   @IsEmail()
   @IsOptional()
-  email?: string;
+    email?: string;
 }

@@ -2,30 +2,30 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class CustomerBoxDto{
   @IsString()
-  boxType: 'CustomerBox'
+    boxType: 'CustomerBox';
 
   @IsNumber()
-  deliveryInterval: 1 | 3 | 6 | 12
+    deliveryInterval: 1 | 3 | 6 | 12;
 
   @IsString()
-  uuid: string;
-  
+    uuid: string;
+
   @IsString()
-  boxName: "HC" | "HCLS"
+    boxName: 'HC' | 'HCLS';
 }
 
 export class PractitionerBoxDto{
   @IsString()
-  boxType: 'PractitionerBox'
+    boxType: 'PractitionerBox';
 
   // @IsNumber()
   // deliveryInterval: 1 | 3 | 6 | 12
 
   @IsString()
-  uuid: string;
+    uuid: string;
 
   @IsString()
-  practitionerBoxUuid: string;
+    practitionerBoxUuid: string;
 }
 
-export type CreateCheckoutCartDto = CustomerBoxDto | PractitionerBoxDto
+export type CreateCheckoutCartDto = CustomerBoxDto | PractitionerBoxDto;
