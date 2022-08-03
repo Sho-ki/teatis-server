@@ -6,11 +6,9 @@ import { Customer } from '@Domains/Customer';
 import { CustomerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
 import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
 import { DISCOUNT_CODES } from '../utils/discountCode';
+import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
+import { ReturnValueType } from '../../filter/customError';
 
-interface CreateCheckoutCartOfCustomerBoxUsecaseRes {
-  checkoutUrl: string;
-  email?: string;
-}
 export interface CreateCheckoutCartOfCustomerBoxUsecaseInterface {
   createCheckoutCartOfCustomerBox({
     boxName,
@@ -18,7 +16,7 @@ export interface CreateCheckoutCartOfCustomerBoxUsecaseInterface {
     deliveryInterval,
     uuid,
   }: CustomerBoxDto): Promise<
-    [CreateCheckoutCartOfCustomerBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -39,7 +37,7 @@ export class CreateCheckoutCartOfCustomerBoxUsecase
     deliveryInterval,
     uuid,
   }: CustomerBoxDto): Promise<
-    [CreateCheckoutCartOfCustomerBoxUsecaseRes, Error]
+    ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'uuid', value: uuid },

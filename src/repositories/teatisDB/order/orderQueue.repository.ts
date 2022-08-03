@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OrderQueue } from '@Domains/OrderQueue';
 
 import { PrismaService } from '../../../prisma.service';
+import { ReturnValueType } from '../../../filter/customError';
 
 export interface UpdateOrderQueueArgs {
   customerId: number;
@@ -14,7 +15,7 @@ export interface OrderQueueRepositoryInterface {
     customerId,
     orderNumber,
     status,
-  }: UpdateOrderQueueArgs): Promise<[OrderQueue?, Error?]>;
+  }: UpdateOrderQueueArgs): Promise<ReturnValueType<OrderQueue>>;
 }
 
 @Injectable()
@@ -25,7 +26,7 @@ export class OrderQueueRepository implements OrderQueueRepositoryInterface {
     customerId,
     orderNumber,
     status,
-  }: UpdateOrderQueueArgs): Promise<[OrderQueue?, Error?]> {
+  }: UpdateOrderQueueArgs): Promise<ReturnValueType<OrderQueue>> {
     let actionDate = new Date();
     if (status === 'scheduled') {
       actionDate.setMinutes(actionDate.getMinutes() + 3);

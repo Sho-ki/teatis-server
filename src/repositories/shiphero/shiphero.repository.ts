@@ -8,6 +8,7 @@ import {
   getSdk,
 } from './generated/graphql';
 import { CustomerOrder } from '@Domains/CustomerOrder';
+import { ReturnValueType } from '../../filter/customError';
 
 interface GetLastOrderArgs {
   email: string;
@@ -37,27 +38,27 @@ export interface ShipheroRepositoryInterface {
   updateOrderHoldUntilDate({orderId}: UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>
   getLastCustomerOrder({
     email,
-  }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]>;
+  }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
-  getNoInventoryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]>;
+  getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>>;
   getCustomerOrderByOrderNumber({
     orderNumber,
-  }: GetOrderByOrderNumberArgs): Promise<[CustomerOrder?, Error?]>;
+  }: GetOrderByOrderNumberArgs): Promise<ReturnValueType<CustomerOrder>>;
 
   updateCustomerOrder({
     orderId,
     products,
     orderNumber,
-  }: CreateOrderArgs): Promise<[CustomerOrder?, Error?]>;
+  }: CreateOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
   getCustomerOrders({
     email,
-  }: GetCustomerOrdersArgs): Promise<[CustomerOrder[]?, Error?]>;
+  }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>>;
 }
 
 @Injectable()
 export class ShipheroRepository implements ShipheroRepositoryInterface {
-  async getNoInventoryProducts(): Promise<[Pick<Product, 'sku'>[]?, Error?]> {
+  async getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>> {
     const client = new GraphQLClient(endpoint, {
       headers: {
         authorization: process.env.SHIPHERO_API_KEY,
@@ -82,7 +83,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
 
   async getCustomerOrderByOrderNumber({
     orderNumber,
-  }: GetOrderByOrderNumberArgs): Promise<[CustomerOrder?, Error?]> {
+  }: GetOrderByOrderNumberArgs): Promise<ReturnValueType<CustomerOrder>> {
     const client = new GraphQLClient(endpoint, {
       headers: {
         authorization: process.env.SHIPHERO_API_KEY,
@@ -141,7 +142,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
   }
   async getLastCustomerOrder({
     email,
-  }: GetLastOrderArgs): Promise<[CustomerOrder?, Error?]> {
+  }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
     const client = new GraphQLClient(endpoint, {
       headers: {
         authorization: process.env.SHIPHERO_API_KEY,
@@ -207,7 +208,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
 
   async getCustomerOrders({
     email,
-  }: GetCustomerOrdersArgs): Promise<[CustomerOrder[]?, Error?]> {
+  }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>> {
     const client = new GraphQLClient(endpoint, {
       headers: {
         authorization: process.env.SHIPHERO_API_KEY,
@@ -298,7 +299,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     orderId,
     products,
     orderNumber,
-  }: CreateOrderArgs): Promise<[CustomerOrder?, Error?]> {
+  }: CreateOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
     const client = new GraphQLClient(endpoint, {
       headers: {
         authorization: process.env.SHIPHERO_API_KEY,
