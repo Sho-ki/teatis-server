@@ -3,12 +3,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GetPractitionerDto } from '@Controllers/discoveries/dtos/getPractitioner';
 import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { Practitioner } from '@Domains/Practitioner';
-import { ReturnValueType } from '../../filter/customError';
 
 export interface GetPractitionerUsecaseInterface {
   getPractitioner({
     email,
-  }: GetPractitionerDto): Promise<ReturnValueType<Practitioner>>;
+  }: GetPractitionerDto): Promise<[Practitioner?, Error?]>;
 }
 
 @Injectable()
@@ -19,7 +18,7 @@ export class GetPractitionerUsecase implements GetPractitionerUsecaseInterface {
   ) {}
   async getPractitioner({
     email,
-  }: GetPractitionerDto): Promise<ReturnValueType<Practitioner>> {
+  }: GetPractitionerDto): Promise<[Practitioner?, Error?]> {
     const [practitionerSocialMedia, getPractitionerError] =
       await this.practitionerGeneralRepository.getPractitioner({
         email,

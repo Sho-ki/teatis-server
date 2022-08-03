@@ -2,13 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
-import { Status } from '@Domains/Status';
-import { ReturnValueType } from '../../filter/customError';
 
 export interface UpdatePractitionerBoxOrderHistoryUsecaseInterface {
   updatePractitionerOrderHistory({
     name,
-  }: DeleteCustomerBoxDto): Promise<ReturnValueType<Status>>;
+  }: DeleteCustomerBoxDto): Promise<[void?, Error?]>;
 }
 
 @Injectable()
@@ -22,7 +20,7 @@ export class UpdatePractitionerBoxOrderHistoryUsecase
 
   async updatePractitionerOrderHistory({
     name,
-  }: DeleteCustomerBoxDto): Promise<ReturnValueType<Status>> {
+  }: DeleteCustomerBoxDto): Promise<[void?, Error?]> {
     const [_practitioner, getPractitionerError] =
       await this.practitionerBoxOrderHistoryRepository.updatePractitionerBoxOrderHistory(
         {
@@ -34,6 +32,6 @@ export class UpdatePractitionerBoxOrderHistoryUsecase
       return [undefined, getPractitionerError];
     }
 
-    return [{success:true}];
+    return [];
   }
 }

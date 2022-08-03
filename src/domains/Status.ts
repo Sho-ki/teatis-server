@@ -1,3 +1,3 @@
 export interface Status {
-  success: boolean;
+  status: 'Success' | 'Failed';
 }

@@ -5,7 +5,6 @@ import {
 } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ProductFeature } from '@Domains/Product';
 import { GetPrePurchaseOptionsUsecase } from './getPrePurchaseOptions.usecase';
-import { ReturnValueType } from '../../filter/customError';
 
 describe('GetOptions', () => {
   let usecase: GetPrePurchaseOptionsUsecase;
@@ -15,7 +14,7 @@ describe('GetOptions', () => {
   beforeEach(async () => {
     MockedProductGeneralRepository = {
       getOptions: ({ target }: GetOptionsArgs) =>
-        Promise.resolve<ReturnValueType<ProductFeature[]>>([
+        Promise.resolve<[ProductFeature[], Error]>([
           target === 'flavor'
             ? [{ id: 1, name: 'mint', label: 'Mint' }]
             : target === 'category'
@@ -57,7 +56,7 @@ describe('GetOptions', () => {
 
   it('throws an error if no options are found', async () => {
     MockedProductGeneralRepository.getOptions = ({ target }: GetOptionsArgs) =>
-      Promise.resolve<ReturnValueType<ProductFeature[]>>([
+      Promise.resolve<[ProductFeature[], Error]>([
         null,
         { name: 'Not found error', message: 'Options not found' },
       ]);

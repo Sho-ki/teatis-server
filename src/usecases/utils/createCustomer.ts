@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { CustomerPrePurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
 import { Customer } from '@Domains/Customer';
 import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
-import { ReturnValueType } from '../../filter/customError';
 
 interface CreateCustomerUsecaseArgs extends PostPrePurchaseSurveyDto {}
 
@@ -26,7 +25,7 @@ export interface CreateCustomerUsecaseInterface {
     email,
     unavailableCookingMethods,
     boxPlan,
-  }: CreateCustomerUsecaseArgs): Promise<ReturnValueType<Customer>>;
+  }: CreateCustomerUsecaseArgs): Promise<[Customer, Error]>;
 }
 
 @Injectable()
@@ -78,7 +77,7 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
     email,
     unavailableCookingMethods = [],
     boxPlan,
-  }: CreateCustomerUsecaseArgs): Promise<ReturnValueType<Customer>> {
+  }: CreateCustomerUsecaseArgs): Promise<[Customer, Error]> {
     //   Calculate Method: https://www.notion.so/teatis/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
     height = this.outlierValidate('height', height);
     weight = this.outlierValidate('weight', weight);

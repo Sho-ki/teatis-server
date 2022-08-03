@@ -9,7 +9,6 @@ import {
 import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { Prisma } from '@prisma/client';
-import { ReturnValueType } from '../../../filter/customError';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -122,40 +121,40 @@ export interface ProductGeneralRepositoryInterface {
     vendorId,
     externalSku,
     nutritionFact,
-  }: UpsertProductArgs): Promise<ReturnValueType<Product>>;
+  }: UpsertProductArgs): Promise<[Product?, Error?]>;
 
   getProductsBySku({
     products,
-  }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>>;
+  }: GetProductsBySkuArgs): Promise<[DisplayProduct[]?, Error?]>;
   getAllProducts({
     medicalConditions,
-  }: GetAllProductsArgs): Promise<ReturnValueType<DisplayAnalyzeProduct[]>>;
-  getOptions({ target }: GetOptionsArgs): Promise<ReturnValueType<ProductFeature[]>>;
+  }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]>;
+  getOptions({ target }: GetOptionsArgs): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductIngredientSet({
     newProductIngredientIds,
     productId,
-  }: UpsertProductIngredientSetArgs): Promise<ReturnValueType<ProductFeature[]>>;
+  }: UpsertProductIngredientSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductAllergenSet({
     newProductAllergenIds,
     productId,
-  }: UpsertProductAllergenSetArgs): Promise<ReturnValueType<ProductFeature[]>>;
+  }: UpsertProductAllergenSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductFoodTypeSet({
     newProductFoodTypeIds,
     productId,
-  }: UpsertProductFoodTypeSetArgs): Promise<ReturnValueType<ProductFeature[]>>;
+  }: UpsertProductFoodTypeSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductCookingMethodSet({
     newProductCookingMethodIds,
     productId,
-  }: UpsertProductCookingMethodSetArgs): Promise<ReturnValueType<ProductFeature[]>>;
+  }: UpsertProductCookingMethodSetArgs): Promise<[ProductFeature[]?, Error?]>;
 
   upsertProductImageSet({
     newProductImages,
     productId,
-  }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>>;
+  }: UpsertProductImageSetArgs): Promise<[ProductImage[]?, Error?]>;
 
   performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
 }
@@ -172,7 +171,7 @@ export class ProductGeneralRepository
 
   private async getExistingProductIngredients({
     productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     const response = await this.prisma.intermediateProductIngredient.findMany({
       where: {
         product: { id: productId },
@@ -194,7 +193,7 @@ export class ProductGeneralRepository
   }
   private async getExistingProductAllergens({
     productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     const response = await this.prisma.intermediateProductAllergen.findMany({
       where: {
         product: { id: productId },
@@ -216,7 +215,7 @@ export class ProductGeneralRepository
   }
   private async getExistingProductCookingMethods({
     productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     const response =
       await this.prisma.intermediateProductCookingMethod.findMany({
         where: {
@@ -239,7 +238,7 @@ export class ProductGeneralRepository
   }
   private async getExistingProductFoodTypes({
     productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductFeature[]?, Error?]> {
     const response = await this.prisma.intermediateProductFoodType.findMany({
       where: {
         product: { id: productId },
@@ -261,7 +260,7 @@ export class ProductGeneralRepository
   }
   private async getExistingProductImages({
     productId,
-  }: GetExistingProductFeaturesArgs): Promise<ReturnValueType<ProductImage[]>> {
+  }: GetExistingProductFeaturesArgs): Promise<[ProductImage[]?, Error?]> {
     const response = await this.prisma.productImage.findMany({
       where: {
         product: { id: productId },
@@ -283,7 +282,7 @@ export class ProductGeneralRepository
   async upsertProductAllergenSet({
     newProductAllergenIds,
     productId,
-  }: UpsertProductAllergenSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: UpsertProductAllergenSetArgs): Promise<[ProductFeature[]?, Error?]> {
     return await this.prisma.$transaction(async (prisma) => {
       const [existingProductAllergens, getExistingProductAllergensError] =
         await this.getExistingProductAllergens({ productId });
@@ -338,7 +337,7 @@ export class ProductGeneralRepository
   async upsertProductFoodTypeSet({
     newProductFoodTypeIds,
     productId,
-  }: UpsertProductFoodTypeSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: UpsertProductFoodTypeSetArgs): Promise<[ProductFeature[]?, Error?]> {
     return await this.prisma.$transaction(async (prisma) => {
       const [existingProductFoodTypes, getExistingProductFoodTypesError] =
         await this.getExistingProductFoodTypes({ productId });
@@ -394,7 +393,7 @@ export class ProductGeneralRepository
   async upsertProductCookingMethodSet({
     newProductCookingMethodIds,
     productId,
-  }: UpsertProductCookingMethodSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: UpsertProductCookingMethodSetArgs): Promise<[ProductFeature[]?, Error?]> {
     return await this.prisma.$transaction(async (prisma) => {
       const [
         existingProductCookingMethods,
@@ -455,7 +454,7 @@ export class ProductGeneralRepository
   async upsertProductIngredientSet({
     newProductIngredientIds,
     productId,
-  }: UpsertProductIngredientSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: UpsertProductIngredientSetArgs): Promise<[ProductFeature[]?, Error?]> {
     return await this.prisma.$transaction(async (prisma) => {
       const [existingProductIngredients, getExistingProductIngredientsError] =
         await this.getExistingProductIngredients({ productId });
@@ -512,7 +511,7 @@ export class ProductGeneralRepository
   async upsertProductImageSet({
     newProductImages,
     productId,
-  }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>> {
+  }: UpsertProductImageSetArgs): Promise<[ProductImage[]?, Error?]> {
     return await this.prisma.$transaction(async (prisma) => {
       const [existingProductImages, getExistingProductImagesError] =
         await this.getExistingProductImages({ productId });
@@ -614,7 +613,7 @@ export class ProductGeneralRepository
     vendorId,
     externalSku,
     nutritionFact,
-  }: UpsertProductArgs): Promise<ReturnValueType<Product>> {
+  }: UpsertProductArgs): Promise<[Product?, Error?]> {
     const productNutritionInput: Prisma.ProductNutritionFactCreateWithoutProductInput =
       {
         quantity: nutritionFact.quantity,
@@ -705,7 +704,7 @@ export class ProductGeneralRepository
   }
   async getProductsBySku({
     products,
-  }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>> {
+  }: GetProductsBySkuArgs): Promise<[DisplayProduct[]?, Error?]> {
     const res = await this.prisma.product.findMany({
       where: {
         OR: products.map((product) => {
@@ -757,7 +756,7 @@ export class ProductGeneralRepository
 
   async getAllProducts({
     medicalConditions,
-  }: GetAllProductsArgs): Promise<ReturnValueType<DisplayAnalyzeProduct[]>> {
+  }: GetAllProductsArgs): Promise<[DisplayAnalyzeProduct[]?, Error?]> {
     const res = await this.prisma.product.findMany({
       where: {
         activeStatus: 'active',
@@ -931,7 +930,7 @@ export class ProductGeneralRepository
 
   async getOptions({
     target,
-  }: GetOptionsArgs): Promise<ReturnValueType<ProductFeature[]>> {
+  }: GetOptionsArgs): Promise<[ProductFeature[]?, Error?]> {
     let getOptionsRes: ProductFeature[] = [];
     switch (target) {
       case 'cookingMethod':

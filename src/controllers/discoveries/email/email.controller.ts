@@ -11,7 +11,6 @@ import { DeleteEmailUsecaseInterface } from '@Usecases/email/deleteEmail';
 import { PostCustomerInformationDto } from '../dtos/postCustomerInformation';
 import { PostEmailUsecaseInterface } from '@Usecases/email/postCustomerEmail';
 import { Response } from 'express';
-import { Status } from '@Domains/Status';
 
 @Controller('api/discovery')
 export class EmailController {
@@ -26,30 +25,30 @@ export class EmailController {
   @Post('email')
   async postCustomerInformation(
     @Body() body: PostCustomerInformationDto,
-    @Res() response: Response<Status | Error>,
+    @Res() response: Response,
   ) {
     const serverSideUrl = body.klaviyoListName === 'PotentialCustomer'
       ? `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`
       : `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST}/members?api_key=${process.env.KLAVIYO_API}`;
-    const [usecaseResponse, error] = await this.postEmailUsecase.postCustomerInformation({...body, serverSideUrl})
+    const [_, error] = await this.postEmailUsecase.postCustomerInformation({...body, serverSideUrl})
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(usecaseResponse)
+    return response.status(200).send('klaviyo list updated successfully')
   }
   // DELETE: api/discovery/email
   @Delete('email')
   async deleteUserInformation(
     @Body() body: DeleteCustomerInformationDto,
-    @Res() response: Response<Status | Error>,
+    @Res() response: Response,
   ) {
     const serverSideUrl = body.klaviyoListName === 'PotentialCustomer'
       ? `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_LIST}/members?api_key=${process.env.KLAVIYO_API}`
       : `https://a.klaviyo.com/api/v2/list/${process.env.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST}/members?api_key=${process.env.KLAVIYO_API}`;
-    const [usecaseResponse, error] = await this.deleteEmailUsecase.deleteUserInformation({...body, serverSideUrl})
+    const [_, error] = await this.deleteEmailUsecase.deleteUserInformation({...body, serverSideUrl})
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(usecaseResponse)
+    return response.status(200).send('klaviyo list updated successfully')
   }
 }

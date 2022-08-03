@@ -4,15 +4,13 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CustomerBoxRepositoryInterface } from '@Repositories/teatisDB/customer/customerBox.repository';
 import { Status } from '@Domains/Status';
 import { UpdateCustomerBoxDto } from '@Controllers/discoveries/dtos/updateCustomerBox';
-import { ReturnValueType } from '../../filter/customError';
-
 
 export interface UpdateCustomerBoxUsecaseInterface {
   updateCustomerBox({
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<ReturnValueType<Status>>;
+  }: UpdateCustomerBoxDto): Promise<[Status, Error]>;
 }
 
 @Injectable()
@@ -30,7 +28,7 @@ export class UpdateCustomerBoxUsecase
     products,
     email,
     uuid,
-  }: UpdateCustomerBoxDto): Promise<ReturnValueType<Status>> {
+  }: UpdateCustomerBoxDto): Promise<[Status, Error]> {
     const [customer, getCustomerError] = uuid
       ? await this.customerGeneralRepository.getCustomerByUuid({ uuid })
       : await this.customerGeneralRepository.getCustomer({ email });
@@ -58,7 +56,7 @@ export class UpdateCustomerBoxUsecase
 
     return [
       {
-        success: true,
+        status: 'Success',
       },
       null,
     ];

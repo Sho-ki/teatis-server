@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Customer } from '@Domains/Customer';
 import { PrismaService } from '../../../prisma.service';
-import { ReturnValueType } from '../../../filter/customError';
 
 interface UpsertCustomerArgs {
   diabetes: string;
@@ -58,7 +57,7 @@ export interface CustomerPrePurchaseSurveyRepositoryInterface {
     fatPerMeal,
     caloriePerMeal,
     boxPlan,
-  }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>>;
+  }: UpsertCustomerArgs): Promise<[Customer?, Error?]>;
 }
 
 @Injectable()
@@ -93,7 +92,7 @@ export class CustomerPrePurchaseSurveyRepository
     fatPerMeal,
     caloriePerMeal,
     boxPlan,
-  }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>> {
+  }: UpsertCustomerArgs): Promise<[Customer?, Error?]> {
     let medicalConditionsQuery = [
       {
         medicalConditionValue: A1c,

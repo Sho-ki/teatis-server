@@ -31,7 +31,7 @@ export class PractitionerBoxController {
   async getPractitionerBox(
     @Query()
     query: GetPractitionerBoxDto,
-    @Res() response: Response<PractitionerAndBox | Error>,
+    @Res() response: Response,
   ) {
     let [usecaseResponse, error]: [PractitionerAndBox, Error] = [
       undefined,
@@ -48,7 +48,9 @@ export class PractitionerBoxController {
         await this.getPractitionerBoxByLabelUsecase.getPractitionerBoxByLabel(
           query,
         );
-    } 
+    } else {
+      return response.status(500).send({ name: 'Invalid query' });
+    }
 
     if (error) {
       return response.status(500).send(error);
@@ -60,7 +62,7 @@ export class PractitionerBoxController {
   @Post('practitioner-box')
   async createPractitionerBox(
     @Body() body: CreatePractitionerBoxDto,
-    @Res() response: Response<PractitionerAndBox | Error>,
+    @Res() response: Response,
   ) {
     const [usecaseResponse, error] =
       await this.createPractitionerBoxUsecase.createPractitionerBox(body);

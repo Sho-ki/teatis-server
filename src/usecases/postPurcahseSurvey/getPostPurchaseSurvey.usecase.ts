@@ -11,7 +11,6 @@ import {
 } from 'src/domains/PostPurchaseSurvey';
 import { DisplayProduct, Product } from '@Domains/Product';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
-import { ReturnValueType } from '../../filter/customError';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   uuid: string;
@@ -22,7 +21,7 @@ export interface GetPostPurchaseSurveyUsecaseInterface {
   getPostPurchaseSurvey({
     uuid,
     orderNumber,
-  }: GetPostPurchaseSurveyUsecaseArgs): Promise<ReturnValueType<PostPurchaseSurvey>>;
+  }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]>;
 }
 
 @Injectable()
@@ -45,7 +44,7 @@ export class GetPostPurchaseSurveyUsecase
   async getPostPurchaseSurvey({
     uuid,
     orderNumber,
-  }: GetPostPurchaseSurveyUsecaseArgs): Promise<ReturnValueType<PostPurchaseSurvey>> {
+  }: GetPostPurchaseSurveyUsecaseArgs): Promise<[PostPurchaseSurvey, Error]> {
     // Get last order products from shiphero
 
     const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({uuid});

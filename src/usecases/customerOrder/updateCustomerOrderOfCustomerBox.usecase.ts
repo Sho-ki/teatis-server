@@ -11,8 +11,6 @@ import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.reposi
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PRODUCT_COUNT } from '../utils/productCount';
-import { ReturnValueType } from '../../filter/customError';
-
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
   extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
@@ -25,7 +23,7 @@ export interface UpdateCustomerOrderOfCustomerBoxUsecaseInterface {
     customer,
     line_items,
     uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<ReturnValueType<OrderQueue>>;
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]>;
 }
 
 @Injectable()
@@ -52,7 +50,7 @@ export class UpdateCustomerOrderOfCustomerBoxUsecase
     customer: shopifyCustomer,
     line_items,
     uuid,
-  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
+  }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<[OrderQueue, Error]> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({
         email: shopifyCustomer.email,

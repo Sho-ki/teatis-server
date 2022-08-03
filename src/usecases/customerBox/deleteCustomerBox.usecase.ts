@@ -5,14 +5,12 @@ import { Status } from 'src/domains/Status';
 import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { DeleteCustomerBoxDto } from '@Controllers/discoveries/dtos/deleteCustomerBox';
-import { ReturnValueType } from '../../filter/customError';
-
 
 export interface DeleteCustomerBoxUsecaseInterface {
   deleteCustomerBox({
     customer,
     name,
-  }: DeleteCustomerBoxDto): Promise<ReturnValueType<Status>>;
+  }: DeleteCustomerBoxDto): Promise<[Status, Error]>;
 }
 
 @Injectable()
@@ -33,7 +31,7 @@ export class DeleteCustomerBoxUsecase
   async deleteCustomerBox({
     customer: shopifyCustomer,
     name,
-  }: DeleteCustomerBoxDto): Promise<ReturnValueType<Status>> {
+  }: DeleteCustomerBoxDto): Promise<[Status, Error]> {
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({
         email: shopifyCustomer.email,
@@ -60,6 +58,6 @@ export class DeleteCustomerBoxUsecase
       return [null, shipOrderQueueError];
     }
 
-    return [{ success: true }, null];
+    return [{ status: 'Success' }, null];
   }
 }
