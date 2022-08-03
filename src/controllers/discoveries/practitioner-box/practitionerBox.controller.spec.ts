@@ -4,7 +4,6 @@ import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitioner
 import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
 import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { ReturnValueType } from '../../../filter/customError';
 
 describe('PractitionerBoxController', () => {
   let controller: PractitionerBoxController;
@@ -27,21 +26,21 @@ describe('PractitionerBoxController', () => {
           provide: 'GetPractitionerBoxByUuidUsecaseInterface',
           useValue: {
             getPractitionerBoxByUuid: () =>
-              Promise.resolve<ReturnValueType<PractitionerAndBox>>([mockBox]),
+              Promise.resolve<[PractitionerAndBox?, Error?]>([mockBox]),
           } as GetPractitionerBoxByUuidUsecaseInterface,
         },
         {
           provide: 'CreatePractitionerBoxUsecaseInterface',
           useValue: {
             createPractitionerBox: () =>
-              Promise.resolve<ReturnValueType<PractitionerAndBox>>([mockBox]),
+              Promise.resolve<[PractitionerAndBox?, Error?]>([mockBox]),
           } as CreatePractitionerBoxUsecaseInterface,
         },
         {
           provide: 'GetPractitionerBoxByLabelUsecaseInterface',
           useValue: {
             getPractitionerBoxByLabel: () =>
-              Promise.resolve<ReturnValueType<PractitionerAndBox>>([mockBox]),
+              Promise.resolve<[PractitionerAndBox?, Error?]>([mockBox]),
           } as GetPractitionerBoxByLabelUsecaseInterface,
         },
       ],

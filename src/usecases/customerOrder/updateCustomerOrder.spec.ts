@@ -23,9 +23,6 @@ import {
   GetSuggestionInterface,
   GetSuggestionRes,
 } from '@Usecases/utils/getSuggestion';
-import { CustomerBoxType } from '../../domains/CustomerBoxType';
-import { ReturnValueType } from '../../filter/customError';
-
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface;
@@ -41,13 +38,13 @@ describe('GetOptions', () => {
   beforeEach(async () => {
     MockedCustomerGeneralRepository = {
       getCustomer: () =>
-        Promise.resolve<ReturnValueType<Customer>>([
+        Promise.resolve<[Customer?, Error?]>([
           { id: 1, email: 'teatis@teatis.com', uuid: '12345657' },
         ]),
     };
     MockedOrderQueueRepository = {
       updateOrderQueue: () =>
-        Promise.resolve<ReturnValueType<OrderQueue>>([
+        Promise.resolve<[OrderQueue?, Error?]>([
           { customerId: 1, status: 'ordered', orderNumber: '12345' },
         ]),
     };
@@ -55,7 +52,7 @@ describe('GetOptions', () => {
       updateOrderHoldUntilDate: () =>
         Promise.resolve<[void?, Error?]>([]),
       getCustomerOrderByOrderNumber: () =>
-        Promise.resolve<ReturnValueType<CustomerOrder>>([
+        Promise.resolve<[CustomerOrder?, Error?]>([
           {
             products: [{ sku: '987654321' }],
             orderNumber: '12345',
@@ -63,7 +60,7 @@ describe('GetOptions', () => {
           },
         ]),
       updateCustomerOrder: () =>
-        Promise.resolve<ReturnValueType<CustomerOrder>>([
+        Promise.resolve<[CustomerOrder?, Error?]>([
           {
             orderNumber: '12345',
             orderId: '123',
@@ -73,7 +70,7 @@ describe('GetOptions', () => {
     };
     MockedCustomerBoxRepository = {
       getCustomerBoxProducts: () =>
-        Promise.resolve<ReturnValueType<Product[]>>([
+        Promise.resolve<[Product[]?, Error?]>([
           [{ sku: '987654321', id: 1, name: 'test', label: 'Test' }],
         ]),
     };
@@ -121,13 +118,13 @@ describe('GetOptions', () => {
 
     MockedPostPrePurchaseSurveyUsecase = {
       postPrePurchaseSurvey: () =>
-        Promise.resolve<ReturnValueType<CustomerBoxType>>([
+        Promise.resolve<[PostPrePurchaseSurveyUsecaseRes, Error]>([
           {
             customerId: 1,
             customerUuid: '123',
             recommendBoxType: 'HC',
           },
-          undefined,
+          null,
         ]),
     };
 
@@ -203,7 +200,7 @@ describe('GetOptions', () => {
 
   it('Order is already updated', async () => {
     MockedShipheroRepository.getCustomerOrderByOrderNumber = () =>
-      Promise.resolve<ReturnValueType<CustomerOrder>>([
+      Promise.resolve<[CustomerOrder, Error]>([
         {
           orderNumber: '1234',
           orderId: '12345',
@@ -223,7 +220,7 @@ describe('GetOptions', () => {
 
   it('Customer has not answered the Post-Purchase survey', async () => {
     MockedCustomerBoxRepository.getCustomerBoxProducts = () =>
-      Promise.resolve<ReturnValueType<Product[]>>([
+      Promise.resolve<[Product[], Error]>([
         [{ id: 1, name: 'test', label: 'Test', sku: '123' }],
         null,
       ]);

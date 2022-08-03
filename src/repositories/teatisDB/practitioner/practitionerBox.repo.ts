@@ -7,7 +7,6 @@ import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { ReturnValueType } from '../../../filter/customError';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -30,12 +29,12 @@ interface createPractitionerAndBoxArgs {
 export interface PractitionerBoxRepositoryInterface {
   getPractitionerAndBoxByUuid({
     practitionerBoxUuid,
-  }: getPractitionerAndBoxByUuidArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  }: getPractitionerAndBoxByUuidArgs): Promise<[PractitionerAndBox?, Error?]>;
 
   getPractitionerAndBoxByLabel({
     practitionerId,
     label,
-  }: getPractitionerAndBoxByLabelArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  }: getPractitionerAndBoxByLabelArgs): Promise<[PractitionerAndBox?, Error?]>;
 
   createPractitionerAndBox({
     practitionerId,
@@ -44,7 +43,7 @@ export interface PractitionerBoxRepositoryInterface {
     products,
     description,
     note,
-  }: createPractitionerAndBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  }: createPractitionerAndBoxArgs): Promise<[PractitionerAndBox?, Error?]>;
 }
 
 @Injectable()
@@ -59,7 +58,7 @@ export class PractitionerBoxRepository
     products,
     description,
     note,
-  }: createPractitionerAndBoxArgs): Promise<ReturnValueType<PractitionerAndBox>> {
+  }: createPractitionerAndBoxArgs): Promise<[PractitionerAndBox?, Error?]> {
     const existingProducts =
       await this.prisma.intermediatePractitionerBoxProduct.findMany({
         where: { practitionerBox: { AND: [{ label, practitionerId }] } },
@@ -175,7 +174,7 @@ export class PractitionerBoxRepository
   async getPractitionerAndBoxByLabel({
     practitionerId,
     label,
-  }: getPractitionerAndBoxByLabelArgs): Promise<ReturnValueType<PractitionerAndBox>> {
+  }: getPractitionerAndBoxByLabelArgs): Promise<[PractitionerAndBox?, Error?]> {
     const response = await this.prisma.practitionerBox.findUnique({
       where: { PractitionerBoxIdentifier: { label, practitionerId } },
       select: {
@@ -293,7 +292,7 @@ export class PractitionerBoxRepository
 
   async getPractitionerAndBoxByUuid({
     practitionerBoxUuid,
-  }: getPractitionerAndBoxByUuidArgs): Promise<ReturnValueType<PractitionerAndBox>> {
+  }: getPractitionerAndBoxByUuidArgs): Promise<[PractitionerAndBox?, Error?]> {
     const response = await this.prisma.practitionerBox.findUnique({
       where: { uuid: practitionerBoxUuid },
       select: {

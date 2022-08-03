@@ -4,13 +4,12 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
-import { ReturnValueType } from '../../filter/customError';
 
 export interface GetPractitionerBoxByLabelUsecaseInterface {
   getPractitionerBoxByLabel({
     email,
     label,
-  }: GetPractitionerBoxDto): Promise<ReturnValueType<PractitionerAndBox>>;
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]>;
 }
 
 @Injectable()
@@ -26,7 +25,7 @@ export class GetPractitionerBoxByLabelUsecase
   async getPractitionerBoxByLabel({
     email,
     label,
-  }: GetPractitionerBoxDto): Promise<ReturnValueType<PractitionerAndBox>> {
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
     const [practitioner, getPractitionerError] =
       await this.practitionerGeneralRepository.getPractitioner({
         email,

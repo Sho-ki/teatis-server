@@ -12,7 +12,6 @@ import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
-import { ReturnValueType } from '../../filter/customError';
 
 interface UpdateCustomerOrderOfPractitionerMealBoxArgs
   extends Pick<
@@ -32,7 +31,7 @@ export interface UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface {
     uuid,
     practitionerBoxUuid,
   }: UpdateCustomerOrderOfPractitionerMealBoxArgs): Promise<
-    ReturnValueType<OrderQueue>
+    [OrderQueue?, Error?]
   >;
 }
 
@@ -65,7 +64,7 @@ export class UpdateCustomerOrderOfPractitionerMealBoxUsecase
     uuid,
     practitionerBoxUuid,
   }: UpdateCustomerOrderOfPractitionerMealBoxArgs): Promise<
-    ReturnValueType<OrderQueue>
+    [OrderQueue?, Error?]
   > {
     let [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({

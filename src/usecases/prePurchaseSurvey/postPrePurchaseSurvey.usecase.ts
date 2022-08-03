@@ -4,8 +4,6 @@ import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPreP
 import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
 import { Customer } from '@Domains/Customer';
 import { BoxType } from '@Domains/BoxType';
-import { CustomerBoxType } from '../../domains/CustomerBoxType';
-import { ReturnValueType } from '../../filter/customError';
 
 export interface PostPrePurchaseSurveyUsecaseRes {
   customerId: number;
@@ -32,7 +30,7 @@ export interface PostPrePurchaseSurveyUsecaseInterface {
     unavailableCookingMethods,
     boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
-    ReturnValueType<CustomerBoxType>
+    [PostPrePurchaseSurveyUsecaseRes, Error]
   >;
 }
 
@@ -74,7 +72,7 @@ export class PostPrePurchaseSurveyUsecase
     unavailableCookingMethods,
     boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
-    ReturnValueType<CustomerBoxType>
+    [PostPrePurchaseSurveyUsecaseRes, Error]
   > {
     const recommendBoxType: BoxType = medicalConditions
       ? this.getCustomerBoxType(
@@ -84,7 +82,7 @@ export class PostPrePurchaseSurveyUsecase
         )
       : 'HC';
 
-    const [customer, createCustomerError]: ReturnValueType<Customer> =
+    const [customer, createCustomerError]: [Customer?, Error?] =
       await this.createCustomerUsecaseUtil.createCustomer({
         diabetes,
         gender,

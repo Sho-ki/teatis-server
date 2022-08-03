@@ -3,7 +3,6 @@ import { PractitionerController } from './practitioner.controller';
 import {GetPractitionerUsecaseInterface} from "@Usecases/practitioner/getPractitioner.usecase";
 import {Practitioner} from "@Domains/Practitioner";
 import {CreatePractitionerUsecaseInterface} from "@Usecases/practitioner/createPractitioner.usecase";
-import { ReturnValueType } from '../../../filter/customError';
 
 describe('PractitionerController', () => {
   let controller: PractitionerController;
@@ -25,7 +24,7 @@ describe('PractitionerController', () => {
           provide: 'CreatePractitionerUsecaseInterface',
           useValue: {
             createPractitioner: () =>
-              Promise.resolve<ReturnValueType<Practitioner>>([
+              Promise.resolve<[Practitioner?, Error?]>([
                 mockPractitioner
               ]),
           } as CreatePractitionerUsecaseInterface
@@ -34,7 +33,7 @@ describe('PractitionerController', () => {
           provide: 'GetPractitionerUsecaseInterface',
           useValue: {
             getPractitioner: () =>
-              Promise.resolve<ReturnValueType<Practitioner>>([
+              Promise.resolve<[Practitioner?, Error?]>([
                 mockPractitioner
               ]),
           } as GetPractitionerUsecaseInterface

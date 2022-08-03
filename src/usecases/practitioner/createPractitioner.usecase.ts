@@ -4,7 +4,6 @@ import { CreatePractitionerDto } from '@Controllers/discoveries/dtos/createPract
 import { v4 as uuidv4 } from 'uuid';
 import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { Practitioner } from '@Domains/Practitioner';
-import { ReturnValueType } from '../../filter/customError';
 
 export interface CreatePractitionerUsecaseInterface {
   createPractitioner({
@@ -18,7 +17,7 @@ export interface CreatePractitionerUsecaseInterface {
     facebook,
     twitter,
     website,
-  }: CreatePractitionerDto): Promise<ReturnValueType<Practitioner>>;
+  }: CreatePractitionerDto): Promise<[Practitioner?, Error?]>;
 }
 
 @Injectable()
@@ -40,7 +39,7 @@ export class CreatePractitionerUsecase
     facebook,
     twitter,
     website,
-  }: CreatePractitionerDto): Promise<ReturnValueType<Practitioner>> {
+  }: CreatePractitionerDto): Promise<[Practitioner?, Error?]> {
     const uuid = uuidv4();
 
     const [practitionerSocialMedia, createPractitionerError] =

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Practitioner } from '@Domains/Practitioner';
 
 import { PrismaService } from '../../../prisma.service';
-import { ReturnValueType } from '../../../filter/customError';
 
 interface createPractitionerArgs {
   firstName: string;
@@ -25,7 +24,7 @@ interface getPractitionerArgs {
 export interface PractitionerGeneralRepositoryInterface {
   getPractitioner({
     email,
-  }: getPractitionerArgs): Promise<ReturnValueType<Practitioner>>;
+  }: getPractitionerArgs): Promise<[Practitioner?, Error?]>;
   createPractitioner({
     firstName,
     lastName,
@@ -38,7 +37,7 @@ export interface PractitionerGeneralRepositoryInterface {
     twitter,
     website,
     uuid,
-  }: createPractitionerArgs): Promise<ReturnValueType<Practitioner>>;
+  }: createPractitionerArgs): Promise<[Practitioner?, Error?]>;
 }
 
 @Injectable()
@@ -48,7 +47,7 @@ export class PractitionerGeneralRepository
   constructor(private prisma: PrismaService) {}
   async getPractitioner({
     email,
-  }: getPractitionerArgs): Promise<ReturnValueType<Practitioner>> {
+  }: getPractitionerArgs): Promise<[Practitioner?, Error?]> {
     const response = await this.prisma.practitioner.findUnique({
       where: { email },
       select: {
@@ -106,7 +105,7 @@ export class PractitionerGeneralRepository
     twitter,
     website,
     uuid,
-  }: createPractitionerArgs): Promise<ReturnValueType<Practitioner>> {
+  }: createPractitionerArgs): Promise<[Practitioner?, Error?]> {
     const response = await this.prisma.practitioner.upsert({
       where: { email },
       create: {

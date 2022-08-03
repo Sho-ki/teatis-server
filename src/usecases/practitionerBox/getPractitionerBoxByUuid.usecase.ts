@@ -3,12 +3,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
-import { ReturnValueType } from '../../filter/customError';
 
 export interface GetPractitionerBoxByUuidUsecaseInterface {
   getPractitionerBoxByUuid({
     practitionerBoxUuid,
-  }: GetPractitionerBoxDto): Promise<ReturnValueType<PractitionerAndBox>>;
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]>;
 }
 
 @Injectable()
@@ -21,7 +20,7 @@ export class GetPractitionerBoxByUuidUsecase
   ) {}
   async getPractitionerBoxByUuid({
     practitionerBoxUuid,
-  }: GetPractitionerBoxDto): Promise<ReturnValueType<PractitionerAndBox>> {
+  }: GetPractitionerBoxDto): Promise<[PractitionerAndBox?, Error?]> {
     const [practitionerAndBox, getPractitionerAndBoxError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({
         practitionerBoxUuid,
