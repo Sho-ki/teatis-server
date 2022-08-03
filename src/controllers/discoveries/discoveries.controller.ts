@@ -38,18 +38,19 @@ import { GetNextBoxUsecaseInterface } from '@Usecases/nextBox/getNextBox.usecase
 import { GetNextBoxDto } from './dtos/getNextBox';
 import { GetCustomerNutritionDto } from './dtos/getCustomerNutrition';
 import { GetCustomerNutritionUsecaseInterface } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
-import { CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerOriginalBox.usecase';
-import { CreateCheckoutCartOfCustomerOriginalBoxDto } from './dtos/createCheckoutCartOfCustomerOriginalBoxDto';
 import { UpdateCustomerOrderOfPractitionerBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
 import { OrderQueue } from '@Domains/OrderQueue';
-import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
-import { CreateCheckoutCartOfPractitionerBoxDto } from './dtos/createCheckoutCartOfPractitionerBoxDto';
+import { CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBoxOld.usecase';
+import { CreateCheckoutCartOfPractitionerBoxOldDto } from './dtos/createCheckoutCartOfPractitionerBoxOldDto';
 import { UpdatePractitionerBoxOrderHistoryUsecaseInterface } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxDto } from './dtos/getFirstBox';
 import { GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
+import { CreateCheckoutCartOfCustomerBoxUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
+import { CreateCheckoutCartDto } from './dtos/createCheckoutCartOfCustomerBoxDto';
+import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -72,14 +73,14 @@ export class DiscoveriesController {
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxUsecase: GetNextBoxUsecaseInterface,
-    @Inject('CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface')
-    private createCheckoutCartOfCustomerOriginalBoxUsecase: CreateCheckoutCartOfCustomerOriginalBoxUsecaseInterface,
+    @Inject('CreateCheckoutCartOfCustomerBoxUsecaseInterface')
+    private createCheckoutCartOfCustomerBoxUsecase: CreateCheckoutCartOfCustomerBoxUsecaseInterface,
     @Inject('GetCustomerNutritionUsecaseInterface')
     private getCustomerNutritionUsecase: GetCustomerNutritionUsecaseInterface,
     @Inject('UpdateCustomerOrderOfPractitionerBoxUsecaseInterface')
     private updateCustomerOrderOfPractitionerBoxUsecase: UpdateCustomerOrderOfPractitionerBoxUsecaseInterface,
-    @Inject('CreateCheckoutCartOfPractitionerBoxUsecaseInterface')
-    private createCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
+    @Inject('CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface')
+    private createCheckoutCartOfPractitionerBoxOldUsecase: CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface,
     @Inject('UpdatePractitionerBoxOrderHistoryUsecaseInterface')
     private updatePractitionerBoxOrderHistoryUsecase: UpdatePractitionerBoxOrderHistoryUsecaseInterface,
     @Inject('GetFirstBoxUsecaseInterface')
@@ -88,6 +89,8 @@ export class DiscoveriesController {
     private createCheckoutCartOfPractitionerMealBoxUsecase: CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface,
     @Inject('UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface')
     private updateCustomerOrderOfPractitionerMealBoxUsecase: UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface,
+    @Inject('CreateCheckoutCartOfPractitionerBoxUsecaseInterface')
+    private CreateCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
     private teatisJob: TeatisJobs,
   ) {}
 
@@ -306,30 +309,45 @@ export class DiscoveriesController {
     return response.status(201).send(usecaseResponse);
   }
 
-  // Post: api/discovery/customer-original-box-cart
-  @Post('customer-original-box-cart')
-  async createCheckoutCartOfCustomerOriginalBox(
-    @Body() body: CreateCheckoutCartOfCustomerOriginalBoxDto,
+  // Post: api/discovery/box-cart
+  @Post('box-cart')
+  async createCheckoutCartOfCustomerBox(
+    @Body() body: CreateCheckoutCartDto,
     @Res() response: Response,
   ) {
+    const {boxType} = body;
+
+    if(boxType === 'CustomerBox'){
     const [usecaseResponse, error] =
-      await this.createCheckoutCartOfCustomerOriginalBoxUsecase.createCheckoutCartOfCustomerOriginalBox(
+      await this.createCheckoutCartOfCustomerBoxUsecase.createCheckoutCartOfCustomerBox(
         body,
       );
     if (error) {
       return response.status(500).send(error);
     }
     return response.status(201).send(usecaseResponse);
+    } else if(boxType === 'PractitionerBox'){
+      const [usecaseResponse, error] =
+      await this.CreateCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
+        body,
+      );
+    if (error) {
+      return response.status(500).send(error);
+    }
+    return response.status(201).send(usecaseResponse);
+      
+    }
+    
   }
 
   // Post: api/discovery/practitioner-box-cart
   @Post('practitioner-box-cart')
   async createPractitionerBoxCart(
-    @Body() body: CreateCheckoutCartOfPractitionerBoxDto,
+    @Body() body: CreateCheckoutCartOfPractitionerBoxOldDto,
     @Res() response: Response,
   ) {
     const [usecaseResponse, error] =
-      await this.createCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
+      await this.createCheckoutCartOfPractitionerBoxOldUsecase.createCheckoutCartOfPractitionerBoxOld(
         body,
       );
     if (error) {
