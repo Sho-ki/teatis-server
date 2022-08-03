@@ -1,20 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CreateCheckoutCartOfPractitionerBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfPractitionerBoxDto';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { ReturnValueType } from '../../filter/customError';
 
 
+import { PractitionerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
+import { DISCOUNT_CODES } from '../utils/discountCode';
+import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
+
 export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
   createCheckoutCartOfPractitionerBox({
-    merchandiseId,
-    sellingPlanId,
+    // boxType,
+    // deliveryInterval,
     uuid,
     practitionerBoxUuid,
-  }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    ReturnValueType<CustomerCheckoutCart>
+  }: PractitionerBoxDto): Promise<
+     ReturnValueType<CustomerCheckoutCart>
   >;
 }
 
@@ -30,36 +33,37 @@ export class CreateCheckoutCartOfPractitionerBoxUsecase
   ) {}
 
   async createCheckoutCartOfPractitionerBox({
-    merchandiseId,
-    sellingPlanId,
-    uuid,
-    practitionerBoxUuid,
-  }: CreateCheckoutCartOfPractitionerBoxDto): Promise<
-    ReturnValueType<CustomerCheckoutCart>
+//   boxType,
+//   deliveryInterval,
+  uuid,
+  practitionerBoxUuid
+  }: PractitionerBoxDto): Promise<
+     ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string; value: string }[] = [
       { key: 'practitionerBoxUuid', value: practitionerBoxUuid },
+      { key: 'uuid', value: uuid },
     ];
 
     const [customer, getCustomerError] =
-    await this.customerGeneralRepository.getCustomerByUuid({
-      uuid,
-    });
+      await this.customerGeneralRepository.getCustomerByUuid({
+        uuid,
+      });
 
-  if (getCustomerError) {
-    return [null, getCustomerError];
-  }
-
+    if (getCustomerError) {
+      return [null, getCustomerError];
+    }
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart({
-        merchandiseId,
-        sellingPlanId,
+        discountCode:DISCOUNT_CODES.firstPurchase,
+        merchandiseId: PRACTITIONER_BOX_PLANS.merchandiseId,
+        sellingPlanId: PRACTITIONER_BOX_PLANS.sellingPlanId,
         attributes,
       });
     if (createCheckoutCartOfPractitionerBoxError) {
       return [null, createCheckoutCartOfPractitionerBoxError];
     }
 
-    return [{ checkoutUrl: cart.checkoutUrl, email:customer.email }, null];
+    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, null];
   }
 }
