@@ -119,9 +119,15 @@ jobs:
           echo KLAVIYO_POTENTIAL_CUSTOMER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_LIST }} >> .env
           echo KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }} >> .env
 
+      - name: docker compose up 
+        run: docker-compose up
+
       - name: Run the tests
         run: npm test
 
+      - name: docker compose down
+        run: docker-compose down
+     
   deploy:
     needs: [build, test]
     # Add 'id-token' with the intended permissions for workload identity federation
