@@ -228,7 +228,7 @@ implements CustomerGeneralRepositoryInterface
       case 'categoryPreferences':
         await this.prisma.intermediateCustomerCategoryPreference
           .findMany({
-            where: { customer: { email } },
+            where: { customer: { email }, productCategory: { activeStatus: 'active' } },
             select: { productCategoryId: true },
           })
           .then((response) => {

@@ -295,20 +295,20 @@ export class GetSuggestion implements GetSuggestionInterface {
       });
     }
     const allCategories = [
-      18,
-      19,
-      7,
+      // 25,
+      // 3,
+      // 6, inactive categories
+      10,
+      11,
+      13,
+      14,
       15,
       17,
-      6,
-      4,
-      3,
-      13,
-      25,
-      11,
+      18,
+      19,
       26,
-      14,
-      10,
+      4,
+      7,
     ];
     const favoriteCategories = customerCategoryPreferences.id.length
       ? customerCategoryPreferences.id
