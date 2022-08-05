@@ -6,5 +6,5 @@ export interface Question {
   instruction?: string;
   placeholder?: string;
   answerType: string;
-  options?: { id: number; name: string; label: string }[];
+  options?: { id: number, name: string, label: string }[];
 }

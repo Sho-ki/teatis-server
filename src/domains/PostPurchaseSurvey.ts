@@ -29,7 +29,7 @@ export interface SurveyQuestions {
     id: number;
     label: string;
     vendor: string;
-    images: { src: string; position: number }[];
+    images: { src: string, position: number }[];
   };
 }
 
