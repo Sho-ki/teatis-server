@@ -717,6 +717,7 @@ implements ProductGeneralRepositoryInterface
   async getAllProducts({ medicalConditions }: GetAllProductsArgs): Promise<ReturnValueType<DisplayAnalyzeProduct[]>> {
     const res = await this.prisma.product.findMany({
       where: {
+        productCategory: { activeStatus: 'active' },
         activeStatus: 'active',
         productNutritionFact: medicalConditions.highBloodPressure
           ? { sodiumMg: { lt: 500 } }
@@ -880,6 +881,7 @@ implements ProductGeneralRepositoryInterface
         break;
       case 'category':
         getOptionsRes = await this.prisma.productCategory.findMany({
+          where: { activeStatus: 'active' },
           select:
           { id: true, name: true, label: true, src: true },
         });

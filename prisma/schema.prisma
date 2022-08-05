@@ -196,10 +196,7 @@ model Product{
   updatedAt DateTime @updatedAt @default(now())
 }
 
-enum ActiveStatus {
-  active
-  inactive
-}
+
 
 enum PreservationStyle {
   normal
@@ -291,6 +288,7 @@ model ProductCategory{
   src String?
   products   Product[]
   intermediateCustomerCategoryPreferences IntermediateCustomerCategoryPreference[]
+  activeStatus  ActiveStatus @default(active)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -626,3 +624,7 @@ model PractitionerCustomerOrderHistory{
   updatedAt DateTime  @updatedAt @default(now())
 }
 
+enum ActiveStatus {
+  active
+  inactive
+}
