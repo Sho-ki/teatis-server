@@ -87,6 +87,21 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: teatis_test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5442:5432
+
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node.js
@@ -118,15 +133,8 @@ jobs:
           echo KLAVIYO_POTENTIAL_CUSTOMER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_LIST }} >> .env
           echo KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }} >> .env
 
-      - name: docker compose up 
-        run: docker-compose up
-
       - name: Run the tests
         run: npm test
-
-      - name: docker compose down
-        run: docker-compose down
-
 
   deploy:
     needs: [build, test]
