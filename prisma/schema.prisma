@@ -324,6 +324,7 @@ model ProductIngredient{
   name String @unique
   intermediateProductIngredients IntermediateProductIngredient[]
   intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
+  intermediateIngredientFamily IntermediateIngredientFamily[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -337,6 +338,26 @@ model IntermediateCustomerIngredientDislike{
   updatedAt DateTime  @updatedAt @default(now())
 
   @@id([productIngredientId, customerId])
+}
+
+model IntermediateIngredientFamily {
+  productIngredient ProductIngredient @relation(fields: [productIngredientId], references: [id])
+  productIngredientId Int
+  ingredientFamily IngredientFamily @relation(fields: [ingredientFamilyId], references: [id])
+  ingredientFamilyId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([productIngredientId, ingredientFamilyId])
+}
+
+model IngredientFamily {
+  id       Int         @default(autoincrement()) @id
+  label String 
+  name String @unique
+  intermediateIngredientFamily IntermediateIngredientFamily[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
 }
 
 model IntermediateProductAllergen{
