@@ -5,6 +5,7 @@ import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.reposi
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
+import { DISCOUNT_CODES } from '../utils/discountCode';
 
 export interface CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface {
   createCheckoutCartOfPractitionerBoxOld({
@@ -36,7 +37,7 @@ implements CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface
   }: CreateCheckoutCartOfPractitionerBoxOldDto):  Promise<
     ReturnValueType<CustomerCheckoutCart>
   > {
-    const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }];
+    const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }, { key: 'uuid', value: uuid }];
 
     const [customer, getCustomerError] =
     await this.customerGeneralRepository.getCustomerByUuid({ uuid });
@@ -44,9 +45,9 @@ implements CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface
     if (getCustomerError) {
       return [null, getCustomerError];
     }
-
     const [cart, createCheckoutCartOfPractitionerBoxOldError] =
       await this.ShopifyRepository.createCart({
+        discountCode: DISCOUNT_CODES.practitionerBox.firstPurchase,
         merchandiseId,
         sellingPlanId,
         attributes,
