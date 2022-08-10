@@ -5,6 +5,7 @@ import { CreateCheckoutCartOfPractitionerMealBoxDto } from '@Controllers/discove
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { ReturnValueType } from '@Filters/customError';
+import { DISCOUNT_CODES } from '../utils/discountCode';
 
 export interface CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface {
   createCheckoutCartOfPractitionerMealBox({
@@ -46,6 +47,7 @@ implements CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface
     }
     const [cart, createCheckoutCartOfPractitionerMealBoxError] =
       await this.ShopifyRepository.createCart({
+        discountCode: DISCOUNT_CODES.practitionerBox.firstPurchase,
         merchandiseId,
         sellingPlanId,
         attributes,
