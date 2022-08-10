@@ -88,7 +88,7 @@ implements CreateCheckoutCartOfCustomerBoxUsecaseInterface
     }
     const [cart, createCheckoutCartOfCustomerBoxError] =
       await this.ShopifyRepository.createCart({
-        discountCode: DISCOUNT_CODES.firstPurchase,
+        discountCode: DISCOUNT_CODES.customerBox.firstPurchase,
         merchandiseId,
         sellingPlanId,
         attributes,

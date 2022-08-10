@@ -12,6 +12,7 @@ import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
+import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
   extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
@@ -87,12 +88,22 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     if (orderError) {
       return [undefined, orderError];
     }
-    const HCBox = 6618823458871;
-    const HCLSBox = 6618823753783;
+    const HCBoxIds = [
+      CUSTOMER_BOX_PLANS.HC.ONE.id,
+      CUSTOMER_BOX_PLANS.HC.THREE.id,
+      CUSTOMER_BOX_PLANS.HC.SIX.id,
+      CUSTOMER_BOX_PLANS.HC.TWELVE.id,
+    ];
+    const HCLSBoxIds = [
+      CUSTOMER_BOX_PLANS.HCLS.ONE.id,
+      CUSTOMER_BOX_PLANS.HCLS.THREE.id,
+      CUSTOMER_BOX_PLANS.HCLS.SIX.id,
+      CUSTOMER_BOX_PLANS.HCLS.TWELVE.id,
+    ];
     if (order.products.length > 1) {
       if (
-        purchasedProducts.includes(HCBox) ||
-        purchasedProducts.includes(HCLSBox)
+        purchasedProducts.find(val => HCBoxIds.includes(val)) ||
+        purchasedProducts.find(val => HCLSBoxIds.includes(val))
       ) {
         return [
           {

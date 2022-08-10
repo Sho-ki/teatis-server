@@ -248,7 +248,7 @@ export class DiscoveriesController {
       noteAttributesKeys.includes('uuid')
     ) {
       [usecaseResponse, error] =
-        await this.updateCustomerOrderOfPractitionerMealBoxUsecase.updateCustomerOrderOfPractitionerMealBox(
+        await this.updateCustomerOrderOfPractitionerBoxUsecase.updateCustomerOrderOfPractitionerBox(
           {
             name: body.name,
             customer: body.customer,
@@ -258,17 +258,7 @@ export class DiscoveriesController {
             practitionerBoxUuid: noteAttributes.practitionerBoxUuid,
           },
         );
-    } else if (noteAttributesKeys.includes('practitionerBoxUuid')) {
-      [usecaseResponse, error] =
-        await this.updateCustomerOrderOfPractitionerBoxUsecase.updateCustomerOrderOfPractitionerBox(
-          {
-            name: body.name,
-            customer: body.customer,
-            subtotal_price: body.subtotal_price,
-            line_items: body.line_items,
-            practitionerBoxUuid: noteAttributes.practitionerBoxUuid,
-          },
-        );
+
     } else {
       [usecaseResponse, error] =
         await this.updateCustomerOrderOfCustomerBoxUsecase.updateCustomerOrderOfCustomerBox(
