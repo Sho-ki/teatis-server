@@ -27,9 +27,17 @@ interface createPractitionerAndBoxArgs {
   note?: string;
 }
 
+interface getPractitionerRecurringBoxArgs {
+  practitionerId: number;
+  label: string;
+}
+
 export interface PractitionerBoxRepositoryInterface {
   getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
   Promise<ReturnValueType<PractitionerAndBox>>;
+
+  getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
+  Promise<ReturnValueType<PractitionerBox>>;
 
   getPractitionerAndBoxByLabel({
     practitionerId,
@@ -51,6 +59,46 @@ export class PractitionerBoxRepository
 implements PractitionerBoxRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
+
+  async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
+  Promise<ReturnValueType<PractitionerBox>>{
+    const response = await this.prisma.practitionerBox.findUnique(
+      {
+        where: { PractitionerBoxIdentifier: { practitionerId, label: 'Recurring '+ label } },
+        select: {
+          id: true,
+          uuid: true,
+          label: true,
+          description: true,
+          note: true,
+          intermediatePractitionerBoxProduct: {
+            select: {
+              product: {
+                select: {
+                  id: true,
+                  externalSku: true,
+                  name: true,
+                  label: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+    const practitionerBox:PractitionerBox = {
+      id: response.id,
+      uuid: response.uuid,
+      label: response.label,
+      description: response.description,
+      note: response.note,
+      products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
+        return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
+      }),
+    };
+    return [practitionerBox, undefined];
+  }
+
   async createPractitionerAndBox({
     practitionerId,
     practitionerBoxUuid,

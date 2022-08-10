@@ -31,7 +31,6 @@ implements CustomerPreferenceRepositoryInterface
   constructor(private prisma: PrismaService) {}
 
   async getNextWant({ orderNumber }: GetNextWantArgs): Promise<ReturnValueType<Product[]>> {
-
     const response = await this.prisma.surveyQuestionAnswer.findMany({
       where: { AND: [{ orderNumber }, { answerNumeric: 6 }] },
       select: { product: { select: { id: true, name: true, label: true, externalSku: true } } },

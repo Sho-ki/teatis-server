@@ -13,6 +13,7 @@ import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
+import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAutoSwap';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -51,6 +52,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private getSuggestionUtil: GetSuggestionInterface,
     @Inject('CreateCustomerUsecaseInterface')
     private createCustomerUtil: CreateCustomerUsecaseInterface,
+    @Inject('CustomerProductsAutoSwapInterface')
+    private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
   ) {}
 
   async updateCustomerOrderOfPractitionerBox({
@@ -66,126 +69,134 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
+    // const [orderQueueScheduled, orderQueueScheduledError] =
+    //   await this.orderQueueRepository.updateOrderQueue({
+    //     customerId: customer?.id,
+    //     orderNumber: name,
+    //     status: 'scheduled',
+    //   });
+    // if (orderQueueScheduledError) {
+    //   return [null, orderQueueScheduledError];
+    // }
 
-    const [orderQueueScheduled, orderQueueScheduledError] =
-      await this.orderQueueRepository.updateOrderQueue({
-        customerId: customer?.id,
-        orderNumber: name,
-        status: 'scheduled',
-      });
-    if (orderQueueScheduledError) {
-      return [null, orderQueueScheduledError];
-    }
+    // const orderProducts: Pick<Product, 'sku'>[] = [];
+    // const purchasedProducts = line_items.map((lineItem) => {
+    //   return lineItem.product_id;
+    // });
 
-    let orderProducts: Pick<Product, 'sku'>[] = [];
-    const purchasedProducts = line_items.map((lineItem) => {
-      return lineItem.product_id;
-    });
-
-    const [order, orderError] =
-      await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
-    if (orderError) {
-      return [null, orderError];
-    }
-    const PractitionerBox = 6666539204663;
-    if (
-      order.products.length > 1 &&
-      purchasedProducts.includes(PractitionerBox)
-    ) {
-      return [
-        {
-          customerId: orderQueueScheduled.customerId,
-          orderNumber: orderQueueScheduled.orderNumber,
-          status: orderQueueScheduled.status,
-          orderDate: orderQueueScheduled.orderDate,
-        },
-        null,
-      ];
-    }
-    const [customerOrderCount, getOrderCountError] =
-      await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
-    if (getOrderCountError) {
-      return [null, getOrderCountError];
-    }
+    // const [order, orderError] =
+    //   await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
+    // if (orderError) {
+    //   return [null, orderError];
+    // }
+    // const PractitionerBox = 6666539204663;
+    // if (
+    //   order.products.length > 1 &&
+    //   purchasedProducts.includes(PractitionerBox)
+    // ) {
+    //   return [
+    //     {
+    //       customerId: orderQueueScheduled.customerId,
+    //       orderNumber: orderQueueScheduled.orderNumber,
+    //       status: orderQueueScheduled.status,
+    //       orderDate: orderQueueScheduled.orderDate,
+    //     },
+    //     null,
+    //   ];
+    // }
+    // const [customerOrderCount, getOrderCountError] =
+    //   await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
+    // if (getOrderCountError) {
+    //   return [null, getOrderCountError];
+    // }
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
       return [null, getPractitionerAndBoxByUuidError];
     }
-    if (!practitionerAndBox.box.products.length) {
-      // analyze
-      const [nextBoxProductsRes, nextBoxProductsError] =
-        await this.getSuggestionUtil.getSuggestion({
-          customer,
-          productCount: PRODUCT_COUNT,
-        });
-      orderProducts = nextBoxProductsRes.products.map((product) => {
-        return { sku: product.sku };
-      });
-      if (nextBoxProductsError) {
-        return [null, nextBoxProductsError];
-      }
-    } else {
-      orderProducts = practitionerAndBox.box.products;
-    }
-    if(customerOrderCount.orderCount <= 1){
-      orderProducts.push(
-        { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
-        { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-      );
-    }
+    const practitionerId = practitionerAndBox.id;
+    const boxLabel = practitionerAndBox.box.label;
 
-    const transactionPrice = Number(subtotal_price);
+    const [recurringPractitionerBox, getPractitionerRecurringBoxError] =
+      await this.practitionerBoxRepository.getPractitionerRecurringBox({ practitionerId, label: boxLabel });
+    if (getPractitionerRecurringBoxError) {
+      return [null, getPractitionerRecurringBoxError];
+    }
+    const [test, testerr] = await this.customerProductsAutoSwap.customerProductsAutoSwap({ practitionerProducts: recurringPractitionerBox.products, customer });
+    // if (!practitionerAndBox.box.products.length) {
+    //   // analyze
+    //   const [nextBoxProductsRes, nextBoxProductsError] =
+    //     await this.getSuggestionUtil.getSuggestion({
+    //       customer,
+    //       productCount: PRODUCT_COUNT,
+    //     });
+    //   orderProducts = nextBoxProductsRes.products.map((product) => {
+    //     return { sku: product.sku };
+    //   });
+    //   if (nextBoxProductsError) {
+    //     return [null, nextBoxProductsError];
+    //   }
+    // } else {
+    //   orderProducts = practitionerAndBox.box.products;
+    // }
+    // if(customerOrderCount.orderCount <= 1){
+    //   orderProducts.push(
+    //     { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
+    //     { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
+    //   );
+    // }
 
-    const [
-      [, updateOrderError],
-      [, createPractitionerBoxHistoryError],
-      [orderQueueOrdered, orderQueueOrderedError],
-      [, updateOrderHoldUntilDateError],
-    ] = await Promise.all([
-      this.shipheroRepository.updateCustomerOrder({
-        orderId: order.orderId,
-        products: orderProducts,
-        orderNumber: name,
-      }),
-      this.practitionerBoxOrderHistoryRepository.createPractitionerBoxOrderHistory(
-        {
-          transactionPrice,
-          orderNumber: name,
-          status: 'ordered',
-          customerId: customer?.id,
-          practitionerBoxId: practitionerAndBox.box.id,
-        },
-      ),
-      this.orderQueueRepository.updateOrderQueue({
-        customerId: customer?.id,
-        orderNumber: name,
-        status: 'ordered',
-      }),
-      this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
-    ]);
+    // const transactionPrice = Number(subtotal_price);
 
-    if (updateOrderError) {
-      return [null, updateOrderError];
-    }
-    if (createPractitionerBoxHistoryError) {
-      return [null, createPractitionerBoxHistoryError];
-    }
-    if (orderQueueOrderedError) {
-      return [null, orderQueueOrderedError];
-    }
-    if(updateOrderHoldUntilDateError){
-      return [null, updateOrderHoldUntilDateError];
-    }
+    // const [
+    //   [, updateOrderError],
+    //   [, createPractitionerBoxHistoryError],
+    //   [orderQueueOrdered, orderQueueOrderedError],
+    //   [, updateOrderHoldUntilDateError],
+    // ] = await Promise.all([
+    //   this.shipheroRepository.updateCustomerOrder({
+    //     orderId: order.orderId,
+    //     products: orderProducts,
+    //     orderNumber: name,
+    //   }),
+    //   this.practitionerBoxOrderHistoryRepository.createPractitionerBoxOrderHistory(
+    //     {
+    //       transactionPrice,
+    //       orderNumber: name,
+    //       status: 'ordered',
+    //       customerId: customer?.id,
+    //       practitionerBoxId: practitionerAndBox.box.id,
+    //     },
+    //   ),
+    //   this.orderQueueRepository.updateOrderQueue({
+    //     customerId: customer?.id,
+    //     orderNumber: name,
+    //     status: 'ordered',
+    //   }),
+    //   this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
+    // ]);
 
-    return [
-      {
-        customerId: orderQueueOrdered.customerId,
-        orderNumber: orderQueueOrdered.orderNumber,
-        status: orderQueueOrdered.status,
-        orderDate: orderQueueOrdered.orderDate,
-      },
-      null,
-    ];
+    // if (updateOrderError) {
+    //   return [null, updateOrderError];
+    // }
+    // if (createPractitionerBoxHistoryError) {
+    //   return [null, createPractitionerBoxHistoryError];
+    // }
+    // if (orderQueueOrderedError) {
+    //   return [null, orderQueueOrderedError];
+    // }
+    // if(updateOrderHoldUntilDateError){
+    //   return [null, updateOrderHoldUntilDateError];
+    // }
+    return;
+    // return [
+    //   {
+    //     customerId: orderQueueOrdered.customerId,
+    //     orderNumber: orderQueueOrdered.orderNumber,
+    //     status: orderQueueOrdered.status,
+    //     orderDate: orderQueueOrdered.orderDate,
+    //   },
+    //   null,
+    // ];
   }
 }
