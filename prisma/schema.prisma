@@ -324,6 +324,7 @@ model ProductIngredient{
   name String @unique
   intermediateProductIngredients IntermediateProductIngredient[]
   intermediateCustomerIngredientDislikes IntermediateCustomerIngredientDislike[]
+  parentIngredientId Int?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
