@@ -895,7 +895,8 @@ implements ProductGeneralRepositoryInterface
 
         break;
       case 'ingredient':
-        getOptionsRes = await this.prisma.productIngredient.findMany({ select: { id: true, name: true, label: true } });
+        getOptionsRes = await this.prisma.productIngredient.findMany(
+          { where: { parentIngredientId: null }, select: { id: true, name: true, label: true } });
         break;
       default:
         break;

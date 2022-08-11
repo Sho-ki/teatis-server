@@ -243,14 +243,21 @@ implements CustomerGeneralRepositoryInterface
         await this.prisma.intermediateCustomerIngredientDislike
           .findMany({
             where: { customer: { email } },
-            select: { productIngredientId: true },
+            select: { productIngredientId: true  },
           })
-          .then((response) => {
-            customerPreference = response.length
-              ? response.map((category) => {
-                return category.productIngredientId;
-              })
+          .then(async (response) => {
+            const parentIngredientIds:{parentIngredientId:number}[] = response.length
+              ? response.map(({ productIngredientId }) => { return  { parentIngredientId: productIngredientId }; })
               : [];
+
+            const allIngredientIds = await this.prisma.productIngredient.findMany(
+              {
+                where: { OR: parentIngredientIds },
+                select: { id: true, name: true },
+              });
+            const allIds = parentIngredientIds.map(({ parentIngredientId }) => parentIngredientId)
+              .concat(allIngredientIds.map(({ id }) => id));
+            customerPreference =  allIds;
           });
         break;
       default:
