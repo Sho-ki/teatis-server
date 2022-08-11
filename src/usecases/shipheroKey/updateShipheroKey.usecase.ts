@@ -24,9 +24,10 @@ implements UpdateShipheoKeyUsecaseInterface
       return [undefined, getNewTokenError];
     }
 
+    const secretManagerProjectId = process.env.SECRET_MANAGER_PROJECT_ID;
     // Instantiates a client
     const client = new SecretManagerServiceClient();
-    const parent = 'projects/441786500914/secrets/shiphero_key';
+    const parent = `projects/${secretManagerProjectId}/secrets/shiphero_key`;
 
     await client.addSecretVersion({
       parent,
