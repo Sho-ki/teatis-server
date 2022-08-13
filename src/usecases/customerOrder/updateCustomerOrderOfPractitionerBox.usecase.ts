@@ -53,8 +53,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private readonly shopifyRepository: ShopifyRepositoryInterface,
     @Inject('GetSuggestionInterface')
     private getSuggestionUtil: GetSuggestionInterface,
-    @Inject('CreateCustomerUsecaseInterface')
-    private createCustomerUtil: CreateCustomerUsecaseInterface,
     @Inject('CustomerProductsAutoSwapInterface')
     private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
    @Inject('CustomerGeneralRepositoryInterface')
@@ -194,28 +192,28 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
       ]);
 
+      if (updateOrderError) {
+        return [undefined, updateOrderError];
+      }
+      if (createPractitionerBoxHistoryError) {
+        return [undefined, createPractitionerBoxHistoryError];
+      }
+      if (orderQueueOrderedError) {
+        return [undefined, orderQueueOrderedError];
+      }
+      if(updateOrderHoldUntilDateError){
+        return [undefined, updateOrderHoldUntilDateError];
+      }
 
-    if (updateOrderError) {
-      return [undefined, updateOrderError];
+      return [
+        {
+          customerId: orderQueueOrdered.customerId,
+          orderNumber: orderQueueOrdered.orderNumber,
+          status: orderQueueOrdered.status,
+          orderDate: orderQueueOrdered.orderDate,
+        },
+        undefined,
+      ];
     }
-    if (createPractitionerBoxHistoryError) {
-      return [undefined, createPractitionerBoxHistoryError];
-    }
-    if (orderQueueOrderedError) {
-      return [undefined, orderQueueOrderedError];
-    }
-    if(updateOrderHoldUntilDateError){
-      return [undefined, updateOrderHoldUntilDateError];
-    }
-
-    return [
-      {
-        customerId: orderQueueOrdered.customerId,
-        orderNumber: orderQueueOrdered.orderNumber,
-        status: orderQueueOrdered.status,
-        orderDate: orderQueueOrdered.orderDate,
-      },
-      undefined,
-    ];
   }
 }
