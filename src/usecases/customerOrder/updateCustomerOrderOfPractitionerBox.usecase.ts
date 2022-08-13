@@ -7,19 +7,21 @@ import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orde
 import { Product } from 'src/domains/Product';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
-import { CreateCustomerUsecaseInterface } from '@Usecases/utils/createCustomer';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAutoSwap';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
     UpdateCustomerOrderDto,
     'name' | 'customer' | 'subtotal_price' | 'line_items'
   > {
+  uuid: string;
   practitionerBoxUuid: string;
 }
 
@@ -29,6 +31,7 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     customer,
     subtotal_price,
     line_items,
+    uuid,
     practitionerBoxUuid,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>>;
 }
@@ -54,6 +57,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private createCustomerUtil: CreateCustomerUsecaseInterface,
     @Inject('CustomerProductsAutoSwapInterface')
     private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
+   @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfPractitionerBox({
@@ -61,10 +66,23 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     customer: shopifyCustomer,
     subtotal_price,
     line_items,
+    uuid,
     practitionerBoxUuid,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
-    const [customer, getCustomerError] =
-      await this.createCustomerUtil.createCustomer({ email: shopifyCustomer.email });
+    let [customer, getCustomerError] =
+      await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
+
+    if (!customer.id) {
+      [customer, getCustomerError] =
+        await this.customerGeneralRepository.updateCustomerEmailByUuid({
+          uuid,
+          newEmail: shopifyCustomer.email,
+        });
+
+      if (getCustomerError) {
+        return [undefined, getCustomerError];
+      }
+    }
 
     if (getCustomerError) {
       return [undefined, getCustomerError];
@@ -76,7 +94,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         status: 'scheduled',
       });
     if (orderQueueScheduledError) {
-      return [null, orderQueueScheduledError];
+      return [undefined, orderQueueScheduledError];
     }
 
     let orderProducts: Pick<Product, 'sku'>[] = [];
@@ -87,12 +105,12 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     const [order, orderError] =
       await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
-      return [null, orderError];
+      return [undefined, orderError];
     }
-    const PractitionerBox = 6666539204663;
+    const PractitionerMealBoxID =6603694014519;
     if (
       order.products.length > 1 &&
-      purchasedProducts.includes(PractitionerBox)
+      purchasedProducts.includes(PRACTITIONER_BOX_PLANS.id || PractitionerMealBoxID)
     ) {
       return [
         {
@@ -101,18 +119,18 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           status: orderQueueScheduled.status,
           orderDate: orderQueueScheduled.orderDate,
         },
-        null,
+        undefined,
       ];
     }
     const [customerOrderCount, getOrderCountError] =
       await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
     if (getOrderCountError) {
-      return [null, getOrderCountError];
+      return [undefined, getOrderCountError];
     }
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
-      return [null, getPractitionerAndBoxByUuidError];
+      return [undefined, getPractitionerAndBoxByUuidError];
     }
     const practitionerId = practitionerAndBox.id;
     const boxLabel = practitionerAndBox.box.label;
@@ -135,7 +153,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         return { sku: product.sku };
       });
       if (nextBoxProductsError) {
-        return [null, nextBoxProductsError];
+        return [undefined, nextBoxProductsError];
       }
     } else {
       orderProducts = practitionerAndBox.box.products;
@@ -176,26 +194,28 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
       ]);
 
-      if (updateOrderError) {
-        return [null, updateOrderError];
-      }
-      if (createPractitionerBoxHistoryError) {
-        return [null, createPractitionerBoxHistoryError];
-      }
-      if (orderQueueOrderedError) {
-        return [null, orderQueueOrderedError];
-      }
-      if(updateOrderHoldUntilDateError){
-        return [null, updateOrderHoldUntilDateError];
-      }
-      return [
-        {
-          customerId: orderQueueOrdered.customerId,
-          orderNumber: orderQueueOrdered.orderNumber,
-          status: orderQueueOrdered.status,
-          orderDate: orderQueueOrdered.orderDate,
-        },
-        null,
-      ];
+
+    if (updateOrderError) {
+      return [undefined, updateOrderError];
     }
-  }}
+    if (createPractitionerBoxHistoryError) {
+      return [undefined, createPractitionerBoxHistoryError];
+    }
+    if (orderQueueOrderedError) {
+      return [undefined, orderQueueOrderedError];
+    }
+    if(updateOrderHoldUntilDateError){
+      return [undefined, updateOrderHoldUntilDateError];
+    }
+
+    return [
+      {
+        customerId: orderQueueOrdered.customerId,
+        orderNumber: orderQueueOrdered.orderNumber,
+        status: orderQueueOrdered.status,
+        orderDate: orderQueueOrdered.orderDate,
+      },
+      undefined,
+    ];
+  }
+}
