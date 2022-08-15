@@ -32,17 +32,22 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
       return [undefined, getCustomerError];
     }
     const firstIncludeSkus = [
-      'x10263-BAR-SN20154',
+      'x10326-RTD-SN20167',
+      'x10267-CHP-SN20137',
       'x10244-SWT-SN20138',
-      'x10239-RTD-SN20139',
       'x10262-COK-SN20113',
       'x10261-CHP-SN20133',
-      'x10212-CHP-SN20153',
       'x10325-JRK-SN20177',
       'x10217-CHP-SN20144',
     ];
 
-    const firstExcludeSkus = ['x10249-SHK-SN20143', 'x10231-CHP-SN20116', 'x10221-CHP-SN20101'];
+    const firstExcludeSkus = [
+      'x10249-SHK-SN20143',
+      'x10231-CHP-SN20116',
+      'x10221-CHP-SN20101',
+      'x10263-BAR-SN20154',
+      'x10212-CHP-SN20153',
+    ];
     const productCount = PRODUCT_COUNT;
     const [getSuggestion, getSuggestionError] =
       await this.getSuggestionUntil.getSuggestion({
@@ -59,6 +64,6 @@ export class GetFirstBoxUsecase implements GetFirstBoxUsecaseInterface {
     if (getSuggestionError) {
       return [undefined, getSuggestionError];
     }
-    return [getSuggestion, null];
+    return [getSuggestion, undefined];
   }
 }
