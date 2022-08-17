@@ -8,12 +8,14 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
-import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
-import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
-import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
+
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
+import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
+import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
+import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
+import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
+import { GetRecurringPractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/getRecurringPractitionerBox.usecase';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 
 @Controller('api/discovery')
 export class PractitionerBoxController {
@@ -24,6 +26,8 @@ export class PractitionerBoxController {
     private createPractitionerBoxUsecase: CreatePractitionerBoxUsecaseInterface,
     @Inject('GetPractitionerBoxByLabelUsecaseInterface')
     private getPractitionerBoxByLabelUsecase: GetPractitionerBoxByLabelUsecaseInterface,
+    @Inject('GetRecurringPractitionerBoxUsecaseInterface')
+    private getRecurringPractitionerBoxUsecase: GetRecurringPractitionerBoxUsecaseInterface,
   ) {}
 
   // Get: api/discovery/practitioner-box
@@ -67,7 +71,19 @@ export class PractitionerBoxController {
     return response.status(201).send(usecaseResponse);
   }
 
-  // POST: api/discovery/update-recurring-practitioner-box
+  // POST: api/discovery/practitioner/update-recurring-practitioner-box
   @Post('practitioner/update-recurring-practitioner-box')
-  async updateRecurringPractitionerBox(){}
+  async updateRecurringPractitionerBox(
+    @Body() body: CreatePractitionerBoxDto,
+    // @Res() response: Response<PractitionerAndBox | Error>,
+    @Res() response: Response<unknown>,
+  ){
+    const [recurringPractitionerBox, recurringPractitionerBoxError] =
+      await this.getRecurringPractitionerBoxUsecase.getRecurringPractitionerBox(
+        body.practitionerId,
+        body.label
+      );
+    if (recurringPractitionerBoxError) { return response.status(500).send(recurringPractitionerBoxError); }
+    return response.status(200).send(recurringPractitionerBox);
+  }
 }

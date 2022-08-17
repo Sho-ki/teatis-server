@@ -5,22 +5,25 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { ReturnValueType } from '@Filters/customError';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 
-export interface CreatePractitionerBoxUsecaseInterface {
-  getRecurringPractitionerBox({ practitionerId, label }: CreatePractitionerBoxDto): Promise<ReturnValueType<PractitionerBox>>;
+export interface GetRecurringPractitionerBoxUsecaseInterface {
+  getRecurringPractitionerBox(
+    practitionerId: CreatePractitionerBoxDto['practitionerId'],
+    label: CreatePractitionerBoxDto['label'],
+  ): Promise<ReturnValueType<PractitionerBox>>;
 }
 
 @Injectable()
-export class CreatePractitionerBoxUsecase
-implements CreatePractitionerBoxUsecaseInterface
+export class GetRecurringPractitionerBoxUsecase
+implements GetRecurringPractitionerBoxUsecaseInterface
 {
   constructor(
     @Inject('PractitionerBoxRepositoryInterface')
     private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
   ) {}
-  async getRecurringPractitionerBox({
-    practitionerId,
-    label,
-  }: CreatePractitionerBoxDto): Promise<ReturnValueType<PractitionerBox>> {
+  async getRecurringPractitionerBox(
+    practitionerId: CreatePractitionerBoxDto['practitionerId'],
+    label: CreatePractitionerBoxDto['label'],
+  ): Promise<ReturnValueType<PractitionerBox>> {
 
     const [recurringPractitionerBox, recurringPractitionerBoxError] =
       await this.practitionerBoxRepository.getPractitionerRecurringBox({
