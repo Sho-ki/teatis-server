@@ -94,8 +94,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueScheduledError) {
       return [undefined, orderQueueScheduledError];
     }
-
-    let orderProducts: Pick<Product, 'sku'>[] = [];
     const purchasedProducts = line_items.map((lineItem) => {
       return lineItem.product_id;
     });
@@ -125,6 +123,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
+    const isFirstOrder = customerOrderCount.orderCount === 1;
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
@@ -140,11 +139,12 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
     const [autoSwapBoxProducts, autoSwapBoxProductsError] =
       await this.customerProductsAutoSwap.customerProductsAutoSwap(
-        { practitionerProducts: recurringPractitionerBox.products, customer }
+        { practitionerProducts: isFirstOrder ? practitionerAndBox.box.products : recurringPractitionerBox.products, customer }
       );
     if (autoSwapBoxProductsError) {
       return [null, autoSwapBoxProductsError];
     }
+    let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
     if (!practitionerAndBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
@@ -159,8 +159,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         return [undefined, nextBoxProductsError];
       }
     } else {
-      const isFirstOrder = customerOrderCount.orderCount <= 1;
-      orderProducts = isFirstOrder ? practitionerAndBox.box.products : autoSwapBoxProducts;
       if(isFirstOrder){
         orderProducts.push(
           { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
