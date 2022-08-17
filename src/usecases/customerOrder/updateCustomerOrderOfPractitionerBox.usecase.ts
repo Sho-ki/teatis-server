@@ -138,8 +138,13 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getPractitionerRecurringBoxError) {
       return [null, getPractitionerRecurringBoxError];
     }
-    const [test, testerr] = await this.customerProductsAutoSwap.customerProductsAutoSwap(
-      { practitionerProducts: recurringPractitionerBox.products, customer });
+    const [autoSwapBoxProducts, autoSwapBoxProductsError] =
+      await this.customerProductsAutoSwap.customerProductsAutoSwap(
+        { practitionerProducts: recurringPractitionerBox.products, customer }
+      );
+    if (autoSwapBoxProductsError) {
+      return [null, autoSwapBoxProductsError];
+    }
     if (!practitionerAndBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
@@ -154,8 +159,9 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         return [undefined, nextBoxProductsError];
       }
     } else {
-      orderProducts = practitionerAndBox.box.products;
-      if(customerOrderCount.orderCount <= 1){
+      const isFirstOrder = customerOrderCount.orderCount <= 1;
+      orderProducts = isFirstOrder ? practitionerAndBox.box.products : autoSwapBoxProducts;
+      if(isFirstOrder){
         orderProducts.push(
           { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
           { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
