@@ -18,7 +18,7 @@ interface getPractitionerAndBoxByLabelArgs {
   label: string;
 }
 
-interface createPractitionerAndBoxArgs {
+interface upsertPractitionerAndPractitionerBoxArgs {
   practitionerId: number;
   practitionerBoxUuid: string;
   label: string;
@@ -44,14 +44,14 @@ export interface PractitionerBoxRepositoryInterface {
     label,
   }: getPractitionerAndBoxByLabelArgs): Promise<ReturnValueType<PractitionerAndBox>>;
 
-  createPractitionerAndBox({
+  upsertPractitionerAndPractitionerBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
     description,
     note,
-  }: createPractitionerAndBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
 }
 
 @Injectable()
@@ -99,14 +99,14 @@ implements PractitionerBoxRepositoryInterface
     return [practitionerBox, undefined];
   }
 
-  async createPractitionerAndBox({
+  async upsertPractitionerAndPractitionerBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
     description,
     note,
-  }: createPractitionerAndBoxArgs): Promise<ReturnValueType<PractitionerAndBox>> {
+  }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>> {
     const existingProducts =
       await this.prisma.intermediatePractitionerBoxProduct.findMany({
         where: { practitionerBox: { AND: [{ label, practitionerId }] } },
