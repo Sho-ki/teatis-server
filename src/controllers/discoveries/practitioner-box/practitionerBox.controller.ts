@@ -66,4 +66,8 @@ export class PractitionerBoxController {
     }
     return response.status(201).send(usecaseResponse);
   }
+
+  // POST: api/discovery/update-recurring-practitioner-box
+  @Post('practitioner/update-recurring-practitioner-box')
+  async updateRecurringPractitionerBox(){}
 }
