@@ -1,19 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from '@Domains/Product';
+import { DisplayProduct, Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { ReturnValueType } from '@Filters/customError';
 import { TeatisBox } from '@Domains/TeatisBox';
 
-// interface getPractitionerAndBoxByUuidArgs {
-//   practitionerBoxUuid: string;
-// }
-
-// interface getPractitionerAndBoxByLabelArgs {
-//   practitionerId: number;
-//   label: string;
-// }
+interface getTeatisBoxByLabelArgs {
+  label: string;
+}
 
 interface createTeatisBoxArgs {
   label: string;
@@ -22,22 +17,8 @@ interface createTeatisBoxArgs {
   note?: string;
 }
 
-// interface getPractitionerRecurringBoxArgs {
-//   practitionerId: number;
-//   label: string;
-// }
-
 export interface TeatisBoxRepositoryInterface {
-  // getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
-  // Promise<ReturnValueType<PractitionerAndBox>>;
-
-  // getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
-  // Promise<ReturnValueType<PractitionerBox>>;
-
-  // getPractitionerAndBoxByLabel({
-  //   practitionerId,
-  //   label,
-  // }: getPractitionerAndBoxByLabelArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  getTeatisBoxByLabel({ label }: getTeatisBoxByLabelArgs): Promise<ReturnValueType<TeatisBox>>;
 
   createTeatisBox({
     label,
@@ -52,45 +33,6 @@ export class TeatisBoxRepository
 implements TeatisBoxRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
-
-  // async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
-  // Promise<ReturnValueType<PractitionerBox>>{
-  //   const response = await this.prisma.practitionerBox.findUnique(
-  //     {
-  //       where: { PractitionerBoxIdentifier: { practitionerId, label: 'Recurring '+ label } },
-  //       select: {
-  //         id: true,
-  //         uuid: true,
-  //         label: true,
-  //         description: true,
-  //         note: true,
-  //         intermediatePractitionerBoxProduct: {
-  //           select: {
-  //             product: {
-  //               select: {
-  //                 id: true,
-  //                 externalSku: true,
-  //                 name: true,
-  //                 label: true,
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     });
-
-  //   const practitionerBox:PractitionerBox = {
-  //     id: response.id,
-  //     uuid: response.uuid,
-  //     label: response.label,
-  //     description: response.description,
-  //     note: response.note,
-  //     products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
-  //       return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
-  //     }),
-  //   };
-  //   return [practitionerBox, undefined];
-  // }
 
   async createTeatisBox({
     label,
@@ -150,6 +92,8 @@ implements TeatisBoxRepositoryInterface
         intermediateTeatisBoxProduct: { select: { product: true } },
         id: true,
         label: true,
+        description: true,
+        note: true,
       },
     });
     const boxProducts: Product[] =
@@ -164,240 +108,88 @@ implements TeatisBoxRepositoryInterface
     const teatisBox: TeatisBox = {
       id: response.id,
       label: response.label,
+      description: response.description,
+      note: response.note,
       products: boxProducts,
     };
     return [{ ...teatisBox }];
   }
-  // async getPractitionerAndBoxByLabel({
-  //   practitionerId,
-  //   label,
-  // }: getPractitionerAndBoxByLabelArgs): Promise<ReturnValueType<PractitionerAndBox>> {
-  //   const response = await this.prisma.practitionerBox.findUnique({
-  //     where: { PractitionerBoxIdentifier: { label, practitionerId } },
-  //     select: {
-  //       intermediatePractitionerBoxProduct: {
-  //         select: {
-  //           product: {
-  //             select: {
-  //               id: true,
-  //               productVendor: { select: { label: true } },
-  //               externalSku: true,
-  //               productImages: { select: { id: true, src: true, position: true } },
-  //               expertComment: true,
-  //               label: true,
-  //               name: true,
-  //               productNutritionFact: true,
-  //               ingredientLabel: true,
-  //               allergenLabel: true,
-  //             },
-  //           },
-  //         },
-  //       },
-  //       id: true,
-  //       uuid: true,
-  //       label: true,
-  //       description: true,
-  //       note: true,
-  //       practitioner: {
-  //         select: {
-  //           practitionerSocialMedia: {
-  //             select: {
-  //               instagram: true,
-  //               facebook: true,
-  //               twitter: true,
-  //               website: true,
-  //             },
-  //           },
-  //           id: true,
-  //           email: true,
-  //           uuid: true,
-  //           profileImage: true,
-  //           firstName: true,
-  //           lastName: true,
-  //           middleName: true,
-  //           message: true,
-  //         },
-  //       },
-  //     },
-  //   });
+  async getTeatisBoxByLabel({ label }: getTeatisBoxByLabelArgs): Promise<ReturnValueType<TeatisBox>> {
+    const response = await this.prisma.teatisBox.findUnique({
+      where: { label },
+      select: {
+        intermediateTeatisBoxProduct: {
+          select: {
+            product: {
+              select: {
+                id: true,
+                productVendor: { select: { label: true } },
+                externalSku: true,
+                productImages: { select: { id: true, src: true, position: true } },
+                expertComment: true,
+                label: true,
+                name: true,
+                productNutritionFact: true,
+                ingredientLabel: true,
+                allergenLabel: true,
+              },
+            },
+          },
+        },
+        id: true,
+        label: true,
+        description: true,
+        note: true,
+      },
+    });
 
-  //   if (
-  //     !response?.practitioner ||
-  //     !response?.intermediatePractitionerBoxProduct
-  //   ) {
-  //     return [
-  //       undefined,
-  //       {
-  //         name: 'Internal Server Error',
-  //         message: 'practitionerId/label is invalid',
-  //       },
-  //     ];
-  //   }
-  //   const socialMedia: SocialMedia =
-  //     response.practitioner.practitionerSocialMedia;
-  //   delete response.practitioner.practitionerSocialMedia;
-  //   const practitioner: Practitioner = response.practitioner;
-  //   const boxProducts: DisplayProduct[] = response
-  //     .intermediatePractitionerBoxProduct.length
-  //     ? response.intermediatePractitionerBoxProduct.map(({ product }) => {
-  //       return {
-  //         id: product.id,
-  //         sku: product.externalSku,
-  //         name: product.name,
-  //         label: product.label,
-  //         expertComment: product.expertComment,
-  //         ingredientLabel: product.ingredientLabel,
-  //         images: product.productImages,
-  //         allergenLabel: product.allergenLabel,
-  //         vendor: product.productVendor.label,
-  //         nutritionFact: {
-  //           calorie: product.productNutritionFact.calories,
-  //           totalFat: product.productNutritionFact.totalFatG,
-  //           saturatedFat: product.productNutritionFact.saturatedFatG,
-  //           transFat: product.productNutritionFact.transFatG,
-  //           cholesterole: product.productNutritionFact.cholesteroleMg,
-  //           sodium: product.productNutritionFact.sodiumMg,
-  //           totalCarbohydrate:
-  //               product.productNutritionFact.totalCarbohydrateG,
-  //           dietaryFiber: product.productNutritionFact.dietaryFiberG,
-  //           totalSugar: product.productNutritionFact.totalSugarG,
-  //           addedSugar: product.productNutritionFact.addedSugarG,
-  //           protein: product.productNutritionFact.proteinG,
-  //         },
-  //       };
-  //     })
-  //     : [];
+    if (!response?.intermediateTeatisBoxProduct) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: `label: ${label} is does not exist`,
+        },
+      ];
+    }
+    const boxProducts: DisplayProduct[] = response
+      .intermediateTeatisBoxProduct.length
+      ? response.intermediateTeatisBoxProduct.map(({ product }) => {
+        return {
+          id: product.id,
+          sku: product.externalSku,
+          name: product.name,
+          label: product.label,
+          expertComment: product.expertComment,
+          ingredientLabel: product.ingredientLabel,
+          images: product.productImages,
+          allergenLabel: product.allergenLabel,
+          vendor: product.productVendor.label,
+          nutritionFact: {
+            calorie: product.productNutritionFact.calories,
+            totalFat: product.productNutritionFact.totalFatG,
+            saturatedFat: product.productNutritionFact.saturatedFatG,
+            transFat: product.productNutritionFact.transFatG,
+            cholesterole: product.productNutritionFact.cholesteroleMg,
+            sodium: product.productNutritionFact.sodiumMg,
+            totalCarbohydrate:
+                product.productNutritionFact.totalCarbohydrateG,
+            dietaryFiber: product.productNutritionFact.dietaryFiberG,
+            totalSugar: product.productNutritionFact.totalSugarG,
+            addedSugar: product.productNutritionFact.addedSugarG,
+            protein: product.productNutritionFact.proteinG,
+          },
+        };
+      })
+      : [];
 
-  //   const practitionerBox: PractitionerBox = {
-  //     id: response.id,
-  //     uuid: response.uuid,
-  //     label: response.label,
-  //     description: response.description,
-  //     note: response.note,
-  //     products: boxProducts,
-  //   };
-  //   return [
-  //     {
-  //       ...practitioner,
-  //       ...socialMedia,
-  //       box: { ...practitionerBox },
-  //     },
-  //   ];
-  // }
-
-  // async getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
-  // Promise<ReturnValueType<PractitionerAndBox>> {
-  //   const response = await this.prisma.practitionerBox.findUnique({
-  //     where: { uuid: practitionerBoxUuid },
-  //     select: {
-  //       intermediatePractitionerBoxProduct: {
-  //         select: {
-  //           product: {
-  //             select: {
-  //               id: true,
-  //               productVendor: { select: { label: true } },
-  //               externalSku: true,
-  //               productImages: { select: { id: true, src: true, position: true } },
-  //               expertComment: true,
-  //               label: true,
-  //               name: true,
-  //               productNutritionFact: true,
-  //               ingredientLabel: true,
-  //               allergenLabel: true,
-  //             },
-  //           },
-  //         },
-  //       },
-  //       id: true,
-  //       uuid: true,
-  //       label: true,
-  //       description: true,
-  //       note: true,
-  //       practitioner: {
-  //         select: {
-  //           practitionerSocialMedia: {
-  //             select: {
-  //               instagram: true,
-  //               facebook: true,
-  //               twitter: true,
-  //               website: true,
-  //             },
-  //           },
-  //           id: true,
-  //           email: true,
-  //           uuid: true,
-  //           profileImage: true,
-  //           firstName: true,
-  //           lastName: true,
-  //           middleName: true,
-  //           message: true,
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   if (
-  //     !response?.practitioner ||
-  //     !response?.intermediatePractitionerBoxProduct
-  //   ) {
-  //     return [
-  //       undefined,
-  //       {
-  //         name: 'Internal Server Error',
-  //         message: 'practitionerBoxUuid is invalid',
-  //       },
-  //     ];
-  //   }
-
-  //   const socialMedia: SocialMedia =
-  //     response.practitioner.practitionerSocialMedia;
-  //   delete response.practitioner.practitionerSocialMedia;
-  //   const practitioner: Practitioner = response.practitioner;
-  //   const boxProducts: DisplayProduct[] = response
-  //     .intermediatePractitionerBoxProduct.length
-  //     ? response.intermediatePractitionerBoxProduct.map(({ product }) => {
-  //       return {
-  //         id: product.id,
-  //         sku: product.externalSku,
-  //         name: product.name,
-  //         label: product.label,
-  //         expertComment: product.expertComment,
-  //         ingredientLabel: product.ingredientLabel,
-  //         images: product.productImages,
-  //         allergenLabel: product.allergenLabel,
-  //         vendor: product.productVendor.label,
-  //         nutritionFact: {
-  //           calorie: product.productNutritionFact.calories,
-  //           totalFat: product.productNutritionFact.totalFatG,
-  //           saturatedFat: product.productNutritionFact.saturatedFatG,
-  //           transFat: product.productNutritionFact.transFatG,
-  //           cholesterole: product.productNutritionFact.cholesteroleMg,
-  //           sodium: product.productNutritionFact.sodiumMg,
-  //           totalCarbohydrate:
-  //               product.productNutritionFact.totalCarbohydrateG,
-  //           dietaryFiber: product.productNutritionFact.dietaryFiberG,
-  //           totalSugar: product.productNutritionFact.totalSugarG,
-  //           addedSugar: product.productNutritionFact.addedSugarG,
-  //           protein: product.productNutritionFact.proteinG,
-  //         },
-  //       };
-  //     })
-  //     : [];
-
-  //   const practitionerBox: PractitionerBox = {
-  //     id: response.id,
-  //     uuid: response.uuid,
-  //     label: response.label,
-  //     description: response.description,
-  //     note: response.note,
-  //     products: boxProducts,
-  //   };
-  //   return [
-  //     {
-  //       ...practitioner,
-  //       ...socialMedia,
-  //       box: { ...practitionerBox },
-  //     },
-  //   ];
-  // }
+    const practitionerBox: TeatisBox = {
+      id: response.id,
+      label: response.label,
+      description: response.description,
+      note: response.note,
+      products: boxProducts,
+    };
+    return [{ ...practitionerBox }, undefined];
+  }
 }

@@ -4,6 +4,8 @@ export interface TeatisBox {
   id: number;
   label: string;
   products: Product[];
+  description?: string;
+  note?: string;
 }
 
 export interface TeatisBoxProduct{
