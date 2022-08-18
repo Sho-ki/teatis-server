@@ -634,11 +634,12 @@ enum ActiveStatus {
 model TeatisBox{
   id  Int @default(autoincrement()) @id
   label String
-  IntermediateTeatisBoxProduct IntermediateTeatisBoxProduct[]
+  intermediateTeatisBoxProduct IntermediateTeatisBoxProduct[]
+  description String?
+  note String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
-
- @@unique([id])
+  @@unique([label])
 }
 
 model IntermediateTeatisBoxProduct{
