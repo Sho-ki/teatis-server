@@ -181,6 +181,7 @@ model Product{
   intermediateProductAllergens IntermediateProductAllergen[]
   intermediateProductCookingMethods IntermediateProductCookingMethod[]
   intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
+  intermediateTeatisBoxProduct IntermediateTeatisBoxProduct[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
@@ -628,4 +629,25 @@ model PractitionerCustomerOrderHistory{
 enum ActiveStatus {
   active
   inactive
+}
+
+model TeatisBox{
+  id  Int @default(autoincrement()) @id
+  label String
+  IntermediateTeatisBoxProduct IntermediateTeatisBoxProduct[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+ @@unique([id])
+}
+
+model IntermediateTeatisBoxProduct{
+  teatisBox TeatisBox @relation(fields: [teatisBoxId], references: [id])
+  teatisBoxId Int
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([teatisBoxId, productId])
 }
