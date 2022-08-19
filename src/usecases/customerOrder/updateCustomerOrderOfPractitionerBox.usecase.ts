@@ -135,14 +135,14 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     const [recurringPractitionerBox, getPractitionerRecurringBoxError] =
       await this.practitionerBoxRepository.getPractitionerRecurringBox({ practitionerId, label: boxLabel });
     if (getPractitionerRecurringBoxError) {
-      return [null, getPractitionerRecurringBoxError];
+      return [undefined, getPractitionerRecurringBoxError];
     }
     const [autoSwapBoxProducts, autoSwapBoxProductsError] =
       await this.customerProductsAutoSwap.customerProductsAutoSwap(
         { practitionerProducts: isFirstOrder ? practitionerAndBox.box.products : recurringPractitionerBox.products, customer }
       );
     if (autoSwapBoxProductsError) {
-      return [null, autoSwapBoxProductsError];
+      return [undefined, autoSwapBoxProductsError];
     }
     let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
     if (!practitionerAndBox.box.products.length) {
