@@ -37,6 +37,7 @@ model Customers{
   gender String?
   activeLevel String?
   mealsPerDay Int?
+  note String?
   frozenAvailable Boolean? @default(false)
   intermediateCustomerBoxPlans IntermediateCustomerBoxPlan[]
   intermediateCustomerNutritionNeeds IntermediateCustomerNutritionNeed[]
