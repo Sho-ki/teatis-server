@@ -372,7 +372,8 @@ export class DiscoveriesController {
   // async dataMigrate() {
   //   // await this.teatisJob.databaseMigrate();
   //   // const res = await this.teatisJob.getCustomerBox();
-  //    const res = await this.teatisJob.storeUuidInKlaviyo();
+  //   const res = await this.teatisJob.flavorIntegrate();
+  //   // const res = await this.teatisJob.allergenIntegrate();
 
   //   return res;
   // }
