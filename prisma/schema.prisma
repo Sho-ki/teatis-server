@@ -591,7 +591,7 @@ model PractitionerBox{
   practitioner Practitioner @relation(fields: [practitionerId], references: [id])
   practitionerId Int
   practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
-  label String
+  label String @unique
   description String?
   note String?
   intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]

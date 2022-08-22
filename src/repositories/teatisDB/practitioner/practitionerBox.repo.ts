@@ -8,6 +8,7 @@ import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { ReturnValueType } from '@Filters/customError';
+import { nextMonth } from '@Usecases/utils/dates';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -52,6 +53,8 @@ export interface PractitionerBoxRepositoryInterface {
     description,
     note,
   }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  getAllRecurringBox(): Promise<ReturnValueType<PractitionerBox[]>>;
+  getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>;
 }
 
 @Injectable()
@@ -62,9 +65,12 @@ implements PractitionerBoxRepositoryInterface
 
   async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
   Promise<ReturnValueType<PractitionerBox>>{
+    const date = new Date();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
     const response = await this.prisma.practitionerBox.findUnique(
       {
-        where: { PractitionerBoxIdentifier: { practitionerId, label: 'Recurring '+ label } },
+        where: { PractitionerBoxIdentifier: { practitionerId, label: `${year}-${month}___${label}}` } },
         select: {
           id: true,
           uuid: true,
@@ -444,5 +450,84 @@ implements PractitionerBoxRepositoryInterface
         box: { ...practitionerBox },
       },
     ];
+  }
+  async getAllRecurringBox(): Promise<ReturnValueType<PractitionerBox[]>>{
+    const recurringBoxLabel = 'Recurring___'+nextMonth()+'___';
+    const responseArray = await this.prisma.practitionerBox.findMany(
+      {
+        where: { label: { contains: recurringBoxLabel } },
+        select: {
+          id: true,
+          uuid: true,
+          label: true,
+          description: true,
+          note: true,
+          intermediatePractitionerBoxProduct: {
+            select: {
+              product: {
+                select: {
+                  id: true,
+                  externalSku: true,
+                  name: true,
+                  label: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    const practitionerBoxes: PractitionerBox[] = responseArray.map(response => {
+      return {
+        id: response.id,
+        uuid: response.uuid,
+        label: response.label,
+        description: response.description,
+        note: response.note,
+        products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
+          return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
+        }),
+      };
+    });
+    return [practitionerBoxes, undefined];
+  }
+  async getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>{
+    const responseArray = await this.prisma.practitionerBox.findMany(
+      {
+        orderBy: [{ createdAt: 'desc' }],
+        select: {
+          id: true,
+          practitionerId: true,
+          uuid: true,
+          label: true,
+          description: true,
+          note: true,
+          intermediatePractitionerBoxProduct: {
+            select: {
+              product: {
+                select: {
+                  id: true,
+                  externalSku: true,
+                  name: true,
+                  label: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    const practitionerBoxes: PractitionerBox[] = responseArray.map(response => {
+      return {
+        id: response.id,
+        practitionerId: response.practitionerId,
+        uuid: response.uuid,
+        label: response.label,
+        description: response.description,
+        note: response.note,
+        products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
+          return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
+        }),
+      };
+    });
+    return [practitionerBoxes, undefined];
   }
 }
