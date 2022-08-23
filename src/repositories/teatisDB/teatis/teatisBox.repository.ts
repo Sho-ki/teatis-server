@@ -44,7 +44,7 @@ implements TeatisBoxRepositoryInterface
     const teatisBoxTable = this.prisma.teatisBox;
     const existingProducts =
       await intermediateTable.findUnique({
-        where: { teatisBox: { AND: [{ label }] } },
+        where: { teatisBox: { label } },
         select: { product: true },
       });
 
