@@ -50,7 +50,9 @@ implements TeatisBoxRepositoryInterface
 
     const existingProductIds = existingProducts.map(
       ({ product }) => product.id,
-    );
+     const existingProductIds = existingProducts? existingProducts.map(
+      ({ product }) => product.id,
+    ): [];
     const newProductIds = products.map((product) => product.id);
 
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
