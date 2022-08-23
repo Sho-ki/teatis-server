@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
@@ -13,7 +14,10 @@ export interface UpdateRecurringPractitionerBoxesUsecaseInterface {
     allPractitionerBoxes: PractitionerBox[],
     newProducts: {products: { sku: string }[]},
     allProducts: Product[]
-  );
+  ): Promise<ReturnValueType<PractitionerBox[]>>;
+  updateRecurringPractitionerBoxes(
+    recurringPractitionerBoxes:PractitionerBox[],
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
 }
 
 @Injectable()
@@ -21,8 +25,8 @@ export class UpdateRecurringPractitionerBoxesUsecase
 implements UpdateRecurringPractitionerBoxesUsecaseInterface
 {
   constructor(
-    // @Inject('PractitionerBoxRepositoryInterface')
-    // private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
+    @Inject('PractitionerBoxRepositoryInterface')
+    private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
   ) {}
   async filterDuplicatePractitionerBox(
     allPractitionerBoxes,
@@ -38,7 +42,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     allPractitionerBoxes: PractitionerBox[],
     newProducts: {products: { sku: string }[]},
     allProducts: Product[],
-  ) {
+  ): Promise<ReturnValueType<PractitionerBox[]>> {
     const targetPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes
       .filter(practitionerBox => {
         const isRecurring = practitionerBox.label.split('___')[0] === 'Recurring';
@@ -84,5 +88,13 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       }
     }
     return [targetPractitionerBoxes, undefined];
+  }
+  async updateRecurringPractitionerBoxes(
+    recurringPractitionerBoxes: PractitionerBox[]
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
+    const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
+      await this.practitionerBoxRepository.updatePractitionerBoxes(recurringPractitionerBoxes);
+    if (updateRecurringPractitionerBoxesError) return [undefined, updateRecurringPractitionerBoxesError];
+    return [updateRecurringPractitionerBoxes, undefined];
   }
 }

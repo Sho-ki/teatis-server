@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
 import { DisplayProduct, Product } from '@Domains/Product';
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
-import { PrismaService } from '../../../prisma.service';
 import { Practitioner } from '@Domains/Practitioner';
-import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
+import { PractitionerBox } from '@Domains/PractitionerBox';
+import { PrismaService } from '../../../prisma.service';
+import { ReturnValueType } from '@Filters/customError';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { ReturnValueType } from '@Filters/customError';
 import { nextMonth } from '@Usecases/utils/dates';
 
 interface getPractitionerAndBoxByUuidArgs {
@@ -55,6 +56,9 @@ export interface PractitionerBoxRepositoryInterface {
   }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
   getAllRecurringBox(): Promise<ReturnValueType<PractitionerBox[]>>;
   getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>;
+  updatePractitionerBoxes(
+    recurringPractitionerBoxes: PractitionerBox[]
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
 }
 
 @Injectable()
@@ -529,5 +533,40 @@ implements PractitionerBoxRepositoryInterface
       };
     });
     return [practitionerBoxes, undefined];
+  }
+  async updatePractitionerBoxes(
+    recurringPractitionerBoxes: PractitionerBox[]
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
+    const deleteQuery = recurringPractitionerBoxes.map(recurringPractitionerBox => {
+      return this.prisma.intermediatePractitionerBoxProduct.deleteMany(
+        { where: { practitionerBoxId: recurringPractitionerBox.id } }
+      );
+    });
+    const query = recurringPractitionerBoxes.map(recurringPractitionerBox => {
+      const { label, description, note, products } = recurringPractitionerBox;
+      const productIdsToAdd = products.map(product => product.id);
+      return this.prisma.practitionerBox.update(
+        {
+          where: { label },
+          data: {
+            description,
+            note,
+            intermediatePractitionerBoxProduct: {
+              createMany: {
+                data: productIdsToAdd.map((productId) => {
+                  return { productId };
+                }),
+              },
+            },
+          },
+        }
+      );
+    }
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any[] = await this.prisma.$transaction([...deleteQuery, ...query]);
+
+    return [result, undefined];
   }
 }

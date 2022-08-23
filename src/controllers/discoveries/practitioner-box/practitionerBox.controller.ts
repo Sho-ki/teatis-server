@@ -8,20 +8,19 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { Prisma } from '@prisma/client';
 
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
 import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
 import { GetAllPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/getAllPractitionerBoxes.usecase';
-import { GetAllRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/getAllRecurringBoxes.usecase';
+import { GetAllProductsUsecaseInterface } from '@Usecases/product/getAllProducts.usecase';
 import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
 import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
-import { GetRecurringPractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/getRecurringPractitionerBox.usecase';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { UpdateRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
-import { currentMonth, nextMonth, previousMonth } from '@Usecases/utils/dates';
+import { PractitionerBox } from '@Domains/PractitionerBox';
 import { UpdateRecurringPractitionerBoxDto } from '../dtos/updateRecurringPractitionerBox';
-import { GetAllProductsUsecaseInterface } from '@Usecases/product/getAllProducts.usecase';
+import { UpdateRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
 
 @Controller('api/discovery')
 export class PractitionerBoxController {
@@ -32,10 +31,6 @@ export class PractitionerBoxController {
     private createPractitionerBoxUsecase: CreatePractitionerBoxUsecaseInterface,
     @Inject('GetPractitionerBoxByLabelUsecaseInterface')
     private getPractitionerBoxByLabelUsecase: GetPractitionerBoxByLabelUsecaseInterface,
-    @Inject('GetRecurringPractitionerBoxUsecaseInterface')
-    private getRecurringPractitionerBoxUsecase: GetRecurringPractitionerBoxUsecaseInterface,
-    @Inject('GetAllRecurringPractitionerBoxesUsecaseInterface')
-    private getAllRecurringPractitionerBoxesUsecase: GetAllRecurringPractitionerBoxesUsecaseInterface,
     @Inject('GetAllPractitionerBoxesUsecaseInterface')
     private getAllPractitionerBoxesUsecase: GetAllPractitionerBoxesUsecaseInterface,
     @Inject('UpdateRecurringPractitionerBoxesUsecaseInterface')
@@ -90,8 +85,7 @@ export class PractitionerBoxController {
   @Post('practitioner-box/update-recurring-practitioner-box')
   async updateRecurringPractitionerBox(
     @Body() body: UpdateRecurringPractitionerBoxDto,
-    // @Res() response: Response<PractitionerAndBox | Error>,
-    @Res() response: Response<unknown>,
+    @Res() response: Response<(Prisma.BatchPayload | PractitionerBox)[] | Error>,
   ){
     const [allPractitionerBoxes, allPractitionerBoxesError] =
       await this.getAllPractitionerBoxesUsecase.getAllPractitionerBoxes();
@@ -100,6 +94,7 @@ export class PractitionerBoxController {
     const [newestRecurringBoxes, newestRecurringBoxesError] =
       await this.updateRecurringPractitionerBoxesUsecase.filterDuplicatePractitionerBox(allPractitionerBoxes);
     if (newestRecurringBoxesError) { return response.status(500).send(newestRecurringBoxesError); }
+
     const [allProducts, allProductsError] =
       await this.getAllProductsUsecase.getAllProducts(
         {
@@ -121,9 +116,15 @@ export class PractitionerBoxController {
       }
     });
     const [swapTargetProducts, swapTargetProductsError] =
-    await this.updateRecurringPractitionerBoxesUsecase.swapTargetProducts(newestRecurringBoxes, body, allProducts);
+      await this.updateRecurringPractitionerBoxesUsecase.swapTargetProducts(newestRecurringBoxes, body, allProducts);
     if (swapTargetProductsError) { return response.status(500).send(swapTargetProductsError); }
 
-    return response.status(200).send(swapTargetProducts);
+    const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
+      await this.updateRecurringPractitionerBoxesUsecase.updateRecurringPractitionerBoxes(swapTargetProducts);
+    if (updateRecurringPractitionerBoxesError) {
+      return response.status(500).send(updateRecurringPractitionerBoxesError);
+    }
+
+    return response.status(200).send(updateRecurringPractitionerBoxes);
   }
 }
