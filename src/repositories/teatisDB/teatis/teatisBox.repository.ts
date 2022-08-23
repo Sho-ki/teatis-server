@@ -56,7 +56,7 @@ implements TeatisBoxRepositoryInterface
     const newProductIds = products.map((product) => product.id);
 
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
-
+if(productIdsToRemove.length)
     await intermediateTable.deleteMany({
       where: {
         OR: productIdsToRemove.map((productId) => {
