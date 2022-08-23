@@ -62,7 +62,7 @@ if(productIdsToRemove.length)
         OR: productIdsToRemove.map((productId) => {
           return { productId };
         }),
-        teatisBox: { AND: [{ label }] },
+       where: { teatisBox: { label } },
       },
     });
     const response = await teatisBoxTable.upsert({
