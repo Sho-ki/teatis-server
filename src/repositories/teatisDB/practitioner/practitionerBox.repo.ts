@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
 import { DisplayProduct, Product } from '@Domains/Product';
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
-import { PrismaService } from '../../../prisma.service';
 import { Practitioner } from '@Domains/Practitioner';
-import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
+import { PractitionerBox } from '@Domains/PractitionerBox';
+import { PrismaService } from '../../../prisma.service';
+import { ReturnValueType } from '@Filters/customError';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { ReturnValueType } from '@Filters/customError';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -18,7 +19,7 @@ interface getPractitionerAndBoxByLabelArgs {
   label: string;
 }
 
-interface createPractitionerAndBoxArgs {
+interface upsertPractitionerAndPractitionerBoxArgs {
   practitionerId: number;
   practitionerBoxUuid: string;
   label: string;
@@ -32,7 +33,7 @@ interface getPractitionerRecurringBoxArgs {
   label: string;
 }
 
-type createRecurringPractitionerBoxArgs = createPractitionerAndBoxArgs;
+type createRecurringPractitionerBoxArgs = upsertPractitionerAndPractitionerBoxArgs;
 
 export interface PractitionerBoxRepositoryInterface {
   getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
@@ -46,14 +47,19 @@ export interface PractitionerBoxRepositoryInterface {
     label,
   }: getPractitionerAndBoxByLabelArgs): Promise<ReturnValueType<PractitionerAndBox>>;
 
-  createPractitionerAndBox({
+  upsertPractitionerAndPractitionerBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
     description,
     note,
-  }: createPractitionerAndBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  getAllRecurringBox(recurringBoxLabel: string): Promise<ReturnValueType<PractitionerBox[]>>;
+  getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>;
+  updatePractitionerBoxes(
+    recurringPractitionerBoxes: PractitionerBox[]
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
   createRecurringPractitionerBox({
     practitionerId,
     practitionerBoxUuid,
@@ -72,9 +78,12 @@ implements PractitionerBoxRepositoryInterface
 
   async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
   Promise<ReturnValueType<PractitionerBox>>{
+    const date = new Date();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
     const response = await this.prisma.practitionerBox.findUnique(
       {
-        where: { PractitionerBoxIdentifier: { practitionerId, label: 'Recurring '+ label } },
+        where: { PractitionerBoxIdentifier: { practitionerId, label: `${year}-${month}___${label}}` } },
         select: {
           id: true,
           uuid: true,
@@ -109,14 +118,14 @@ implements PractitionerBoxRepositoryInterface
     return [practitionerBox, undefined];
   }
 
-  async createPractitionerAndBox({
+  async upsertPractitionerAndPractitionerBox({
     practitionerId,
     practitionerBoxUuid,
     label,
     products,
     description,
     note,
-  }: createPractitionerAndBoxArgs): Promise<ReturnValueType<PractitionerAndBox>> {
+  }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>> {
     const existingProducts =
       await this.prisma.intermediatePractitionerBoxProduct.findMany({
         where: { practitionerBox: { AND: [{ label, practitionerId }] } },
@@ -454,6 +463,119 @@ implements PractitionerBoxRepositoryInterface
         box: { ...practitionerBox },
       },
     ];
+  }
+  async getAllRecurringBox(recurringBoxLabel: string): Promise<ReturnValueType<PractitionerBox[]>>{
+    const responseArray = await this.prisma.practitionerBox.findMany(
+      {
+        where: { label: { contains: recurringBoxLabel } },
+        select: {
+          id: true,
+          uuid: true,
+          label: true,
+          description: true,
+          note: true,
+          intermediatePractitionerBoxProduct: {
+            select: {
+              product: {
+                select: {
+                  id: true,
+                  externalSku: true,
+                  name: true,
+                  label: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    const practitionerBoxes: PractitionerBox[] = responseArray.map(response => {
+      return {
+        id: response.id,
+        uuid: response.uuid,
+        label: response.label,
+        description: response.description,
+        note: response.note,
+        products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
+          return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
+        }),
+      };
+    });
+    return [practitionerBoxes, undefined];
+  }
+  async getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>{
+    const responseArray = await this.prisma.practitionerBox.findMany(
+      {
+        orderBy: [{ createdAt: 'desc' }],
+        select: {
+          id: true,
+          practitionerId: true,
+          uuid: true,
+          label: true,
+          description: true,
+          note: true,
+          intermediatePractitionerBoxProduct: {
+            select: {
+              product: {
+                select: {
+                  id: true,
+                  externalSku: true,
+                  name: true,
+                  label: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    const practitionerBoxes: PractitionerBox[] = responseArray.map(response => {
+      return {
+        id: response.id,
+        practitionerId: response.practitionerId,
+        uuid: response.uuid,
+        label: response.label,
+        description: response.description,
+        note: response.note,
+        products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
+          return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
+        }),
+      };
+    });
+    return [practitionerBoxes, undefined];
+  }
+  async updatePractitionerBoxes(
+    recurringPractitionerBoxes: PractitionerBox[]
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
+    const deleteQuery = recurringPractitionerBoxes.map(recurringPractitionerBox => {
+      return this.prisma.intermediatePractitionerBoxProduct.deleteMany(
+        { where: { practitionerBoxId: recurringPractitionerBox.id } }
+      );
+    });
+    const updateQuery = recurringPractitionerBoxes.map(recurringPractitionerBox => {
+      const { practitionerId, label, description, note, products } = recurringPractitionerBox;
+      const productIdsToAdd = products.map(product => product.id);
+      return this.prisma.practitionerBox.update(
+        {
+          where: { PractitionerBoxIdentifier: { practitionerId, label } },
+          data: {
+            description,
+            note,
+            intermediatePractitionerBoxProduct: {
+              createMany: {
+                data: productIdsToAdd.map((productId) => {
+                  return { productId };
+                }),
+              },
+            },
+          },
+        }
+      );
+    }
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any[] = await this.prisma.$transaction([...deleteQuery, ...updateQuery]);
+
+    return [result, undefined];
   }
   async createRecurringPractitionerBox({
     practitionerId,

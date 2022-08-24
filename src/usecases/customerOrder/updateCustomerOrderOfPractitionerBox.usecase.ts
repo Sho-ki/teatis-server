@@ -94,8 +94,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueScheduledError) {
       return [undefined, orderQueueScheduledError];
     }
-
-    let orderProducts: Pick<Product, 'sku'>[] = [];
     const purchasedProducts = line_items.map((lineItem) => {
       return lineItem.product_id;
     });
@@ -125,6 +123,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
+    const isFirstOrder = customerOrderCount.orderCount === 1;
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
@@ -136,10 +135,16 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     const [recurringPractitionerBox, getPractitionerRecurringBoxError] =
       await this.practitionerBoxRepository.getPractitionerRecurringBox({ practitionerId, label: boxLabel });
     if (getPractitionerRecurringBoxError) {
-      return [null, getPractitionerRecurringBoxError];
+      return [undefined, getPractitionerRecurringBoxError];
     }
-    const [test, testerr] = await this.customerProductsAutoSwap.customerProductsAutoSwap(
-      { practitionerProducts: recurringPractitionerBox.products, customer });
+    const [autoSwapBoxProducts, autoSwapBoxProductsError] =
+      await this.customerProductsAutoSwap.customerProductsAutoSwap(
+        { practitionerProducts: isFirstOrder ? practitionerAndBox.box.products : recurringPractitionerBox.products, customer }
+      );
+    if (autoSwapBoxProductsError) {
+      return [undefined, autoSwapBoxProductsError];
+    }
+    let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
     if (!practitionerAndBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
@@ -154,8 +159,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         return [undefined, nextBoxProductsError];
       }
     } else {
-      orderProducts = practitionerAndBox.box.products;
-      if(customerOrderCount.orderCount <= 1){
+      if(isFirstOrder){
         orderProducts.push(
           { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
           { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder

@@ -47,6 +47,7 @@
     "dotenv": "^16.0.1",
     "graphql": "^16.2.0",
     "graphql-request": "^3.7.0",
+    "luxon": "^3.0.1",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
