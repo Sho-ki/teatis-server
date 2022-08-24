@@ -40,7 +40,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
   ): ReturnValueType<PractitionerBox[]> {
     const targetPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes
       .filter(practitionerBox => {
-        return isRecurring = practitionerBox.label.split('___')[0] === 'Recurring';
+        return practitionerBox.label.split('___')[0] === 'Recurring';
       });
     const chosenProductSkus: string[] = newProducts.products.map(newProduct => newProduct.sku);
     const productsByCategory = {};
@@ -52,16 +52,15 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
         productsByCategory[category] = [product];
       }
     });
-    for (let boxIndex = 0; boxIndex < targetPractitionerBoxes.length; ++boxIndex) {
-      const targetProducts: Product[] = targetPractitionerBoxes[boxIndex].products;
+    for (const targetPractitionerBox of targetPractitionerBoxes) {
+      const targetProducts: Product[] = targetPractitionerBox.products;
       let targetProductsSku: string[] = targetProducts.map(targetProduct => targetProduct.sku);
       const duplicateProductsSku: string[] =
-      targetProductsSku
-        .filter(targetProductSku => chosenProductSkus.includes(targetProductSku));
-      for (let productIndex = 0; productIndex < targetProducts.length; ++productIndex) {
-        const currentProduct: Product = targetProducts[productIndex];
-        if (!duplicateProductsSku.includes(currentProduct.sku)) continue;
-        const duplicateProductCategory: string = currentProduct.sku.split('-')[1];
+        targetProductsSku
+          .filter(targetProductSku => chosenProductSkus.includes(targetProductSku));
+      for (let targetProduct of targetProducts) {
+        if (!duplicateProductsSku.includes(targetProduct.sku)) continue;
+        const duplicateProductCategory: string = targetProduct.sku.split('-')[1];
         let alreadyChosenProduct = true;
         let newProduct: Product;
         while (alreadyChosenProduct) {
@@ -71,7 +70,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
           if (!chosenProductSkus.includes(newProduct.sku)) alreadyChosenProduct = false;
         }
         if (!alreadyChosenProduct) {
-          targetProducts[productIndex] = {
+          targetProduct = {
             id: newProduct.id,
             name: newProduct.name,
             label: newProduct.label,
