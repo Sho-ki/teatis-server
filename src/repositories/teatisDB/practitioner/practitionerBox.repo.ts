@@ -32,6 +32,8 @@ interface getPractitionerRecurringBoxArgs {
   label: string;
 }
 
+type createRecurringPractitionerBoxArgs = createPractitionerAndBoxArgs;
+
 export interface PractitionerBoxRepositoryInterface {
   getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
   Promise<ReturnValueType<PractitionerAndBox>>;
@@ -52,6 +54,14 @@ export interface PractitionerBoxRepositoryInterface {
     description,
     note,
   }: createPractitionerAndBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
+  createRecurringPractitionerBox({
+    practitionerId,
+    practitionerBoxUuid,
+    label,
+    products,
+    description,
+    note,
+  }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
 }
 
 @Injectable()
@@ -444,5 +454,65 @@ implements PractitionerBoxRepositoryInterface
         box: { ...practitionerBox },
       },
     ];
+  }
+  async createRecurringPractitionerBox({
+    practitionerId,
+    label,
+    practitionerBoxUuid,
+    description,
+    note,
+    products,
+  }):Promise<ReturnValueType<PractitionerBox>>{
+    const response = await this.prisma.practitionerBox.create({
+      data: {
+        label,
+        uuid: practitionerBoxUuid,
+        practitionerId,
+        description,
+        note,
+        intermediatePractitionerBoxProduct: {
+          createMany: {
+            data: products.map((productId) => {
+              return { productId };
+            }),
+          },
+        },
+      },
+      select: {
+        intermediatePractitionerBoxProduct: { select: { product: true } },
+        id: true,
+        uuid: true,
+        label: true,
+        description: true,
+        note: true,
+        practitioner: {
+          select: {
+            practitionerSocialMedia: {
+              select: {
+                instagram: true,
+                facebook: true,
+                twitter: true,
+                website: true,
+              },
+            },
+            id: true,
+            email: true,
+            uuid: true,
+            profileImage: true,
+            firstName: true,
+            lastName: true,
+            middleName: true,
+            message: true,
+          },
+        },
+      },
+    });
+    const practitionerBox: PractitionerBox = {
+      ...response,
+      products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
+        return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
+      }),
+    };
+    return [practitionerBox, undefined];
   }
 }
