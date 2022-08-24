@@ -540,7 +540,7 @@ implements PractitionerBoxRepositoryInterface
         { where: { practitionerBoxId: recurringPractitionerBox.id } }
       );
     });
-    const query = recurringPractitionerBoxes.map(recurringPractitionerBox => {
+    const updateQuery = recurringPractitionerBoxes.map(recurringPractitionerBox => {
       const { practitionerId, label, description, note, products } = recurringPractitionerBox;
       const productIdsToAdd = products.map(product => product.id);
       return this.prisma.practitionerBox.update(
@@ -563,7 +563,7 @@ implements PractitionerBoxRepositoryInterface
     );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any[] = await this.prisma.$transaction([...deleteQuery, ...query]);
+    const result: any[] = await this.prisma.$transaction([...deleteQuery, ...updateQuery]);
 
     return [result, undefined];
   }
