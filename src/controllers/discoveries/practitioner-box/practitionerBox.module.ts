@@ -9,9 +9,7 @@ import { GetRecurringPractitionerBoxUsecase } from '@Usecases/practitionerBox/ge
 import { PractitionerBoxController } from './practitionerBox.controller';
 import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { PractitionerGeneralRepository } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
-import { GetAllPractitionerBoxesUsecase } from '@Usecases/practitionerBox/getAllPractitionerBoxes.usecase';
 import { UpdateRecurringPractitionerBoxesUsecase } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
-import { GetAllProductsUsecase } from '@Usecases/product/getAllProducts.usecase';
 import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
 
 @Module({
@@ -46,16 +44,8 @@ import { ProductGeneralRepository } from '@Repositories/teatisDB/product/product
       useClass: GetAllRecurringPractitionerBoxesUsecase,
     },
     {
-      provide: 'GetAllPractitionerBoxesUsecaseInterface',
-      useClass: GetAllPractitionerBoxesUsecase,
-    },
-    {
       provide: 'UpdateRecurringPractitionerBoxesUsecaseInterface',
       useClass: UpdateRecurringPractitionerBoxesUsecase,
-    },
-    {
-      provide: 'GetAllProductsUsecaseInterface',
-      useClass: GetAllProductsUsecase,
     },
     {
       provide: 'ProductGeneralRepositoryInterface',

@@ -12,8 +12,6 @@ import { Prisma } from '@prisma/client';
 
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
 import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
-import { GetAllPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/getAllPractitionerBoxes.usecase';
-import { GetAllProductsUsecaseInterface } from '@Usecases/product/getAllProducts.usecase';
 import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
 import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
@@ -31,13 +29,8 @@ export class PractitionerBoxController {
     private createPractitionerBoxUsecase: CreatePractitionerBoxUsecaseInterface,
     @Inject('GetPractitionerBoxByLabelUsecaseInterface')
     private getPractitionerBoxByLabelUsecase: GetPractitionerBoxByLabelUsecaseInterface,
-    @Inject('GetAllPractitionerBoxesUsecaseInterface')
-    private getAllPractitionerBoxesUsecase: GetAllPractitionerBoxesUsecaseInterface,
     @Inject('UpdateRecurringPractitionerBoxesUsecaseInterface')
     private updateRecurringPractitionerBoxesUsecase: UpdateRecurringPractitionerBoxesUsecaseInterface,
-    @Inject('GetAllProductsUsecaseInterface')
-    private getAllProductsUsecase: GetAllProductsUsecaseInterface,
-
   ) {}
 
   // Get: api/discovery/practitioner-box
