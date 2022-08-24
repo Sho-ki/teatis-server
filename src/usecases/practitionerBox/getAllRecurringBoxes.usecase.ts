@@ -5,7 +5,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 
 export interface GetAllRecurringPractitionerBoxesUsecaseInterface {
-  getAllRecurringPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>;
+  getAllRecurringPractitionerBoxes(label: string): Promise<ReturnValueType<PractitionerBox[]>>;
 }
 
 @Injectable()
@@ -16,10 +16,10 @@ implements GetAllRecurringPractitionerBoxesUsecaseInterface
     @Inject('PractitionerBoxRepositoryInterface')
     private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
   ) {}
-  async getAllRecurringPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>> {
+  async getAllRecurringPractitionerBoxes(label:string): Promise<ReturnValueType<PractitionerBox[]>> {
 
     const [recurringPractitionerBoxes, recurringPractitionerBoxError] =
-      await this.practitionerBoxRepository.getAllRecurringBox();
+      await this.practitionerBoxRepository.getAllRecurringBox(label);
     if(recurringPractitionerBoxError){
       return [undefined, recurringPractitionerBoxError];
     }

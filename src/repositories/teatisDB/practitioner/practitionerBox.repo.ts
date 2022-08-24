@@ -9,7 +9,6 @@ import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { nextMonth } from '@Usecases/utils/dates';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -54,7 +53,7 @@ export interface PractitionerBoxRepositoryInterface {
     description,
     note,
   }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
-  getAllRecurringBox(): Promise<ReturnValueType<PractitionerBox[]>>;
+  getAllRecurringBox(recurringBoxLabel: string): Promise<ReturnValueType<PractitionerBox[]>>;
   getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>;
   updatePractitionerBoxes(
     recurringPractitionerBoxes: PractitionerBox[]
@@ -455,8 +454,7 @@ implements PractitionerBoxRepositoryInterface
       },
     ];
   }
-  async getAllRecurringBox(): Promise<ReturnValueType<PractitionerBox[]>>{
-    const recurringBoxLabel = 'Recurring___'+nextMonth()+'___';
+  async getAllRecurringBox(recurringBoxLabel: string): Promise<ReturnValueType<PractitionerBox[]>>{
     const responseArray = await this.prisma.practitionerBox.findMany(
       {
         where: { label: { contains: recurringBoxLabel } },

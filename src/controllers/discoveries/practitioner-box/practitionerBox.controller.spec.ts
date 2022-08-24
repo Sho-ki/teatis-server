@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
 import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
-import { GetRecurringPractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/getRecurringPractitionerBox.usecase';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerBoxController } from './practitionerBox.controller';
@@ -62,20 +61,9 @@ describe('PractitionerBoxController', () => {
         {
           provide: 'UpdateRecurringPractitionerBoxesUsecaseInterface',
           useValue: {
-            filterDuplicatePractitionerBox: () =>
-              Promise.resolve<ReturnValueType<PractitionerBox[]>>([mockBoxPractitionerBox]),
-            swapTargetProducts: () =>
-              Promise.resolve<ReturnValueType<PractitionerBox[]>>([mockBoxPractitionerBox]),
             updateRecurringPractitionerBoxes: () =>
               Promise.resolve<ReturnValueType<PractitionerBox[]>>([mockBoxPractitionerBox]),
           } as UpdateRecurringPractitionerBoxesUsecaseInterface,
-        },
-        {
-          provide: 'GetRecurringPractitionerBoxUsecaseInterface',
-          useValue: {
-            getRecurringPractitionerBox: () =>
-              Promise.resolve<unknown>([mockBox]),
-          } as GetRecurringPractitionerBoxUsecaseInterface,
         },
       ],
     }).compile();
