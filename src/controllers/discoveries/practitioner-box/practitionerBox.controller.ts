@@ -8,12 +8,17 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
-import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
-import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
-import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
+import { Prisma } from '@prisma/client';
+
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
+import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
+import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
+import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
+import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
+import { PractitionerBox } from '@Domains/PractitionerBox';
+import { UpdateRecurringPractitionerBoxDto } from '../dtos/updateRecurringPractitionerBox';
+import { UpdateRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
 
 @Controller('api/discovery')
 export class PractitionerBoxController {
@@ -24,6 +29,8 @@ export class PractitionerBoxController {
     private createPractitionerBoxUsecase: CreatePractitionerBoxUsecaseInterface,
     @Inject('GetPractitionerBoxByLabelUsecaseInterface')
     private getPractitionerBoxByLabelUsecase: GetPractitionerBoxByLabelUsecaseInterface,
+    @Inject('UpdateRecurringPractitionerBoxesUsecaseInterface')
+    private updateRecurringPractitionerBoxesUsecase: UpdateRecurringPractitionerBoxesUsecaseInterface,
   ) {}
 
   // Get: api/discovery/practitioner-box
@@ -65,5 +72,17 @@ export class PractitionerBoxController {
       return response.status(500).send(error);
     }
     return response.status(201).send(usecaseResponse);
+  }
+
+  // POST: api/discovery/practitioner-box/update-recurring-practitioner-box
+  @Post('practitioner-box/update-recurring-practitioner-box')
+  async updateRecurringPractitionerBox(
+    @Body() body: UpdateRecurringPractitionerBoxDto,
+    @Res() response: Response<(Prisma.BatchPayload | PractitionerBox)[] | Error>,
+  ){
+    const [usecaseResponse, error] =
+      await this.updateRecurringPractitionerBoxesUsecase.updateRecurringPractitionerBoxes(body);
+    if (error) return response.status(500).send(error);
+    return response.status(200).send(usecaseResponse);
   }
 }

@@ -34,7 +34,7 @@ implements CreatePractitionerBoxUsecaseInterface
     const practitionerBoxUuid = uuidv4();
 
     const [practitionerBoxProduct, createPractitionerBoxProductError] =
-      await this.practitionerBoxRepository.createPractitionerAndBox({
+      await this.practitionerBoxRepository.upsertPractitionerAndPractitionerBox({
         practitionerId,
         practitionerBoxUuid,
         label,
