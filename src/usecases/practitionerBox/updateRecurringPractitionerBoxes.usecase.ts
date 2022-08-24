@@ -108,7 +108,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       await this.swapTargetProducts(newestRecurringBoxes, newProducts, allProducts);
     if (swapTargetProductsError) { [undefined, swapTargetProductsError]; }
 
-    // ごめん、ここもtransaction使うかたわからずこのままにしてます。
+    // ごめん、ここ全然わからん。ここもtransaction使うかたわからずこのままにしてます。
     const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
       await this.practitionerBoxRepository.updatePractitionerBoxes(swapTargetProducts);
     if (updateRecurringPractitionerBoxesError) return [undefined, updateRecurringPractitionerBoxesError];

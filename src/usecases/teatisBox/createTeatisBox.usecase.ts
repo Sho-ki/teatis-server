@@ -49,7 +49,7 @@ implements CreateTeatisBoxUsecaseInterface
 
     const newestRecurringBoxes = filterDuplicatePractitionerBox(allPractitionerBoxes);
 
-    //ご めん、ここ全然わからん。多分ここupertPractitionerAndPractitionerBox使うのが正しいっぽい？
+    // ごめん、ここ全然わからん。多分ここupertPractitionerAndPractitionerBox使うのが正しいっぽい？
     // const [createRecurringPractitionerBox, createRecurringPractitionerError] =
     // await this.practitionerBoxRepository.performAtomicOperations(
     //   async (): Promise<ReturnValueType<PractitionerBox>> => {
