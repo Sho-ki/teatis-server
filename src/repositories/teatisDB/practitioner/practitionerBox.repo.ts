@@ -68,6 +68,7 @@ export interface PractitionerBoxRepositoryInterface {
     description,
     note,
   }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
+  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
 }
 
 @Injectable()
@@ -75,6 +76,10 @@ export class PractitionerBoxRepository
 implements PractitionerBoxRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
+
+  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
+    return this.prisma.$transaction(transactionBlock);
+  }
 
   async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
   Promise<ReturnValueType<PractitionerBox>>{

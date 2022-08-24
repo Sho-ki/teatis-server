@@ -6,6 +6,7 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { ReturnValueType } from '@Filters/customError';
 import { Product } from '@Domains/Product';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { filterDuplicatePractitionerBox } from '@Usecases/utils/getNewestPractitionerBoxes';
 
 export interface UpdateRecurringPractitionerBoxesUsecaseInterface {
   updateRecurringPractitionerBoxes(
@@ -23,16 +24,6 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     @Inject('ProductGeneralRepositoryInterface')
     private readonly productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
-  private filterDuplicatePractitionerBox(
-    allPractitionerBoxes,
-  ): ReturnValueType<PractitionerBox[]> {
-    const newestPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes.filter((value, index, self) =>
-      index === self.findIndex(element => (
-        value.practitionerId === element.practitionerId
-      ))
-    );
-    return [newestPractitionerBoxes, undefined];
-  }
   private swapTargetProducts(
     allPractitionerBoxes: PractitionerBox[],
     newProducts: {products: { sku: string }[]},
@@ -101,9 +92,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       );
     if (allProductsError) { [undefined, allProductsError]; }
 
-    const [newestRecurringBoxes, newestRecurringBoxesError] =
-      await this.filterDuplicatePractitionerBox(allPractitionerBoxes);
-    if (newestRecurringBoxesError) { [undefined, newestRecurringBoxesError]; }
+    const newestRecurringBoxes = filterDuplicatePractitionerBox(allPractitionerBoxes);
 
     const productsByCategory = {};
     allProducts.forEach(product => {
@@ -119,6 +108,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       await this.swapTargetProducts(newestRecurringBoxes, newProducts, allProducts);
     if (swapTargetProductsError) { [undefined, swapTargetProductsError]; }
 
+    // ごめん、ここもtransaction使うかたわからずこのままにしてます。
     const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
       await this.practitionerBoxRepository.updatePractitionerBoxes(swapTargetProducts);
     if (updateRecurringPractitionerBoxesError) return [undefined, updateRecurringPractitionerBoxesError];
