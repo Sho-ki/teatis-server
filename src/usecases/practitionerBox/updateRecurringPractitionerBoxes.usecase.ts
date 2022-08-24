@@ -5,18 +5,14 @@ import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { ReturnValueType } from '@Filters/customError';
 import { Product } from '@Domains/Product';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 
 export interface UpdateRecurringPractitionerBoxesUsecaseInterface {
-  filterDuplicatePractitionerBox(
-    allPractitionerBoxes: PractitionerBox[],
-  ): Promise<ReturnValueType<PractitionerBox[]>>;
-  swapTargetProducts(
-    allPractitionerBoxes: PractitionerBox[],
-    newProducts: {products: { sku: string }[]},
-    allProducts: Product[]
-  ): Promise<ReturnValueType<PractitionerBox[]>>;
   updateRecurringPractitionerBoxes(
     recurringPractitionerBoxes:PractitionerBox[],
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
+  aaa(
+    newProducts: {products: {sku: string}[]}
   ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
 }
 
@@ -27,8 +23,10 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
   constructor(
     @Inject('PractitionerBoxRepositoryInterface')
     private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
+    @Inject('ProductGeneralRepositoryInterface')
+    private readonly productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
-  async filterDuplicatePractitionerBox(
+  private async filterDuplicatePractitionerBox(
     allPractitionerBoxes,
   ): Promise<ReturnValueType<PractitionerBox[]>> {
     const newestPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes.filter((value, index, self) =>
@@ -38,7 +36,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     );
     return [newestPractitionerBoxes, undefined];
   }
-  async swapTargetProducts(
+  private async swapTargetProducts(
     allPractitionerBoxes: PractitionerBox[],
     newProducts: {products: { sku: string }[]},
     allProducts: Product[],
@@ -95,6 +93,49 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
       await this.practitionerBoxRepository.updatePractitionerBoxes(recurringPractitionerBoxes);
     if (updateRecurringPractitionerBoxesError) return [undefined, updateRecurringPractitionerBoxesError];
+    return [updateRecurringPractitionerBoxes, undefined];
+  }
+  async aaa (
+    newProducts: {products: {sku: string}[]}
+  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
+    const [allPractitionerBoxes, allPractitionerBoxesError] =
+      await this.practitionerBoxRepository.getAllPractitionerBoxes();
+    if (allPractitionerBoxesError) { [undefined, allPractitionerBoxesError]; }
+
+    const [allProducts, allProductsError] =
+      await this.productGeneralRepository.getAllProducts(
+        {
+          medicalConditions:
+          {
+            highBloodPressure: false,
+            highCholesterol: false,
+          },
+        }
+      );
+    if (allProductsError) { [undefined, allProductsError]; }
+
+    const [newestRecurringBoxes, newestRecurringBoxesError] =
+      await this.filterDuplicatePractitionerBox(allPractitionerBoxes);
+    if (newestRecurringBoxesError) { [undefined, newestRecurringBoxesError]; }
+
+    const productsByCategory = {};
+    allProducts.forEach(product => {
+      const category = product.sku.split('-')[1];
+      if(productsByCategory[category]) {
+        productsByCategory[category].push(product);
+      } else {
+        productsByCategory[category] = [product];
+      }
+    });
+
+    const [swapTargetProducts, swapTargetProductsError] =
+      await this.swapTargetProducts(newestRecurringBoxes, newProducts, allProducts);
+    if (swapTargetProductsError) { [undefined, swapTargetProductsError]; }
+
+    const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
+      await this.practitionerBoxRepository.updatePractitionerBoxes(swapTargetProducts);
+    if (updateRecurringPractitionerBoxesError) return [undefined, updateRecurringPractitionerBoxesError];
+
     return [updateRecurringPractitionerBoxes, undefined];
   }
 }

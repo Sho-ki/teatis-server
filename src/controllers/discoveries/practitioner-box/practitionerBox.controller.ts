@@ -87,44 +87,9 @@ export class PractitionerBoxController {
     @Body() body: UpdateRecurringPractitionerBoxDto,
     @Res() response: Response<(Prisma.BatchPayload | PractitionerBox)[] | Error>,
   ){
-    const [allPractitionerBoxes, allPractitionerBoxesError] =
-      await this.getAllPractitionerBoxesUsecase.getAllPractitionerBoxes();
-    if (allPractitionerBoxesError) { return response.status(500).send(allPractitionerBoxesError); }
-
-    const [newestRecurringBoxes, newestRecurringBoxesError] =
-      await this.updateRecurringPractitionerBoxesUsecase.filterDuplicatePractitionerBox(allPractitionerBoxes);
-    if (newestRecurringBoxesError) { return response.status(500).send(newestRecurringBoxesError); }
-
-    const [allProducts, allProductsError] =
-      await this.getAllProductsUsecase.getAllProducts(
-        {
-          medicalConditions:
-          {
-            highBloodPressure: false,
-            highCholesterol: false,
-          },
-        }
-      );
-    if (allProductsError) { return response.status(500).send(allProductsError); }
-    const productsByCategory = {};
-    allProducts.forEach(product => {
-      const category = product.sku.split('-')[1];
-      if(productsByCategory[category]) {
-        productsByCategory[category].push(product);
-      } else {
-        productsByCategory[category] = [product];
-      }
-    });
-    const [swapTargetProducts, swapTargetProductsError] =
-      await this.updateRecurringPractitionerBoxesUsecase.swapTargetProducts(newestRecurringBoxes, body, allProducts);
-    if (swapTargetProductsError) { return response.status(500).send(swapTargetProductsError); }
-
-    const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
-      await this.updateRecurringPractitionerBoxesUsecase.updateRecurringPractitionerBoxes(swapTargetProducts);
-    if (updateRecurringPractitionerBoxesError) {
-      return response.status(500).send(updateRecurringPractitionerBoxesError);
-    }
-
-    return response.status(200).send(updateRecurringPractitionerBoxes);
+    const [usecaseResponse, error] =
+      await this.updateRecurringPractitionerBoxesUsecase.aaa(body);
+    if (error) return response.status(500).send(error);
+    return response.status(200).send(usecaseResponse);
   }
 }
