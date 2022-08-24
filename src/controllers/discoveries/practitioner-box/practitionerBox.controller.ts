@@ -88,7 +88,7 @@ export class PractitionerBoxController {
     @Res() response: Response<(Prisma.BatchPayload | PractitionerBox)[] | Error>,
   ){
     const [usecaseResponse, error] =
-      await this.updateRecurringPractitionerBoxesUsecase.aaa(body);
+      await this.updateRecurringPractitionerBoxesUsecase.updateRecurringPractitionerBoxes(body);
     if (error) return response.status(500).send(error);
     return response.status(200).send(usecaseResponse);
   }

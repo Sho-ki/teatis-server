@@ -9,9 +9,6 @@ import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/produc
 
 export interface UpdateRecurringPractitionerBoxesUsecaseInterface {
   updateRecurringPractitionerBoxes(
-    recurringPractitionerBoxes:PractitionerBox[],
-  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
-  aaa(
     newProducts: {products: {sku: string}[]}
   ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
 }
@@ -87,15 +84,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     }
     return [targetPractitionerBoxes, undefined];
   }
-  async updateRecurringPractitionerBoxes(
-    recurringPractitionerBoxes: PractitionerBox[]
-  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
-    const [updateRecurringPractitionerBoxes, updateRecurringPractitionerBoxesError] =
-      await this.practitionerBoxRepository.updatePractitionerBoxes(recurringPractitionerBoxes);
-    if (updateRecurringPractitionerBoxesError) return [undefined, updateRecurringPractitionerBoxesError];
-    return [updateRecurringPractitionerBoxes, undefined];
-  }
-  async aaa (
+  async updateRecurringPractitionerBoxes (
     newProducts: {products: {sku: string}[]}
   ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
     const [allPractitionerBoxes, allPractitionerBoxesError] =
