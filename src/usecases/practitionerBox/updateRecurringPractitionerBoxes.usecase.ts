@@ -40,8 +40,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
   ): ReturnValueType<PractitionerBox[]> {
     const targetPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes
       .filter(practitionerBox => {
-        const isRecurring = practitionerBox.label.split('___')[0] === 'Recurring';
-        return isRecurring && practitionerBox;
+        return isRecurring = practitionerBox.label.split('___')[0] === 'Recurring';
       });
     const chosenProductSkus: string[] = newProducts.products.map(newProduct => newProduct.sku);
     const productsByCategory = {};
