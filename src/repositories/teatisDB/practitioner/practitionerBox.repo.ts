@@ -541,11 +541,11 @@ implements PractitionerBoxRepositoryInterface
       );
     });
     const query = recurringPractitionerBoxes.map(recurringPractitionerBox => {
-      const { label, description, note, products } = recurringPractitionerBox;
+      const { practitionerId, label, description, note, products } = recurringPractitionerBox;
       const productIdsToAdd = products.map(product => product.id);
       return this.prisma.practitionerBox.update(
         {
-          where: { label },
+          where: { PractitionerBoxIdentifier: { practitionerId, label } },
           data: {
             description,
             note,
