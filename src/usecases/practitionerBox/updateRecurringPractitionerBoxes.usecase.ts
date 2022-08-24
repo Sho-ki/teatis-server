@@ -23,9 +23,9 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     @Inject('ProductGeneralRepositoryInterface')
     private readonly productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
-  private async filterDuplicatePractitionerBox(
+  private filterDuplicatePractitionerBox(
     allPractitionerBoxes,
-  ): Promise<ReturnValueType<PractitionerBox[]>> {
+  ): ReturnValueType<PractitionerBox[]> {
     const newestPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes.filter((value, index, self) =>
       index === self.findIndex(element => (
         value.practitionerId === element.practitionerId
@@ -33,11 +33,11 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     );
     return [newestPractitionerBoxes, undefined];
   }
-  private async swapTargetProducts(
+  private swapTargetProducts(
     allPractitionerBoxes: PractitionerBox[],
     newProducts: {products: { sku: string }[]},
     allProducts: Product[],
-  ): Promise<ReturnValueType<PractitionerBox[]>> {
+  ): ReturnValueType<PractitionerBox[]> {
     const targetPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes
       .filter(practitionerBox => {
         const isRecurring = practitionerBox.label.split('___')[0] === 'Recurring';
