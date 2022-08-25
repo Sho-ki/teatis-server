@@ -1,6 +1,5 @@
 import { DisplayProduct, Product } from '@Domains/Product';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 import { Practitioner } from '@Domains/Practitioner';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
@@ -57,9 +56,9 @@ export interface PractitionerBoxRepositoryInterface {
   }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>>;
   getAllRecurringBox(recurringBoxLabel: string): Promise<ReturnValueType<PractitionerBox[]>>;
   getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>;
-  updatePractitionerBoxes(
-    recurringPractitionerBoxes: PractitionerBox[]
-  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
+  upsertPractitionerBox(
+    recurringPractitionerBox: PractitionerBox
+  ): Promise<ReturnValueType<PractitionerAndBox>>;
   createRecurringPractitionerBox({
     practitionerId,
     practitionerBoxUuid,
@@ -547,40 +546,112 @@ implements PractitionerBoxRepositoryInterface
     });
     return [practitionerBoxes, undefined];
   }
-  async updatePractitionerBoxes(
-    recurringPractitionerBoxes: PractitionerBox[]
-  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
-    const deleteQuery = recurringPractitionerBoxes.map(recurringPractitionerBox => {
-      return this.prisma.intermediatePractitionerBoxProduct.deleteMany(
-        { where: { practitionerBoxId: recurringPractitionerBox.id } }
-      );
-    });
-    const updateQuery = recurringPractitionerBoxes.map(recurringPractitionerBox => {
-      const { practitionerId, label, description, note, products } = recurringPractitionerBox;
-      const productIdsToAdd = products.map(product => product.id);
-      return this.prisma.practitionerBox.update(
-        {
-          where: { PractitionerBoxIdentifier: { practitionerId, label } },
-          data: {
-            description,
-            note,
-            intermediatePractitionerBoxProduct: {
-              createMany: {
-                data: productIdsToAdd.map((productId) => {
-                  return { productId };
-                }),
+  async upsertPractitionerBox(
+    recurringPractitionerBox: PractitionerBox
+  ): Promise<ReturnValueType<PractitionerAndBox>>{
+    const { id, uuid, practitionerId, label, description, note } = recurringPractitionerBox;
+    const existingProducts = await this.prisma.intermediatePractitionerBoxProduct.findMany({ where: { practitionerBoxId: id } });
+    const existingProductIds: number[] = existingProducts.map(
+      ({ productId }) => productId
+    );
+    const newProductIds: number[] = recurringPractitionerBox.products.map((product:Product) => product.id);
+    const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
+    if (!productIdsToRemove.length) {
+      await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
+        where: {
+          OR: productIdsToRemove.map((productId) => {
+            return { productId };
+          }),
+          practitionerBoxId: id,
+        },
+      });
+    }
+
+    const response = await this.prisma.practitionerBox.upsert({
+      where: { PractitionerBoxIdentifier: { practitionerId, label } },
+      create: {
+        label,
+        uuid,
+        practitionerId,
+        description,
+        note,
+        intermediatePractitionerBoxProduct: {
+          createMany: {
+            data: productIdsToAdd.map((productId) => {
+              return { productId };
+            }),
+          },
+        },
+      },
+      update: {
+        description,
+        note,
+        intermediatePractitionerBoxProduct: {
+          createMany: {
+            data: productIdsToAdd.map((productId) => {
+              return { productId };
+            }),
+          },
+        },
+      },
+      select: {
+        intermediatePractitionerBoxProduct: { select: { product: true } },
+        id: true,
+        uuid: true,
+        label: true,
+        description: true,
+        note: true,
+        practitioner: {
+          select: {
+            practitionerSocialMedia: {
+              select: {
+                instagram: true,
+                facebook: true,
+                twitter: true,
+                website: true,
               },
             },
+            id: true,
+            email: true,
+            uuid: true,
+            profileImage: true,
+            firstName: true,
+            lastName: true,
+            middleName: true,
+            message: true,
           },
-        }
-      );
-    }
-    );
+        },
+      },
+    });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any[] = await this.prisma.$transaction([...deleteQuery, ...updateQuery]);
-
-    return [result, undefined];
+    const socialMedia: SocialMedia =
+      response.practitioner.practitionerSocialMedia;
+    delete response.practitioner.practitionerSocialMedia;
+    const practitioner: Practitioner = response.practitioner;
+    const boxProducts: Product[] =
+      response.intermediatePractitionerBoxProduct.map(({ product }) => {
+        return {
+          id: product.id,
+          sku: product.externalSku,
+          name: product.name,
+          label: product.label,
+        };
+      });
+    const practitionerBox: PractitionerBox = {
+      id: response.id,
+      uuid: response.uuid,
+      label: response.label,
+      description: response?.description,
+      note: response?.note,
+      products: boxProducts,
+    };
+    return [
+      {
+        ...practitioner,
+        ...socialMedia,
+        box: { ...practitionerBox },
+      },
+    ];
   }
   async createRecurringPractitionerBox({
     practitionerId,

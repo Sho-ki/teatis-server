@@ -17,8 +17,8 @@ import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitioner
 import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { PractitionerBox } from '@Domains/PractitionerBox';
-import { UpdateRecurringPractitionerBoxDto } from '../dtos/updateRecurringPractitionerBox';
-import { UpdateRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
+import { UpsertRecurringPractitionerBoxDto } from '../dtos/upsertRecurringPractitionerBox';
+import { UpsertRecurringPractitionerBoxesUsecaseInterface } from '../../../usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 
 @Controller('api/discovery')
 export class PractitionerBoxController {
@@ -29,8 +29,8 @@ export class PractitionerBoxController {
     private createPractitionerBoxUsecase: CreatePractitionerBoxUsecaseInterface,
     @Inject('GetPractitionerBoxByLabelUsecaseInterface')
     private getPractitionerBoxByLabelUsecase: GetPractitionerBoxByLabelUsecaseInterface,
-    @Inject('UpdateRecurringPractitionerBoxesUsecaseInterface')
-    private updateRecurringPractitionerBoxesUsecase: UpdateRecurringPractitionerBoxesUsecaseInterface,
+    @Inject('UpsertRecurringPractitionerBoxesUsecaseInterface')
+    private upsertRecurringPractitionerBoxesUsecaseInterface: UpsertRecurringPractitionerBoxesUsecaseInterface,
   ) {}
 
   // Get: api/discovery/practitioner-box
@@ -74,15 +74,15 @@ export class PractitionerBoxController {
     return response.status(201).send(usecaseResponse);
   }
 
-  // POST: api/discovery/practitioner-box/update-recurring-practitioner-box
-  @Post('practitioner-box/update-recurring-practitioner-box')
+  // POST: api/discovery/practitioner-box/recurring-practitioner-box
+  @Post('practitioner-box/recurring-practitioner-box')
   async updateRecurringPractitionerBox(
-    @Body() body: UpdateRecurringPractitionerBoxDto,
+    @Body() body: UpsertRecurringPractitionerBoxDto,
     @Res() response: Response<(Prisma.BatchPayload | PractitionerBox)[] | Error>,
   ){
     const [usecaseResponse, error] =
-      await this.updateRecurringPractitionerBoxesUsecase.updateRecurringPractitionerBoxes(body);
+      await this.upsertRecurringPractitionerBoxesUsecaseInterface.upsertRecurringPractitionerBoxes(body);
     if (error) return response.status(500).send(error);
-    return response.status(200).send(usecaseResponse);
+    return response.status(201).send(usecaseResponse);
   }
 }

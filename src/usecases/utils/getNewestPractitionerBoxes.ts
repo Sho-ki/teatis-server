@@ -1,4 +1,5 @@
 import { PractitionerBox } from '@Domains/PractitionerBox';
+import { nextMonth } from './dates';
 
 export const filterDuplicatePractitionerBox = (
   allPractitionerBoxes: PractitionerBox[],
@@ -9,4 +10,15 @@ export const filterDuplicatePractitionerBox = (
     ))
   );
   return newestPractitionerBoxes;
+};
+
+export const unkokko = (
+  allPractitionerBoxes: PractitionerBox[]
+): [PractitionerBox[], PractitionerBox[]] => {
+  const updatedPractitionerBoxLabel = `Recurring___${nextMonth()}___`;
+  const updatedPractitionerBox: PractitionerBox[] = allPractitionerBoxes
+    .filter(practitionerBox => practitionerBox.label.includes(updatedPractitionerBoxLabel));
+  const outdatedPractitionerBox: PractitionerBox[] = allPractitionerBoxes
+    .filter(practitionerBox => !practitionerBox.label.includes(updatedPractitionerBoxLabel));
+  return [updatedPractitionerBox, outdatedPractitionerBox];
 };

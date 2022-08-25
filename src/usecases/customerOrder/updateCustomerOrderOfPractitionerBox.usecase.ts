@@ -15,6 +15,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
+import { currentMonth } from '../utils/dates';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -133,7 +134,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     const boxLabel = practitionerAndBox.box.label;
 
     const [recurringPractitionerBox, getPractitionerRecurringBoxError] =
-      await this.practitionerBoxRepository.getPractitionerRecurringBox({ practitionerId, label: boxLabel });
+      await this.practitionerBoxRepository.getPractitionerRecurringBox({ practitionerId, label: `Recurring___${currentMonth()}___${boxLabel}` });
     if (getPractitionerRecurringBoxError) {
       return [undefined, getPractitionerRecurringBoxError];
     }

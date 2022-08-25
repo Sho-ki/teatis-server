@@ -291,16 +291,18 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
       });
     }
 
-    const shippableProducts:Product[] =  nextWantProducts? allProducts.filter((product) => {
-      return !nextWantProducts.find((nextWant) => nextWant.id === product.id);
-    }):[];
+    const shippableProducts:Product[] = nextWantProducts && nextWantProducts.length > 0
+      ? allProducts.filter((product) => {
+        return !nextWantProducts.find((nextWant) => nextWant.id === product.id);
+      })
+      : allProducts;
 
     const newPractitionerProducts:Product[] = [...nextWantProducts];
 
     for(const practitionerProduct of practitionerProducts){
       const foundProductIndex = shippableProducts.findIndex(
         shippableProduct => shippableProduct.id === practitionerProduct.id);
-      if(foundProductIndex >= 0){
+      if(foundProductIndex !== -1){
         newPractitionerProducts.push({
           id: practitionerProduct.id,
           name: practitionerProduct.name,
@@ -311,8 +313,8 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
       }else {
         const categoryCode = practitionerProduct.sku.split('-')[1];
         let swapTargetProductIndex = shippableProducts.findIndex(
-          shippableProduct => shippableProduct.sku.includes(categoryCode));
-        if(swapTargetProductIndex < 0) swapTargetProductIndex = 0;
+          shippableProduct => shippableProduct.sku.split('-')[1] === categoryCode);
+        if(swapTargetProductIndex === -1) swapTargetProductIndex = 0;
         const newPractitionerProduct = shippableProducts[swapTargetProductIndex];
         newPractitionerProducts.push({
           id: newPractitionerProduct.id,
@@ -321,7 +323,6 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
           sku: newPractitionerProduct.sku,
         });
         shippableProducts.splice(swapTargetProductIndex, 1);
-
       }
       if(newPractitionerProducts.length === PRODUCT_COUNT)break;
     }
