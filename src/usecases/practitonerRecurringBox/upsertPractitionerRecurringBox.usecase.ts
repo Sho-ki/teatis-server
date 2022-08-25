@@ -8,7 +8,7 @@ import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries
 
 export interface UpsertRecurringPractitionerBoxesUsecaseInterface {
   upsertRecurringPractitionerBoxes(
- { products, label }: UpsertRecurringPractitionerBoxDto
+ { products, label, note, description }: UpsertRecurringPractitionerBoxDto
   ): Promise<ReturnValueType<PractitionerBox[]>>;
 }
 

@@ -40,20 +40,18 @@ implements TeatisBoxRepositoryInterface
     description,
     note,
   }: createTeatisBoxArgs): Promise<ReturnValueType<TeatisBox>> {
-    const intermediateTable = this.prisma.intermediateTeatisBoxProduct;
-    const teatisBoxTable = this.prisma.teatisBox;
     const existingProducts =
-      await intermediateTable.findMany({
+      await this.prisma.intermediateTeatisBoxProduct.findMany({
         where: { teatisBox: { label } },
         select: { product: true },
       });
-    const existingProductIds = existingProducts? existingProducts.map(
+    const existingProductIds = existingProducts.length ? existingProducts.map(
       ({ product }) => product.id,
     ): [];
     const newProductIds = products.map((product) => product.id);
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
-    if(productIdsToRemove.length)
-      await intermediateTable.deleteMany({
+    if(productIdsToRemove.length){
+      await this.prisma.intermediateTeatisBoxProduct.deleteMany({
         where: {
           OR: productIdsToRemove.map((productId) => {
             return { productId };
@@ -61,7 +59,8 @@ implements TeatisBoxRepositoryInterface
           teatisBox: { label },
         },
       });
-    const response = await teatisBoxTable.upsert({
+    }
+    const response = await this.prisma.teatisBox.upsert({
       where: { label },
       create: {
         label,
