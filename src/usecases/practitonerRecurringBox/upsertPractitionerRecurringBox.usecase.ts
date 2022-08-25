@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { ReturnValueType } from '@Filters/customError';
@@ -10,7 +9,7 @@ import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries
 export interface UpsertRecurringPractitionerBoxesUsecaseInterface {
   upsertRecurringPractitionerBoxes(
  { products, label }: UpsertRecurringPractitionerBoxDto
-  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>;
+  ): Promise<ReturnValueType<PractitionerBox[]>>;
 }
 
 @Injectable()
@@ -25,7 +24,7 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
   ) {}
   async upsertRecurringPractitionerBoxes (
     { products: newProducts, label: targetBoxLabel, note, description }: UpsertRecurringPractitionerBoxDto
-  ): Promise<ReturnValueType<(Prisma.BatchPayload | PractitionerBox)[]>>{
+  ): Promise<ReturnValueType<PractitionerBox[]>>{
     const [teatisBox, teatisBoxError] = await this.createTeatisBoxUsecaseInterface.createTeatisBox(
       { products: newProducts, label: targetBoxLabel, note, description });
 
@@ -34,7 +33,10 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
     }
 
     const [practitionerAndBoxes, practitionerAndBoxesError] =
-    await this.updateRecurringPractitionerBoxesUsecase.upsertRecurringPractitionerBoxes({ products: newProducts, label: targetBoxLabel });
+      await this.updateRecurringPractitionerBoxesUsecase.upsertRecurringPractitionerBoxes({
+        products: newProducts,
+        label: targetBoxLabel,
+      });
 
     if(practitionerAndBoxesError){
       return [undefined, practitionerAndBoxesError];

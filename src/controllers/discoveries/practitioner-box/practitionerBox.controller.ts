@@ -8,7 +8,6 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Prisma } from '@prisma/client';
 
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
 import { CreatePractitionerBoxUsecaseInterface } from '@Usecases/practitionerBox/createPractitionerBox.usecase';
@@ -78,7 +77,7 @@ export class PractitionerBoxController {
   @Post('practitioner-box/recurring-practitioner-box')
   async updateRecurringPractitionerBox(
     @Body() body: UpsertRecurringPractitionerBoxDto,
-    @Res() response: Response<(Prisma.BatchPayload | PractitionerBox)[] | Error>,
+    @Res() response: Response<PractitionerBox[] | Error>,
   ){
     const [usecaseResponse, error] =
       await this.upsertRecurringPractitionerBoxesUsecaseInterface.upsertRecurringPractitionerBoxes(body);

@@ -550,7 +550,8 @@ implements PractitionerBoxRepositoryInterface
     recurringPractitionerBox: PractitionerBox
   ): Promise<ReturnValueType<PractitionerAndBox>>{
     const { id, uuid, practitionerId, label, description, note } = recurringPractitionerBox;
-    const existingProducts = await this.prisma.intermediatePractitionerBoxProduct.findMany({ where: { practitionerBoxId: id } });
+    const existingProducts =
+      await this.prisma.intermediatePractitionerBoxProduct.findMany({ where: { practitionerBoxId: id } });
     const existingProductIds: number[] = existingProducts.map(
       ({ productId }) => productId
     );

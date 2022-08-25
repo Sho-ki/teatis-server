@@ -27,7 +27,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     private readonly productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
 
-  private unkokko (
+  private filterUpdatedPractitionerBoxes (
     allPractitionerBoxes: PractitionerBox[],
     label: string,
   ): [PractitionerBox[], PractitionerBox[]] {
@@ -108,12 +108,12 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
 
     if (allProductsError) { [undefined, allProductsError]; }
     const newestPractitionerBoxes = this.filterDuplicatePractitionerBox(allPractitionerBoxes);
-    const [existingRecurringBoxes, newRecurringBoxes] = this.unkokko(newestPractitionerBoxes, targetBoxLabel);
+    const [existingRecurringBoxes, newRecurringBoxes] =
+      this.filterUpdatedPractitionerBoxes(newestPractitionerBoxes, targetBoxLabel);
 
     const newProducts:Product[] =
     allProducts.filter(({ id }) => newProductIds.find((val) => val.id === id));
 
-    // let recurringBoxes = [];
     const upsertTarget = [...existingRecurringBoxes];
     for(const newRecurringBox of newRecurringBoxes){
       const uuid = uuidv4();
