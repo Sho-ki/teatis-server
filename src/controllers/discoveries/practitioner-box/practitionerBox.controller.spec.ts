@@ -61,7 +61,7 @@ describe('PractitionerBoxController', () => {
         {
           provide: 'UpdateRecurringPractitionerBoxesUsecaseInterface',
           useValue: {
-            updateRecurringPractitionerBoxes: () =>
+            upsertRecurringPractitionerBoxes: () =>
               Promise.resolve<ReturnValueType<PractitionerBox[]>>([mockBoxPractitionerBox]),
           } as UpdateRecurringPractitionerBoxesUsecaseInterface,
         },

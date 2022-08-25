@@ -82,6 +82,7 @@ export class PractitionerBoxController {
     const [usecaseResponse, error] =
       await this.upsertRecurringPractitionerBoxesUsecaseInterface.upsertRecurringPractitionerBoxes(body);
     if (error) return response.status(500).send(error);
+    console.log('SUCCESS');
     return response.status(201).send(usecaseResponse);
   }
 }
