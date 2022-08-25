@@ -7,7 +7,7 @@ import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerBoxController } from './practitionerBox.controller';
 import { ReturnValueType } from '@Filters/customError';
-import { UpdateRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
+import { UpsertRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 
 describe('PractitionerBoxController', () => {
   let controller: PractitionerBoxController;
@@ -59,11 +59,11 @@ describe('PractitionerBoxController', () => {
           } as GetPractitionerBoxByLabelUsecaseInterface,
         },
         {
-          provide: 'UpdateRecurringPractitionerBoxesUsecaseInterface',
+          provide: 'UpsertRecurringPractitionerBoxesUsecaseInterface',
           useValue: {
             upsertRecurringPractitionerBoxes: () =>
               Promise.resolve<ReturnValueType<PractitionerBox[]>>([mockBoxPractitionerBox]),
-          } as UpdateRecurringPractitionerBoxesUsecaseInterface,
+          } as UpsertRecurringPractitionerBoxesUsecaseInterface,
         },
       ],
     }).compile();
