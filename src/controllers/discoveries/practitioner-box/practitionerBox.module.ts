@@ -9,6 +9,9 @@ import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/p
 import { PractitionerGeneralRepository } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { UpdateRecurringPractitionerBoxesUsecase } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
 import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { UpsertRecurringPractitionerBoxesUsecase } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
+import { CreateTeatisBoxUsecase } from '@Usecases/teatisBox/createTeatisBox.usecase';
+import { TeatisBoxRepository } from '@Repositories/teatisDB/teatis/teatisBox.repository';
 
 @Module({
   controllers: [PractitionerBoxController],
@@ -40,6 +43,18 @@ import { ProductGeneralRepository } from '@Repositories/teatisDB/product/product
     {
       provide: 'ProductGeneralRepositoryInterface',
       useClass: ProductGeneralRepository,
+    },
+    {
+      provide: 'UpsertRecurringPractitionerBoxesUsecaseInterface',
+      useClass: UpsertRecurringPractitionerBoxesUsecase,
+    },
+    {
+      provide: 'CreateTeatisBoxUsecaseInterface',
+      useClass: CreateTeatisBoxUsecase,
+    },
+    {
+      provide: 'TeatisBoxRepositoryInterface',
+      useClass: TeatisBoxRepository,
     },
     PractitionerBoxController,
     PrismaService,

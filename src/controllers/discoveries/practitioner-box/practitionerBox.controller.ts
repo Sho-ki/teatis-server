@@ -18,7 +18,7 @@ import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { UpsertRecurringPractitionerBoxDto } from '../dtos/upsertRecurringPractitionerBox';
-import { UpsertRecurringPractitionerBoxesUsecaseInterface } from '../../../usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
+import { UpsertRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 
 @Controller('api/discovery')
 export class PractitionerBoxController {
