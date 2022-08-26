@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { ReturnValueType } from '@Filters/customError';
-import { CreateTeatisBoxUsecaseInterface } from '@Usecases/teatisBox/createTeatisBox.usecase';
+import { CreateMasterMonthlyBoxUsecaseInterface } from '@Usecases/masterMonthlyBox/createMasterMonthlyBox.usecase';
 import { UpdateRecurringPractitionerBoxesUsecaseInterface } from '../practitionerBox/updateRecurringPractitionerBoxes.usecase';
 import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries/dtos/upsertRecurringPractitionerBox';
 
@@ -19,17 +19,18 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
   constructor(
     @Inject('UpdateRecurringPractitionerBoxesUsecaseInterface')
     private updateRecurringPractitionerBoxesUsecase: UpdateRecurringPractitionerBoxesUsecaseInterface,
-    @Inject('CreateTeatisBoxUsecaseInterface')
-    private readonly createTeatisBoxUsecaseInterface: CreateTeatisBoxUsecaseInterface,
+    @Inject('CreateMasterMonthlyBoxUsecaseInterface')
+    private readonly createMasterMonthlyBoxUsecaseInterface: CreateMasterMonthlyBoxUsecaseInterface,
   ) {}
   async upsertRecurringPractitionerBoxes (
     { products: newProducts, label: targetBoxLabel, note, description }: UpsertRecurringPractitionerBoxDto
   ): Promise<ReturnValueType<PractitionerBox[]>>{
-    const [teatisBox, teatisBoxError] = await this.createTeatisBoxUsecaseInterface.createTeatisBox(
+    const [masterMonthlyBox, masterMonthlyBoxError] =
+    await this.createMasterMonthlyBoxUsecaseInterface.createMasterMonthlyBox(
       { products: newProducts, label: targetBoxLabel, note, description });
 
-    if(teatisBoxError){
-      return [undefined, teatisBoxError];
+    if(masterMonthlyBoxError){
+      return [undefined, masterMonthlyBoxError];
     }
 
     const [practitionerAndBoxes, practitionerAndBoxesError] =
@@ -43,6 +44,6 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
     }
 
     // eslint-disable-next-line no-console
-    console.log(teatisBox, practitionerAndBoxes );
+    console.log(masterMonthlyBox, practitionerAndBoxes );
   }
 }

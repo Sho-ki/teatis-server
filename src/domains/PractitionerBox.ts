@@ -8,4 +8,5 @@ export interface PractitionerBox {
   description?: string;
   note?: string;
   products: DisplayProduct[] | Product[];
+  masterMonthlyBox?:{label:string, id:number};
 }

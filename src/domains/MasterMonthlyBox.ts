@@ -1,6 +1,6 @@
 import { Product } from './Product';
 
-export interface TeatisBox {
+export interface MasterMonthlyBox {
   id: number;
   label: string;
   products: Product[];
@@ -8,8 +8,8 @@ export interface TeatisBox {
   note?: string;
 }
 
-export interface TeatisBoxProduct{
-  teatisBoxId: number;
+export interface MasterMonthlyBoxProduct{
+  masterMonthlyBoxId: number;
   productId: number;
 }
 

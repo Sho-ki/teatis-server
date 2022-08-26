@@ -140,7 +140,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
     const [autoSwapBoxProducts, autoSwapBoxProductsError] =
       await this.customerProductsAutoSwap.customerProductsAutoSwap(
-        { practitionerProducts: isFirstOrder ? practitionerAndBox.box.products : recurringPractitionerBox.products, customer }
+        {
+          practitionerProducts: isFirstOrder ?
+            practitionerAndBox.box.products : recurringPractitionerBox.products, customer,
+        }
       );
     if (autoSwapBoxProductsError) {
       return [undefined, autoSwapBoxProductsError];

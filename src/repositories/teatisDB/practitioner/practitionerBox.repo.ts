@@ -8,6 +8,7 @@ import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
+import { MasterMonthlyBox } from '../../../domains/MasterMonthlyBox';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -30,6 +31,11 @@ interface upsertPractitionerAndPractitionerBoxArgs {
 interface getPractitionerRecurringBoxArgs {
   practitionerId: number;
   label: string;
+}
+
+interface upsertPractitionerBoxArgs{
+  practitionerBox: PractitionerBox;
+  masterMonthlyBox?:MasterMonthlyBox;
 }
 
 type createRecurringPractitionerBoxArgs = upsertPractitionerAndPractitionerBoxArgs;
@@ -57,7 +63,7 @@ export interface PractitionerBoxRepositoryInterface {
   getAllRecurringBox(recurringBoxLabel: string): Promise<ReturnValueType<PractitionerBox[]>>;
   getAllPractitionerBoxes(): Promise<ReturnValueType<PractitionerBox[]>>;
   upsertPractitionerBox(
-    recurringPractitionerBox: PractitionerBox
+    { practitionerBox, masterMonthlyBox }:upsertPractitionerBoxArgs
   ): Promise<ReturnValueType<PractitionerAndBox>>;
   createRecurringPractitionerBox({
     practitionerId,
@@ -82,12 +88,9 @@ implements PractitionerBoxRepositoryInterface
 
   async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
   Promise<ReturnValueType<PractitionerBox>>{
-    const date = new Date();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
     const response = await this.prisma.practitionerBox.findUnique(
       {
-        where: { PractitionerBoxIdentifier: { practitionerId, label: `${year}-${month}___${label}}` } },
+        where: { PractitionerBoxIdentifier: { practitionerId, label } },
         select: {
           id: true,
           uuid: true,
@@ -517,6 +520,7 @@ implements PractitionerBoxRepositoryInterface
           label: true,
           description: true,
           note: true,
+          masterMonthlyBox: { select: { label: true, id: true } },
           intermediatePractitionerBoxProduct: {
             select: {
               product: {
@@ -542,20 +546,23 @@ implements PractitionerBoxRepositoryInterface
         products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
           return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
         }),
+        masterMonthlyBox: response.masterMonthlyBox?
+          { label: response.masterMonthlyBox.label, id: response.masterMonthlyBox.id }:
+          undefined,
       };
     });
     return [practitionerBoxes, undefined];
   }
   async upsertPractitionerBox(
-    recurringPractitionerBox: PractitionerBox
+    { practitionerBox: targetBox, masterMonthlyBox }:upsertPractitionerBoxArgs
   ): Promise<ReturnValueType<PractitionerAndBox>>{
-    const { id, uuid, practitionerId, label, description, note } = recurringPractitionerBox;
+    const { id, uuid, practitionerId, label, description, note, products } = targetBox;
     const existingProducts =
       await this.prisma.intermediatePractitionerBoxProduct.findMany({ where: { practitionerBoxId: id } });
     const existingProductIds: number[] = existingProducts.map(
       ({ productId }) => productId
     );
-    const newProductIds: number[] = recurringPractitionerBox.products.map((product:Product) => product.id);
+    const newProductIds: number[] = products.map((product:Product) => product.id);
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
     if (!productIdsToRemove.length) {
       await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
@@ -576,6 +583,7 @@ implements PractitionerBoxRepositoryInterface
         practitionerId,
         description,
         note,
+        masterMonthlyBoxId: masterMonthlyBox?masterMonthlyBox.id:null,
         intermediatePractitionerBoxProduct: {
           createMany: {
             data: productIdsToAdd.map((productId) => {
@@ -602,6 +610,7 @@ implements PractitionerBoxRepositoryInterface
         label: true,
         description: true,
         note: true,
+        masterMonthlyBox: true,
         practitioner: {
           select: {
             practitionerSocialMedia: {
@@ -645,6 +654,9 @@ implements PractitionerBoxRepositoryInterface
       description: response?.description,
       note: response?.note,
       products: boxProducts,
+      masterMonthlyBox: response?.masterMonthlyBox?
+        { label: response.masterMonthlyBox.label, id: response.masterMonthlyBox.id }
+        :undefined,
     };
     return [
       {

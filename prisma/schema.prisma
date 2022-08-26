@@ -181,7 +181,7 @@ model Product{
   intermediateProductAllergens IntermediateProductAllergen[]
   intermediateProductCookingMethods IntermediateProductCookingMethod[]
   intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
-  intermediateTeatisBoxProduct IntermediateTeatisBoxProduct[]
+  intermediateMasterMonthlyBoxProduct IntermediateMasterMonthlyBoxProduct[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
@@ -595,6 +595,8 @@ model PractitionerBox{
   label String
   description String?
   note String?
+  masterMonthlyBox MasterMonthlyBox? @relation(fields: [masterMonthlyBoxId], references: [id])
+  masterMonthlyBoxId Int?
   intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
@@ -631,24 +633,24 @@ enum ActiveStatus {
   inactive
 }
 
-model TeatisBox{
+model MasterMonthlyBox{
   id  Int @default(autoincrement()) @id
-  label String
-  intermediateTeatisBoxProduct IntermediateTeatisBoxProduct[]
+  label String @unique
+  intermediateMasterMonthlyBoxProduct IntermediateMasterMonthlyBoxProduct[]
   description String?
   note String?
+  practitionerBox PractitionerBox[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
-  @@unique([label])
 }
 
-model IntermediateTeatisBoxProduct{
-  teatisBox TeatisBox @relation(fields: [teatisBoxId], references: [id])
-  teatisBoxId Int
+model IntermediateMasterMonthlyBoxProduct{
+  masterMonthlyBox MasterMonthlyBox @relation(fields: [masterMonthlyBoxId], references: [id])
+  masterMonthlyBoxId Int
   product Product @relation(fields: [productId], references: [id])
   productId Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
-  @@id([teatisBoxId, productId])
+  @@id([masterMonthlyBoxId, productId])
 }

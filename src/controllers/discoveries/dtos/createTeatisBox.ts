@@ -4,7 +4,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateTeatisBoxDto {
+export class CreateMasterMonthlyBoxDto {
   @IsArray()
     products: { id: number }[];
 

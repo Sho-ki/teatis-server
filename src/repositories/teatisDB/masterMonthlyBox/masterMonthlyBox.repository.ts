@@ -1,48 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { DisplayProduct, Product } from '@Domains/Product';
+import { Product } from '@Domains/Product';
 
 import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { ReturnValueType } from '@Filters/customError';
-import { TeatisBox } from '@Domains/TeatisBox';
+import { MasterMonthlyBox } from '@Domains/MasterMonthlyBox';
 
-interface getTeatisBoxByLabelArgs {
+interface getMasterMonthlyBoxByLabelArgs {
   label: string;
 }
 
-interface createTeatisBoxArgs {
+interface createMasterMonthlyBoxArgs {
   label: string;
   products: { id: number }[];
   description?: string;
   note?: string;
 }
 
-export interface TeatisBoxRepositoryInterface {
-  getTeatisBoxByLabel({ label }: getTeatisBoxByLabelArgs): Promise<ReturnValueType<TeatisBox>>;
+export interface MasterMonthlyBoxRepositoryInterface {
+  getMasterMonthlyBoxByLabel({ label }: getMasterMonthlyBoxByLabelArgs): Promise<ReturnValueType<MasterMonthlyBox>>;
 
-  createTeatisBox({
+  createMasterMonthlyBox({
     label,
     products,
     description,
     note,
-  }: createTeatisBoxArgs): Promise<ReturnValueType<TeatisBox>>;
+  }: createMasterMonthlyBoxArgs): Promise<ReturnValueType<MasterMonthlyBox>>;
 }
 
 @Injectable()
-export class TeatisBoxRepository
-implements TeatisBoxRepositoryInterface
+export class MasterMonthlyBoxRepository
+implements MasterMonthlyBoxRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async createTeatisBox({
+  async createMasterMonthlyBox({
     label,
     products,
     description,
     note,
-  }: createTeatisBoxArgs): Promise<ReturnValueType<TeatisBox>> {
+  }: createMasterMonthlyBoxArgs): Promise<ReturnValueType<MasterMonthlyBox>> {
     const existingProducts =
-      await this.prisma.intermediateTeatisBoxProduct.findMany({
-        where: { teatisBox: { label } },
+      await this.prisma.intermediateMasterMonthlyBoxProduct.findMany({
+        where: { masterMonthlyBox: { label } },
         select: { product: true },
       });
     const existingProductIds = existingProducts.length ? existingProducts.map(
@@ -51,22 +51,22 @@ implements TeatisBoxRepositoryInterface
     const newProductIds = products.map((product) => product.id);
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
     if(productIdsToRemove.length){
-      await this.prisma.intermediateTeatisBoxProduct.deleteMany({
+      await this.prisma.intermediateMasterMonthlyBoxProduct.deleteMany({
         where: {
           OR: productIdsToRemove.map((productId) => {
             return { productId };
           }),
-          teatisBox: { label },
+          masterMonthlyBox: { label },
         },
       });
     }
-    const response = await this.prisma.teatisBox.upsert({
+    const response = await this.prisma.masterMonthlyBox.upsert({
       where: { label },
       create: {
         label,
         description,
         note,
-        intermediateTeatisBoxProduct: {
+        intermediateMasterMonthlyBoxProduct: {
           createMany: {
             data: productIdsToAdd.map((productId) => {
               return { productId };
@@ -77,7 +77,7 @@ implements TeatisBoxRepositoryInterface
       update: {
         description,
         note,
-        intermediateTeatisBoxProduct: {
+        intermediateMasterMonthlyBoxProduct: {
           createMany: {
             data: productIdsToAdd.map((productId) => {
               return { productId };
@@ -86,7 +86,7 @@ implements TeatisBoxRepositoryInterface
         },
       },
       select: {
-        intermediateTeatisBoxProduct: { select: { product: true } },
+        intermediateMasterMonthlyBoxProduct: { select: { product: true } },
         id: true,
         label: true,
         description: true,
@@ -94,7 +94,7 @@ implements TeatisBoxRepositoryInterface
       },
     });
     const boxProducts: Product[] =
-      response.intermediateTeatisBoxProduct.map(({ product }) => {
+      response.intermediateMasterMonthlyBoxProduct.map(({ product }) => {
         return {
           id: product.id,
           sku: product.externalSku,
@@ -102,33 +102,28 @@ implements TeatisBoxRepositoryInterface
           label: product.label,
         };
       });
-    const teatisBox: TeatisBox = {
+    const masterMonthlyBox: MasterMonthlyBox = {
       id: response.id,
       label: response.label,
       description: response.description,
       note: response.note,
       products: boxProducts,
     };
-    return [{ ...teatisBox }];
+    return [{ ...masterMonthlyBox }];
   }
-  async getTeatisBoxByLabel({ label }: getTeatisBoxByLabelArgs): Promise<ReturnValueType<TeatisBox>> {
-    const response = await this.prisma.teatisBox.findUnique({
+  async getMasterMonthlyBoxByLabel(
+    { label }: getMasterMonthlyBoxByLabelArgs): Promise<ReturnValueType<MasterMonthlyBox>> {
+    const response = await this.prisma.masterMonthlyBox.findUnique({
       where: { label },
       select: {
-        intermediateTeatisBoxProduct: {
+        intermediateMasterMonthlyBoxProduct: {
           select: {
             product: {
               select: {
                 id: true,
-                productVendor: { select: { label: true } },
                 externalSku: true,
-                productImages: { select: { id: true, src: true, position: true } },
-                expertComment: true,
                 label: true,
                 name: true,
-                productNutritionFact: true,
-                ingredientLabel: true,
-                allergenLabel: true,
               },
             },
           },
@@ -140,7 +135,7 @@ implements TeatisBoxRepositoryInterface
       },
     });
 
-    if (!response?.intermediateTeatisBoxProduct) {
+    if (!response?.intermediateMasterMonthlyBoxProduct) {
       return [
         undefined,
         {
@@ -149,38 +144,19 @@ implements TeatisBoxRepositoryInterface
         },
       ];
     }
-    const boxProducts: DisplayProduct[] = response
-      .intermediateTeatisBoxProduct.length
-      ? response.intermediateTeatisBoxProduct.map(({ product }) => {
+    const boxProducts: Product[] = response
+      .intermediateMasterMonthlyBoxProduct.length
+      ? response.intermediateMasterMonthlyBoxProduct.map(({ product }) => {
         return {
           id: product.id,
           sku: product.externalSku,
           name: product.name,
           label: product.label,
-          expertComment: product.expertComment,
-          ingredientLabel: product.ingredientLabel,
-          images: product.productImages,
-          allergenLabel: product.allergenLabel,
-          vendor: product.productVendor.label,
-          nutritionFact: {
-            calorie: product.productNutritionFact.calories,
-            totalFat: product.productNutritionFact.totalFatG,
-            saturatedFat: product.productNutritionFact.saturatedFatG,
-            transFat: product.productNutritionFact.transFatG,
-            cholesterole: product.productNutritionFact.cholesteroleMg,
-            sodium: product.productNutritionFact.sodiumMg,
-            totalCarbohydrate:
-                product.productNutritionFact.totalCarbohydrateG,
-            dietaryFiber: product.productNutritionFact.dietaryFiberG,
-            totalSugar: product.productNutritionFact.totalSugarG,
-            addedSugar: product.productNutritionFact.addedSugarG,
-            protein: product.productNutritionFact.proteinG,
-          },
         };
       })
       : [];
 
-    const practitionerBox: TeatisBox = {
+    const practitionerBox: MasterMonthlyBox = {
       id: response.id,
       label: response.label,
       description: response.description,

@@ -9,6 +9,8 @@ import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries
 import { nextMonth } from '../utils/dates';
 import { v4 as uuidv4 } from 'uuid';
 import { PractitionerAndBox } from '../../domains/PractitionerAndBox';
+import { MasterMonthlyBoxRepositoryInterface } from '../../repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
+import { MasterMonthlyBox } from '../../domains/MasterMonthlyBox';
 
 export interface UpdateRecurringPractitionerBoxesUsecaseInterface {
   upsertRecurringPractitionerBoxes(
@@ -25,16 +27,24 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
     @Inject('ProductGeneralRepositoryInterface')
     private readonly productGeneralRepository: ProductGeneralRepositoryInterface,
+    @Inject('MasterMonthlyBoxRepositoryInterface')
+    private readonly masterMonthlyBoxRepository: MasterMonthlyBoxRepositoryInterface,
+
   ) {}
 
   private filterUpdatedPractitionerBoxes (
     allPractitionerBoxes: PractitionerBox[],
-    label: string,
+    masterMonthlyBox: MasterMonthlyBox,
   ): [PractitionerBox[], PractitionerBox[]] {
-    const updatedPractitionerBox: PractitionerBox[] = allPractitionerBoxes
-      .filter(practitionerBox => practitionerBox.label.includes(label));
-    const outdatedPractitionerBox: PractitionerBox[] = allPractitionerBoxes
-      .filter(practitionerBox => !practitionerBox.label.includes(label));
+    const updatedPractitionerBox: PractitionerBox[] =[];
+    const outdatedPractitionerBox: PractitionerBox[] = [];
+    for(const practitionerBox of allPractitionerBoxes){
+      if(practitionerBox?.masterMonthlyBox?.label!== masterMonthlyBox.label ){
+        outdatedPractitionerBox.push(practitionerBox);
+      }else {
+        updatedPractitionerBox.push(practitionerBox);
+      }
+    }
     return [updatedPractitionerBox, outdatedPractitionerBox];
   }
 
@@ -53,7 +63,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     newProducts: Product[], // teatis chosen 12 products
     allProducts: Product[],
   ): PractitionerBox {
-    const targetProductsSku: string[] = targetBox.products.map(({ sku }:Product) => sku);
+    const targetProductsSku: string[] = targetBox.products.map(({ sku }) => sku);
     const chosenProductsSku: string[] = newProducts.map(newProduct => newProduct.sku);
     const chooseableProducts: Product[] = allProducts.filter(product => {
       return ![...targetProductsSku, ...chosenProductsSku].includes(product.sku);
@@ -106,11 +116,18 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
         }
       );
 
+    const [masterMonthlyBox, getMasterMonthlyBoxError] =
+    await this.masterMonthlyBoxRepository.getMasterMonthlyBoxByLabel({ label: targetBoxLabel });
+
+    if(getMasterMonthlyBoxError){
+      return [undefined, getMasterMonthlyBoxError];
+    }
     if (allProductsError) { [undefined, allProductsError]; }
     const newestPractitionerBoxes = this.filterDuplicatePractitionerBox(allPractitionerBoxes);
     const [existingRecurringBoxes, newRecurringBoxes] =
-      this.filterUpdatedPractitionerBoxes(newestPractitionerBoxes, targetBoxLabel);
+      this.filterUpdatedPractitionerBoxes(newestPractitionerBoxes, masterMonthlyBox);
 
+    console.log([existingRecurringBoxes, newRecurringBoxes]);
     const newProducts:Product[] =
     allProducts.filter(({ id }) => newProductIds.find((val) => val.id === id));
 
@@ -126,14 +143,32 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       await this.practitionerBoxRepository.performAtomicOperations(
         async (): Promise<ReturnValueType<PractitionerAndBox[]>> => {
           const resultList:PractitionerAndBox[] = [];
-          for(const box of upsertTarget){
-            const [upsertPractitionerBox, upsertPractitionerBoxError] =
-            await this.practitionerBoxRepository.upsertPractitionerBox(box);
-            if(upsertPractitionerBoxError){
-              return [undefined, upsertPractitionerBoxError];
-            }
-            resultList.push(upsertPractitionerBox);
-          }
+
+          await Promise.all(
+            upsertTarget.map((box) => {
+              this.practitionerBoxRepository.upsertPractitionerBox(
+                { practitionerBox: box, masterMonthlyBox })
+                .then(([upsertPractitionerBox, upsertPractitionerBoxError]) => {
+                  throw Error();
+                  if(upsertPractitionerBoxError){
+                    throw Error(upsertPractitionerBoxError);
+                  }
+                  resultList.push(upsertPractitionerBox);
+                }).catch((error) => {
+                  throw Error(error);
+                });
+            })
+          );
+          // for(const box of upsertTarget){
+          //   const [upsertPractitionerBox, upsertPractitionerBoxError] =
+          //   await this.practitionerBoxRepository.upsertPractitionerBox(
+          //     { practitionerBox: box, masterMonthlyBox });
+          //   if(upsertPractitionerBoxError){
+          //     return [undefined, upsertPractitionerBoxError];
+          //   }
+          //   resultList.push(upsertPractitionerBox);
+          // }
+
           return [resultList];
         },
       );
