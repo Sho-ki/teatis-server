@@ -77,7 +77,7 @@ export class PractitionerBoxController {
   @Post('practitioner-box/recurring-practitioner-box')
   async updateRecurringPractitionerBox(
     @Body() body: UpsertRecurringPractitionerBoxDto,
-    @Res() response: Response<PractitionerBox[] | Error>,
+    @Res() response: Response<PractitionerAndBox[] | Error>,
   ){
     const [usecaseResponse, error] =
       await this.upsertRecurringPractitionerBoxesUsecaseInterface.upsertRecurringPractitionerBoxes(body);

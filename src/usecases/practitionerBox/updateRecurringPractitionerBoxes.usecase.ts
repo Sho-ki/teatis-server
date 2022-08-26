@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PractitionerAndBox } from '../../domains/PractitionerAndBox';
 import { MasterMonthlyBoxRepositoryInterface } from '../../repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
 import { MasterMonthlyBox } from '../../domains/MasterMonthlyBox';
+import { calculateAddedAndDeletedIds } from '@Usecases/utils/calculateAddedAndDeletedIds';
 
 export interface UpdateRecurringPractitionerBoxesUsecaseInterface {
   upsertRecurringPractitionerBoxes(
@@ -33,13 +34,13 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
   ) {}
 
   private filterUpdatedPractitionerBoxes (
-    allPractitionerBoxes: PractitionerBox[],
+    newestPractitionerBoxes: PractitionerBox[],
     masterMonthlyBox: MasterMonthlyBox,
   ): [PractitionerBox[], PractitionerBox[]] {
     const updatedPractitionerBox: PractitionerBox[] =[];
     const outdatedPractitionerBox: PractitionerBox[] = [];
-    for(const practitionerBox of allPractitionerBoxes){
-      if(practitionerBox?.masterMonthlyBox?.label!== masterMonthlyBox.label ){
+    for(const practitionerBox of newestPractitionerBoxes){
+      if(practitionerBox?.masterMonthlyBox?.label !== masterMonthlyBox.label ){
         outdatedPractitionerBox.push(practitionerBox);
       }else {
         updatedPractitionerBox.push(practitionerBox);
@@ -48,14 +49,23 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     return [updatedPractitionerBox, outdatedPractitionerBox];
   }
 
-  private filterDuplicatePractitionerBox (
+  private getPreviousPractitionerBoxes (
     allPractitionerBoxes: PractitionerBox[],
   ): PractitionerBox[] {
-    const newestPractitionerBoxes: PractitionerBox[] = allPractitionerBoxes.filter((value, index, self) =>
-      index === self.findIndex(element => (
-        value.practitionerId === element.practitionerId
-      ))
-    );
+    const newestPractitionerBoxes: PractitionerBox[] =
+      allPractitionerBoxes.filter((allPractitionerBox, _, otherPractitionerBoxes) => {
+        if (!allPractitionerBox.masterMonthlyBox?.id) return true;
+        for (const otherPractitionerBox of otherPractitionerBoxes) {
+          if (allPractitionerBox.practitionerId === otherPractitionerBox.practitionerId) {
+            const masterId = otherPractitionerBox.masterMonthlyBox?.id;
+            const isMasterIdNull = !masterId;
+            if (isMasterIdNull) return true;
+            if (allPractitionerBox.masterMonthlyBox.id !== masterId) return true;
+          }
+        }
+        return false;
+      }
+      );
     return newestPractitionerBoxes;
   }
   private swapTargetProducts(
@@ -70,8 +80,7 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
     });
     const newPractitionerBoxProducts: Product[] = [];
     for(const { id, sku, label, name } of newProducts){
-      const duplicateProductIndex = targetBox.products.findIndex(
-        product => product.sku === sku);
+      const duplicateProductIndex = targetBox.products.findIndex(product => product.sku === sku);
       if (duplicateProductIndex === -1) {
         newPractitionerBoxProducts.push({ id, name, label, sku });
         continue;
@@ -123,19 +132,26 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       return [undefined, getMasterMonthlyBoxError];
     }
     if (allProductsError) { [undefined, allProductsError]; }
-    const newestPractitionerBoxes = this.filterDuplicatePractitionerBox(allPractitionerBoxes);
+    const newestPractitionerBoxes = this.getPreviousPractitionerBoxes(allPractitionerBoxes);
+    newestPractitionerBoxes.forEach((box) => {
+      if (box.practitionerId === 1) {
+        console.log('newestPractitionerBoxes', box);
+      }
+    });
+
+    // no need
     const [existingRecurringBoxes, newRecurringBoxes] =
       this.filterUpdatedPractitionerBoxes(newestPractitionerBoxes, masterMonthlyBox);
 
-    console.log([existingRecurringBoxes, newRecurringBoxes]);
     const newProducts:Product[] =
-    allProducts.filter(({ id }) => newProductIds.find((val) => val.id === id));
+      allProducts.filter(({ id }) => newProductIds.find((val) => val.id === id));
 
     const upsertTarget = [...existingRecurringBoxes];
     for(const newRecurringBox of newRecurringBoxes){
       const uuid = uuidv4();
       newRecurringBox.uuid = uuid;
-      newRecurringBox.label = `Recurring___${nextMonth()}___${newRecurringBox.label}`;
+      const originalLabel = newRecurringBox.label.split('___');
+      newRecurringBox.label = `Recurring___${nextMonth()}___${originalLabel[originalLabel.length - 1]}`;
       upsertTarget.push(this.swapTargetProducts(newRecurringBox, newProducts, allProducts));
     }
 
@@ -149,9 +165,8 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
               this.practitionerBoxRepository.upsertPractitionerBox(
                 { practitionerBox: box, masterMonthlyBox })
                 .then(([upsertPractitionerBox, upsertPractitionerBoxError]) => {
-                  throw Error();
                   if(upsertPractitionerBoxError){
-                    throw Error(upsertPractitionerBoxError);
+                    throw Error(upsertPractitionerBoxError.message);
                   }
                   resultList.push(upsertPractitionerBox);
                 }).catch((error) => {
@@ -159,16 +174,6 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
                 });
             })
           );
-          // for(const box of upsertTarget){
-          //   const [upsertPractitionerBox, upsertPractitionerBoxError] =
-          //   await this.practitionerBoxRepository.upsertPractitionerBox(
-          //     { practitionerBox: box, masterMonthlyBox });
-          //   if(upsertPractitionerBoxError){
-          //     return [undefined, upsertPractitionerBoxError];
-          //   }
-          //   resultList.push(upsertPractitionerBox);
-          // }
-
           return [resultList];
         },
       );
@@ -176,6 +181,5 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       return [undefined, upsertPractitionerBoxError];
     }
     return [upsertPractitionerBox];
-
   }
 }

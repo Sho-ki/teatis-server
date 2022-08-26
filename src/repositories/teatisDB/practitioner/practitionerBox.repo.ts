@@ -9,6 +9,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { MasterMonthlyBox } from '../../../domains/MasterMonthlyBox';
+import { PrismaPromise } from '@prisma/client';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -35,7 +36,7 @@ interface getPractitionerRecurringBoxArgs {
 
 interface upsertPractitionerBoxArgs{
   practitionerBox: PractitionerBox;
-  masterMonthlyBox?:MasterMonthlyBox;
+  masterMonthlyBox?: MasterMonthlyBox;
 }
 
 type createRecurringPractitionerBoxArgs = upsertPractitionerAndPractitionerBoxArgs;
@@ -74,6 +75,10 @@ export interface PractitionerBoxRepositoryInterface {
     note,
   }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
   performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
+  // performSequentialOperations<T>(queries: PrismaPromise<T>[]):Promise<T[]>;
+  // upsertPractitionerBoxTransaction(
+  //   { practitionerBox, masterMonthlyBox }:upsertPractitionerBoxArgs
+  // ): Promise<ReturnValueType<any>>;
 }
 
 @Injectable()
@@ -83,8 +88,61 @@ implements PractitionerBoxRepositoryInterface
   constructor(private prisma: PrismaService) {}
 
   performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
+    console.log('transactionBlock', String(transactionBlock));
+
     return this.prisma.$transaction(transactionBlock);
   }
+  // performSequentialOperations<T>(queries: PrismaPromise<T>[]):Promise<T[]>{
+  //   return this.prisma.$transaction(queries);
+  // }
+
+  // async upsertPractitionerBoxTransaction(
+  //   { practitionerBox: targetBox, masterMonthlyBox }:upsertPractitionerBoxArgs
+  // ): Promise<ReturnValueType<any>>{
+  //   const { id, uuid, practitionerId, label, description, note, products } = targetBox;
+  //   const existingProductIds: number[] = products.map((product:Product) => product.id);
+  //   const newProductIds: number[] = masterMonthlyBox.products.map((product:Product) => product.id);
+  //   const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
+  //   const deleteQuery = await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
+  //     where: {
+  //       OR: productIdsToRemove.map((productId) => {
+  //         return { productId };
+  //       }),
+  //       practitionerBoxId: id,
+  //     },
+  //   });
+
+  //   const upsertQuery = await this.prisma.practitionerBox.upsert({
+  //     where: { PractitionerBoxIdentifier: { practitionerId, label } },
+  //     create: {
+  //       label,
+  //       uuid,
+  //       practitionerId,
+  //       description,
+  //       note,
+  //       masterMonthlyBoxId: masterMonthlyBox?masterMonthlyBox.id:null,
+  //       intermediatePractitionerBoxProduct: {
+  //         createMany: {
+  //           data: productIdsToAdd.map((productId) => {
+  //             return { productId };
+  //           }),
+  //         },
+  //       },
+  //     },
+  //     update: {
+  //       description,
+  //       note,
+  //       intermediatePractitionerBoxProduct: {
+  //         createMany: {
+  //           data: productIdsToAdd.map((productId) => {
+  //             return { productId };
+  //           }),
+  //         },
+  //       },
+  //     },
+  //   });
+  //   return [...deleteQuery, ...upsertQuery];
+  // }
 
   async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
   Promise<ReturnValueType<PractitionerBox>>{
@@ -564,7 +622,7 @@ implements PractitionerBoxRepositoryInterface
     );
     const newProductIds: number[] = products.map((product:Product) => product.id);
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
-    if (!productIdsToRemove.length) {
+    if (productIdsToRemove.length > 0) {
       await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
         where: {
           OR: productIdsToRemove.map((productId) => {
@@ -574,7 +632,13 @@ implements PractitionerBoxRepositoryInterface
         },
       });
     }
-
+    if (practitionerId === 1) {
+      console.log('-----------------');
+      console.log('practitionerId: ', practitionerId);
+      console.log('productIdsToAdd', productIdsToAdd);
+      console.log('productIdsToRemove', productIdsToRemove);
+      console.log('-----------------');
+    }
     const response = await this.prisma.practitionerBox.upsert({
       where: { PractitionerBoxIdentifier: { practitionerId, label } },
       create: {

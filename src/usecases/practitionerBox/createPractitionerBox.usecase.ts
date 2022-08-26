@@ -31,6 +31,7 @@ implements CreatePractitionerBoxUsecaseInterface
     description,
     note,
   }: CreatePractitionerBoxDto): Promise<ReturnValueType<PractitionerAndBox>> {
+    console.log('createPractitionerBox');
     const practitionerBoxUuid = uuidv4();
 
     const [practitionerBoxProduct, createPractitionerBoxProductError] =

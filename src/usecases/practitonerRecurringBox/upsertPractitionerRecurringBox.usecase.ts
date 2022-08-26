@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PractitionerBox } from '@Domains/PractitionerBox';
 import { ReturnValueType } from '@Filters/customError';
 import { CreateMasterMonthlyBoxUsecaseInterface } from '@Usecases/masterMonthlyBox/createMasterMonthlyBox.usecase';
 import { UpdateRecurringPractitionerBoxesUsecaseInterface } from '../practitionerBox/updateRecurringPractitionerBoxes.usecase';
 import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries/dtos/upsertRecurringPractitionerBox';
+import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 
 export interface UpsertRecurringPractitionerBoxesUsecaseInterface {
   upsertRecurringPractitionerBoxes(
  { products, label, note, description }: UpsertRecurringPractitionerBoxDto
-  ): Promise<ReturnValueType<PractitionerBox[]>>;
+  ): Promise<ReturnValueType<PractitionerAndBox[]>>;
 }
 
 @Injectable()
@@ -24,11 +24,10 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
   ) {}
   async upsertRecurringPractitionerBoxes (
     { products: newProducts, label: targetBoxLabel, note, description }: UpsertRecurringPractitionerBoxDto
-  ): Promise<ReturnValueType<PractitionerBox[]>>{
-    const [masterMonthlyBox, masterMonthlyBoxError] =
+  ): Promise<ReturnValueType<PractitionerAndBox[]>>{
+    const [, masterMonthlyBoxError] =
     await this.createMasterMonthlyBoxUsecaseInterface.createMasterMonthlyBox(
       { products: newProducts, label: targetBoxLabel, note, description });
-
     if(masterMonthlyBoxError){
       return [undefined, masterMonthlyBoxError];
     }
@@ -42,8 +41,9 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
     if(practitionerAndBoxesError){
       return [undefined, practitionerAndBoxesError];
     }
+    return [practitionerAndBoxes, undefined];
 
     // eslint-disable-next-line no-console
-    console.log(masterMonthlyBox, practitionerAndBoxes );
+    // console.log(masterMonthlyBox, practitionerAndBoxes );
   }
 }
