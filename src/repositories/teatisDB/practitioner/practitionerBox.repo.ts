@@ -614,7 +614,16 @@ implements PractitionerBoxRepositoryInterface
   async upsertPractitionerBox(
     { practitionerBox: targetBox, masterMonthlyBox }:upsertPractitionerBoxArgs
   ): Promise<ReturnValueType<PractitionerAndBox>>{
-    const { id, uuid, practitionerId, label, description, note, products } = targetBox;
+    const {
+      id,
+      uuid,
+      practitionerId,
+      label,
+      description,
+      note,
+      products,
+      masterMonthlyBox: targetBoxMasterMonthlyBox,
+    } = targetBox;
     const existingProducts =
       await this.prisma.intermediatePractitionerBoxProduct.findMany({ where: { practitionerBoxId: id } });
     const existingProductIds: number[] = existingProducts.map(
@@ -622,7 +631,10 @@ implements PractitionerBoxRepositoryInterface
     );
     const newProductIds: number[] = products.map((product:Product) => product.id);
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
-    if (productIdsToRemove.length > 0) {
+    if (
+      targetBoxMasterMonthlyBox?.id !== masterMonthlyBox.id
+      && productIdsToRemove.length > 0
+    ) {
       await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
         where: {
           OR: productIdsToRemove.map((productId) => {
@@ -632,13 +644,12 @@ implements PractitionerBoxRepositoryInterface
         },
       });
     }
-    if (practitionerId === 1) {
-      console.log('-----------------');
-      console.log('practitionerId: ', practitionerId);
-      console.log('productIdsToAdd', productIdsToAdd);
-      console.log('productIdsToRemove', productIdsToRemove);
-      console.log('-----------------');
-    }
+    console.log('--------upsertPractitionerBox---------');
+    console.log('practitionerId: ', practitionerId);
+    console.log('label: ', label);
+    console.log('productIdsToAdd', productIdsToAdd);
+    console.log('productIdsToRemove', productIdsToRemove);
+    console.log('-----------------');
     const response = await this.prisma.practitionerBox.upsert({
       where: { PractitionerBoxIdentifier: { practitionerId, label } },
       create: {

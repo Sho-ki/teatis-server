@@ -132,29 +132,29 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
       return [undefined, getMasterMonthlyBoxError];
     }
     if (allProductsError) { [undefined, allProductsError]; }
-    const newestPractitionerBoxes = this.getPreviousPractitionerBoxes(allPractitionerBoxes);
-    newestPractitionerBoxes.forEach((box) => {
-      if (box.practitionerId === 1) {
-        console.log('newestPractitionerBoxes', box);
-      }
+    const previousPractitionerBoxes: PractitionerBox[] = this.getPreviousPractitionerBoxes(allPractitionerBoxes);
+    console.log('previousPractitionerBoxes.length', previousPractitionerBoxes.length);
+    previousPractitionerBoxes.forEach((box) => {
+      console.log('--------previousPractitionerBoxes---------');
+      console.log('previousPractitionerBoxes', box);
+      console.log('-----------------');
     });
-
-    // no need
-    const [existingRecurringBoxes, newRecurringBoxes] =
-      this.filterUpdatedPractitionerBoxes(newestPractitionerBoxes, masterMonthlyBox);
-
     const newProducts:Product[] =
       allProducts.filter(({ id }) => newProductIds.find((val) => val.id === id));
 
-    const upsertTarget = [...existingRecurringBoxes];
-    for(const newRecurringBox of newRecurringBoxes){
+    const upsertTarget: PractitionerBox[] = [];
+    for(const previousPractitionerBox of previousPractitionerBoxes){
       const uuid = uuidv4();
-      newRecurringBox.uuid = uuid;
-      const originalLabel = newRecurringBox.label.split('___');
-      newRecurringBox.label = `Recurring___${nextMonth()}___${originalLabel[originalLabel.length - 1]}`;
-      upsertTarget.push(this.swapTargetProducts(newRecurringBox, newProducts, allProducts));
+      previousPractitionerBox.uuid = uuid;
+      const originalLabel = previousPractitionerBox.label.split('___');
+      previousPractitionerBox.label = `Recurring___${nextMonth()}___${originalLabel[originalLabel.length - 1]}`;
+      upsertTarget.push(this.swapTargetProducts(previousPractitionerBox, newProducts, allProducts));
     }
-
+    upsertTarget.forEach((box) => {
+      console.log('--------upsertTarget---------');
+      console.log('upsertTarget', box);
+      console.log('-----------------');
+    });
     const [upsertPractitionerBox, upsertPractitionerBoxError] =
       await this.practitionerBoxRepository.performAtomicOperations(
         async (): Promise<ReturnValueType<PractitionerAndBox[]>> => {
