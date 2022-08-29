@@ -128,6 +128,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
           if (upsertImagesError) {
             return [undefined, upsertImagesError];
           }
+
           return [product];
         },
       );

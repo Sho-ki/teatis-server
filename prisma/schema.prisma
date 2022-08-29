@@ -605,7 +605,7 @@ model PractitionerBox{
 }
 
 model IntermediatePractitionerBoxProduct{
-  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id])
+  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id], onDelete: Cascade)
   practitionerBoxId Int
   product Product @relation(fields: [productId], references: [id])
   productId Int

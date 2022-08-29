@@ -9,7 +9,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { MasterMonthlyBox } from '../../../domains/MasterMonthlyBox';
-import { PrismaPromise } from '@prisma/client';
+import { Status } from '../../../domains/Status';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -39,6 +39,9 @@ interface upsertPractitionerBoxArgs{
   masterMonthlyBox?: MasterMonthlyBox;
 }
 
+interface deletePractitionerBoxesByMasterMonthlyBoxIdArgs{
+  id:number;
+}
 type createRecurringPractitionerBoxArgs = upsertPractitionerAndPractitionerBoxArgs;
 
 export interface PractitionerBoxRepositoryInterface {
@@ -74,11 +77,9 @@ export interface PractitionerBoxRepositoryInterface {
     description,
     note,
   }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
+  deletePractitionerBoxesByMasterMonthlyBoxId(
+    { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs): Promise<ReturnValueType<Status>>;
   performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
-  // performSequentialOperations<T>(queries: PrismaPromise<T>[]):Promise<T[]>;
-  // upsertPractitionerBoxTransaction(
-  //   { practitionerBox, masterMonthlyBox }:upsertPractitionerBoxArgs
-  // ): Promise<ReturnValueType<any>>;
 }
 
 @Injectable()
@@ -87,63 +88,15 @@ implements PractitionerBoxRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
-    console.log('transactionBlock', String(transactionBlock));
-
-    return this.prisma.$transaction(transactionBlock);
+  async performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
+    return await this.prisma.$transaction(transactionBlock);
   }
-  // performSequentialOperations<T>(queries: PrismaPromise<T>[]):Promise<T[]>{
-  //   return this.prisma.$transaction(queries);
-  // }
 
-  // async upsertPractitionerBoxTransaction(
-  //   { practitionerBox: targetBox, masterMonthlyBox }:upsertPractitionerBoxArgs
-  // ): Promise<ReturnValueType<any>>{
-  //   const { id, uuid, practitionerId, label, description, note, products } = targetBox;
-  //   const existingProductIds: number[] = products.map((product:Product) => product.id);
-  //   const newProductIds: number[] = masterMonthlyBox.products.map((product:Product) => product.id);
-  //   const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
-  //   const deleteQuery = await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
-  //     where: {
-  //       OR: productIdsToRemove.map((productId) => {
-  //         return { productId };
-  //       }),
-  //       practitionerBoxId: id,
-  //     },
-  //   });
-
-  //   const upsertQuery = await this.prisma.practitionerBox.upsert({
-  //     where: { PractitionerBoxIdentifier: { practitionerId, label } },
-  //     create: {
-  //       label,
-  //       uuid,
-  //       practitionerId,
-  //       description,
-  //       note,
-  //       masterMonthlyBoxId: masterMonthlyBox?masterMonthlyBox.id:null,
-  //       intermediatePractitionerBoxProduct: {
-  //         createMany: {
-  //           data: productIdsToAdd.map((productId) => {
-  //             return { productId };
-  //           }),
-  //         },
-  //       },
-  //     },
-  //     update: {
-  //       description,
-  //       note,
-  //       intermediatePractitionerBoxProduct: {
-  //         createMany: {
-  //           data: productIdsToAdd.map((productId) => {
-  //             return { productId };
-  //           }),
-  //         },
-  //       },
-  //     },
-  //   });
-  //   return [...deleteQuery, ...upsertQuery];
-  // }
-
+  async  deletePractitionerBoxesByMasterMonthlyBoxId(
+    { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs): Promise<ReturnValueType<Status>>{
+    await this.prisma.practitionerBox.deleteMany({ where: { masterMonthlyBoxId: id } });
+    return [{ success: true }];
+  }
   async getPractitionerRecurringBox({ practitionerId, label }:getPractitionerRecurringBoxArgs):
   Promise<ReturnValueType<PractitionerBox>>{
     const response = await this.prisma.practitionerBox.findUnique(
@@ -615,41 +568,14 @@ implements PractitionerBoxRepositoryInterface
     { practitionerBox: targetBox, masterMonthlyBox }:upsertPractitionerBoxArgs
   ): Promise<ReturnValueType<PractitionerAndBox>>{
     const {
-      id,
       uuid,
       practitionerId,
       label,
       description,
       note,
       products,
-      masterMonthlyBox: targetBoxMasterMonthlyBox,
     } = targetBox;
-    const existingProducts =
-      await this.prisma.intermediatePractitionerBoxProduct.findMany({ where: { practitionerBoxId: id } });
-    const existingProductIds: number[] = existingProducts.map(
-      ({ productId }) => productId
-    );
-    const newProductIds: number[] = products.map((product:Product) => product.id);
-    const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
-    if (
-      targetBoxMasterMonthlyBox?.id !== masterMonthlyBox.id
-      && productIdsToRemove.length > 0
-    ) {
-      await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
-        where: {
-          OR: productIdsToRemove.map((productId) => {
-            return { productId };
-          }),
-          practitionerBoxId: id,
-        },
-      });
-    }
-    console.log('--------upsertPractitionerBox---------');
-    console.log('practitionerId: ', practitionerId);
-    console.log('label: ', label);
-    console.log('productIdsToAdd', productIdsToAdd);
-    console.log('productIdsToRemove', productIdsToRemove);
-    console.log('-----------------');
+
     const response = await this.prisma.practitionerBox.upsert({
       where: { PractitionerBoxIdentifier: { practitionerId, label } },
       create: {
@@ -661,8 +587,8 @@ implements PractitionerBoxRepositoryInterface
         masterMonthlyBoxId: masterMonthlyBox?masterMonthlyBox.id:null,
         intermediatePractitionerBoxProduct: {
           createMany: {
-            data: productIdsToAdd.map((productId) => {
-              return { productId };
+            data: products.map(({ id }:Product) => {
+              return { productId: id };
             }),
           },
         },
@@ -672,8 +598,8 @@ implements PractitionerBoxRepositoryInterface
         note,
         intermediatePractitionerBoxProduct: {
           createMany: {
-            data: productIdsToAdd.map((productId) => {
-              return { productId };
+            data: products.map(({ id }:Product) => {
+              return { productId: id };
             }),
           },
         },

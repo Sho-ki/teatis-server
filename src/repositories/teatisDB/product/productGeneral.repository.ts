@@ -602,6 +602,7 @@ implements ProductGeneralRepositoryInterface
         spicy: nutritionFact.spicy,
         texture: nutritionFact.texture,
       };
+
     const response = await this.prisma.product.upsert({
       where: { externalSku },
       create: {
