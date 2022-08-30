@@ -87,9 +87,10 @@ export interface PractitionerBoxRepositoryInterface extends Transactionable {
 export class PractitionerBoxRepository
 implements PractitionerBoxRepositoryInterface, Transactionable
 {
-  constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
-  private originalPrismaClient: PrismaService | Prisma.TransactionClient;
-
+  constructor(
+    private prisma: PrismaService | Prisma.TransactionClient,
+    private originalPrismaClient : PrismaService | Prisma.TransactionClient
+  ) {}
   setPrismaClient(prisma: Prisma.TransactionClient): PractitionerBoxRepositoryInterface {
     this.originalPrismaClient = this.prisma;
     this.prisma = prisma;

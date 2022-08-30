@@ -161,8 +161,10 @@ export interface ProductGeneralRepositoryInterface extends Transactionable {
 export class ProductGeneralRepository
 implements ProductGeneralRepositoryInterface, Transactionable
 {
-  constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
-  private originalPrismaClient: PrismaService | Prisma.TransactionClient;
+  constructor(
+    private prisma: PrismaService | Prisma.TransactionClient,
+    private originalPrismaClient : PrismaService | Prisma.TransactionClient
+  ) {}
 
   setPrismaClient(prisma: Prisma.TransactionClient): ProductGeneralRepositoryInterface {
     this.originalPrismaClient = this.prisma;

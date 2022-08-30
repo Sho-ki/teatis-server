@@ -34,8 +34,10 @@ export interface MasterMonthlyBoxRepositoryInterface extends Transactionable {
 export class MasterMonthlyBoxRepository
 implements MasterMonthlyBoxRepositoryInterface, Transactionable
 {
-  constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
-  private originalPrismaClient : PrismaService | Prisma.TransactionClient;
+  constructor(
+    private prisma: PrismaService | Prisma.TransactionClient,
+    private originalPrismaClient : PrismaService | Prisma.TransactionClient
+  ) {}
 
   setPrismaClient(prisma: Prisma.TransactionClient): MasterMonthlyBoxRepositoryInterface {
     this.originalPrismaClient = this.prisma;
