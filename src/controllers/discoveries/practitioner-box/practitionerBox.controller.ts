@@ -15,7 +15,6 @@ import { GetPractitionerBoxByLabelUsecaseInterface } from '@Usecases/practitione
 import { GetPractitionerBoxByUuidUsecaseInterface } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
 import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { PractitionerBox } from '@Domains/PractitionerBox';
 import { UpsertRecurringPractitionerBoxDto } from '../dtos/upsertRecurringPractitionerBox';
 import { UpsertRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 
