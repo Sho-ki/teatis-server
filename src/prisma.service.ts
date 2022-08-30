@@ -3,11 +3,8 @@ import { Prisma, PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService
-  extends PrismaClient<
-    Prisma.PrismaClientOptions,
-    'query' | 'info' | 'warn' | 'error'
-  >
-  implements OnModuleInit
+  extends PrismaClient
+  implements OnModuleInit, Prisma.TransactionClient
 {
   constructor() {
     super({
