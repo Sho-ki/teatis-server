@@ -19,7 +19,7 @@ interface createMasterMonthlyBoxArgs {
   note?: string;
 }
 
-export interface MasterMonthlyBoxRepositoryInterface {
+export interface MasterMonthlyBoxRepositoryInterface extends Transactionable {
   getMasterMonthlyBoxByLabel({ label }: getMasterMonthlyBoxByLabelArgs): Promise<ReturnValueType<MasterMonthlyBox>>;
 
   createMasterMonthlyBox({
@@ -28,16 +28,14 @@ export interface MasterMonthlyBoxRepositoryInterface {
     description,
     note,
   }: createMasterMonthlyBoxArgs): Promise<ReturnValueType<MasterMonthlyBox>>;
-  setPrismaClient(prisma: Prisma.TransactionClient): MasterMonthlyBoxRepositoryInterface;
-  setDefaultPrismaClient(): void;
 }
 
 @Injectable()
 export class MasterMonthlyBoxRepository
 implements MasterMonthlyBoxRepositoryInterface, Transactionable
 {
-  private originalPrismaClient : PrismaService | Prisma.TransactionClient;
   constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
+  private originalPrismaClient : PrismaService | Prisma.TransactionClient;
 
   setPrismaClient(prisma: Prisma.TransactionClient): MasterMonthlyBoxRepositoryInterface {
     this.originalPrismaClient = this.prisma;

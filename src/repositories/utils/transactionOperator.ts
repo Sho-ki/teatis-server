@@ -4,37 +4,33 @@ import { PrismaService } from 'src/prisma.service';
 import { Transactionable } from './transactionable.interface';
 
 export interface TransactionOperatorInterface {
-  addRepositoriesForAtomicOperation(repositories: Array<Transactionable>);
-  performAtomicOperations<T>(transactionBlock: (prisma: Prisma.TransactionClient) => Promise<T>): Promise<T> ;
+  performAtomicOperations<T>(
+    repositories: Array<Transactionable>,
+    transactionBlock: () => Promise<T>
+  ): Promise<T> ;
 }
 
 @Injectable()
 export class TransactionOperator
 implements TransactionOperatorInterface
 {
-  private repositories: Array<Transactionable>;
-  constructor(private prisma: PrismaService) {
-    this.repositories = [];
-  }
-
-  addRepositoriesForAtomicOperation(repositories: Array<Transactionable>) {
-    this.repositories = repositories;
-    return this;
-  }
-
-  async performAtomicOperations<T>(transactionBlock: (prisma: Prisma.TransactionClient) => Promise<T>): Promise<T> {
-    return await this.prisma.$transaction(async (prismaTransactionClient: Prisma.TransactionClient) => {
-      if (this.repositories.length === 0) {
+  constructor(private prisma: PrismaService) {}
+  async performAtomicOperations<T>(
+    repositories: Array<Transactionable>,
+    transactionBlock: () => Promise<T>
+  ): Promise<T> {
+    return await this.prisma.$transaction(async (prisma: Prisma.TransactionClient) => {
+      if (repositories.length === 0) {
         throw new Error('addRepositoriesForAtomicOperation should be called before `performAtomicOperations`');
       }
 
-      this.repositories.forEach((repository) => {
-        repository.setPrismaClient(prismaTransactionClient);
+      repositories.forEach((repository) => {
+        repository.setPrismaClient(prisma);
       });
 
-      const response = await transactionBlock(prismaTransactionClient);
+      const response = await transactionBlock();
 
-      this.repositories.forEach((repository) => {
+      repositories.forEach((repository) => {
         repository.setDefaultPrismaClient();
       });
 

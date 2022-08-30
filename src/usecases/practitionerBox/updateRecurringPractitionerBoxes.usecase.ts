@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 
+import { MasterMonthlyBoxRepositoryInterface } from '../../repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
+import { PractitionerAndBox } from '../../domains/PractitionerAndBox';
 import { PractitionerBox } from '@Domains/PractitionerBox';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
-import { ReturnValueType } from '@Filters/customError';
 import { Product } from '@Domains/Product';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
-import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries/dtos/upsertRecurringPractitionerBox';
-import { nextMonth } from '../utils/dates';
-import { v4 as uuidv4 } from 'uuid';
-import { PractitionerAndBox } from '../../domains/PractitionerAndBox';
-import { MasterMonthlyBoxRepositoryInterface } from '../../repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
+import { ReturnValueType } from '@Filters/customError';
 import { TransactionOperatorInterface } from '@Repositories/utils/transactionOperator';
+import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries/dtos/upsertRecurringPractitionerBox';
+import { nextMonth } from '@Usecases/utils/dates';
 
 export interface UpdateRecurringPractitionerBoxesUsecaseInterface {
   upsertRecurringPractitionerBoxes(
@@ -106,32 +106,32 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
   ): Promise<ReturnValueType<PractitionerAndBox[]>>{
     const [upsertPractitionerBox, upsertPractitionerBoxError] =
       await this.transactionOperator
-        // .addRepositoriesForAtomicOperation(
-        //   [this.masterMonthlyBoxRepository, this.productGeneralRepository, this.practitionerBoxRepository]
-        // )
         .performAtomicOperations(
+          [this.masterMonthlyBoxRepository, this.productGeneralRepository, this.practitionerBoxRepository],
           async (): Promise<ReturnValueType<PractitionerAndBox[]>> => {
             const [masterMonthlyBox, getMasterMonthlyBoxError] =
-            await this.masterMonthlyBoxRepository.getMasterMonthlyBoxByLabel({ label: targetBoxLabel });
-
+              await this.masterMonthlyBoxRepository.getMasterMonthlyBoxByLabel({ label: targetBoxLabel });
             if(getMasterMonthlyBoxError){
               return [undefined, getMasterMonthlyBoxError];
             }
+
             await this.practitionerBoxRepository
               .deletePractitionerBoxesByMasterMonthlyBoxId({ id: masterMonthlyBox.id });
-            const [allPractitionerBoxes, allPractitionerBoxesError] =
-            await this.practitionerBoxRepository.getAllPractitionerBoxes();
-            if (allPractitionerBoxesError) { [undefined, allPractitionerBoxesError]; }
-            const [allProducts, allProductsError] =
-            await this.productGeneralRepository.getAllProducts(
-              { medicalConditions: { highBloodPressure: false, highCholesterol: false } });
 
+            const [allPractitionerBoxes, allPractitionerBoxesError] =
+              await this.practitionerBoxRepository.getAllPractitionerBoxes();
+            if (allPractitionerBoxesError) { [undefined, allPractitionerBoxesError]; }
+
+            const [allProducts, allProductsError] =
+              await this.productGeneralRepository.getAllProducts(
+                { medicalConditions: { highBloodPressure: false, highCholesterol: false } });
             if (allProductsError) { [undefined, allProductsError]; }
+
             const newestPractitionerBoxes: PractitionerBox[] =
               this.filterDuplicatePractitionerBox(allPractitionerBoxes);
 
             const newProducts:Product[] =
-            allProducts.filter(({ id }) => newProductIds.find((val) => val.id === id));
+              allProducts.filter(({ id }) => newProductIds.find((val) => val.id === id));
 
             const upsertTarget: PractitionerBox[] = [];
             for(const newRecurringPractitionerBox of newestPractitionerBoxes){

@@ -46,7 +46,7 @@ interface deletePractitionerBoxesByMasterMonthlyBoxIdArgs{
 }
 type createRecurringPractitionerBoxArgs = upsertPractitionerAndPractitionerBoxArgs;
 
-export interface PractitionerBoxRepositoryInterface {
+export interface PractitionerBoxRepositoryInterface extends Transactionable {
   getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
   Promise<ReturnValueType<PractitionerAndBox>>;
 
@@ -81,16 +81,14 @@ export interface PractitionerBoxRepositoryInterface {
   }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
   deletePractitionerBoxesByMasterMonthlyBoxId(
     { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs): Promise<ReturnValueType<Status>>;
-  setPrismaClient(prisma: Prisma.TransactionClient): PractitionerBoxRepositoryInterface;
-  setDefaultPrismaClient(): void;
 }
 
 @Injectable()
 export class PractitionerBoxRepository
 implements PractitionerBoxRepositoryInterface, Transactionable
 {
-  private originalPrismaClient: PrismaService | Prisma.TransactionClient;
   constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
+  private originalPrismaClient: PrismaService | Prisma.TransactionClient;
 
   setPrismaClient(prisma: Prisma.TransactionClient): PractitionerBoxRepositoryInterface {
     this.originalPrismaClient = this.prisma;

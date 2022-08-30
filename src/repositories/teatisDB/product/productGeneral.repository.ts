@@ -105,7 +105,7 @@ interface UpsertProductArgs {
   };
 }
 
-export interface ProductGeneralRepositoryInterface {
+export interface ProductGeneralRepositoryInterface extends Transactionable {
   upsertProduct({
     activeStatus,
     preservationStyle,
@@ -155,16 +155,14 @@ export interface ProductGeneralRepositoryInterface {
   }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>>;
 
   performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
-  setPrismaClient(prisma): ProductGeneralRepositoryInterface;
-  setDefaultPrismaClient(): void;
 }
 
 @Injectable()
 export class ProductGeneralRepository
 implements ProductGeneralRepositoryInterface, Transactionable
 {
-  private originalPrismaClient: PrismaService | Prisma.TransactionClient;
   constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
+  private originalPrismaClient: PrismaService | Prisma.TransactionClient;
 
   setPrismaClient(prisma: Prisma.TransactionClient): ProductGeneralRepositoryInterface {
     this.originalPrismaClient = this.prisma;
