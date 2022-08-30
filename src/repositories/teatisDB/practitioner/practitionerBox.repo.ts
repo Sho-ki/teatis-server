@@ -10,6 +10,8 @@ import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { MasterMonthlyBox } from '../../../domains/MasterMonthlyBox';
 import { Status } from '../../../domains/Status';
+import { Transactionable } from '@Repositories/utils/transactionable.interface';
+import { Prisma } from '@prisma/client';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -79,17 +81,25 @@ export interface PractitionerBoxRepositoryInterface {
   }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
   deletePractitionerBoxesByMasterMonthlyBoxId(
     { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs): Promise<ReturnValueType<Status>>;
-  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
+  setPrismaClient(prisma: Prisma.TransactionClient): PractitionerBoxRepositoryInterface;
+  setDefaultPrismaClient(): void;
 }
 
 @Injectable()
 export class PractitionerBoxRepository
-implements PractitionerBoxRepositoryInterface
+implements PractitionerBoxRepositoryInterface, Transactionable
 {
-  constructor(private prisma: PrismaService) {}
+  private originalPrismaClient: PrismaService | Prisma.TransactionClient;
+  constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
 
-  async performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
-    return await this.prisma.$transaction(transactionBlock);
+  setPrismaClient(prisma: Prisma.TransactionClient): PractitionerBoxRepositoryInterface {
+    this.originalPrismaClient = this.prisma;
+    this.prisma = prisma;
+    return this;
+  }
+
+  setDefaultPrismaClient() {
+    this.prisma = this.originalPrismaClient;
   }
 
   async  deletePractitionerBoxesByMasterMonthlyBoxId(

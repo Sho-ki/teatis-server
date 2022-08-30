@@ -12,25 +12,41 @@ import { ProductGeneralRepository } from '@Repositories/teatisDB/product/product
 import { UpsertRecurringPractitionerBoxesUsecase } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 import { CreateMasterMonthlyBoxUsecase } from '@Usecases/masterMonthlyBox/createMasterMonthlyBox.usecase';
 import { MasterMonthlyBoxRepository } from '@Repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
+import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
+import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
+import { GetAllRecurringPractitionerBoxesUsecase } from '@Usecases/practitionerBox/getAllRecurringBoxes.usecase';
+import { TransactionOperator } from '@Repositories/utils/transactionOperator';
 
 @Module({
   controllers: [PractitionerBoxController],
   providers: [
     {
-      provide: 'PractitionerGeneralRepositoryInterface',
-      useClass: PractitionerGeneralRepository,
+      provide: 'PractitionerBoxRepositoryInterface',
+      useClass: PractitionerBoxRepository,
     },
     {
-      provide: 'GetPractitionerBoxByLabelUsecaseInterface',
-      useClass: GetPractitionerBoxByLabelUsecase,
+      provide: 'UpdateCustomerOrderOfPractitionerBoxUsecaseInterface',
+      useClass: UpdateCustomerOrderOfPractitionerBoxUsecase,
+    },
+    {
+      provide: 'UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface',
+      useClass: UpdateCustomerOrderOfPractitionerMealBoxUsecase,
     },
     {
       provide: 'CreatePractitionerBoxUsecaseInterface',
       useClass: CreatePractitionerBoxUsecase,
     },
     {
-      provide: 'PractitionerBoxRepositoryInterface',
-      useClass: PractitionerBoxRepository,
+      provide: 'PractitionerGeneralRepositoryInterface',
+      useClass: PractitionerGeneralRepository,
+    },
+    {
+      provide: 'GetAllRecurringPractitionerBoxesUsecaseInterface',
+      useClass: GetAllRecurringPractitionerBoxesUsecase,
+    },
+    {
+      provide: 'GetPractitionerBoxByLabelUsecaseInterface',
+      useClass: GetPractitionerBoxByLabelUsecase,
     },
     {
       provide: 'GetPractitionerBoxByUuidUsecaseInterface',
@@ -47,6 +63,10 @@ import { MasterMonthlyBoxRepository } from '@Repositories/teatisDB/masterMonthly
     {
       provide: 'UpsertRecurringPractitionerBoxesUsecaseInterface',
       useClass: UpsertRecurringPractitionerBoxesUsecase,
+    },
+    {
+      provide: 'TransactionOperatorInterface',
+      useClass: TransactionOperator,
     },
     {
       provide: 'CreateMasterMonthlyBoxUsecaseInterface',

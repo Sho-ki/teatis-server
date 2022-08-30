@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from '@Domains/Product';
+import { Prisma } from '@prisma/client';
 
-import { PrismaService } from '../../../prisma.service';
-import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { ReturnValueType } from '@Filters/customError';
 import { MasterMonthlyBox } from '@Domains/MasterMonthlyBox';
+import { PrismaService } from '../../../prisma.service';
+import { Product } from '@Domains/Product';
+import { ReturnValueType } from '@Filters/customError';
+import { Transactionable } from '@Repositories/utils/transactionable.interface';
+import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 
 interface getMasterMonthlyBoxByLabelArgs {
   label: string;
@@ -26,13 +28,26 @@ export interface MasterMonthlyBoxRepositoryInterface {
     description,
     note,
   }: createMasterMonthlyBoxArgs): Promise<ReturnValueType<MasterMonthlyBox>>;
+  setPrismaClient(prisma: Prisma.TransactionClient): MasterMonthlyBoxRepositoryInterface;
+  setDefaultPrismaClient(): void;
 }
 
 @Injectable()
 export class MasterMonthlyBoxRepository
-implements MasterMonthlyBoxRepositoryInterface
+implements MasterMonthlyBoxRepositoryInterface, Transactionable
 {
-  constructor(private prisma: PrismaService) {}
+  private originalPrismaClient : PrismaService | Prisma.TransactionClient;
+  constructor(private prisma: PrismaService | Prisma.TransactionClient) {}
+
+  setPrismaClient(prisma: Prisma.TransactionClient): MasterMonthlyBoxRepositoryInterface {
+    this.originalPrismaClient = this.prisma;
+    this.prisma = prisma;
+    return this;
+  }
+
+  setDefaultPrismaClient() {
+    this.prisma = this.originalPrismaClient;
+  }
 
   async createMasterMonthlyBox({
     label,
