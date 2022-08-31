@@ -560,8 +560,8 @@ implements PractitionerBoxRepositoryInterface
         practitionerId: response.practitionerId,
         uuid: response.uuid,
         label: response.label,
-        description: response.description,
-        note: response.note,
+        description: response.description || '',
+        note: response.note || '',
         products: response.intermediatePractitionerBoxProduct.map(({ product }) => {
           return { id: product.id, label: product.label, sku: product.externalSku, name: product.name };
         }),

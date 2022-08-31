@@ -326,9 +326,6 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
       }
       if(newPractitionerProducts.length === PRODUCT_COUNT)break;
     }
-    // console.log(practitionerProducts);
-    // console.log('-------------------------------------------------');
-    // console.log(newPractitionerProducts);
     return [newPractitionerProducts, undefined];
   }
 }
