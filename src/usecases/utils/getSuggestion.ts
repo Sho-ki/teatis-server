@@ -135,7 +135,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     const [lastCustomerOrder, getLastCustomerOrderError] =
       await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
     if (getLastCustomerOrderError) {
-      return [null, getLastCustomerOrderError];
+      return [undefined, getLastCustomerOrderError];
     }
     if (lastCustomerOrder.products.length === 0) {
       isFirstOrder = true;
@@ -148,13 +148,13 @@ export class GetSuggestion implements GetSuggestionInterface {
       : [[], [], []];
 
     if (getAverageScoresError) {
-      return [null, getAverageScoresError];
+      return [undefined, getAverageScoresError];
     }
     if (getNextWantError) {
-      return [null, getNextWantError];
+      return [undefined, getNextWantError];
     }
     if (getCustomerUnwantedError) {
-      return [null, getCustomerUnwantedError];
+      return [undefined, getCustomerUnwantedError];
     }
 
     const [
@@ -191,20 +191,20 @@ export class GetSuggestion implements GetSuggestionInterface {
     ]);
 
     if (getCustomerMedicalConditionError) {
-      return [null, getCustomerMedicalConditionError];
+      return [undefined, getCustomerMedicalConditionError];
     }
 
     const [displayAnalyzeProducts, getDisplayAnalyzeProductsError] =
       await this.productGeneralRepository.getAllProducts({ medicalConditions: customerMedicalCondition });
     if (getDisplayAnalyzeProductsError) {
-      return [null, getDisplayAnalyzeProductsError];
+      return [undefined, getDisplayAnalyzeProductsError];
     }
     let allProducts: DisplayAnalyzeProduct[] = displayAnalyzeProducts.sort(
       () => Math.random() - 0.5,
     );
 
     if (getNoInventoryProductsError) {
-      return [null, getNoInventoryProductsError];
+      return [undefined, getNoInventoryProductsError];
     }
     if (noInventoryProducts.length > 0) {
       allProducts = this.filterProducts({
@@ -219,7 +219,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     }
 
     if (customerFlavorDislikesError) {
-      return [null, customerFlavorDislikesError];
+      return [undefined, customerFlavorDislikesError];
     }
     if (customerFlavorDislikes.id.length > 0) {
       allProducts = this.filterProducts({
@@ -231,7 +231,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     }
 
     if (customerAllergensError) {
-      return [null, customerAllergensError];
+      return [undefined, customerAllergensError];
     }
     if (customerAllergens.id.length > 0) {
       allProducts = this.filterProducts({
@@ -243,7 +243,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     }
 
     if (customerUnavailableCookingMethodsError) {
-      return [null, customerUnavailableCookingMethodsError];
+      return [undefined, customerUnavailableCookingMethodsError];
     }
     if (customerUnavailableCookingMethods.id.length > 0) {
       allProducts = this.filterProducts({
@@ -255,7 +255,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     }
 
     if (customerIngredientDislikesError) {
-      return [null, customerIngredientDislikesError];
+      return [undefined, customerIngredientDislikesError];
     }
     if (customerIngredientDislikes.id.length > 0) {
       allProducts = this.filterProducts({
@@ -267,7 +267,7 @@ export class GetSuggestion implements GetSuggestionInterface {
     }
 
     if (customerCategoryPreferencesError) {
-      return [null, customerCategoryPreferencesError];
+      return [undefined, customerCategoryPreferencesError];
     }
 
     if (nextUnwantedProducts && nextUnwantedProducts.length > 0) {
@@ -409,7 +409,7 @@ export class GetSuggestion implements GetSuggestionInterface {
         );
     }
     if (analyzedProductsError) {
-      return [null, analyzedProductsError];
+      return [undefined, analyzedProductsError];
     }
     for (const product of allProducts) {
       for (const analyzedProduct of analyzedProductsRes.products) {
@@ -456,6 +456,6 @@ export class GetSuggestion implements GetSuggestionInterface {
       }
     }
 
-    return [nextBoxProducts, null];
+    return [nextBoxProducts, undefined];
   }
 }

@@ -163,8 +163,8 @@ model Product{
   id                  Int             @default(autoincrement()) @id
   activeStatus  ActiveStatus? @default(active)
   preservationStyle  PreservationStyle? @default(normal)
-  name String?
-  label String?
+  name String
+  label String
   ingredientLabel String?
   allergenLabel String?
   expertComment String?

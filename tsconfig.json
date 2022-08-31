@@ -23,7 +23,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "strictNullChecks": false,
-    "noImplicitAny": false
+    "strictNullChecks": true,
+    "noImplicitAny": true
   }
 }

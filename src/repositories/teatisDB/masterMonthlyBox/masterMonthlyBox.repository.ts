@@ -127,7 +127,7 @@ implements MasterMonthlyBoxRepositoryInterface
   }
   async getMasterMonthlyBoxByLabel(
     { label }: getMasterMonthlyBoxByLabelArgs): Promise<ReturnValueType<MasterMonthlyBox>> {
-    const response = await this.prisma.masterMonthlyBox.findUnique({
+    const response = await this.prisma.masterMonthlyBox.findUniqueOrThrow({
       where: { label },
       select: {
         intermediateMasterMonthlyBoxProduct: {
@@ -149,7 +149,7 @@ implements MasterMonthlyBoxRepositoryInterface
       },
     });
 
-    if (!response?.intermediateMasterMonthlyBoxProduct) {
+    if (!response.intermediateMasterMonthlyBoxProduct) {
       return [
         undefined,
         {
@@ -158,17 +158,15 @@ implements MasterMonthlyBoxRepositoryInterface
         },
       ];
     }
-    const boxProducts: Product[] = response
-      .intermediateMasterMonthlyBoxProduct.length
-      ? response.intermediateMasterMonthlyBoxProduct.map(({ product }) => {
-        return {
-          id: product.id,
-          sku: product.externalSku,
-          name: product.name,
-          label: product.label,
-        };
-      })
-      : [];
+
+    const boxProducts: Product[] = response.intermediateMasterMonthlyBoxProduct.map(({ product }) => {
+      return {
+        id: product.id,
+        sku: product.externalSku,
+        name: product.name,
+        label: product.label,
+      };
+    });
 
     const practitionerBox: MasterMonthlyBox = {
       id: response.id,
@@ -177,6 +175,7 @@ implements MasterMonthlyBoxRepositoryInterface
       note: response.note,
       products: boxProducts,
     };
+
     return [{ ...practitionerBox }, undefined];
   }
 }
