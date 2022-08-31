@@ -10,7 +10,7 @@ import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { Prisma } from '@prisma/client';
 import { ReturnValueType } from '@Filters/customError';
-import { Transactionable } from '@Repositories/utils/transactionable.interface';
+import { Transactionable } from '../../utils/transactionable.interface';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -105,7 +105,7 @@ interface UpsertProductArgs {
   };
 }
 
-export interface ProductGeneralRepositoryInterface extends Transactionable {
+export interface ProductGeneralRepositoryInterface extends Transactionable{
   upsertProduct({
     activeStatus,
     preservationStyle,
@@ -159,14 +159,12 @@ export interface ProductGeneralRepositoryInterface extends Transactionable {
 
 @Injectable()
 export class ProductGeneralRepository
-implements ProductGeneralRepositoryInterface, Transactionable
+implements ProductGeneralRepositoryInterface
 {
-  constructor(
-    private prisma: PrismaService | Prisma.TransactionClient,
-    private originalPrismaClient : PrismaService | Prisma.TransactionClient
-  ) {}
-
-  setPrismaClient(prisma: Prisma.TransactionClient): ProductGeneralRepositoryInterface {
+  private originalPrismaClient : PrismaService;
+  constructor(private prisma: PrismaService) {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setPrismaClient(prisma: any): ProductGeneralRepositoryInterface {
     this.originalPrismaClient = this.prisma;
     this.prisma = prisma;
     return this;
@@ -177,7 +175,7 @@ implements ProductGeneralRepositoryInterface, Transactionable
   }
 
   performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
-    return (this.prisma as PrismaService).$transaction(transactionBlock);
+    return this.prisma.$transaction(transactionBlock);
   }
 
   private async getExistingProductIngredients({ productId }: GetExistingProductFeaturesArgs):
@@ -271,7 +269,7 @@ implements ProductGeneralRepositoryInterface, Transactionable
     newProductAllergenIds,
     productId,
   }: UpsertProductAllergenSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await (this.prisma as PrismaService).$transaction(async (prisma) => {
+    return await this.prisma.$transaction(async (prisma) => {
       const [existingProductAllergens, getExistingProductAllergensError] =
         await this.getExistingProductAllergens({ productId });
       if (getExistingProductAllergensError) {
@@ -325,7 +323,7 @@ implements ProductGeneralRepositoryInterface, Transactionable
     newProductFoodTypeIds,
     productId,
   }: UpsertProductFoodTypeSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await (this.prisma as PrismaService).$transaction(async (prisma) => {
+    return await this.prisma.$transaction(async (prisma) => {
       const [existingProductFoodTypes, getExistingProductFoodTypesError] =
         await this.getExistingProductFoodTypes({ productId });
       if (getExistingProductFoodTypesError) {
@@ -380,7 +378,7 @@ implements ProductGeneralRepositoryInterface, Transactionable
     newProductCookingMethodIds,
     productId,
   }: UpsertProductCookingMethodSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await (this.prisma as PrismaService).$transaction(async (prisma) => {
+    return await this.prisma.$transaction(async (prisma) => {
       const [existingProductCookingMethods, getExistingProductCookingMethodsError] =
       await this.getExistingProductCookingMethods({ productId });
       if (getExistingProductCookingMethodsError) {
@@ -438,7 +436,7 @@ implements ProductGeneralRepositoryInterface, Transactionable
     newProductIngredientIds,
     productId,
   }: UpsertProductIngredientSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await (this.prisma as PrismaService).$transaction(async (prisma) => {
+    return await this.prisma.$transaction(async (prisma) => {
       const [existingProductIngredients, getExistingProductIngredientsError] =
         await this.getExistingProductIngredients({ productId });
       if (getExistingProductIngredientsError) {
@@ -494,7 +492,7 @@ implements ProductGeneralRepositoryInterface, Transactionable
     newProductImages,
     productId,
   }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>> {
-    return await (this.prisma as PrismaService).$transaction(async (prisma) => {
+    return await this.prisma.$transaction(async (prisma) => {
       const [existingProductImages, getExistingProductImagesError] =
         await this.getExistingProductImages({ productId });
       if (getExistingProductImagesError) {

@@ -1,5 +1,5 @@
 import { DisplayProduct, Product } from '@Domains/Product';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { Practitioner } from '@Domains/Practitioner';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
@@ -10,8 +10,8 @@ import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { MasterMonthlyBox } from '../../../domains/MasterMonthlyBox';
 import { Status } from '../../../domains/Status';
-import { Transactionable } from '@Repositories/utils/transactionable.interface';
-import { Prisma } from '@prisma/client';
+import { Transactionable } from '../../utils/transactionable.interface';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -46,7 +46,7 @@ interface deletePractitionerBoxesByMasterMonthlyBoxIdArgs{
 }
 type createRecurringPractitionerBoxArgs = upsertPractitionerAndPractitionerBoxArgs;
 
-export interface PractitionerBoxRepositoryInterface extends Transactionable {
+export interface PractitionerBoxRepositoryInterface extends Transactionable{
   getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
   Promise<ReturnValueType<PractitionerAndBox>>;
 
@@ -81,18 +81,17 @@ export interface PractitionerBoxRepositoryInterface extends Transactionable {
   }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
   deletePractitionerBoxesByMasterMonthlyBoxId(
     { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs): Promise<ReturnValueType<Status>>;
+  // performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
 }
 
 @Injectable()
 export class PractitionerBoxRepository
-implements PractitionerBoxRepositoryInterface, Transactionable
+implements PractitionerBoxRepositoryInterface
 {
-  constructor(
-    private prisma: PrismaService | Prisma.TransactionClient,
-    private originalPrismaClient : PrismaService | Prisma.TransactionClient
-  ) {}
+  private originalPrismaClient : PrismaClient;
+  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
   setPrismaClient(prisma: Prisma.TransactionClient): PractitionerBoxRepositoryInterface {
-    this.originalPrismaClient = this.prisma;
+    this.originalPrismaClient = this.prisma as PrismaClient;
     this.prisma = prisma;
     return this;
   }

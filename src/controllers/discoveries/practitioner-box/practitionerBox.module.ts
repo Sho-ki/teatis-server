@@ -12,41 +12,31 @@ import { ProductGeneralRepository } from '@Repositories/teatisDB/product/product
 import { UpsertRecurringPractitionerBoxesUsecase } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 import { CreateMasterMonthlyBoxUsecase } from '@Usecases/masterMonthlyBox/createMasterMonthlyBox.usecase';
 import { MasterMonthlyBoxRepository } from '@Repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
-import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
-import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
-import { GetAllRecurringPractitionerBoxesUsecase } from '@Usecases/practitionerBox/getAllRecurringBoxes.usecase';
-import { TransactionOperator } from '@Repositories/utils/transactionOperator';
+import { TransactionOperator } from '../../../repositories/utils/transactionOperator';
 
 @Module({
   controllers: [PractitionerBoxController],
   providers: [
+
     {
-      provide: 'PractitionerBoxRepositoryInterface',
-      useClass: PractitionerBoxRepository,
-    },
-    {
-      provide: 'UpdateCustomerOrderOfPractitionerBoxUsecaseInterface',
-      useClass: UpdateCustomerOrderOfPractitionerBoxUsecase,
-    },
-    {
-      provide: 'UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface',
-      useClass: UpdateCustomerOrderOfPractitionerMealBoxUsecase,
-    },
-    {
-      provide: 'CreatePractitionerBoxUsecaseInterface',
-      useClass: CreatePractitionerBoxUsecase,
+      provide: 'TransactionOperatorInterface',
+      useClass: TransactionOperator,
     },
     {
       provide: 'PractitionerGeneralRepositoryInterface',
       useClass: PractitionerGeneralRepository,
     },
     {
-      provide: 'GetAllRecurringPractitionerBoxesUsecaseInterface',
-      useClass: GetAllRecurringPractitionerBoxesUsecase,
-    },
-    {
       provide: 'GetPractitionerBoxByLabelUsecaseInterface',
       useClass: GetPractitionerBoxByLabelUsecase,
+    },
+    {
+      provide: 'CreatePractitionerBoxUsecaseInterface',
+      useClass: CreatePractitionerBoxUsecase,
+    },
+    {
+      provide: 'PractitionerBoxRepositoryInterface',
+      useClass: PractitionerBoxRepository,
     },
     {
       provide: 'GetPractitionerBoxByUuidUsecaseInterface',
@@ -65,10 +55,6 @@ import { TransactionOperator } from '@Repositories/utils/transactionOperator';
       useClass: UpsertRecurringPractitionerBoxesUsecase,
     },
     {
-      provide: 'TransactionOperatorInterface',
-      useClass: TransactionOperator,
-    },
-    {
       provide: 'CreateMasterMonthlyBoxUsecaseInterface',
       useClass: CreateMasterMonthlyBoxUsecase,
     },
@@ -76,8 +62,9 @@ import { TransactionOperator } from '@Repositories/utils/transactionOperator';
       provide: 'MasterMonthlyBoxRepositoryInterface',
       useClass: MasterMonthlyBoxRepository,
     },
-    PractitionerBoxController,
+
     PrismaService,
+    PractitionerBoxController,
   ],
   exports: [PractitionerBoxController],
 })

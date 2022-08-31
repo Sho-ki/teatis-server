@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-
-import { MasterMonthlyBox } from '@Domains/MasterMonthlyBox';
-import { PrismaService } from '../../../prisma.service';
+import { Inject, Injectable } from '@nestjs/common';
 import { Product } from '@Domains/Product';
-import { ReturnValueType } from '@Filters/customError';
-import { Transactionable } from '@Repositories/utils/transactionable.interface';
+
+import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
+import { ReturnValueType } from '@Filters/customError';
+import { MasterMonthlyBox } from '@Domains/MasterMonthlyBox';
+import { Transactionable } from '../../utils/transactionable.interface';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 interface getMasterMonthlyBoxByLabelArgs {
   label: string;
@@ -19,7 +19,7 @@ interface createMasterMonthlyBoxArgs {
   note?: string;
 }
 
-export interface MasterMonthlyBoxRepositoryInterface extends Transactionable {
+export interface MasterMonthlyBoxRepositoryInterface extends Transactionable{
   getMasterMonthlyBoxByLabel({ label }: getMasterMonthlyBoxByLabelArgs): Promise<ReturnValueType<MasterMonthlyBox>>;
 
   createMasterMonthlyBox({
@@ -32,15 +32,12 @@ export interface MasterMonthlyBoxRepositoryInterface extends Transactionable {
 
 @Injectable()
 export class MasterMonthlyBoxRepository
-implements MasterMonthlyBoxRepositoryInterface, Transactionable
+implements MasterMonthlyBoxRepositoryInterface
 {
-  constructor(
-    private prisma: PrismaService | Prisma.TransactionClient,
-    private originalPrismaClient : PrismaService | Prisma.TransactionClient
-  ) {}
-
+  private originalPrismaClient : PrismaClient;
+  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
   setPrismaClient(prisma: Prisma.TransactionClient): MasterMonthlyBoxRepositoryInterface {
-    this.originalPrismaClient = this.prisma;
+    this.originalPrismaClient = this.prisma as PrismaClient;
     this.prisma = prisma;
     return this;
   }

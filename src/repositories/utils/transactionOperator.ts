@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { Transactionable } from './transactionable.interface';
 
 export interface TransactionOperatorInterface {
-  performAtomicOperations<T>(
+ performAtomicOperations<T>(
     repositories: Array<Transactionable>,
     transactionBlock: () => Promise<T>
-  ): Promise<T> ;
+  ): Promise<T>;
 }
 
 @Injectable()
@@ -19,7 +18,7 @@ implements TransactionOperatorInterface
     repositories: Array<Transactionable>,
     transactionBlock: () => Promise<T>
   ): Promise<T> {
-    return await this.prisma.$transaction(async (prisma: Prisma.TransactionClient) => {
+    return await this.prisma.$transaction(async (prisma) => {
       if (repositories.length === 0) {
         throw new Error('addRepositoriesForAtomicOperation should be called before `performAtomicOperations`');
       }
@@ -33,8 +32,12 @@ implements TransactionOperatorInterface
       repositories.forEach((repository) => {
         repository.setDefaultPrismaClient();
       });
-
       return response;
+    },
+    {
+      maxWait: 20000, // default: 2000
+      timeout: 60000, // default: 5000
     });
   }
 }
+

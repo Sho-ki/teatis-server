@@ -144,26 +144,25 @@ implements UpdateRecurringPractitionerBoxesUsecaseInterface
             }
 
             const resultList:PractitionerAndBox[] = [];
-            await Promise.all(
-              upsertTarget.map((box) => {
-                this.practitionerBoxRepository.upsertPractitionerBox(
-                  { practitionerBox: box, masterMonthlyBox })
-                  .then(([upsertPractitionerBox, upsertPractitionerBoxError]) => {
-                    if(upsertPractitionerBoxError){
-                      throw Error(upsertPractitionerBoxError.message);
-                    }
-                    resultList.push(upsertPractitionerBox);
-                  }).catch((error) => {
-                    throw Error(error);
-                  });
-              })
-            );
+
+            for(const box of upsertTarget){
+              const [upsertPractitionerBox, upsertPractitionerBoxError] =
+              await this.practitionerBoxRepository.upsertPractitionerBox(
+                { practitionerBox: box, masterMonthlyBox });
+              if(upsertPractitionerBoxError){
+                return [undefined, upsertPractitionerBoxError];
+              }
+              resultList.push(upsertPractitionerBox);
+            }
+
             return [resultList];
           },
         );
     if (upsertPractitionerBoxError) {
       return [undefined, upsertPractitionerBoxError];
     }
+
     return [upsertPractitionerBox];
   }
 }
+
