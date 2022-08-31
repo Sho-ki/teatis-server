@@ -57,12 +57,14 @@ implements MasterMonthlyBoxRepositoryInterface
         where: { masterMonthlyBox: { label } },
         select: { product: true },
       });
-    const existingProductIds = existingProducts.length ? existingProducts.map(
+
+    const existingProductIds = existingProducts.length > 0 ? existingProducts.map(
       ({ product }) => product.id,
     ): [];
     const newProductIds = products.map((product) => product.id);
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
-    if(productIdsToRemove.length){
+
+    if(productIdsToRemove.length > 0){
       await this.prisma.intermediateMasterMonthlyBoxProduct.deleteMany({
         where: {
           OR: productIdsToRemove.map((productId) => {

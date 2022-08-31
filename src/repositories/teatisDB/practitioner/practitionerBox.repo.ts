@@ -583,6 +583,8 @@ implements PractitionerBoxRepositoryInterface
       products,
     } = targetBox;
 
+    const masterMonthlyBoxId = masterMonthlyBox ? masterMonthlyBox.id : null;
+
     const response = await this.prisma.practitionerBox.upsert({
       where: { PractitionerBoxIdentifier: { practitionerId, label } },
       create: {
@@ -591,7 +593,7 @@ implements PractitionerBoxRepositoryInterface
         practitionerId,
         description,
         note,
-        masterMonthlyBoxId: masterMonthlyBox?masterMonthlyBox.id:null,
+        masterMonthlyBoxId,
         intermediatePractitionerBoxProduct: {
           createMany: {
             data: products.map(({ id }:Product) => {

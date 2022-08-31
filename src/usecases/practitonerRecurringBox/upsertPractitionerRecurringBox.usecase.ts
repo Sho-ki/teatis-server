@@ -31,7 +31,6 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
     if(masterMonthlyBoxError){
       return [undefined, masterMonthlyBoxError];
     }
-
     const [practitionerAndBoxes, practitionerAndBoxesError] =
       await this.updateRecurringPractitionerBoxesUsecase.upsertRecurringPractitionerBoxes({
         products: newProducts,
@@ -42,8 +41,5 @@ implements UpsertRecurringPractitionerBoxesUsecaseInterface
       return [undefined, practitionerAndBoxesError];
     }
     return [practitionerAndBoxes, undefined];
-
-    // eslint-disable-next-line no-console
-    // console.log(masterMonthlyBox, practitionerAndBoxes );
   }
 }

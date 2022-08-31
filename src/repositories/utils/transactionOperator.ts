@@ -34,10 +34,11 @@ implements TransactionOperatorInterface
       });
       return response;
     },
-    {
-      maxWait: 20000, // default: 2000
-      timeout: 60000, // default: 5000
-    });
+    // {
+    //   maxWait: 20000, // default: 2000
+    //   timeout: 60000, // default: 5000
+    // }
+    );
   }
 }
 
