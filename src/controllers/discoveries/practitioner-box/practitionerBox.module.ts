@@ -62,7 +62,6 @@ import { TransactionOperator } from '../../../repositories/utils/transactionOper
       provide: 'MasterMonthlyBoxRepositoryInterface',
       useClass: MasterMonthlyBoxRepository,
     },
-
     PrismaService,
     PractitionerBoxController,
   ],

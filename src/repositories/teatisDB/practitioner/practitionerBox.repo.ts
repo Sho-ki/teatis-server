@@ -81,7 +81,6 @@ export interface PractitionerBoxRepositoryInterface extends Transactionable{
   }: createRecurringPractitionerBoxArgs): Promise<ReturnValueType<PractitionerBox>>;
   deletePractitionerBoxesByMasterMonthlyBoxId(
     { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs): Promise<ReturnValueType<Status>>;
-  // performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
 }
 
 @Injectable()
