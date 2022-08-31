@@ -99,8 +99,9 @@ implements PractitionerBoxRepositoryInterface
     this.prisma = this.originalPrismaClient;
   }
 
-  async  deletePractitionerBoxesByMasterMonthlyBoxId(
-    { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs): Promise<ReturnValueType<Status>>{
+  async  deletePractitionerBoxesByMasterMonthlyBoxId (
+    { id }:deletePractitionerBoxesByMasterMonthlyBoxIdArgs
+  ): Promise<ReturnValueType<Status>>{
     await this.prisma.practitionerBox.deleteMany({ where: { masterMonthlyBoxId: id } });
     return [{ success: true }];
   }
