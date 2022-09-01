@@ -4,7 +4,7 @@ import { ReturnValueType } from '../../filter/customError';
 import { Url } from '../../domains/Url';
 import { GetTerraAuthUrlRequest, GetTerraAuthUrlResponse } from './terra.interface';
 
-interface GetAuthUrlArgs {
+export interface GetAuthUrlArgs {
   uuid: string;
   resource:'FREESTYLELIBRE';
   successUrl:string;
