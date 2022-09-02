@@ -53,10 +53,30 @@ model Customers{
   intermediateCustomerFoodTypes IntermediateCustomerFoodType[]
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
   practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
+  terraCustomer TerraCustomer?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
 
+model TerraCustomer{
+  id   Int  @default(autoincrement()) @id
+  terraCustomerLog TerraCustomerLog[]
+  customer   Customers @relation(fields: [customerId], references: [id])
+  customerId Int @unique
+  terraCustomerId String @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+model TerraCustomerLog {
+  id   Int  @default(autoincrement()) @id
+  terraCustomer TerraCustomer @relation(fields: [terraCustomerId], references: [id])
+  terraCustomerId Int
+  timestamp String
+  glucoseValue Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
 
 model IntermediateCustomerBoxPlan{
   customerBoxPlan    CustomerBoxPlan   @relation(fields: [customerBoxPlanId], references: [id])

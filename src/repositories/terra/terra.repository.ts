@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { ReturnValueType } from '../../filter/customError';
 import { Url } from '../../domains/Url';
-import { GetTerraAuthUrlRequest, GetTerraAuthUrlResponse } from './terra.interface';
+import { GetAllCustomersResponse, GetTerraAuthUrlRequest, GetTerraAuthUrlResponse } from './terra.interface';
+import { TerraCustomer } from '../../domains/TerraCustomer';
 
 export interface GetAuthUrlArgs {
   uuid: string;
@@ -13,6 +14,8 @@ export interface GetAuthUrlArgs {
 
 export interface TerraRepositoryInterface {
   getAuthUrl({ uuid }: GetAuthUrlArgs): Promise<ReturnValueType<Url>>;
+  getAllCustomers():Promise<ReturnValueType<TerraCustomer[]>>;
+  getCustomerGlucoseLog():Promise<ReturnValueType<TerraCustomer[]>>;
 }
 
 @Injectable()
@@ -38,5 +41,27 @@ export class TerraRepository implements TerraRepositoryInterface {
       return [undefined, { name: data.status, message: data.message }];
     }
     return [{ url: data.auth_url }];
+  }
+
+  async getAllCustomers():Promise<ReturnValueType<TerraCustomer[]>>{
+    const { data, status } = await axios.get<GetAllCustomersResponse>('https://api.tryterra.co/v2/subscriptions',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'dev-id': process.env.TERRA_DEV_ID,
+          'x-api-key': process.env.TERRA_API_KEY,
+        },
+      } );
+    if(status !== 200) {
+      return [undefined, { name: data.status, message: 'No terraCustomer is found' }];
+    }
+    const customers:TerraCustomer[] = data.users.map(({ user_id, provider }) => {
+      return { terraCustomerId: user_id, provider };
+    });
+    return [customers];
+  }
+
+  async getCustomerGlucoseLog({ terraCustomerId }){
+
   }
 }
