@@ -111,9 +111,9 @@ implements GetPostPurchaseSurveyUsecaseInterface
       orderNumber: customerOrder.orderNumber,
       customerId: customerAnswer.id,
       surveyQuestions: [],
-      redirectEndpoint: customerOrder.products.find(({ sku }) => sku===PRACTITIONER_BOX_PLANS.sku)?
-        'https://teatismeal.com/pages/teatis-meal-box':
-        `teatis-meal-box/next-box?uuid=${customer.uuid}`,
+      redirectEndpoint: customerOrder.products.find(({ sku }) => sku===PRACTITIONER_BOX_PLANS.sku)
+        ? '/teatis-meal-box'
+        : `/teatis-meal-box/next-box?uuid=${customer.uuid}`,
     };
     surveyQuestion.surveyQuestions.map((question) => {
       const personalizedQuestion:SurveyQuestions = {
