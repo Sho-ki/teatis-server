@@ -21,8 +21,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "gcp-build": "npm run build",
     "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
-    "prisma:migrate": "prisma migrate dev --preview-feature",
+    "prisma:migrate": "prisma migrate dev --preview-feature --create-only",
+    "prisma:migrate:prod": "prisma migrate dev --preview-feature",
     "prisma:push": "prisma db push",
+    "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
     "codegen-sh": "graphql-codegen --config codegen.shiphero.yml -r dotenv/config",
     "codegen-sf": "graphql-codegen --config codegen.shopify.yml -r dotenv/config"
