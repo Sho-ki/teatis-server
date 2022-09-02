@@ -39,10 +39,16 @@ import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { EmailModule } from './email/email.module';
 import { CreateCheckoutCartOfCustomerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { CustomerProductsAutoSwap } from '../../usecases/utils/customerProductsAutoSwap';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+
+    {
+      provide: 'CustomerProductsAutoSwapInterface',
+      useClass: CustomerProductsAutoSwap,
+    },
     {
       provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
       useClass: CreateCheckoutCartOfPractitionerBoxUsecase,

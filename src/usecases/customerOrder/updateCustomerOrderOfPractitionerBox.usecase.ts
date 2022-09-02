@@ -12,8 +12,10 @@ import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
+import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
+import { currentMonth } from '../utils/dates';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -52,6 +54,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private readonly shopifyRepository: ShopifyRepositoryInterface,
     @Inject('GetSuggestionInterface')
     private getSuggestionUtil: GetSuggestionInterface,
+    @Inject('CustomerProductsAutoSwapInterface')
+    private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
    @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
   ) {}
@@ -67,7 +71,12 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     let [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
 
-    if (!customer.id) {
+    if (getCustomerError) {
+      return [undefined, getCustomerError];
+    }
+
+    // Swap user's email address if pre-purchase email and payment email are different
+    if (!customer.email) {
       [customer, getCustomerError] =
         await this.customerGeneralRepository.updateCustomerEmailByUuid({
           uuid,
@@ -78,22 +87,15 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         return [undefined, getCustomerError];
       }
     }
-
-    if (getCustomerError) {
-      return [undefined, getCustomerError];
-    }
-
     const [orderQueueScheduled, orderQueueScheduledError] =
       await this.orderQueueRepository.updateOrderQueue({
-        customerId: customer?.id,
+        customerId: customer.id,
         orderNumber: name,
         status: 'scheduled',
       });
     if (orderQueueScheduledError) {
       return [undefined, orderQueueScheduledError];
     }
-
-    let orderProducts: Pick<Product, 'sku'>[] = [];
     const purchasedProducts = line_items.map((lineItem) => {
       return lineItem.product_id;
     });
@@ -103,10 +105,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderError) {
       return [undefined, orderError];
     }
-    const PractitionerMealBoxID =6603694014519;
+    const PractitionerBoxID = 6603694014519;
     if (
       order.products.length > 1 &&
-      purchasedProducts.includes(PRACTITIONER_BOX_PLANS.id || PractitionerMealBoxID)
+      purchasedProducts.includes(PRACTITIONER_BOX_PLANS.id || PractitionerBoxID)
     ) {
       return [
         {
@@ -123,11 +125,33 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
+    const isFirstOrder = customerOrderCount.orderCount === 1;
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
     if (getPractitionerAndBoxByUuidError) {
       return [undefined, getPractitionerAndBoxByUuidError];
     }
+    const practitionerId = practitionerAndBox.id;
+    const boxLabel = practitionerAndBox.box.label;
+
+    const [recurringPractitionerBox, getPractitionerRecurringBoxError] =
+      await this.practitionerBoxRepository.getPractitionerRecurringBox({ practitionerId, label: `Recurring___${currentMonth()}___${boxLabel}` });
+    if (getPractitionerRecurringBoxError) {
+      return [undefined, getPractitionerRecurringBoxError];
+    }
+    const [autoSwapBoxProducts, autoSwapBoxProductsError] =
+      await this.customerProductsAutoSwap.customerProductsAutoSwap(
+        {
+          practitionerProducts: isFirstOrder
+            ? practitionerAndBox.box.products
+            : recurringPractitionerBox.products,
+          customer,
+        }
+      );
+    if (autoSwapBoxProductsError) {
+      return [undefined, autoSwapBoxProductsError];
+    }
+    let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
     if (!practitionerAndBox.box.products.length) {
       // analyze
       const [nextBoxProductsRes, nextBoxProductsError] =
@@ -141,10 +165,9 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       if (nextBoxProductsError) {
         return [undefined, nextBoxProductsError];
       }
-    } else {
-      orderProducts = practitionerAndBox.box.products;
     }
-    if(customerOrderCount.orderCount <= 1){
+
+    if(isFirstOrder){
       orderProducts.push(
         { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder

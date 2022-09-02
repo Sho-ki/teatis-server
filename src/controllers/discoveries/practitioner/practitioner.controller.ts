@@ -23,6 +23,7 @@ export class PractitionerController {
     private getPractitionerUsecase: GetPractitionerUsecaseInterface,
   ) {}
 
+  // POST: api/discovery/practitioner
   @Post('practitioner')
   async postPractitioner(
     @Body() body: CreatePractitionerDto,
@@ -35,6 +36,8 @@ export class PractitionerController {
     }
     return response.status(201).send(usecaseResponse);
   }
+
+  // GET: api/discovery/practitioner/
   @Get('practitioner')
   async getPractitioner(
     @Query() body: GetPractitionerDto,

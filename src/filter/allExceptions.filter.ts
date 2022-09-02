@@ -13,6 +13,8 @@ import { HttpAdapterHost } from '@nestjs/core';
 export class AllExceptionsFilter implements ExceptionFilter {
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
   catch(exception: unknown, host: ArgumentsHost): void {
+    // eslint-disable-next-line no-console
+    console.log(exception);
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const httpStatus =

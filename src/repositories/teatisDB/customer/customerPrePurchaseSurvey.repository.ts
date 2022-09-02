@@ -121,7 +121,8 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
         this.prisma.intermediateCustomerIngredientDislike.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerAllergen.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerFlavorDislike.deleteMany({ where: { customerId: checkIfExists.id } }),
-        this.prisma.intermediateCustomerUnavailableCookingMethod.deleteMany({ where: { customerId: checkIfExists.id } }),
+        this.prisma.intermediateCustomerUnavailableCookingMethod.deleteMany(
+          { where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerMedicalCondition.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerNutritionNeed.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerBoxPlan.deleteMany({ where: { customerId: checkIfExists.id } }),
