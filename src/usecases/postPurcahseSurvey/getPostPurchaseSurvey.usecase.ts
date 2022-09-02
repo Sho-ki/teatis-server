@@ -174,14 +174,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
     });
     for (const question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
       for (const customerAns of customerAnswer.customerAnswers) {
-        if (
-          question?.name === 'productLineUp' &&
-          customerAns?.answer?.text !== null
-        ) {
-          question.answer.text = customerAns.answer.text;
-          question.responseId = customerAns.responseId;
-          break;
-        }
+        if (question?.name === 'productLineUp') break;
         if (customerAns.productId === question?.product?.id) {
           question.reason = customerAns?.reason
             ? customerAns.reason
