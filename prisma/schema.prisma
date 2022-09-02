@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-    previewFeatures = ["interactiveTransactions"]
+  previewFeatures = ["interactiveTransactions"]
 
 }
 
@@ -164,8 +164,8 @@ model Product{
   id                  Int             @default(autoincrement()) @id
   activeStatus  ActiveStatus? @default(active)
   preservationStyle  PreservationStyle? @default(normal)
-  name String?
-  label String?
+  name String
+  label String
   ingredientLabel String?
   allergenLabel String?
   expertComment String?
@@ -182,6 +182,7 @@ model Product{
   intermediateProductAllergens IntermediateProductAllergen[]
   intermediateProductCookingMethods IntermediateProductCookingMethod[]
   intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
+  intermediateMasterMonthlyBoxProduct IntermediateMasterMonthlyBoxProduct[]
   productNutritionFact ProductNutritionFact?
   externalSku   String @unique
   upcCode  String?
@@ -595,6 +596,8 @@ model PractitionerBox{
   label String
   description String?
   note String?
+  masterMonthlyBox MasterMonthlyBox? @relation(fields: [masterMonthlyBoxId], references: [id])
+  masterMonthlyBoxId Int?
   intermediatePractitionerBoxProduct IntermediatePractitionerBoxProduct[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
@@ -603,7 +606,7 @@ model PractitionerBox{
 }
 
 model IntermediatePractitionerBoxProduct{
-  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id])
+  practitionerBox PractitionerBox @relation(fields: [practitionerBoxId], references: [id], onDelete: Cascade)
   practitionerBoxId Int
   product Product @relation(fields: [productId], references: [id])
   productId Int
@@ -629,4 +632,26 @@ model PractitionerCustomerOrderHistory{
 enum ActiveStatus {
   active
   inactive
+}
+
+model MasterMonthlyBox{
+  id  Int @default(autoincrement()) @id
+  label String @unique
+  intermediateMasterMonthlyBoxProduct IntermediateMasterMonthlyBoxProduct[]
+  description String?
+  note String?
+  practitionerBox PractitionerBox[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model IntermediateMasterMonthlyBoxProduct{
+  masterMonthlyBox MasterMonthlyBox @relation(fields: [masterMonthlyBoxId], references: [id])
+  masterMonthlyBoxId Int
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+
+  @@id([masterMonthlyBoxId, productId])
 }

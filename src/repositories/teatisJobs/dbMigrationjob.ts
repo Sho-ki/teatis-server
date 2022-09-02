@@ -99,7 +99,6 @@ export class TeatisJobs implements TeatisJobsInterface {
           return { productAllergenId: id  }; }),
       }, select: { customer: true },
     });
-    console.log(childrenShikaMottenai);
 
     await this.prisma.intermediateCustomerAllergen.createMany({
       data: childrenShikaMottenai.map(({ customer }) => { return { customerId: customer.id, productAllergenId: 5 }; }),

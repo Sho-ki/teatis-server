@@ -5,28 +5,16 @@ import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/produc
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import {
   DisplayAnalyzeProduct,
-  DisplayProduct,
   Product,
 } from '@Domains/Product';
 import { CustomerPreferenceRepositoryInterface } from '@Repositories/teatisDB/customer/customerPreference.repository';
-import {
-  AnalyzePreferenceArgs,
-  AnalyzePreferenceRepositoryInterface,
-  CustomerShippableProduct,
-} from '@Repositories/dataAnalyze/dataAnalyze.respository';
 
 import { Customer } from '@Domains/Customer';
+import { PRODUCT_COUNT } from './productCount';
 
-interface GetSuggestionArgs {
+interface customerProductsAutoSwapArgs {
   customer: Customer;
-  productCount: number;
-  includeProducts?: Pick<Product, 'sku'>[];
-  excludeProducts?: Pick<Product, 'sku'>[];
-}
-
-// TODO : Use DisplayProduct[] as Response
-export interface GetSuggestionRes {
-  products: DisplayProduct[];
+  practitionerProducts : Product[];
 }
 
 interface FilterProductsArgs {
@@ -36,23 +24,23 @@ interface FilterProductsArgs {
     | 'flavorDislikes'
     | 'allergens'
     | 'unavailableCookingMethods'
-    | 'unwanted';
+    | 'unwanted'
+    | 'sentLastTime'
+;
   customerFilter: { id?: number[], sku?: string[] };
   products: DisplayAnalyzeProduct[];
   nextWantProducts?: Product[];
 }
 
-export interface GetSuggestionInterface {
-  getSuggestion({
+export interface CustomerProductsAutoSwapInterface {
+  customerProductsAutoSwap({
     customer,
-    productCount,
-    includeProducts,
-    excludeProducts,
-  }: GetSuggestionArgs): Promise<[GetSuggestionRes?, Error?]>;
+    practitionerProducts,
+  }: customerProductsAutoSwapArgs): Promise<[ Product[]?, Error?]>;
 }
 
 @Injectable()
-export class GetSuggestion implements GetSuggestionInterface {
+export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterface {
   constructor(
     @Inject('ShipheroRepositoryInterface')
     private shipheroRepository: ShipheroRepositoryInterface,
@@ -60,8 +48,6 @@ export class GetSuggestion implements GetSuggestionInterface {
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('ProductGeneralRepositoryInterface')
     private productGeneralRepository: ProductGeneralRepositoryInterface,
-    @Inject('AnalyzePreferenceRepositoryInterface')
-    private analyzePreferenceRepository: AnalyzePreferenceRepositoryInterface,
     @Inject('CustomerPreferenceRepositoryInterface')
     private customerPreferenceRepository: CustomerPreferenceRepositoryInterface,
   ) {}
@@ -112,6 +98,14 @@ export class GetSuggestion implements GetSuggestionInterface {
             }
           }
           return true;
+        case 'sentLastTime':
+          if (
+            customerFilter.sku.includes(product.sku) &&
+              !nextWantProducts.some((nextWant) => nextWant.sku === product.sku)
+          ) {
+            return false;
+          }
+          return true;
         case 'unwanted':
           return (
             !customerFilter.id.includes(product.id) ||
@@ -125,12 +119,8 @@ export class GetSuggestion implements GetSuggestionInterface {
     return filteredProducts;
   }
 
-  async getSuggestion({
-    customer,
-    productCount,
-    includeProducts = [],
-    excludeProducts = [],
-  }: GetSuggestionArgs): Promise<[GetSuggestionRes?, Error?]> {
+  async customerProductsAutoSwap({ customer, practitionerProducts }: customerProductsAutoSwapArgs):
+  Promise<[ Product[]?, Error?]> {
     let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
       await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
@@ -140,31 +130,31 @@ export class GetSuggestion implements GetSuggestionInterface {
     if (lastCustomerOrder.products.length === 0) {
       isFirstOrder = true;
     }
-    const
-      [[scores, getAverageScoresError], [nextWantProducts, getNextWantError], [nextUnwantedProducts, getCustomerUnwantedError]]
+
+    const [[nextWantProducts, getNextWantError], [nextUnwantedProducts, getCustomerUnwantedError]]
     =
     !isFirstOrder
       ? await Promise.all(
-        [this.customerPreferenceRepository.getAverageScores({ email: customer.email }), this.customerPreferenceRepository.getNextWant({ orderNumber: lastCustomerOrder.orderNumber }), this.customerPreferenceRepository.getNextUnwanted({ email: customer.email })])
+        [
+          this.customerPreferenceRepository.getNextWant(
+            { orderNumber: lastCustomerOrder.orderNumber }),
+          this.customerPreferenceRepository.getNextUnwanted(
+            { email: customer.email }),
+        ])
       : [[], [], []];
 
-    if (getAverageScoresError) {
-      return [undefined, getAverageScoresError];
-    }
     if (getNextWantError) {
       return [undefined, getNextWantError];
     }
     if (getCustomerUnwantedError) {
       return [undefined, getCustomerUnwantedError];
     }
-
     const [
       [customerMedicalCondition, getCustomerMedicalConditionError],
       [noInventoryProducts, getNoInventoryProductsError],
       [customerFlavorDislikes, customerFlavorDislikesError],
       [customerAllergens, customerAllergensError],
       [customerUnavailableCookingMethods, customerUnavailableCookingMethodsError],
-      [customerCategoryPreferences, customerCategoryPreferencesError],
       [customerIngredientDislikes, customerIngredientDislikesError],
     ] = await Promise.all([
       this.customerGeneralRepository.getCustomerMedicalCondition({ email: customer.email }),
@@ -183,10 +173,6 @@ export class GetSuggestion implements GetSuggestionInterface {
       }),
       this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
-        type: 'categoryPreferences',
-      }),
-      this.customerGeneralRepository.getCustomerPreference({
-        email: customer.email,
         type: 'ingredients',
       }),
     ]);
@@ -195,14 +181,27 @@ export class GetSuggestion implements GetSuggestionInterface {
       return [undefined, getCustomerMedicalConditionError];
     }
 
-    const [displayAnalyzeProducts, getDisplayAnalyzeProductsError] =
+    const [analyzeProducts, getAnalyzeProductsError] =
       await this.productGeneralRepository.getAllProducts({ medicalConditions: customerMedicalCondition });
-    if (getDisplayAnalyzeProductsError) {
-      return [undefined, getDisplayAnalyzeProductsError];
+    if (getAnalyzeProductsError) {
+      return [undefined, getAnalyzeProductsError];
     }
-    let allProducts: DisplayAnalyzeProduct[] = displayAnalyzeProducts.sort(
+    let allProducts: DisplayAnalyzeProduct[] = analyzeProducts.sort(
       () => Math.random() - 0.5,
     );
+
+    if (lastCustomerOrder.products.length > 0) {
+      allProducts = this.filterProducts({
+        filterType: 'sentLastTime',
+        customerFilter: {
+          sku: lastCustomerOrder.products.map(({ sku }) => {
+            return sku;
+          }),
+        },
+        products: allProducts,
+        nextWantProducts,
+      });
+    }
 
     if (getNoInventoryProductsError) {
       return [undefined, getNoInventoryProductsError];
@@ -267,10 +266,6 @@ export class GetSuggestion implements GetSuggestionInterface {
       });
     }
 
-    if (customerCategoryPreferencesError) {
-      return [undefined, customerCategoryPreferencesError];
-    }
-
     if (nextUnwantedProducts && nextUnwantedProducts.length > 0) {
       // FYI: How a SKU is composed
       // XXXX-YYYY-ZZZZ
@@ -295,168 +290,42 @@ export class GetSuggestion implements GetSuggestionInterface {
         nextWantProducts,
       });
     }
-    const allCategories = [
-      // 25,
-      // 3,
-      // 6, inactive categories
-      10,
-      11,
-      13,
-      14,
-      15,
-      17,
-      18,
-      19,
-      26,
-      4,
-      7,
-    ];
-    const favoriteCategories = customerCategoryPreferences.id.length
-      ? customerCategoryPreferences.id
-      : allCategories; // when nothing is selected, choose all the categories
-    let customerShippableProducts: AnalyzePreferenceArgs = {
-      necessary_responses: productCount,
-      products: [],
-      user_fav_categories: favoriteCategories,
-    };
-    const nextBoxProducts: GetSuggestionRes = { products: [] };
 
-    for (const product of allProducts) {
-      const {
-        id,
-        sku,
-        name,
-        label,
-        vendor,
-        images,
-        expertComment,
-        ingredientLabel,
-        allergenLabel,
-        nutritionFact,
-      } = product;
-      if (
-        includeProducts.some(({ sku }) => sku === product.sku) ||
-        (nextWantProducts &&
-          nextWantProducts.some((nextWant) => nextWant.id === product.id))
-      ) {
-        nextBoxProducts.products.unshift({
-          id,
-          sku,
-          name,
-          label,
-          vendor: vendor.label,
-          images,
-          expertComment,
-          ingredientLabel,
-          allergenLabel,
-          nutritionFact: {
-            calorie: nutritionFact.calorie,
-            totalFat: nutritionFact.totalFat,
-            saturatedFat: nutritionFact.saturatedFat,
-            transFat: nutritionFact.transFat,
-            cholesterole: nutritionFact.cholesterole,
-            sodium: nutritionFact.sodium,
-            totalCarbohydrate: nutritionFact.totalCarbohydrate,
-            dietaryFiber: nutritionFact.dietaryFiber,
-            totalSugar: nutritionFact.totalSugar,
-            addedSugar: nutritionFact.addedSugar,
-            protein: nutritionFact.protein,
-          },
+    const shippableProducts:Product[] = nextWantProducts && nextWantProducts.length > 0
+      ? allProducts.filter((product) => {
+        return !nextWantProducts.find((nextWant) => nextWant.id === product.id);
+      })
+      : allProducts;
+
+    const newPractitionerProducts:Product[] = [...nextWantProducts];
+
+    for(const practitionerProduct of practitionerProducts){
+      const foundProductIndex = shippableProducts.findIndex(
+        shippableProduct => shippableProduct.id === practitionerProduct.id);
+      if(foundProductIndex !== -1){
+        newPractitionerProducts.push({
+          id: practitionerProduct.id,
+          name: practitionerProduct.name,
+          label: practitionerProduct.label,
+          sku: practitionerProduct.sku,
         });
-        continue;
-      } else if (excludeProducts.some(({ sku }) => sku === product.sku)) {
-        continue;
-      } else {
-        let shippableProduct: CustomerShippableProduct = {
-          product_id: product.id,
-          product_sku: product.sku,
-          flavor_id: product.flavor.id,
-          category_id: product.category.id,
-          vendor_id: product.vendor.id,
-          is_sent_1: 0,
-          avg_flavor_score: scores?.flavorLikesAverages[product.flavor.id] || 5,
-          avg_category_score:
-            scores?.categoryLikesAverages[product.category.id] || 5,
-        };
-        if (!isFirstOrder) {
-          for (const lastSentProduct of lastCustomerOrder.products) {
-            if (product.sku === lastSentProduct.sku) {
-              shippableProduct = { ...shippableProduct, is_sent_1: 1 };
-              break;
-            }
-          }
-        }
-
-        customerShippableProducts.products.push(shippableProduct);
+        shippableProducts.splice(foundProductIndex, 1);
+      }else {
+        const categoryCode = practitionerProduct.sku.split('-')[1];
+        let swapTargetProductIndex = shippableProducts.findIndex(
+          shippableProduct => shippableProduct.sku.split('-')[1] === categoryCode);
+        if(swapTargetProductIndex === -1) swapTargetProductIndex = 0;
+        const newPractitionerProduct = shippableProducts[swapTargetProductIndex];
+        newPractitionerProducts.push({
+          id: newPractitionerProduct.id,
+          name: newPractitionerProduct.name,
+          label: newPractitionerProduct.label,
+          sku: newPractitionerProduct.sku,
+        });
+        shippableProducts.splice(swapTargetProductIndex, 1);
       }
+      if(newPractitionerProducts.length === PRODUCT_COUNT)break;
     }
-    customerShippableProducts = {
-      ...customerShippableProducts,
-      necessary_responses: productCount - nextBoxProducts.products.length,
-    };
-    let [analyzedProductsRes, analyzedProductsError] =
-      await this.analyzePreferenceRepository.getAnalyzedProducts(
-        customerShippableProducts,
-      );
-    if (analyzedProductsRes.is_success === 'false') {
-      customerShippableProducts.user_fav_categories.push(
-        allCategories[0], // Chocolate
-        allCategories[1], // Cookie/Brownie
-        allCategories[2], // Meal Shake
-      );
-      [analyzedProductsRes, analyzedProductsError] =
-        await this.analyzePreferenceRepository.getAnalyzedProducts(
-          customerShippableProducts,
-        );
-    }
-    if (analyzedProductsError) {
-      return [undefined, analyzedProductsError];
-    }
-    for (const product of allProducts) {
-      for (const analyzedProduct of analyzedProductsRes.products) {
-        if (product.id === analyzedProduct.product_id) {
-          const {
-            id,
-            sku,
-            name,
-            label,
-            vendor,
-            images,
-            expertComment,
-            ingredientLabel,
-            allergenLabel,
-            nutritionFact,
-          } = product;
-          const nextProduct: DisplayProduct = {
-            id,
-            sku,
-            name,
-            label,
-            vendor: vendor.label,
-            images,
-            expertComment,
-            ingredientLabel,
-            allergenLabel,
-            nutritionFact: {
-              calorie: nutritionFact.calorie,
-              totalFat: nutritionFact.totalFat,
-              saturatedFat: nutritionFact.saturatedFat,
-              transFat: nutritionFact.transFat,
-              cholesterole: nutritionFact.cholesterole,
-              sodium: nutritionFact.sodium,
-              totalCarbohydrate: nutritionFact.totalCarbohydrate,
-              dietaryFiber: nutritionFact.dietaryFiber,
-              totalSugar: nutritionFact.totalSugar,
-              addedSugar: nutritionFact.addedSugar,
-              protein: nutritionFact.protein,
-            },
-          };
-          nextBoxProducts.products.push(nextProduct);
-          continue;
-        }
-      }
-    }
-
-    return [nextBoxProducts, undefined];
+    return [newPractitionerProducts, undefined];
   }
 }

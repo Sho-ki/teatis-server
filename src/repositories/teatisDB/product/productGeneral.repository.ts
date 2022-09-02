@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   DisplayAnalyzeProduct,
   DisplayProduct,
@@ -8,8 +8,9 @@ import {
 } from '@Domains/Product';
 import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { ReturnValueType } from '@Filters/customError';
+import { Transactionable } from '../../utils/transactionable.interface';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -104,7 +105,7 @@ interface UpsertProductArgs {
   };
 }
 
-export interface ProductGeneralRepositoryInterface {
+export interface ProductGeneralRepositoryInterface extends Transactionable{
   upsertProduct({
     activeStatus,
     preservationStyle,
@@ -152,18 +153,22 @@ export interface ProductGeneralRepositoryInterface {
     newProductImages,
     productId,
   }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>>;
-
-  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T>;
 }
 
 @Injectable()
 export class ProductGeneralRepository
 implements ProductGeneralRepositoryInterface
 {
-  constructor(private prisma: PrismaService) {}
+  private originalPrismaClient : PrismaClient;
+  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
+  setPrismaClient(prisma: Prisma.TransactionClient): ProductGeneralRepositoryInterface {
+    this.originalPrismaClient = this.prisma as PrismaClient;
+    this.prisma = prisma;
+    return this;
+  }
 
-  performAtomicOperations<T>(transactionBlock: () => Promise<T>): Promise<T> {
-    return this.prisma.$transaction(transactionBlock);
+  setDefaultPrismaClient() {
+    this.prisma = this.originalPrismaClient;
   }
 
   private async getExistingProductIngredients({ productId }: GetExistingProductFeaturesArgs):
@@ -257,309 +262,289 @@ implements ProductGeneralRepositoryInterface
     newProductAllergenIds,
     productId,
   }: UpsertProductAllergenSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await this.prisma.$transaction(async (prisma) => {
-      const [existingProductAllergens, getExistingProductAllergensError] =
+    const [existingProductAllergens, getExistingProductAllergensError] =
         await this.getExistingProductAllergens({ productId });
-      if (getExistingProductAllergensError) {
-        return [
-          undefined,
-          {
-            name: 'Internal Server Error',
-            message: 'Server Side Error: upsertProductAllergenSet failed',
-          },
-        ];
-      }
-      const existingProductAllergenIds = existingProductAllergens.map(
-        ({ id }) => id,
-      );
-      const [allergensToAdd, allergensToDelete] = calculateAddedAndDeletedIds(
-        existingProductAllergenIds,
-        newProductAllergenIds,
-      );
-
-      await Promise.all([
-        prisma.intermediateProductAllergen.deleteMany({
-          where: {
-            OR: allergensToDelete.map((productAllergenId) => {
-              return { productAllergenId, productId };
-            }),
-          },
-        }),
-        prisma.intermediateProductAllergen.createMany({
-          data: allergensToAdd.map((productAllergenId) => {
-            return { productAllergenId, productId };
-          }),
-        }),
-      ]);
-
-      const response = await prisma.intermediateProductAllergen.findMany({
-        where: { productId },
-        select: { productAllergen: true },
-      });
+    if (getExistingProductAllergensError) {
       return [
-        response.map(({ productAllergen }) => {
-          return {
-            id: productAllergen.id,
-            label: productAllergen.label,
-            name: productAllergen.name,
-          };
-        }),
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: upsertProductAllergenSet failed',
+        },
       ];
+    }
+    const existingProductAllergenIds = existingProductAllergens.map(
+      ({ id }) => id,
+    );
+    const [allergensToAdd, allergensToDelete] = calculateAddedAndDeletedIds(
+      existingProductAllergenIds,
+      newProductAllergenIds,
+    );
+
+    this.prisma.intermediateProductAllergen.deleteMany({
+      where: {
+        OR: allergensToDelete.map((productAllergenId) => {
+          return { productAllergenId, productId };
+        }),
+      },
     });
+    this.prisma.intermediateProductAllergen.createMany({
+      data: allergensToAdd.map((productAllergenId) => {
+        return { productAllergenId, productId };
+      }),
+    });
+
+    const response = await this.prisma.intermediateProductAllergen.findMany({
+      where: { productId },
+      select: { productAllergen: true },
+    });
+    return [
+      response.map(({ productAllergen }) => {
+        return {
+          id: productAllergen.id,
+          label: productAllergen.label,
+          name: productAllergen.name,
+        };
+      }),
+    ];
   }
   async upsertProductFoodTypeSet({
     newProductFoodTypeIds,
     productId,
   }: UpsertProductFoodTypeSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await this.prisma.$transaction(async (prisma) => {
-      const [existingProductFoodTypes, getExistingProductFoodTypesError] =
-        await this.getExistingProductFoodTypes({ productId });
-      if (getExistingProductFoodTypesError) {
-        return [
-          undefined,
-          {
-            name: 'Internal Server Error',
-            message: 'Server Side Error: getExistingProductFoodTypes failed',
-          },
-        ];
-      }
-
-      const existingProductFoodTypeIds = existingProductFoodTypes.map(
-        ({ id }) => id,
-      );
-      const [foodTypeToAdd, foodTypeToDelete] = calculateAddedAndDeletedIds(
-        existingProductFoodTypeIds,
-        newProductFoodTypeIds,
-      );
-
-      await Promise.all([
-        prisma.intermediateProductFoodType.deleteMany({
-          where: {
-            OR: foodTypeToDelete.map((productFoodTypeId) => {
-              return { productFoodTypeId, productId };
-            }),
-          },
-        }),
-        prisma.intermediateProductFoodType.createMany({
-          data: foodTypeToAdd.map((productFoodTypeId) => {
-            return { productFoodTypeId, productId };
-          }),
-        }),
-      ]);
-
-      const response = await prisma.intermediateProductFoodType.findMany({
-        where: { productId },
-        select: { productFoodType: true },
-      });
+    const [existingProductFoodTypes, getExistingProductFoodTypesError] =
+      await this.getExistingProductFoodTypes({ productId });
+    if (getExistingProductFoodTypesError) {
       return [
-        response.map(({ productFoodType }) => {
-          return {
-            id: productFoodType.id,
-            label: productFoodType.label,
-            name: productFoodType.name,
-          };
-        }),
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductFoodTypes failed',
+        },
       ];
+    }
+
+    const existingProductFoodTypeIds = existingProductFoodTypes.map(
+      ({ id }) => id,
+    );
+    const [foodTypeToAdd, foodTypeToDelete] = calculateAddedAndDeletedIds(
+      existingProductFoodTypeIds,
+      newProductFoodTypeIds,
+    );
+
+    this.prisma.intermediateProductFoodType.deleteMany({
+      where: {
+        OR: foodTypeToDelete.map((productFoodTypeId) => {
+          return { productFoodTypeId, productId };
+        }),
+      },
     });
+    this.prisma.intermediateProductFoodType.createMany({
+      data: foodTypeToAdd.map((productFoodTypeId) => {
+        return { productFoodTypeId, productId };
+      }),
+    });
+
+    const response = await this.prisma.intermediateProductFoodType.findMany({
+      where: { productId },
+      select: { productFoodType: true },
+    });
+    return [
+      response.map(({ productFoodType }) => {
+        return {
+          id: productFoodType.id,
+          label: productFoodType.label,
+          name: productFoodType.name,
+        };
+      }),
+    ];
   }
   async upsertProductCookingMethodSet({
     newProductCookingMethodIds,
     productId,
   }: UpsertProductCookingMethodSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await this.prisma.$transaction(async (prisma) => {
-      const [existingProductCookingMethods, getExistingProductCookingMethodsError] =
+    const [existingProductCookingMethods, getExistingProductCookingMethodsError] =
       await this.getExistingProductCookingMethods({ productId });
-      if (getExistingProductCookingMethodsError) {
-        return [
-          undefined,
-          {
-            name: 'Internal Server Error',
-            message:
+    if (getExistingProductCookingMethodsError) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message:
               'Server Side Error: getExistingProductCookingMethods failed',
-          },
-        ];
-      }
+        },
+      ];
+    }
 
-      const existingProductCookingMethodIds = existingProductCookingMethods.map(
-        ({ id }) => id,
-      );
-      const [cookingMethodToAdd, cookingMethodToDelete] =
+    const existingProductCookingMethodIds = existingProductCookingMethods.map(
+      ({ id }) => id,
+    );
+    const [cookingMethodToAdd, cookingMethodToDelete] =
         calculateAddedAndDeletedIds(
           existingProductCookingMethodIds,
           newProductCookingMethodIds,
         );
 
-      await Promise.all([
-        prisma.intermediateProductCookingMethod.deleteMany({
-          where: {
-            OR: cookingMethodToDelete.map((productCookingMethodId) => {
-              return { productCookingMethodId, productId };
-            }),
-          },
+    this.prisma.intermediateProductCookingMethod.deleteMany({
+      where: {
+        OR: cookingMethodToDelete.map((productCookingMethodId) => {
+          return { productCookingMethodId, productId };
         }),
-        prisma.intermediateProductCookingMethod.createMany({
-          data: cookingMethodToAdd.map((productCookingMethodId) => {
-            return { productCookingMethodId, productId };
-          }),
-        }),
-      ]);
-
-      const response = await prisma.intermediateProductCookingMethod.findMany({
-        where: { productId },
-        select: { productCookingMethod: true },
-      });
-      return [
-        response.map(({ productCookingMethod }) => {
-          return {
-            id: productCookingMethod.id,
-            label: productCookingMethod.label,
-            name: productCookingMethod.name,
-          };
-        }),
-      ];
+      },
     });
+    this.prisma.intermediateProductCookingMethod.createMany({
+      data: cookingMethodToAdd.map((productCookingMethodId) => {
+        return { productCookingMethodId, productId };
+      }),
+    });
+
+    const response = await this.prisma.intermediateProductCookingMethod.findMany({
+      where: { productId },
+      select: { productCookingMethod: true },
+    });
+    return [
+      response.map(({ productCookingMethod }) => {
+        return {
+          id: productCookingMethod.id,
+          label: productCookingMethod.label,
+          name: productCookingMethod.name,
+        };
+      }),
+    ];
   }
 
   async upsertProductIngredientSet({
     newProductIngredientIds,
     productId,
   }: UpsertProductIngredientSetArgs): Promise<ReturnValueType<ProductFeature[]>> {
-    return await this.prisma.$transaction(async (prisma) => {
-      const [existingProductIngredients, getExistingProductIngredientsError] =
-        await this.getExistingProductIngredients({ productId });
-      if (getExistingProductIngredientsError) {
-        return [
-          undefined,
-          {
-            name: 'Internal Server Error',
-            message: 'Server Side Error: getExistingProductIngredients failed',
-          },
-        ];
-      }
-      const existingProductIngredientIds = existingProductIngredients.map(
-        ({ id }) => id,
-      );
-      const [ingredientsToAdd, ingredientsToDelete] =
+    const [existingProductIngredients, getExistingProductIngredientsError] =
+      await this.getExistingProductIngredients({ productId });
+    if (getExistingProductIngredientsError) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductIngredients failed',
+        },
+      ];
+    }
+    const existingProductIngredientIds = existingProductIngredients.map(
+      ({ id }) => id,
+    );
+    const [ingredientsToAdd, ingredientsToDelete] =
         calculateAddedAndDeletedIds(
           existingProductIngredientIds,
           newProductIngredientIds,
         );
 
-      await Promise.all([
-        prisma.intermediateProductIngredient.deleteMany({
-          where: {
-            OR: ingredientsToDelete.map((productIngredientId) => {
-              return { productIngredientId, productId };
-            }),
-          },
+    this.prisma.intermediateProductIngredient.deleteMany({
+      where: {
+        OR: ingredientsToDelete.map((productIngredientId) => {
+          return { productIngredientId, productId };
         }),
-        prisma.intermediateProductIngredient.createMany({
-          data: ingredientsToAdd.map((productIngredientId) => {
-            return { productIngredientId, productId };
-          }),
-        }),
-      ]);
-
-      const response = await prisma.intermediateProductIngredient.findMany({
-        where: { productId },
-        select: { productIngredient: true },
-      });
-      return [
-        response.map(({ productIngredient }) => {
-          return {
-            id: productIngredient.id,
-            label: productIngredient.label,
-            name: productIngredient.name,
-          };
-        }),
-      ];
+      },
     });
+    this.prisma.intermediateProductIngredient.createMany({
+      data: ingredientsToAdd.map((productIngredientId) => {
+        return { productIngredientId, productId };
+      }),
+    });
+
+    const response = await this.prisma.intermediateProductIngredient.findMany({
+      where: { productId },
+      select: { productIngredient: true },
+    });
+    return [
+      response.map(({ productIngredient }) => {
+        return {
+          id: productIngredient.id,
+          label: productIngredient.label,
+          name: productIngredient.name,
+        };
+      }),
+    ];
   }
 
   async upsertProductImageSet({
     newProductImages,
     productId,
   }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>> {
-    return await this.prisma.$transaction(async (prisma) => {
-      const [existingProductImages, getExistingProductImagesError] =
-        await this.getExistingProductImages({ productId });
-      if (getExistingProductImagesError) {
-        return [
-          undefined,
-          {
-            name: 'Internal Server Error',
-            message: 'Server Side Error: getExistingProductImages failed',
-          },
-        ];
-      }
-
-      const existingImageSet = new Set(
-        existingProductImages.map(({ src, position }) => {
-          return JSON.stringify({ src, position });
-        }),
-      );
-      const newImageSet = new Set(
-        newProductImages.map(({ src, position }) => {
-          return JSON.stringify({ src, position });
-        }),
-      );
-
-      const imagesToDelete = existingProductImages.filter(
-        ({ src, position }) => {
-          return !newImageSet.has(JSON.stringify({ src, position }));
-        },
-      );
-
-      const imagesToAdd = newProductImages.filter(
-        ({ src, position }) =>
-          !existingImageSet.has(JSON.stringify({ src, position })),
-      );
-      await Promise.all([
-        prisma.productImage.deleteMany({
-          where: {
-            OR: imagesToDelete.map(({ src, position }) => {
-              return { src, position };
-            }),
-          },
-        }),
-        prisma.productImage.createMany({
-          data: imagesToAdd.map(({ src, position }) => {
-            return { src, position, productId };
-          }),
-        }),
-      ]);
-      const response = await prisma.productImage.findMany({
-        where: { productId },
-        select: {
-          id: true,
-          src: true,
-          position: true,
-          product: { select: { mainProductImageId: true } },
-        },
-      });
-
-      const currentMainProductImageId =
-        response[0]?.product?.mainProductImageId;
-      const newMainProductImage = response.find(
-        ({ position }) => position === 1,
-      );
-      if (newMainProductImage?.id !== currentMainProductImageId) {
-        await prisma.product.update({
-          where: { id: productId },
-          data: { mainProductImageId: newMainProductImage.id },
-        });
-      }
-
+    const [existingProductImages, getExistingProductImagesError] =
+      await this.getExistingProductImages({ productId });
+    if (getExistingProductImagesError) {
       return [
-        response.map(({ id, src, position }) => {
-          return {
-            id,
-            src,
-            position,
-          };
-        }),
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'Server Side Error: getExistingProductImages failed',
+        },
       ];
+    }
+
+    const existingImageSet = new Set(
+      existingProductImages.map(({ src, position }) => {
+        return JSON.stringify({ src, position });
+      }),
+    );
+    const newImageSet = new Set(
+      newProductImages.map(({ src, position }) => {
+        return JSON.stringify({ src, position });
+      }),
+    );
+
+    const imagesToDelete = existingProductImages.filter(
+      ({ src, position }) => {
+        return !newImageSet.has(JSON.stringify({ src, position }));
+      },
+    );
+
+    const imagesToAdd = newProductImages.filter(
+      ({ src, position }) =>
+        !existingImageSet.has(JSON.stringify({ src, position })),
+    );
+    this.prisma.productImage.deleteMany({
+      where: {
+        OR: imagesToDelete.map(({ src, position }) => {
+          return { src, position };
+        }),
+      },
     });
+    this.prisma.productImage.createMany({
+      data: imagesToAdd.map(({ src, position }) => {
+        return { src, position, productId };
+      }),
+    });
+    const response = await this.prisma.productImage.findMany({
+      where: { productId },
+      select: {
+        id: true,
+        src: true,
+        position: true,
+        product: { select: { mainProductImageId: true } },
+      },
+    });
+
+    const currentMainProductImageId =
+        response[0]?.product?.mainProductImageId;
+    const newMainProductImage = response.find(
+      ({ position }) => position === 1,
+    );
+    if (newMainProductImage?.id !== currentMainProductImageId) {
+      await this.prisma.product.update({
+        where: { id: productId },
+        data: { mainProductImageId: newMainProductImage.id },
+      });
+    }
+
+    return [
+      response.map(({ id, src, position }) => {
+        return {
+          id,
+          src,
+          position,
+        };
+      }),
+    ];
   }
 
   async upsertProduct({
@@ -602,6 +587,7 @@ implements ProductGeneralRepositoryInterface
         spicy: nutritionFact.spicy,
         texture: nutritionFact.texture,
       };
+
     const response = await this.prisma.product.upsert({
       where: { externalSku },
       create: {
