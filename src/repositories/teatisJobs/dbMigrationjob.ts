@@ -51,6 +51,8 @@ interface KlaviyoArgs {
 }
 
 interface TeatisJobsInterface {
+  allergenIntegrate(): Promise<void>;
+  flavorIntegrate(): Promise<void>;
   databaseMigrate(): Promise<void>;
   addUUID(): Promise<void>;
 }
@@ -62,6 +64,170 @@ export class TeatisJobs implements TeatisJobsInterface {
     @Inject('ShipheroRepositoryInterface')
     private shipheroRepository: ShipheroRepositoryInterface,
   ) {}
+
+  async allergenIntegrate(): Promise<void> {
+    const children = [10,
+      16,
+      24,
+      32];
+    const parent = 5;
+    const targetName = 'milkAndDairy';
+    const targetLabel = 'Milk and Dairy';
+    const res = await this.prisma.intermediateCustomerAllergen.findMany(
+      {
+        where:
+        { productAllergenId: parent },
+        select: { customer: true },
+      });
+    console.log(res);
+    for(const customer of res){
+
+      await this.prisma.intermediateCustomerAllergen.deleteMany(
+        {
+          where:
+          {
+            OR: children.map((id) => {
+              return { AND: { productAllergenId: id, customerId: customer.customer.id } }; }),
+          },
+        });
+
+    }
+
+    const childrenShikaMottenai = await this.prisma.intermediateCustomerAllergen.findMany({
+      where: {
+        OR: children.map((id) => {
+          return { productAllergenId: id  }; }),
+      }, select: { customer: true },
+    });
+
+    await this.prisma.intermediateCustomerAllergen.createMany({
+      data: childrenShikaMottenai.map(({ customer }) => { return { customerId: customer.id, productAllergenId: 5 }; }),
+      skipDuplicates: true,
+    });
+    await this.prisma.intermediateCustomerAllergen.deleteMany(
+      {
+        where:
+          {
+            OR: children.map((id) => {
+              return { productAllergenId: id }; }),
+          },
+      });
+
+    const resPro = await this.prisma.intermediateProductAllergen.findMany(
+      {
+        where:
+        { productAllergenId: parent },
+        select: { product: true },
+      });
+    console.log(resPro);
+    for(const product of resPro){
+
+      await this.prisma.intermediateProductAllergen.deleteMany(
+        {
+          where:
+          {
+            OR: children.map((id) => {
+              return { AND: { productAllergenId: id, productId: product.product.id } }; }),
+          },
+        });
+
+    }
+
+    const childrenShikaMottenaiPro = await this.prisma.intermediateProductAllergen.findMany({
+      where: {
+        OR: children.map((id) => {
+          return { productAllergenId: id  }; }),
+      }, select: { product: true },
+    });
+    console.log(childrenShikaMottenaiPro);
+
+    await this.prisma.intermediateProductAllergen.createMany({
+      data: childrenShikaMottenaiPro.map(({ product }) => { return { productId: product.id, productAllergenId: 5 }; }),
+      skipDuplicates: true,
+    });
+    await this.prisma.intermediateProductAllergen.deleteMany(
+      {
+        where:
+          {
+            OR: children.map((id) => {
+              return { productAllergenId: id }; }),
+          },
+      });
+
+    await this.prisma.productAllergen.deleteMany({ where: { OR: children.map((id) => { return { id }; }) } });
+    await this.prisma.productAllergen.update(
+      { where: { id: parent }, data: { name: targetName, label: targetLabel } });
+
+  }
+
+  async flavorIntegrate(): Promise<void> {
+    const children = [
+      'Matcha', 'Mocha Latte',
+    ];
+    const parent = 'Mocha';
+    const targetName ='bitter';
+    const targetLabel ='Bitter';
+
+    const parentId = await this.prisma.productFlavor.findFirst({ where: { label: parent } });
+    console.log(parentId);
+    const resPro = await this.prisma.productFlavor.findMany(
+      {
+        where:
+        { OR: children.map((label) => { return  { label }; })  },
+        select: { id: true },
+      });
+
+    const res = await this.prisma.intermediateCustomerFlavorDislike.findMany(
+      {
+        where:
+        { productFlavor: { label: parent } },
+        select: { customer: true },
+      });
+    for(const customer of res){
+      await this.prisma.intermediateCustomerFlavorDislike.deleteMany(
+        {
+          where:
+          {
+            OR: children.map((label) => {
+              return { AND: { productFlavor: { label }, customerId: customer.customer.id } }; }),
+          },
+        });
+
+    }
+
+    const childrenShikaMottenai = await this.prisma.intermediateCustomerFlavorDislike.findMany({
+      where: {
+        OR: children.map((label) => {
+          return { productFlavor: { label }  }; }),
+      }, select: { customer: true },
+    });
+    console.log(childrenShikaMottenai);
+
+    await this.prisma.intermediateCustomerFlavorDislike.createMany({
+      data: childrenShikaMottenai.map((
+        { customer }) => { return { productFlavorId: parentId.id, customerId: customer.id }; }),
+      skipDuplicates: true,
+    });
+
+    await this.prisma.intermediateCustomerFlavorDislike.deleteMany(
+      {
+        where:
+          {
+            OR: children.map((label) => {
+              return { productFlavor: { label } }; }),
+          },
+      });
+
+    await this.prisma.product.updateMany(
+      {
+        where: { OR: resPro.map((val) => { return { productFlavorId: val.id }; }) },
+        data: { productFlavorId: parentId.id },
+      });
+
+    await this.prisma.productFlavor.deleteMany({ where: { OR: children.map((label) => { return { label }; }) } });
+    await this.prisma.productFlavor.update(
+      { where: { id: parentId.id }, data: { name: targetName, label: targetLabel } });
+  }
 
   async storeUuidInKlaviyo():Promise<any>{
     for(let i = 0; i < 5000; i += 100){

@@ -140,7 +140,8 @@ export class GetSuggestion implements GetSuggestionInterface {
     if (lastCustomerOrder.products.length === 0) {
       isFirstOrder = true;
     }
-    const [[scores, getAverageScoresError], [nextWantProducts, getNextWantError], [nextUnwantedProducts, getCustomerUnwantedError]]
+    const
+      [[scores, getAverageScoresError], [nextWantProducts, getNextWantError], [nextUnwantedProducts, getCustomerUnwantedError]]
     =
     !isFirstOrder
       ? await Promise.all(
