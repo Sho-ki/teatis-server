@@ -444,6 +444,7 @@ model SurveyQuestion{
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
   surveyQuestionOptions SurveyQuestionOption[]
   surveyQuestionAnswer SurveyQuestionAnswer[]
+  activeStatus  ActiveStatus @default(active)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
