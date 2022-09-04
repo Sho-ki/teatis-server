@@ -130,7 +130,15 @@ implements PractitionerBoxRepositoryInterface
           },
         },
       });
-
+    if (!response) return [
+      {
+        id: 0,
+        uuid: '',
+        label: '',
+        products: [],
+      },
+      undefined,
+    ];
     const practitionerBox:PractitionerBox = {
       id: response.id,
       uuid: response.uuid,
