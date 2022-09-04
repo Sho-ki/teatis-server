@@ -139,12 +139,15 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getPractitionerRecurringBoxError) {
       return [undefined, getPractitionerRecurringBoxError];
     }
+    const practitionerProducts =
+      recurringPractitionerBox.id === 0 || isFirstOrder
+        ? practitionerAndBox.box.products
+        : recurringPractitionerBox.products;
+
     const [autoSwapBoxProducts, autoSwapBoxProductsError] =
       await this.customerProductsAutoSwap.customerProductsAutoSwap(
         {
-          practitionerProducts: isFirstOrder
-            ? practitionerAndBox.box.products
-            : recurringPractitionerBox.products,
+          practitionerProducts,
           customer,
         }
       );
