@@ -84,7 +84,7 @@ model CustomerFoodLog {
   id   Int  @default(autoincrement()) @id
   customer   Customers @relation(fields: [customerId], references: [id])
   customerId Int
-  timestamp String
+  timestampUtc DateTime
   product Product @relation(fields: [productId], references: [id])
   productId Int 
   createdAt DateTime  @default(now())
