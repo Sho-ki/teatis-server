@@ -54,6 +54,8 @@ model Customers{
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
   practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
   terraCustomer TerraCustomer?
+  customerFoodLog CustomerFoodLog[]
+  timeZone String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -70,10 +72,22 @@ model TerraCustomer{
 
 model TerraCustomerLog {
   id   Int  @default(autoincrement()) @id
-  terraCustomer TerraCustomer @relation(fields: [terraCustomerId], references: [id])
-  terraCustomerId Int
+  terraCustomer TerraCustomer @relation(fields: [terraCustomerKeyId], references: [id])
+  terraCustomerKeyId Int
   timestamp String
+  timestampUtc DateTime
   glucoseValue Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+}
+
+model CustomerFoodLog {
+  id   Int  @default(autoincrement()) @id
+  customer   Customers @relation(fields: [customerId], references: [id])
+  customerId Int
+  timestamp String
+  product Product @relation(fields: [productId], references: [id])
+  productId Int 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -212,7 +226,8 @@ model Product{
   customerBoxItems CustomerBoxItems[]
   productImages ProductImage[] 
   mainProductImage ProductImage? @relation(name: "mainProductImage", fields: [mainProductImageId], references: [id]) 
-  mainProductImageId Int? @unique 
+  mainProductImageId Int? @unique
+  customerFoodLog CustomerFoodLog[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }

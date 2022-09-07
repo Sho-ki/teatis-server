@@ -1,11 +1,13 @@
 import {  Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
-import { Url } from '../../domains/Url';
 import { TerraRepositoryInterface } from '@Repositories/terra/terra.repository';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
+import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomer.repository';
+import { Status } from '../../domains/Status';
+import {  GlucoseLogData } from '../../domains/GlucoseLog';
 
 export interface UpsertAllCustomersGlucoseUsecaseInterface {
-  upsertAllCustomersGlucose(): Promise<ReturnValueType<Url>>;
+  upsertAllCustomersGlucose(): Promise<ReturnValueType<Status>>;
 }
 
 @Injectable()
@@ -17,20 +19,50 @@ implements UpsertAllCustomersGlucoseUsecaseInterface
     private readonly terraRepository: TerraRepositoryInterface,
     @Inject('CustomerGeneralRepositoryInterface')
     private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('TerraCustomerRepositoryInterface')
+    private readonly terraCustomerRepository: TerraCustomerRepositoryInterface,
+
   ) {}
 
-  async upsertAllCustomersGlucose(): Promise<ReturnValueType<Url>> {
-
-    const all = (body.data.map((val) => { return val.glucose_data.blood_glucose_samples.map(({ timestamp }) => timestamp); }));
-
+  async upsertAllCustomersGlucose(): Promise<ReturnValueType<Status>> {
     const [terraCustomers, getAllCustomersError] = await this.terraRepository.getAllCustomers();
     if(getAllCustomersError){
       return [undefined, getAllCustomersError];
     }
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const date = yesterday.toISOString().slice(0, 10);
+    for(const { terraCustomerId } of terraCustomers){
+      const [[newGlucoseLogs, getNewGlucoseLogsError], [existingGlucoseLogs, getExistingGlucoseLogsError]]
+        = await Promise.all([
+          this.terraRepository.getCustomerGlucoseLogs(
+            { terraCustomerId, date }
+          ),
+          this.terraCustomerRepository.getCustomerGlucoseLogs({ terraCustomerId }),
+        ]);
 
-    const allCustomerLogs = await Promise.all(terraCustomers.map(({ terraCustomerId }) => {
-      this.terraRepository;
-    }));
-    return [terraAuthUrl];
+      if(getNewGlucoseLogsError){
+        return [undefined, getNewGlucoseLogsError];
+      }
+      if(!newGlucoseLogs.data.length) continue;
+
+      if(getExistingGlucoseLogsError){
+        return [undefined, getExistingGlucoseLogsError];
+      }
+      const glucoseLogsToAdd:GlucoseLogData[] =
+      existingGlucoseLogs?.data ? newGlucoseLogs.data.filter(({ timestamp }) =>
+      { return !existingGlucoseLogs?.data?.find(({ timestamp: existingData }) => existingData === timestamp); })
+      :newGlucoseLogs.data;
+
+      const removeDuplicate = glucoseLogsToAdd.
+        filter((value, index, self) => self.findIndex(value2 => (value2.timestamp===value.timestamp))===index);
+
+      await this.terraCustomerRepository.addCustomerGlucoseLogs(
+        { terraCustomerKeyId: existingGlucoseLogs.terraCustomerKeyId, data: removeDuplicate  });
+
+    }
+
+    return [{ success: true }];
   }
 }
