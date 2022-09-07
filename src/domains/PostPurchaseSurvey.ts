@@ -1,6 +1,7 @@
 export interface PostPurchaseSurvey {
   orderNumber: string;
   customerId: number;
+  redirectEndpoint:string;
   surveyQuestions: SurveyQuestions[];
 }
 

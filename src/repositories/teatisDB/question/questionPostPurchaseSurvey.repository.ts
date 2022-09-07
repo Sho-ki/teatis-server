@@ -26,7 +26,7 @@ implements QuestionPostPurchaseSurveyRepositoryInterface
         name: true,
         label: true,
         intermediateSurveyQuestions: {
-          orderBy: { displayOrder: 'asc' },
+          where: { surveyQuestion: { activeStatus: 'active' } },
           select: {
             surveyQuestion: {
               select: {
