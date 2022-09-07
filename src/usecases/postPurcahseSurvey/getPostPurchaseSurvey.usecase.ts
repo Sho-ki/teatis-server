@@ -166,15 +166,17 @@ implements GetPostPurchaseSurveyUsecaseInterface
           });
         }
       } else {
-        personalizedQuestion.responseId = uuidv4();
-        personalizedPostPurchaseSurveyQuestions.surveyQuestions.push(
-          personalizedQuestion,
-        );
+        if (personalizedQuestion.name !== 'productLineUp') {
+          personalizedQuestion.responseId = uuidv4();
+          personalizedPostPurchaseSurveyQuestions.surveyQuestions.push(
+            personalizedQuestion,
+          );
+        }
       }
     });
     for (const question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
       for (const customerAns of customerAnswer.customerAnswers) {
-        if (question?.name === 'productLineUp') break;
+        if (question?.name === 'productLineUp') continue;
         if (customerAns.productId === question?.product?.id) {
           question.reason = customerAns?.reason
             ? customerAns.reason
