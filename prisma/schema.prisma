@@ -55,7 +55,6 @@ model Customers{
   practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
   terraCustomer TerraCustomer?
   customerFoodLog CustomerFoodLog[]
-  timeZone String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
@@ -74,7 +73,7 @@ model TerraCustomerLog {
   id   Int  @default(autoincrement()) @id
   terraCustomer TerraCustomer @relation(fields: [terraCustomerKeyId], references: [id])
   terraCustomerKeyId Int
-  timestamp String
+  timestamp DateTime
   timestampUtc DateTime
   glucoseValue Int
   createdAt DateTime  @default(now())

@@ -1,7 +1,6 @@
 import {  Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 import { TerraRepositoryInterface } from '@Repositories/terra/terra.repository';
-import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomer.repository';
 import { Status } from '../../domains/Status';
 import {  GlucoseLogData } from '../../domains/GlucoseLog';
@@ -17,8 +16,6 @@ implements UpsertAllCustomersGlucoseUsecaseInterface
   constructor(
     @Inject('TerraRepositoryInterface')
     private readonly terraRepository: TerraRepositoryInterface,
-    @Inject('CustomerGeneralRepositoryInterface')
-    private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('TerraCustomerRepositoryInterface')
     private readonly terraCustomerRepository: TerraCustomerRepositoryInterface,
 
@@ -55,11 +52,19 @@ implements UpsertAllCustomersGlucoseUsecaseInterface
       { return !existingGlucoseLogs?.data?.find(({ timestamp: existingData }) => existingData === timestamp); })
       :newGlucoseLogs.data;
 
-      const removeDuplicate = glucoseLogsToAdd.
+      const duplicateRemovedLogs = glucoseLogsToAdd.
         filter((value, index, self) => self.findIndex(value2 => (value2.timestamp===value.timestamp))===index);
 
+      const setTimestampToLocalData = duplicateRemovedLogs.map((value) => {
+        // "YYYY-MM-DDTHH:MM:SS.000000-04:00"
+        const deepCopy = new Date(value.timestamp);
+        const utcDifference = String(value.timestamp).split('000000')[1].slice(0, 3);
+        deepCopy.setHours(deepCopy.getHours() + Number(utcDifference));
+        return { ...value, timestamp: deepCopy };
+      });
+
       await this.terraCustomerRepository.addCustomerGlucoseLogs(
-        { terraCustomerKeyId: existingGlucoseLogs.terraCustomerKeyId, data: removeDuplicate  });
+        { terraCustomerKeyId: existingGlucoseLogs.terraCustomerKeyId, data: setTimestampToLocalData  });
 
     }
 

@@ -7,6 +7,6 @@ export interface GlucoseLog extends TerraCustomer{
 
 export interface GlucoseLogData{
     glucoseValue: number;
-    timestamp: string;
+    timestamp: Date;
     timestampUtc:Date;
 }

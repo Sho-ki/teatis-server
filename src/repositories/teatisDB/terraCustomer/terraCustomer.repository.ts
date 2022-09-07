@@ -23,7 +23,7 @@ export interface AddCustomerGlucoseLogsArgs {
     terraCustomerKeyId:number | null;
     data: {
         glucoseValue: number;
-        timestamp: string;
+        timestamp: Date;
         timestampUtc:Date;
     }[];
 }

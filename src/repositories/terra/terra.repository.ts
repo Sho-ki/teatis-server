@@ -99,7 +99,7 @@ export class TerraRepository implements TerraRepositoryInterface {
       { return glucose_data.blood_glucose_samples.map(({ timestamp, blood_glucose_mg_per_dL }) =>
       { return {
         timestampUtc: new Date(timestamp),
-        timestamp: String(timestamp),
+        timestamp,
         glucoseValue: blood_glucose_mg_per_dL,
       }; }); }).flatMap(data => data),
     };
