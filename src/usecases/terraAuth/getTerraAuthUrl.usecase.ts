@@ -25,7 +25,7 @@ implements GetTerraAuthUrlUsecaseInterface
       return [undefined, getCustomerError];
     }
 
-    const [terraAuthUrl, getAuthUrlError] = await this.terraRepository.getAuthUrl({ uuid, resource: 'FREESTYLELIBRE', successUrl: '', failureUrl: '' });
+    const [terraAuthUrl, getAuthUrlError] = await this.terraRepository.getAuthUrl({ uuid, resource: 'FREESTYLELIBRE', successUrl: 'https://app.teatismeal.com/teatis/terra/auth-success', failureUrl: '' });
     if(getAuthUrlError){
       return [undefined, getAuthUrlError];
     }

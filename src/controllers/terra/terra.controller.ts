@@ -24,9 +24,9 @@ export class TerraController {
     const [, error] =
       await this.postTerraAuthSuccessUsecaseInterface.postTerraAuthSuccess(body);
     if (error) {
-      return { url: 'https://www.google.com/' };
+      return { url: 'https://widget.tryterra.co/auth-failure' };
     }
-    return { url: 'https://teatismeal.com/' };
+    return { url: 'https://widget.tryterra.co/auth-success?resource=FREESTYLELIBRE' };
   }
 
   // Get: api/terra/auth-url
@@ -36,7 +36,7 @@ export class TerraController {
     const [usecaseResponse, error] =
       await this.getTerraAuthUrlUsecaseInterface.getTerraAuthUrl(uuid);
     if (error) {
-      return { url: 'google.com' };
+      return { url: 'https://teatismeal.com/pages/teatis-meal-box' };
     }
     return { url: usecaseResponse.url };
   }
