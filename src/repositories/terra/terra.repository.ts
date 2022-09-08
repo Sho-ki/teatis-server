@@ -19,7 +19,7 @@ interface GetCustomerGlucoseLogsArgs{
 }
 
 export interface TerraRepositoryInterface {
-  getAuthUrl({ uuid }: GetAuthUrlArgs): Promise<ReturnValueType<Url>>;
+  getAuthUrl({ uuid, resource, successUrl, failureUrl }: GetAuthUrlArgs): Promise<ReturnValueType<Url>>;
   getAllCustomers():Promise<ReturnValueType<TerraCustomer[]>>;
   getCustomerGlucoseLogs({ terraCustomerId, date }:
     GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>;
