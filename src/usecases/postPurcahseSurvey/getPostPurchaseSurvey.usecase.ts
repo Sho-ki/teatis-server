@@ -10,8 +10,9 @@ import {
   SurveyQuestions,
 } from 'src/domains/PostPurchaseSurvey';
 import { DisplayProduct } from '@Domains/Product';
-import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ReturnValueType } from '@Filters/customError';
+import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   uuid: string;
@@ -47,7 +48,6 @@ implements GetPostPurchaseSurveyUsecaseInterface
     orderNumber,
   }: GetPostPurchaseSurveyUsecaseArgs): Promise<ReturnValueType<PostPurchaseSurvey>> {
     // Get last order products from shiphero
-
     const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if(getCustomerError){
@@ -59,13 +59,13 @@ implements GetPostPurchaseSurveyUsecaseInterface
       : await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
 
     if (getOrderError) {
-      return [null, getOrderError];
+      return [undefined, getOrderError];
     }
     const [displayProducts, getProductDetailError] =
       await this.productGeneralRepository.getProductsBySku({ products: customerOrder.products });
 
     if (getProductDetailError) {
-      return [null, getProductDetailError];
+      return [undefined, getProductDetailError];
     }
     const detailedProductList: Pick<
       DisplayProduct,
@@ -95,7 +95,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
     const [surveyQuestion, getPostPurchaseQuestionsError] =
       await this.questionPostPurchaseSurveyRepository.getSurveyQuestions({ surveyName: 'post-purchase' });
     if (getPostPurchaseQuestionsError) {
-      return [null, getPostPurchaseQuestionsError];
+      return [undefined, getPostPurchaseQuestionsError];
     }
 
     const [customerAnswer, getCustomerAnswersError] =
@@ -104,13 +104,16 @@ implements GetPostPurchaseSurveyUsecaseInterface
         orderNumber: customerOrder.orderNumber,
       });
     if (getCustomerAnswersError) {
-      return [null, getCustomerAnswersError];
+      return [undefined, getCustomerAnswersError];
     }
 
     const personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
       orderNumber: customerOrder.orderNumber,
       customerId: customerAnswer.id,
       surveyQuestions: [],
+      redirectEndpoint: customerOrder.products.find(({ sku }) => sku===PRACTITIONER_BOX_PLANS.sku)
+        ? '/teatis-meal-box'
+        : `/teatis-meal-box/next-box?uuid=${customer.uuid}`,
     };
     surveyQuestion.surveyQuestions.map((question) => {
       const personalizedQuestion:SurveyQuestions = {
@@ -163,22 +166,17 @@ implements GetPostPurchaseSurveyUsecaseInterface
           });
         }
       } else {
-        personalizedQuestion.responseId = uuidv4();
-        personalizedPostPurchaseSurveyQuestions.surveyQuestions.push(
-          personalizedQuestion,
-        );
+        if (personalizedQuestion.name !== 'productLineUp') {
+          personalizedQuestion.responseId = uuidv4();
+          personalizedPostPurchaseSurveyQuestions.surveyQuestions.push(
+            personalizedQuestion,
+          );
+        }
       }
     });
     for (const question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
       for (const customerAns of customerAnswer.customerAnswers) {
-        if (
-          question?.name === 'productLineUp' &&
-          customerAns?.answer?.text !== null
-        ) {
-          question.answer.text = customerAns.answer.text;
-          question.responseId = customerAns.responseId;
-          break;
-        }
+        if (question?.name === 'productLineUp') continue;
         if (customerAns.productId === question?.product?.id) {
           question.reason = customerAns?.reason
             ? customerAns.reason
@@ -224,6 +222,6 @@ implements GetPostPurchaseSurveyUsecaseInterface
       }
     }
 
-    return [personalizedPostPurchaseSurveyQuestions, null];
+    return [personalizedPostPurchaseSurveyQuestions, undefined];
   }
 }

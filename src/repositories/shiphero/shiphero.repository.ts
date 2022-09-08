@@ -52,6 +52,30 @@ export interface ShipheroRepositoryInterface {
 
 @Injectable()
 export class ShipheroRepository implements ShipheroRepositoryInterface {
+
+  private getLastSentProducts({ items }):Pick<Product, 'sku'>[]{
+    const lastSentProducts :Pick<Product, 'sku'>[]= [];
+    for (const item of items) {
+      if (!item) continue;
+
+      const itemNode = item?.node;
+      if (
+        itemNode?.product?.kit &&
+        itemNode?.fulfillment_status !== 'canceled'
+      ) {
+        const kitComponents = itemNode?.product?.kit_components || [];
+        for (const component of kitComponents) {
+          if (component?.sku) {
+            lastSentProducts.push({ sku: component.sku });
+          }
+        }
+      } else if (itemNode?.fulfillment_status !== 'canceled' && itemNode?.sku) {
+        lastSentProducts.push({ sku: itemNode.sku });
+      }
+    }
+
+    return lastSentProducts;
+  }
   async getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>> {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
@@ -95,28 +119,8 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
         },
       ];
     }
+    const products: Pick<Product, 'sku'>[] = this.getLastSentProducts({ items });
 
-    const products: Pick<Product, 'sku'>[] = [];
-    for (const item of items) {
-      if (!item) {
-        continue;
-      }
-
-      const itemNode = item?.node;
-      if (
-        itemNode?.product?.kit &&
-        itemNode?.fulfillment_status !== 'canceled'
-      ) {
-        const kitComponents = itemNode?.product?.kit_components || [];
-        for (const component of kitComponents) {
-          if (component?.sku) {
-            products.push({ sku: component.sku });
-          }
-        }
-      } else if (itemNode?.fulfillment_status !== 'canceled' && itemNode?.sku) {
-        products.push({ sku: itemNode.sku });
-      }
-    }
     return [
       {
         orderNumber,
@@ -160,27 +164,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       ];
     }
 
-    const products: Pick<Product, 'sku'>[] = [];
-    for (const item of items) {
-      if (!item) {
-        continue;
-      }
-
-      const itemNode = item?.node;
-      if (
-        itemNode?.product?.kit &&
-        itemNode?.fulfillment_status !== 'canceled'
-      ) {
-        const kitComponents = itemNode?.product?.kit_components || [];
-        for (const component of kitComponents) {
-          if (component?.sku) {
-            products.push({ sku: component.sku });
-          }
-        }
-      } else if (itemNode?.fulfillment_status !== 'canceled' && itemNode?.sku) {
-        products.push({ sku: itemNode.sku });
-      }
-    }
+    const products: Pick<Product, 'sku'>[] = this.getLastSentProducts({ items });
 
     return [{ orderNumber, products, orderDate, orderId }];
   }
