@@ -7,11 +7,17 @@ import { ShipheroKeyModule } from '@Controllers/system/shipheroKey.module';
 import { PrismaService } from './prisma.service';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filter/allExceptions.filter';
+import { TerraModule } from './controllers/terra/terra.module';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 @Module({
-  imports: [DiscoveriesModule, ShipheroKeyModule, ProductModule],
+  imports: [
+    DiscoveriesModule,
+    ShipheroKeyModule,
+    ProductModule,
+    TerraModule,
+  ],
 
   controllers: [AppController],
   providers: [
