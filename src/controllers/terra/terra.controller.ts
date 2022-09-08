@@ -29,9 +29,10 @@ export class TerraController {
     return { url: 'https://teatismeal.com/' };
   }
 
+  // Get: api/terra/auth-url
   @Get('auth-url')
   @Redirect()
-  async getTerraAuthUr(@Query('uuid') uuid: string) {
+  async getTerraAuthUrl(@Query('uuid') uuid: string) {
     const [usecaseResponse, error] =
       await this.getTerraAuthUrlUsecaseInterface.getTerraAuthUrl(uuid);
     if (error) {
