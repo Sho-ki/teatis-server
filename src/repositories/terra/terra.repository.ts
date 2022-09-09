@@ -79,7 +79,9 @@ export class TerraRepository implements TerraRepositoryInterface {
           'dev-id': process.env.TERRA_DEV_ID,
           'x-api-key': process.env.TERRA_API_KEY,
         },
-      } );
+      } ).then((val) => {
+      return { data: val.data, status: val.status };
+    }).catch(() => { return { data: null, status: 401 }; });
     if(status === 401){
       return [
         {
@@ -100,7 +102,7 @@ export class TerraRepository implements TerraRepositoryInterface {
       { return {
         timestampUtc: new Date(timestamp),
         timestamp,
-        glucoseValue: blood_glucose_mg_per_dL,
+        glucoseValue: Math.round(blood_glucose_mg_per_dL),
       }; }); }).flatMap(data => data),
     };
 
