@@ -79,7 +79,6 @@ export class TerraCustomerRepository implements TerraCustomerRepositoryInterface
       where: { terraCustomerId },
       select: { terraCustomerLog: true, id: true },
     });
-
     const glucoseLogs:GlucoseLog ={
       terraCustomerId,
       terraCustomerKeyId: response?.id || null,
