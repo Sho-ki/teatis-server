@@ -62,7 +62,6 @@ implements UpsertAllCustomersGlucoseUsecaseInterface
         deepCopy.setHours(deepCopy.getHours() + Number(utcDifference));
         return { ...value, timestamp: deepCopy };
       });
-
       await this.terraCustomerRepository.addCustomerGlucoseLogs(
         { terraCustomerKeyId: existingGlucoseLogs.terraCustomerKeyId, data: setTimestampToLocalData  });
 
