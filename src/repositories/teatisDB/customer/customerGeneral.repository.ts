@@ -272,7 +272,7 @@ implements CustomerGeneralRepositoryInterface
       where: { email },
       select: { id: true, email: true, uuid: true },
     });
-    if (!Object.keys(response).length) {
+    if (!response) {
       return [{ id: undefined, email: undefined, uuid: undefined }];
     }
 
