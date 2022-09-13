@@ -1,4 +1,4 @@
-import { Controller, Inject, Query, Get, Redirect, Post, Body, Res } from '@nestjs/common';
+import { Controller, Inject, Query, Get, Post, Body, Res } from '@nestjs/common';
 import { GetTerraAuthUrlUsecaseInterface } from '../../usecases/terraAuth/getTerraAuthUrl.usecase';
 import { UpsertAllCustomersGlucoseUsecaseInterface } from '../../usecases/terraCustomerGlucose/upsertAllCustomersGlucose.usecase';
 import { PostTerraAuthSuccessUsecaseInterface } from '../../usecases/terraAuth/postTerraAuthSuccess.usecase';
@@ -19,7 +19,6 @@ export class TerraController {
   ) {}
   // Post: api/terra/auth-success
   @Post('auth-success')
-  @Redirect()
   async postTerraAuthSuccess(@Body() body: PostAuthSuccessDto) {
     const [, error] =
       await this.postTerraAuthSuccessUsecaseInterface.postTerraAuthSuccess(body);
@@ -31,7 +30,6 @@ export class TerraController {
 
   // Get: api/terra/auth-url
   @Get('auth-url')
-  @Redirect()
   async getTerraAuthUrl(@Query('uuid') uuid: string) {
     const [usecaseResponse, error] =
       await this.getTerraAuthUrlUsecaseInterface.getTerraAuthUrl(uuid);
