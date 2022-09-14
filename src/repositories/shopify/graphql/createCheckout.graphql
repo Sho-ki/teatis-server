@@ -1,0 +1,10 @@
+mutation checkoutCreate($input: CheckoutCreateInput) {
+  checkoutCreate(input: $input) {
+    checkout {
+        email
+    }
+    checkoutUserErrors {
+        message
+    }
+  }
+}
