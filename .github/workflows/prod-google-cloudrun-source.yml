@@ -132,6 +132,7 @@ jobs:
           echo KLAVIYO_API=${{ secrets.KLAVIYO_API }} >> .env
           echo KLAVIYO_POTENTIAL_CUSTOMER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_LIST }} >> .env
           echo KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }} >> .env
+          echo KLAVIYO_POTENTIAL_CUSTOMER_CGM_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_CGM_LIST }} >> .env
 
       - name: Run the tests
         run: npm test

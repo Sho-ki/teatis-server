@@ -1,5 +1,5 @@
 import { IsEmail, IsString } from 'class-validator';
-
+import { KlaviyoListNames } from '@Domains/KlaviyoListNames';
 export class PostCustomerInformationDto {
   @IsEmail()
     email: string;
@@ -11,5 +11,5 @@ export class PostCustomerInformationDto {
     recommendBoxType: string;
 
   @IsString()
-    klaviyoListName: 'PotentialCustomer' | 'PotentialCustomerPractitioner';
+    klaviyoListName: KlaviyoListNames;
 }
