@@ -5,5 +5,5 @@ export class DeleteCustomerInformationDto {
     email: string;
 
   @IsString()
-    klaviyoListName: 'PotentialCustomer' | 'PotentialCustomerPractitioner';
+    klaviyoListName: 'PotentialCustomer' | 'PotentialCustomerPractitioner' | 'PotentialCustomerCGM';
 }
