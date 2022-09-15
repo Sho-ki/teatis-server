@@ -55,6 +55,7 @@ implements PostPrePurchaseSurveyUsecaseInterface
       const type: BoxType = 'HCLS';
       return type; // Healthy Carb & Low Sodium
     }
+    return 'HC';
   }
   async postPrePurchaseSurvey({
     diabetes,
