@@ -88,6 +88,7 @@ export class UpsertProductDto {
     dietaryFiber?: number;
     totalSugar?: number;
     addedSugar?: number;
+    sugarAlcohol?: number;
     protein?: number;
     sweet?: number;
     sour?: number;

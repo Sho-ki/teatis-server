@@ -95,6 +95,7 @@ interface UpsertProductArgs {
     dietaryFiber?: number;
     totalSugar?: number;
     addedSugar?: number;
+    sugarAlcohol?:number;
     protein?: number;
     sweet?: number;
     sour?: number;
@@ -579,6 +580,7 @@ implements ProductGeneralRepositoryInterface
         dietaryFiberG: nutritionFact.dietaryFiber,
         totalSugarG: nutritionFact.totalSugar,
         addedSugarG: nutritionFact.addedSugar,
+        sugarAlcoholG: nutritionFact.sugarAlcohol,
         proteinG: nutritionFact.protein,
         sweet: nutritionFact.sweet,
         sour: nutritionFact.sour,
@@ -692,6 +694,7 @@ implements ProductGeneralRepositoryInterface
           totalCarbohydrate: product.productNutritionFact.totalCarbohydrateG,
           dietaryFiber: product.productNutritionFact.dietaryFiberG,
           totalSugar: product.productNutritionFact.totalSugarG,
+          sugarAlcohol: product.productNutritionFact.sugarAlcoholG,
           addedSugar: product.productNutritionFact.addedSugarG,
           protein: product.productNutritionFact.proteinG,
         },
@@ -734,6 +737,7 @@ implements ProductGeneralRepositoryInterface
             totalSugarG: true,
             addedSugarG: true,
             proteinG: true,
+            sugarAlcoholG: true,
           },
         },
         intermediateProductAllergens:
@@ -846,6 +850,7 @@ implements ProductGeneralRepositoryInterface
             dietaryFiber: product?.productNutritionFact?.dietaryFiberG || 0,
             totalSugar: product?.productNutritionFact?.totalSugarG || 0,
             addedSugar: product?.productNutritionFact?.addedSugarG || 0,
+            sugarAlcohol: product?.productNutritionFact?.sugarAlcoholG || 0,
             protein: product?.productNutritionFact?.proteinG || 0,
           },
         };

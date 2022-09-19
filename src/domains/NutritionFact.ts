@@ -9,5 +9,6 @@ export interface NutritionFact {
   dietaryFiber: number;
   totalSugar: number;
   addedSugar: number;
+  sugarAlcohol:number;
   protein: number;
 }
