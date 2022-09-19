@@ -425,6 +425,7 @@ model ProductNutritionFact{
   dietaryFiberG	Float?
   totalSugarG	Float?
   addedSugarG	Float?
+  sugarAlcoholG Float?
   proteinG	Float?
   sweet	Int?
   sour	Int?

@@ -360,6 +360,7 @@ export class GetSuggestion implements GetSuggestionInterface {
             dietaryFiber: nutritionFact.dietaryFiber,
             totalSugar: nutritionFact.totalSugar,
             addedSugar: nutritionFact.addedSugar,
+            sugarAlcohol: nutritionFact.sugarAlcohol,
             protein: nutritionFact.protein,
           },
         });
@@ -448,6 +449,7 @@ export class GetSuggestion implements GetSuggestionInterface {
               dietaryFiber: nutritionFact.dietaryFiber,
               totalSugar: nutritionFact.totalSugar,
               addedSugar: nutritionFact.addedSugar,
+              sugarAlcohol: nutritionFact.sugarAlcohol,
               protein: nutritionFact.protein,
             },
           };
