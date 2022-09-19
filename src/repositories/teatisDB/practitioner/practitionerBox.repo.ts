@@ -360,6 +360,7 @@ implements PractitionerBoxRepositoryInterface
             dietaryFiber: product.productNutritionFact.dietaryFiberG,
             totalSugar: product.productNutritionFact.totalSugarG,
             addedSugar: product.productNutritionFact.addedSugarG,
+            sugarAlcohol: product.productNutritionFact.sugarAlcoholG,
             protein: product.productNutritionFact.proteinG,
           },
         };
@@ -476,6 +477,7 @@ implements PractitionerBoxRepositoryInterface
             dietaryFiber: product.productNutritionFact.dietaryFiberG,
             totalSugar: product.productNutritionFact.totalSugarG,
             addedSugar: product.productNutritionFact.addedSugarG,
+            sugarAlcohol: product.productNutritionFact.sugarAlcoholG,
             protein: product.productNutritionFact.proteinG,
           },
         };

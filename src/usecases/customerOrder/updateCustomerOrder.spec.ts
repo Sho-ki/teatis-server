@@ -98,6 +98,7 @@ describe('GetOptions', () => {
     //               dietaryFiber: 100,
     //               totalSugar: 100,
     //               addedSugar: 100,
+    //               sugarAlcohol: 100
     //               protein: 100,
     //             },
     //           },
@@ -144,6 +145,7 @@ describe('GetOptions', () => {
     //               dietaryFiber: 123,
     //               totalSugar: 123,
     //               addedSugar: 123,
+    //               sugarAlcohol: 123,
     //               protein: 123,
     //             },
     //             vendor: '',
