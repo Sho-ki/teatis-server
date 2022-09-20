@@ -74,27 +74,26 @@ export class UpsertProductDto {
     cookingMethodIds: number[];
 
   @IsObject()
-  @IsOptional()
     nutritionFact: {
-    quantity?: number;
-    servingSize?: number;
-    calories?: number;
-    totalFat?: number;
-    saturatedFat?: number;
-    transFat?: number;
-    cholesterole?: number;
-    sodium?: number;
-    totalCarbohydrate?: number;
-    dietaryFiber?: number;
-    totalSugar?: number;
-    addedSugar?: number;
-    sugarAlcohol?: number;
-    protein?: number;
-    sweet?: number;
-    sour?: number;
-    salty?: number;
-    bitter?: number;
-    spicy?: number;
-    texture?: string;
+    quantity: number | null;
+    servingSize: number | null;
+    calories: number | null;
+    totalFat: number | null;
+    saturatedFat: number | null;
+    transFat: number | null;
+    cholesterole: number | null;
+    sodium: number | null;
+    totalCarbohydrate: number | null;
+    dietaryFiber: number | null;
+    totalSugar: number | null;
+    addedSugar: number | null;
+    sugarAlcohol: number | null;
+    protein: number | null;
+    sweet: number | null;
+    sour: number | null;
+    salty: number | null;
+    bitter: number | null;
+    spicy: number | null;
+    texture: string | null;
   };
 }

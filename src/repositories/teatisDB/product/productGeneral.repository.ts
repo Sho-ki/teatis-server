@@ -11,6 +11,7 @@ import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDelete
 import { Prisma, PrismaClient } from '@prisma/client';
 import { ReturnValueType } from '@Filters/customError';
 import { Transactionable } from '../../utils/transactionable.interface';
+import { nutritionFactField } from '../../utils/nutritionFactField';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -83,26 +84,26 @@ interface UpsertProductArgs {
   vendorId: number;
   externalSku: string;
   nutritionFact: {
-    quantity?: number;
-    servingSize?: number;
-    calories?: number;
-    totalFat?: number;
-    saturatedFat?: number;
-    transFat?: number;
-    cholesterole?: number;
-    sodium?: number;
-    totalCarbohydrate?: number;
-    dietaryFiber?: number;
-    totalSugar?: number;
-    addedSugar?: number;
-    sugarAlcohol?:number;
-    protein?: number;
-    sweet?: number;
-    sour?: number;
-    salty?: number;
-    bitter?: number;
-    spicy?: number;
-    texture?: string;
+    quantity: number | null;
+    servingSize: number | null;
+    calories: number | null;
+    totalFat: number | null;
+    saturatedFat: number | null;
+    transFat: number | null;
+    cholesterole: number | null;
+    sodium: number | null;
+    totalCarbohydrate: number | null;
+    dietaryFiber: number | null;
+    totalSugar: number | null;
+    addedSugar: number | null;
+    sugarAlcohol:number | null;
+    protein: number | null;
+    sweet: number | null;
+    sour: number | null;
+    salty: number | null;
+    bitter: number | null;
+    spicy: number | null;
+    texture: string | null;
   };
 }
 
@@ -566,28 +567,34 @@ implements ProductGeneralRepositoryInterface
     externalSku,
     nutritionFact,
   }: UpsertProductArgs): Promise<ReturnValueType<Product>> {
+    const {
+      quantity, servingSize, calories, totalFat, saturatedFat,
+      transFat, cholesterole, sodium, totalCarbohydrate, dietaryFiber,
+      totalSugar, addedSugar, sugarAlcohol, protein,
+      sweet, sour, salty, bitter, spicy, texture,
+    } = nutritionFact;
     const productNutritionInput: Prisma.ProductNutritionFactCreateWithoutProductInput =
       {
-        quantity: nutritionFact.quantity,
-        servingSize: nutritionFact.servingSize,
-        calories: nutritionFact.calories,
-        totalFatG: nutritionFact.totalFat,
-        saturatedFatG: nutritionFact.saturatedFat,
-        transFatG: nutritionFact.transFat,
-        cholesteroleMg: nutritionFact.cholesterole,
-        sodiumMg: nutritionFact.sodium,
-        totalCarbohydrateG: nutritionFact.totalCarbohydrate,
-        dietaryFiberG: nutritionFact.dietaryFiber,
-        totalSugarG: nutritionFact.totalSugar,
-        addedSugarG: nutritionFact.addedSugar,
-        sugarAlcoholG: nutritionFact.sugarAlcohol,
-        proteinG: nutritionFact.protein,
-        sweet: nutritionFact.sweet,
-        sour: nutritionFact.sour,
-        salty: nutritionFact.salty,
-        bitter: nutritionFact.bitter,
-        spicy: nutritionFact.spicy,
-        texture: nutritionFact.texture,
+        quantity: quantity >=0? quantity : null,
+        servingSize: servingSize >=0? servingSize : null,
+        calories: calories >=0? calories : null,
+        totalFatG: totalFat >=0? totalFat : null,
+        saturatedFatG: saturatedFat >=0? saturatedFat : null,
+        transFatG: transFat >=0? transFat : null,
+        cholesteroleMg: cholesterole >=0? cholesterole : null,
+        sodiumMg: sodium >=0? sodium : null,
+        totalCarbohydrateG: totalCarbohydrate >=0? totalCarbohydrate : null,
+        dietaryFiberG: dietaryFiber >=0? dietaryFiber : null,
+        totalSugarG: totalSugar >=0? totalCarbohydrate : null,
+        addedSugarG: addedSugar >=0? addedSugar : null,
+        sugarAlcoholG: sugarAlcohol >=0? sugarAlcohol : null,
+        proteinG: protein >=0? protein : null,
+        sweet: sweet >=0? sweet : null,
+        sour: sour >=0? sour : null,
+        salty: salty >=0? salty : null,
+        bitter: bitter >=0? bitter : null,
+        spicy: spicy >=0? spicy : null,
+        texture: texture || null,
       };
 
     const response = await this.prisma.product.upsert({
@@ -684,20 +691,7 @@ implements ProductGeneralRepositoryInterface
         name: product.name,
         ingredientLabel: product.ingredientLabel,
         allergenLabel: product.allergenLabel,
-        nutritionFact: {
-          calorie: product.productNutritionFact.calories,
-          totalFat: product.productNutritionFact.totalFatG,
-          saturatedFat: product.productNutritionFact.saturatedFatG,
-          transFat: product.productNutritionFact.transFatG,
-          cholesterole: product.productNutritionFact.cholesteroleMg,
-          sodium: product.productNutritionFact.sodiumMg,
-          totalCarbohydrate: product.productNutritionFact.totalCarbohydrateG,
-          dietaryFiber: product.productNutritionFact.dietaryFiberG,
-          totalSugar: product.productNutritionFact.totalSugarG,
-          sugarAlcohol: product.productNutritionFact.sugarAlcoholG,
-          addedSugar: product.productNutritionFact.addedSugarG,
-          protein: product.productNutritionFact.proteinG,
-        },
+        nutritionFact: product?.productNutritionFact? nutritionFactField(product.productNutritionFact): null,
       };
     });
     return [displayProducts];
@@ -838,21 +832,7 @@ implements ProductGeneralRepositoryInterface
                 },
               )
               : [],
-          nutritionFact: {
-            calorie: product?.productNutritionFact?.calories || 0,
-            totalFat: product?.productNutritionFact?.totalFatG || 0,
-            saturatedFat: product?.productNutritionFact?.saturatedFatG || 0,
-            transFat: product?.productNutritionFact?.transFatG || 0,
-            cholesterole: product?.productNutritionFact?.cholesteroleMg || 0,
-            sodium: product?.productNutritionFact?.sodiumMg || 0,
-            totalCarbohydrate:
-              product?.productNutritionFact?.totalCarbohydrateG || 0,
-            dietaryFiber: product?.productNutritionFact?.dietaryFiberG || 0,
-            totalSugar: product?.productNutritionFact?.totalSugarG || 0,
-            addedSugar: product?.productNutritionFact?.addedSugarG || 0,
-            sugarAlcohol: product?.productNutritionFact?.sugarAlcoholG || 0,
-            protein: product?.productNutritionFact?.proteinG || 0,
-          },
+          nutritionFact: product?.productNutritionFact? nutritionFactField(product.productNutritionFact): null,
         };
       }),
     ];
