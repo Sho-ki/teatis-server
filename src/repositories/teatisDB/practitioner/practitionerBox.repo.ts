@@ -12,6 +12,7 @@ import { MasterMonthlyBox } from '../../../domains/MasterMonthlyBox';
 import { Status } from '../../../domains/Status';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { PrismaClient, Prisma } from '@prisma/client';
+import { nutritionFactField } from '../../utils/nutritionFactField';
 
 interface getPractitionerAndBoxByUuidArgs {
   practitionerBoxUuid: string;
@@ -348,21 +349,7 @@ implements PractitionerBoxRepositoryInterface
           images: product.productImages,
           allergenLabel: product.allergenLabel,
           vendor: product.productVendor.label,
-          nutritionFact: {
-            calorie: product.productNutritionFact.calories,
-            totalFat: product.productNutritionFact.totalFatG,
-            saturatedFat: product.productNutritionFact.saturatedFatG,
-            transFat: product.productNutritionFact.transFatG,
-            cholesterole: product.productNutritionFact.cholesteroleMg,
-            sodium: product.productNutritionFact.sodiumMg,
-            totalCarbohydrate:
-                product.productNutritionFact.totalCarbohydrateG,
-            dietaryFiber: product.productNutritionFact.dietaryFiberG,
-            totalSugar: product.productNutritionFact.totalSugarG,
-            addedSugar: product.productNutritionFact.addedSugarG,
-            sugarAlcohol: product.productNutritionFact.sugarAlcoholG,
-            protein: product.productNutritionFact.proteinG,
-          },
+          nutritionFact: product?.productNutritionFact? nutritionFactField(product.productNutritionFact): null,
         };
       })
       : [];
@@ -465,21 +452,7 @@ implements PractitionerBoxRepositoryInterface
           images: product.productImages,
           allergenLabel: product.allergenLabel,
           vendor: product.productVendor.label,
-          nutritionFact: {
-            calorie: product.productNutritionFact.calories,
-            totalFat: product.productNutritionFact.totalFatG,
-            saturatedFat: product.productNutritionFact.saturatedFatG,
-            transFat: product.productNutritionFact.transFatG,
-            cholesterole: product.productNutritionFact.cholesteroleMg,
-            sodium: product.productNutritionFact.sodiumMg,
-            totalCarbohydrate:
-                product.productNutritionFact.totalCarbohydrateG,
-            dietaryFiber: product.productNutritionFact.dietaryFiberG,
-            totalSugar: product.productNutritionFact.totalSugarG,
-            addedSugar: product.productNutritionFact.addedSugarG,
-            sugarAlcohol: product.productNutritionFact.sugarAlcoholG,
-            protein: product.productNutritionFact.proteinG,
-          },
+          nutritionFact: product?.productNutritionFact? nutritionFactField(product.productNutritionFact): null,
         };
       })
       : [];
