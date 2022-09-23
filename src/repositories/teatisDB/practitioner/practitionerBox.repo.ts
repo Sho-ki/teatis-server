@@ -163,15 +163,13 @@ implements PractitionerBoxRepositoryInterface
   }: upsertPractitionerAndPractitionerBoxArgs): Promise<ReturnValueType<PractitionerAndBox>> {
     const existingProducts =
       await this.prisma.intermediatePractitionerBoxProduct.findMany({
-        where: { practitionerBox: { AND: [{ label, practitionerId }] } },
+        where: { practitionerBox: { label, practitionerId } },
         select: { product: true },
       });
-
     const existingProductIds = existingProducts.map(
       ({ product }) => product.id,
     );
     const newProductIds = products.map((product) => product.id);
-
     const [productIdsToAdd, productIdsToRemove] = calculateAddedAndDeletedIds(existingProductIds, newProductIds );
 
     await this.prisma.intermediatePractitionerBoxProduct.deleteMany({
@@ -179,7 +177,7 @@ implements PractitionerBoxRepositoryInterface
         OR: productIdsToRemove.map((productId) => {
           return { productId };
         }),
-        practitionerBox: { AND: [{ label, practitionerId }] },
+        practitionerBox: { label, practitionerId },
       },
     });
     const response = await this.prisma.practitionerBox.upsert({
@@ -190,24 +188,24 @@ implements PractitionerBoxRepositoryInterface
         practitionerId,
         description,
         note,
-        intermediatePractitionerBoxProduct: {
+        intermediatePractitionerBoxProduct: productIdsToAdd.length ?{
           createMany: {
             data: productIdsToAdd.map((productId) => {
               return { productId };
             }),
           },
-        },
+        }:{},
       },
       update: {
         description,
         note,
-        intermediatePractitionerBoxProduct: {
+        intermediatePractitionerBoxProduct: productIdsToAdd.length ?{
           createMany: {
             data: productIdsToAdd.map((productId) => {
               return { productId };
             }),
           },
-        },
+        }:{},
       },
       select: {
         intermediatePractitionerBoxProduct: { select: { product: true } },
