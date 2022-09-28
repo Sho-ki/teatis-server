@@ -69,7 +69,7 @@ describe('GetOptions', () => {
     };
     MockedShopifyRepository = {
       getOrderCount: () =>
-        Promise.resolve<[CustomerOrderCount?, Error?]>([{ orderCount: 1, email: 'test@test.com' }]),
+        Promise.resolve<ReturnValueType<CustomerOrderCount>>([{ orderCount: 1, email: 'test@test.com' }]),
     };
 
     // MockedNextBoxUtil = {

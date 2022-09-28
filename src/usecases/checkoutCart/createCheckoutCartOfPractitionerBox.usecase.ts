@@ -8,6 +8,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { PractitionerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
+import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
 
 export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
   createCheckoutCartOfPractitionerBox({
@@ -45,19 +46,21 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
-      return [null, getCustomerError];
+      return [undefined, getCustomerError];
     }
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart({
         discountCode: DISCOUNT_CODES.practitionerBox.firstPurchase,
-        merchandiseId: PRACTITIONER_BOX_PLANS.merchandiseId,
-        sellingPlanId: PRACTITIONER_BOX_PLANS.sellingPlanId,
+        merchandiseId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
+          PRACTITIONER_BOX_PLANS.customized.merchandiseId: PRACTITIONER_BOX_PLANS.original.merchandiseId,
+        sellingPlanId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
+          PRACTITIONER_BOX_PLANS.customized.sellingPlanId:PRACTITIONER_BOX_PLANS.original.sellingPlanId,
         attributes,
       });
     if (createCheckoutCartOfPractitionerBoxError) {
-      return [null, createCheckoutCartOfPractitionerBoxError];
+      return [undefined, createCheckoutCartOfPractitionerBoxError];
     }
 
-    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, null];
+    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, undefined];
   }
 }

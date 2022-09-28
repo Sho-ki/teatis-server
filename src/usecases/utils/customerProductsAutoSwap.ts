@@ -296,9 +296,7 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
         return !nextWantProducts.find((nextWant) => nextWant.id === product.id);
       })
       : allProducts;
-
-    const newPractitionerProducts:Product[] = [...nextWantProducts];
-
+    const newPractitionerProducts:Product[] = nextWantProducts? [...nextWantProducts]:[];
     for(const practitionerProduct of practitionerProducts){
       const foundProductIndex = shippableProducts.findIndex(
         shippableProduct => shippableProduct.id === practitionerProduct.id);
