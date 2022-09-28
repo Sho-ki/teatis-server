@@ -5,6 +5,7 @@ import { Cart } from '@Domains/Cart';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import { CreateCartMutation, getSdk } from './generated/graphql';
 import { ShopifyGetCustomerRes } from './shopify.interface';
+import { ReturnValueType } from '../../filter/customError';
 
 interface GetOrderCountArgs {
   shopifyCustomerId: number;
@@ -18,13 +19,13 @@ interface CreateCartArgs {
 }
 
 export interface ShopifyRepositoryInterface {
-  getOrderCount({ shopifyCustomerId }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]>;
+  getOrderCount({ shopifyCustomerId }: GetOrderCountArgs): Promise<ReturnValueType<CustomerOrderCount>>;
   createCart({
     discountCode,
     merchandiseId,
     sellingPlanId,
     attributes,
-  }: CreateCartArgs): Promise<[Cart?, Error?]>;
+  }: CreateCartArgs): Promise<ReturnValueType<Cart>>;
 }
 
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
@@ -36,7 +37,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     merchandiseId,
     sellingPlanId,
     attributes,
-  }: CreateCartArgs): Promise<[Cart?, Error?]> {
+  }: CreateCartArgs): Promise<ReturnValueType<Cart>> {
     const client = new GraphQLClient(endpoint, {
       headers: {
         // TODO: To .env file
@@ -65,7 +66,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     return [{ checkoutUrl: res.cartCreate.cart.checkoutUrl }];
   }
 
-  async getOrderCount({ shopifyCustomerId }: GetOrderCountArgs): Promise<[CustomerOrderCount?, Error?]> {
+  async getOrderCount({ shopifyCustomerId }: GetOrderCountArgs): Promise<ReturnValueType<CustomerOrderCount>> {
     const res = await axios.get<ShopifyGetCustomerRes>(
       `https://thetis-tea.myshopify.com/admin/api/2022-01/customers/${shopifyCustomerId}.json`,
       {
