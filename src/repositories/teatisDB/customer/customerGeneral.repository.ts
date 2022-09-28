@@ -127,9 +127,9 @@ implements CustomerGeneralRepositoryInterface
     const response = await this.prisma.customers.update({
       where: { uuid },
       data: { email: newEmail },
-      select: { id: true },
+      select: { id: true, createdAt: true, updatedAt: true },
     });
-    return [{ id: response.id, email: newEmail, uuid }];
+    return [{ id: response.id, email: newEmail, uuid, createAt: response.createdAt, updatedAt: response.updatedAt }];
   }
 
   async getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
@@ -270,7 +270,7 @@ implements CustomerGeneralRepositoryInterface
   async getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({
       where: { email },
-      select: { id: true, email: true, uuid: true },
+      select: { id: true, email: true, uuid: true, createdAt: true, updatedAt: true },
     });
     if (!response) {
       return [{ id: undefined, email: undefined, uuid: undefined }];
@@ -280,6 +280,11 @@ implements CustomerGeneralRepositoryInterface
       return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
-    return [{ id: response.id, email: response.email, uuid: response.uuid }];
+    return [
+      {
+        id: response.id, email: response.email, uuid: response.uuid,
+        createAt: response.createdAt, updatedAt: response.updatedAt,
+      },
+    ];
   }
 }

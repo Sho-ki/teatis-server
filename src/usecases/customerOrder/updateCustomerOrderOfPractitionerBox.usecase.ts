@@ -16,6 +16,7 @@ import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAuto
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 import { currentMonth } from '../utils/dates';
+import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -108,7 +109,9 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     const PractitionerBoxID = 6603694014519;
     if (
       order.products.length > 1 &&
-      purchasedProducts.includes(PRACTITIONER_BOX_PLANS.id || PractitionerBoxID)
+      purchasedProducts.includes(PRACTITIONER_BOX_PLANS.original.id
+         || PRACTITIONER_BOX_PLANS.customized.id
+         || PractitionerBoxID)
     ) {
       return [
         {
@@ -170,15 +173,17 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       }
     }
 
+    if(customer.createAt > new Date('2022-09-28') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+      orderProducts= orderProducts.slice(0, 8);
+    }
+
     if(isFirstOrder){
       orderProducts.push(
         { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
       );
     }
-
     const transactionPrice = Number(subtotal_price);
-
     const [
       [, updateOrderError],
       [, createPractitionerBoxHistoryError],
