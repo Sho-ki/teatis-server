@@ -4,6 +4,7 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
 import { ReturnValueType } from '@Filters/customError';
+import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
 
 export interface GetPractitionerBoxByUuidUsecaseInterface {
   getPractitionerBoxByUuid({ practitionerBoxUuid }: GetPractitionerBoxDto):
@@ -25,7 +26,7 @@ implements GetPractitionerBoxByUuidUsecaseInterface
     if (getPractitionerAndBoxError) {
       return [undefined, getPractitionerAndBoxError];
     }
-    if(new Date() >= new Date('2022-10-01')){
+    if(new Date() >= new Date('2022-10-01')&& TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       practitionerAndBox.box.products = practitionerAndBox.box.products.slice(0, 8);
     }
     return [practitionerAndBox];
