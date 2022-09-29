@@ -50,7 +50,8 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     }
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart({
-        discountCode: DISCOUNT_CODES.practitionerBox.firstPurchase,
+        discountCode: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
+          DISCOUNT_CODES.testPractitionerBox.firstPurchase: DISCOUNT_CODES.practitionerBox.firstPurchase,
         merchandiseId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
           PRACTITIONER_BOX_PLANS.customized.merchandiseId: PRACTITIONER_BOX_PLANS.original.merchandiseId,
         sellingPlanId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
