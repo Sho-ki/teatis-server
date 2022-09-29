@@ -173,7 +173,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       }
     }
 
-    if(customer.createAt > new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       orderProducts= orderProducts.slice(0, 8);
     }
 
