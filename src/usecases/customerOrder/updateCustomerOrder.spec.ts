@@ -22,6 +22,8 @@ import {
 } from '@Usecases/utils/getSuggestion';
 import { CustomerBoxType } from '../../domains/CustomerBoxType';
 import { ReturnValueType } from '@Filters/customError';
+import { WebhookEventRepositoryInterface } from '../../repositories/teatisDB/webhookEvent/webhookEvent.repository';
+import { Status } from '../../domains/Status';
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface;
@@ -32,7 +34,7 @@ describe('GetOptions', () => {
   let MockedShopifyRepository: Partial<ShopifyRepositoryInterface>;
   // let MockedNextBoxUtil: GetSuggestionInterface;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
-  // let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>;
+  let MockedWebhookEventRepository: Partial<WebhookEventRepositoryInterface>;
 
   beforeEach(async () => {
     MockedCustomerGeneralRepository = {
@@ -70,6 +72,11 @@ describe('GetOptions', () => {
     MockedShopifyRepository = {
       getOrderCount: () =>
         Promise.resolve<ReturnValueType<CustomerOrderCount>>([{ orderCount: 1, email: 'test@test.com' }]),
+    };
+
+    MockedWebhookEventRepository = {
+      postUniqueApiId: () =>
+        Promise.resolve<ReturnValueType<Status>>([{ success: true }]),
     };
 
     // MockedNextBoxUtil = {
@@ -160,6 +167,10 @@ describe('GetOptions', () => {
       providers: [
         UpdateCustomerOrderOfCustomerBoxUsecase,
         {
+          provide: 'WebhookEventRepositoryInterface',
+          useValue: MockedWebhookEventRepository,
+        },
+        {
           provide: 'ShipheroRepositoryInterface',
           useValue: MockedShipheroRepository,
         },
@@ -206,6 +217,7 @@ describe('GetOptions', () => {
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       uuid: '1234',
+      admin_graphql_api_id: '98765',
     });
     expect(res.status).toBe('ordered');
     expect(error).toBeUndefined();
@@ -219,6 +231,7 @@ describe('GetOptions', () => {
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       uuid: '1234',
+      admin_graphql_api_id: '98765',
     });
     expect(res.status).toBe('ordered');
     expect(error).toBeUndefined();

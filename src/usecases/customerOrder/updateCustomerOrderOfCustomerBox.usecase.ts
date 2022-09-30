@@ -13,9 +13,10 @@ import { OrderQueue } from '@Domains/OrderQueue';
 import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
 import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
+import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
-  extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
+  extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'| 'admin_graphql_api_id'> {
   uuid: string;
 }
 
@@ -25,6 +26,7 @@ export interface UpdateCustomerOrderOfCustomerBoxUsecaseInterface {
     customer,
     line_items,
     uuid,
+    admin_graphql_api_id,
   }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<ReturnValueType<OrderQueue>>;
 }
 
@@ -45,6 +47,8 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     private readonly shopifyRepository: ShopifyRepositoryInterface,
     @Inject('GetSuggestionInterface')
     private getSuggestionUtil: GetSuggestionInterface,
+    @Inject('WebhookEventRepositoryInterface')
+    private webhookEventRepository: WebhookEventRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfCustomerBox({
@@ -52,6 +56,7 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     customer: shopifyCustomer,
     line_items,
     uuid,
+    admin_graphql_api_id: apiId,
   }: UpdateCustomerOrderOfCustomerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
@@ -172,6 +177,11 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
       });
     if (orderQueueError) {
       return [undefined, orderQueueError];
+    }
+
+    const [, postApiIdError] = await this.webhookEventRepository.postUniqueApiId({ apiId });
+    if(postApiIdError){
+      return [undefined, postApiIdError];
     }
 
     return [

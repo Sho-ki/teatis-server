@@ -17,11 +17,12 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 import { currentMonth } from '../utils/dates';
 import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
+import { WebhookEventRepositoryInterface } from '../../repositories/teatisDB/webhookEvent/webhookEvent.repository';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
     UpdateCustomerOrderDto,
-    'name' | 'customer' | 'subtotal_price' | 'line_items'
+    'name' | 'customer' | 'subtotal_price' | 'line_items' | 'admin_graphql_api_id'
   > {
   uuid: string;
   practitionerBoxUuid: string;
@@ -35,6 +36,7 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     line_items,
     uuid,
     practitionerBoxUuid,
+    admin_graphql_api_id,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>>;
 }
 
@@ -57,8 +59,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private getSuggestionUtil: GetSuggestionInterface,
     @Inject('CustomerProductsAutoSwapInterface')
     private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
-   @Inject('CustomerGeneralRepositoryInterface')
+    @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('WebhookEventRepositoryInterface')
+    private webhookEventRepository: WebhookEventRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfPractitionerBox({
@@ -68,6 +72,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     line_items,
     uuid,
     practitionerBoxUuid,
+    admin_graphql_api_id: apiId,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
     let [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
@@ -223,6 +228,11 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
     if(updateOrderHoldUntilDateError){
       return [undefined, updateOrderHoldUntilDateError];
+    }
+
+    const [, postApiIdError] = await this.webhookEventRepository.postUniqueApiId({ apiId });
+    if(postApiIdError){
+      return [undefined, postApiIdError];
     }
 
     return [
