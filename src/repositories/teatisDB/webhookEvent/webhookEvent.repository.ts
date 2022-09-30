@@ -17,7 +17,7 @@ export class WebhookEventRepository implements WebhookEventRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
   async postUniqueApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>> {
-    await this.prisma.shopifyEvents.upsert({
+    await this.prisma.webhookEvents.upsert({
       where: { apiId },
       create: { apiId, cronMetadata: { connect: { name: 'updateOrder' } } },
       update: {},
