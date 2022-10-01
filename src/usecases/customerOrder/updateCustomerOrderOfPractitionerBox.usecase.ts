@@ -230,7 +230,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, updateOrderHoldUntilDateError];
     }
 
-    const [, postApiIdError] = await this.webhookEventRepository.postUniqueApiId({ apiId });
+    const [, postApiIdError] = await this.webhookEventRepository.postApiId({ apiId });
     if(postApiIdError){
       return [undefined, postApiIdError];
     }

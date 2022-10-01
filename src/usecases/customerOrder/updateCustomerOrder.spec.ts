@@ -75,7 +75,7 @@ describe('GetOptions', () => {
     };
 
     MockedWebhookEventRepository = {
-      postUniqueApiId: () =>
+      postApiId: () =>
         Promise.resolve<ReturnValueType<Status>>([{ success: true }]),
     };
 

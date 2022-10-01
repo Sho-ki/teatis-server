@@ -179,7 +179,7 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
       return [undefined, orderQueueError];
     }
 
-    const [, postApiIdError] = await this.webhookEventRepository.postUniqueApiId({ apiId });
+    const [, postApiIdError] = await this.webhookEventRepository.postApiId({ apiId });
     if(postApiIdError){
       return [undefined, postApiIdError];
     }

@@ -9,14 +9,14 @@ export interface PostApiIdArgs {
 }
 
 export interface WebhookEventRepositoryInterface {
-  postUniqueApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>>;
+  postApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>>;
 }
 
 @Injectable()
 export class WebhookEventRepository implements WebhookEventRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
-  async postUniqueApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>> {
+  async postApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>> {
     await this.prisma.webhookEvents.upsert({
       where: { apiId },
       create: { apiId, cronMetadata: { connect: { name: 'updateOrder' } } },
