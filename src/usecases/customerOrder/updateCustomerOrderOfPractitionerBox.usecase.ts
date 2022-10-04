@@ -10,7 +10,6 @@ import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
-import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
@@ -158,21 +157,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, autoSwapBoxProductsError];
     }
     let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
-    if (!practitionerAndBox.box.products.length) {
-      // analyze
-      const [nextBoxProductsRes, nextBoxProductsError] =
-        await this.getSuggestionUtil.getSuggestion({
-          customer,
-          productCount: PRODUCT_COUNT,
-        });
-      orderProducts = nextBoxProductsRes.products.map((product) => {
-        return { sku: product.sku };
-      });
-      if (nextBoxProductsError) {
-        return [undefined, nextBoxProductsError];
-      }
-    }
-
     if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       orderProducts= orderProducts.slice(0, 8);
     }
