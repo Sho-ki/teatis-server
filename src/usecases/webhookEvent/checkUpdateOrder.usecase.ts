@@ -4,7 +4,8 @@ import { ReturnValueType } from '@Filters/customError';
 import { CronMetaDataRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/cronMetaData.repository';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
-import { SystemRepositoryInterface } from '@Repositories/system/system.repository';
+import { UpdateCustomerOrderOfPractitionerBoxUsecaseInterface } from '../customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
+import { UpdateCustomerOrderOfCustomerBoxUsecaseInterface } from '../customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 
 export interface CheckUpdateOrderUsecaseInterface {
   checkUpdateOrder(): Promise<ReturnValueType<Status>>;
@@ -21,9 +22,10 @@ implements CheckUpdateOrderUsecaseInterface
     private readonly shopifyRepository: ShopifyRepositoryInterface,
     @Inject('WebhookEventRepositoryInterface')
     private readonly webhookEventRepository: WebhookEventRepositoryInterface,
-     @Inject('SystemRepositoryInterface')
-    private readonly systemRepository: SystemRepositoryInterface,
-
+     @Inject('UpdateCustomerOrderOfPractitionerBoxUsecaseInterface')
+    private readonly updateCustomerOrderOfPractitionerBoxUsecase: UpdateCustomerOrderOfPractitionerBoxUsecaseInterface,
+    @Inject('UpdateCustomerOrderOfCustomerBoxUsecaseInterface')
+    private readonly updateCustomerOrderOfCustomerBoxUsecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface,
   ) {}
 
   async checkUpdateOrder(): Promise<ReturnValueType<Status>> {
@@ -52,8 +54,43 @@ implements CheckUpdateOrderUsecaseInterface
 
     for(const webhook of uncompletedWebhooks){
       const { orderNumber, lineItems, apiId, attributes, shopifyCustomer, totalPrice } = webhook;
-      await this.systemRepository.updateOrderWebhookProduct(
-        { orderNumber, lineItems, apiId, attributes, totalPrice, customer: shopifyCustomer });
+
+      let customerAttributes = {} as { uuid?: string, practitionerBoxUuid?: string };
+      for (const attribute of attributes) {
+        if (attribute.name === 'uuid') {
+          customerAttributes = Object.assign(customerAttributes, { uuid: attribute.value });
+        }
+        if (attribute.name === 'practitionerBoxUuid') {
+          customerAttributes = Object.assign(customerAttributes, { practitionerBoxUuid: attribute.value });
+        }
+      }
+      const attributeKeys = Object.keys(customerAttributes);
+      if (
+        attributeKeys.includes('practitionerBoxUuid') &&
+      attributeKeys.includes('uuid')
+      ) {
+        await this.updateCustomerOrderOfPractitionerBoxUsecase.updateCustomerOrderOfPractitionerBox(
+          {
+            name: orderNumber,
+            customer: shopifyCustomer,
+            subtotal_price: totalPrice,
+            line_items: lineItems.map(({ productId }) => { return { product_id: productId }; }),
+            uuid: customerAttributes.uuid,
+            practitionerBoxUuid: customerAttributes.practitionerBoxUuid,
+            admin_graphql_api_id: apiId,
+          },
+        );
+      } else {
+        await this.updateCustomerOrderOfCustomerBoxUsecase.updateCustomerOrderOfCustomerBox(
+          {
+            name: orderNumber,
+            customer: shopifyCustomer,
+            line_items: lineItems.map(({ productId }) => { return { product_id: productId }; }),
+            uuid: customerAttributes.uuid,
+            admin_graphql_api_id: apiId,
+          },
+        );
+      }
     }
     await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
     return [{ success: true }];
