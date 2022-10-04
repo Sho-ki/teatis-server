@@ -37,8 +37,9 @@ implements CheckUpdateOrderUsecaseInterface
       return [undefined, getShopifyWebhooksError];
     }
 
+    const runDate = new Date();
     if(!shopifyWebhooks.length) {
-      await this.cronMetaDataRepository.updateLastRun({ date: new Date(), name: 'updateOrder' });
+      await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
       return [{ success: true }];
     }
 
@@ -54,7 +55,7 @@ implements CheckUpdateOrderUsecaseInterface
       await this.systemRepository.updateOrderWebhookProduct(
         { orderNumber, lineItems, apiId, attributes, totalPrice, customer: shopifyCustomer });
     }
-    await this.cronMetaDataRepository.updateLastRun({ date: new Date(), name: 'updateOrder' });
+    await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
     return [{ success: true }];
   }
 }
