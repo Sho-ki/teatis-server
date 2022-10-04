@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DiscoveriesModule } from '@Controllers/discoveries/discoveries.module';
@@ -19,6 +20,7 @@ require('dotenv').config();
     WebhookEventModule,
     ProductModule,
     TerraModule,
+    ScheduleModule.forRoot(),
   ],
 
   controllers: [AppController],

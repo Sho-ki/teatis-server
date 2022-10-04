@@ -1,16 +1,20 @@
-import { Controller, Inject, Post, Res } from '@nestjs/common';
+import {  Inject, Injectable, Res } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
+
 import { Response } from 'express';
 import { CheckUpdateOrderUsecaseInterface } from '@Usecases/webhookEvent/checkUpdateOrder.usecase';
 import { Status } from '@Domains/Status';
 
-@Controller('api/system')
-export class WebhookEventController {
+@Injectable()
+export class WebhookEventService {
   constructor(
     @Inject('CheckUpdateOrderUsecaseInterface')
     private checkUpdateOrderUsecase: CheckUpdateOrderUsecaseInterface,
   ) {}
-  @Post('webhook-event')
+
+  @Cron('* * * * * *')
   async checkUpdateOrderWebhook(@Res() response: Response<Status | Error>) {
+
     const [usecaseResponse, error] =
       await this.checkUpdateOrderUsecase.checkUpdateOrder();
     if (error) {

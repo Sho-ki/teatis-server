@@ -2,14 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Status } from '@Domains/Status';
 import { ReturnValueType } from '../../../filter/customError';
 import { CheckUpdateOrderUsecaseInterface } from '@Usecases/webhookEvent/checkUpdateOrder.usecase';
-import { WebhookEventController } from './webhookEvent.controller';
+import { WebhookEventService } from './webhookEvent.service';
 
-describe('WebhookEventController', () => {
-  let controller: WebhookEventController;
+describe('WebhookEventService', () => {
+  let controller: WebhookEventService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [WebhookEventController],
+      controllers: [WebhookEventService],
       providers: [
         {
           provide: 'CheckUpdateOrderUsecaseInterface',
@@ -21,7 +21,7 @@ describe('WebhookEventController', () => {
       ],
     }).compile();
 
-    controller = module.get<WebhookEventController>(WebhookEventController);
+    controller = module.get<WebhookEventService>(WebhookEventService);
   });
 
   it('should be defined', async () => {

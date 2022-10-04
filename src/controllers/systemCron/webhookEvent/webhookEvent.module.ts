@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CronMetaDataRepository } from '@Repositories/teatisDB/webhookEvent/cronMetaData.repository';
 import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
-import { WebhookEventController } from './webhookEvent.controller';
+import { WebhookEventService } from './webhookEvent.service';
 import { WebhookEventRepository } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { CheckUpdateOrderUsecase } from '@Usecases/webhookEvent/checkUpdateOrder.usecase';
 import { PrismaService } from '../../../prisma.service';
@@ -27,10 +27,10 @@ import { CustomerProductsAutoSwap } from '../../../usecases/utils/customerProduc
 import { GetSuggestion } from '../../../usecases/utils/getSuggestion';
 
 @Module({
-  controllers: [WebhookEventController],
-  exports: [WebhookEventController],
+//   controllers: [WebhookEventService],
+  exports: [WebhookEventService],
   providers: [
-    WebhookEventController,
+    WebhookEventService,
     {
       provide: 'CheckUpdateOrderUsecaseInterface',
       useClass: CheckUpdateOrderUsecase,
