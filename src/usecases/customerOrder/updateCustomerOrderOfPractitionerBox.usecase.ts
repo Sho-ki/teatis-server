@@ -157,15 +157,15 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, autoSwapBoxProductsError];
     }
     let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
-    if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
-      orderProducts= orderProducts.slice(0, 8);
-    }
 
     if(isFirstOrder){
       orderProducts.push(
         { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
       );
+    }
+    if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+      orderProducts= orderProducts.slice(0, 8);
     }
     const transactionPrice = Number(subtotal_price);
     const [
