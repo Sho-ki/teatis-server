@@ -6,6 +6,7 @@ import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.reposi
 import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { UpdateCustomerOrderOfPractitionerBoxUsecaseInterface } from '../customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
 import { UpdateCustomerOrderOfCustomerBoxUsecaseInterface } from '../customerOrder/updateCustomerOrderOfCustomerBox.usecase';
+import { SHOPIFY_WEBHOOK_EVENT_NAME } from '../utils/webhookEventName';
 
 export interface CheckUpdateOrderUsecaseInterface {
   checkUpdateOrder(): Promise<ReturnValueType<Status>>;
@@ -29,7 +30,8 @@ implements CheckUpdateOrderUsecaseInterface
   ) {}
 
   async checkUpdateOrder(): Promise<ReturnValueType<Status>> {
-    const [cronMetaData, getCronMetaDataError] = await this.cronMetaDataRepository.getLastRun({ name: 'updateOrder' });
+    const [cronMetaData, getCronMetaDataError] = await this.cronMetaDataRepository.getLastRun(
+      { name: SHOPIFY_WEBHOOK_EVENT_NAME.updateOrder });
     if(getCronMetaDataError){
       return [undefined, getCronMetaDataError];
     }
@@ -41,7 +43,7 @@ implements CheckUpdateOrderUsecaseInterface
 
     const runDate = new Date();
     if(!shopifyWebhooks.length) {
-      await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
+      await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: SHOPIFY_WEBHOOK_EVENT_NAME.updateOrder });
       return [{ success: true }];
     }
 
@@ -92,7 +94,7 @@ implements CheckUpdateOrderUsecaseInterface
         );
       }
     }
-    await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
+    await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: SHOPIFY_WEBHOOK_EVENT_NAME.updateOrder });
     return [{ success: true }];
   }
 }

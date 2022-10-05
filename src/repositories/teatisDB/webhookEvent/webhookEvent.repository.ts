@@ -4,6 +4,7 @@ import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { Status } from '@Domains/Status';
 import { ShopifyWebhookApiId } from '@Domains/ShopifyWebhookApiId';
+import { SHOPIFY_WEBHOOK_EVENT_NAME } from '../../../usecases/utils/webhookEventName';
 
 export interface PostApiIdArgs {
   apiId: string;
@@ -28,7 +29,14 @@ export class WebhookEventRepository implements WebhookEventRepositoryInterface {
   async postApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>> {
     await this.prisma.webhookEvents.upsert({
       where: { apiId },
-      create: { apiId, cronMetadata: { connectOrCreate: { where: { name: 'updateOrder' }, create: { name: 'updateOrder', lastRunAt: new Date() }  } } },
+      create: {
+        apiId, cronMetadata: {
+          connectOrCreate: {
+            where: { name: SHOPIFY_WEBHOOK_EVENT_NAME.updateOrder },
+            create: { name: SHOPIFY_WEBHOOK_EVENT_NAME.updateOrder, lastRunAt: new Date() },
+          },
+        },
+      },
       update: {},
     });
 
