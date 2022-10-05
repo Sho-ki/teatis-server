@@ -44,7 +44,7 @@ describe('GetOptions', () => {
         Promise.resolve<ReturnValueType<OrderQueue>>([{ customerId: 1, status: 'ordered', orderNumber: '12345' }]),
     };
     MockedShipheroRepository = {
-      updateOrderHoldUntilDate: () =>
+      updateOrderInformation: () =>
         Promise.resolve<[void?, Error?]>([]),
       getCustomerOrderByOrderNumber: () =>
         Promise.resolve<ReturnValueType<CustomerOrder>>([

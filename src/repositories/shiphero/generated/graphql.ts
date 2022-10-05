@@ -21,6 +21,12 @@ export type Scalars = {
    * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
    */
   Date: any;
+  /**
+   * The `DateTime` scalar type represents a DateTime
+   * value as specified by
+   * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+   */
+  DateTime: any;
   /** The `Decimal` scalar type represents a python Decimal. */
   Decimal: any;
   /**
@@ -353,6 +359,14 @@ export type CancelPurchaseOrderOutput = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+export type Case = {
+  __typename?: 'Case';
+  case_barcode?: Maybe<Scalars['String']>;
+  case_quantity?: Maybe<Scalars['Int']>;
+  id?: Maybe<Scalars['String']>;
+  legacy_id?: Maybe<Scalars['Int']>;
+};
+
 export type ChangeOrderWarehouseInput = {
   /** Use this when you are a 3PL acting on behalf of one of your customers */
   customer_account_id?: InputMaybe<Scalars['String']>;
@@ -534,6 +548,11 @@ export type CreateOrderInput = {
   total_tax?: InputMaybe<Scalars['String']>;
 };
 
+export type CreateProductCaseInput = {
+  case_barcode: Scalars['String'];
+  case_quantity: Scalars['Int'];
+};
+
 export type CreateProductImageInput = {
   position?: InputMaybe<Scalars['Int']>;
   src: Scalars['String'];
@@ -541,6 +560,7 @@ export type CreateProductImageInput = {
 
 export type CreateProductInput = {
   barcode?: InputMaybe<Scalars['String']>;
+  cases?: InputMaybe<Array<InputMaybe<CreateProductCaseInput>>>;
   country_of_manufacture?: InputMaybe<Scalars['String']>;
   /** Use this when you are a 3PL acting on behalf of one of your customers */
   customer_account_id?: InputMaybe<Scalars['String']>;
@@ -667,6 +687,8 @@ export type CreateReturnInput = {
   line_items: Array<InputMaybe<CreateReturnLineItemInput>>;
   order_id: Scalars['String'];
   partner_id?: InputMaybe<Scalars['String']>;
+  /** If a scheduled return is needed */
+  return_pickup_datetime?: InputMaybe<Scalars['DateTime']>;
   return_reason: Scalars['String'];
   shipping_carrier: Scalars['String'];
   shipping_method: Scalars['String'];
@@ -734,6 +756,7 @@ export type CreateShipmentShippingLabelInput = {
   shipping_method: Scalars['String'];
   shipping_name: Scalars['String'];
   tracking_number?: InputMaybe<Scalars['String']>;
+  tracking_url?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateShippingLabelInput = {
@@ -966,6 +989,19 @@ export type FeeCategoryTotalEdge = {
   cursor: Scalars['String'];
   /** The item at the end of the edge */
   node?: Maybe<FeeCategoryTotal>;
+};
+
+export type FulfillOrderInput = {
+  /** Use this when you are a 3PL acting on behalf of one of your customers */
+  customer_account_id?: InputMaybe<Scalars['String']>;
+  note?: InputMaybe<Scalars['String']>;
+  notify_customer_via_shiphero?: InputMaybe<Scalars['Boolean']>;
+  notify_customer_via_store?: InputMaybe<Scalars['Boolean']>;
+  /** The id of the order you want to modify */
+  order_id: Scalars['String'];
+  packages: Array<InputMaybe<ShippedPackagesInput>>;
+  shipped_off_shiphero?: InputMaybe<Scalars['Boolean']>;
+  tote_id: Scalars['String'];
 };
 
 export type FulfillmentInvoice = {
@@ -1208,6 +1244,7 @@ export type InventoryChange = {
   location?: Maybe<Location>;
   location_id?: Maybe<Scalars['String']>;
   previous_on_hand?: Maybe<Scalars['Int']>;
+  product?: Maybe<Product>;
   reason?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
   user_id?: Maybe<Scalars['String']>;
@@ -1692,11 +1729,20 @@ export type Lot = {
   id?: Maybe<Scalars['String']>;
   is_active?: Maybe<Scalars['Boolean']>;
   legacy_id?: Maybe<Scalars['Int']>;
+  locations?: Maybe<LocationConnection>;
   name?: Maybe<Scalars['String']>;
   po_id?: Maybe<Scalars['String']>;
   received_at?: Maybe<Scalars['ISODateTime']>;
   sku?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['ISODateTime']>;
+};
+
+export type LotLocationsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['String']>;
 };
 
 export type LotConnection = {
@@ -1753,6 +1799,7 @@ export type Mutation = {
   inventory_subtract?: Maybe<UpdateInventoryOutput>;
   inventory_sync?: Maybe<InventorySyncOutput>;
   inventory_sync_abort?: Maybe<AbortInventorySyncOutput>;
+  inventory_transfer?: Maybe<TransferInventoryOutput>;
   kit_build?: Maybe<ProductMutationOutput>;
   kit_clear?: Maybe<MutationOutput>;
   kit_remove_components?: Maybe<ProductMutationOutput>;
@@ -1772,6 +1819,7 @@ export type Mutation = {
   order_change_warehouse?: Maybe<OrderMutationOutput>;
   order_clear_tags?: Maybe<OrderMutationOutput>;
   order_create?: Maybe<OrderMutationOutput>;
+  order_fulfill?: Maybe<OrderShipmentMutationOutput>;
   order_remove_line_items?: Maybe<OrderMutationOutput>;
   order_update?: Maybe<OrderMutationOutput>;
   order_update_fulfillment_status?: Maybe<OrderMutationOutput>;
@@ -1856,6 +1904,10 @@ export type MutationInventory_Sync_AbortArgs = {
   data: AbortInventorySyncInput;
 };
 
+export type MutationInventory_TransferArgs = {
+  data: TransferInventoryInput;
+};
+
 export type MutationKit_BuildArgs = {
   data: BuildKitInput;
 };
@@ -1926,6 +1978,10 @@ export type MutationOrder_Clear_TagsArgs = {
 
 export type MutationOrder_CreateArgs = {
   data: CreateOrderInput;
+};
+
+export type MutationOrder_FulfillArgs = {
+  data: FulfillOrderInput;
 };
 
 export type MutationOrder_Remove_Line_ItemsArgs = {
@@ -2262,6 +2318,13 @@ export type OrderQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+export type OrderShipmentMutationOutput = {
+  __typename?: 'OrderShipmentMutationOutput';
+  complexity?: Maybe<Scalars['Int']>;
+  request_id?: Maybe<Scalars['String']>;
+  shipment?: Maybe<Shipment>;
+};
+
 export type OrderThirdPartyShipper = {
   __typename?: 'OrderThirdPartyShipper';
   account_number?: Maybe<Scalars['String']>;
@@ -2393,7 +2456,9 @@ export type Pick = {
   order_number?: Maybe<Scalars['String']>;
   pending_shipment_line_item_id?: Maybe<Scalars['String']>;
   pick_type?: Maybe<Scalars['String']>;
+  /** The number that was picked */
   picked_quantity?: Maybe<Scalars['Int']>;
+  /** The number required */
   quantity?: Maybe<Scalars['Int']>;
   sku?: Maybe<Scalars['String']>;
   tote_id?: Maybe<Scalars['String']>;
@@ -2438,8 +2503,10 @@ export type PicksPerDayQueryResultDataArgs = {
 export type Product = {
   __typename?: 'Product';
   account_id?: Maybe<Scalars['String']>;
+  /** @deprecated This is a warehouse specific field */
   active?: Maybe<Scalars['Boolean']>;
   barcode?: Maybe<Scalars['String']>;
+  cases?: Maybe<Array<Maybe<Case>>>;
   /**
    * For kits, this will be the list of products that make up the kit
    * @deprecated This has been replaced by kit_components
@@ -2470,6 +2537,7 @@ export type Product = {
   needs_serial_number?: Maybe<Scalars['Boolean']>;
   no_air?: Maybe<Scalars['Boolean']>;
   not_owned?: Maybe<Scalars['Boolean']>;
+  packer_note?: Maybe<Scalars['String']>;
   /**
    * Price of the product
    * @deprecated This is a warehouse specific field
@@ -2583,6 +2651,7 @@ export type PurchaseOrder = {
   po_date?: Maybe<Scalars['ISODateTime']>;
   po_note?: Maybe<Scalars['String']>;
   po_number?: Maybe<Scalars['String']>;
+  ship_date?: Maybe<Scalars['DateTime']>;
   shipping_carrier?: Maybe<Scalars['String']>;
   shipping_method?: Maybe<Scalars['String']>;
   shipping_name?: Maybe<Scalars['String']>;
@@ -2813,6 +2882,7 @@ export type Query = {
   shipment?: Maybe<ShipmentQueryResult>;
   shipments?: Maybe<ShipmentsQueryResult>;
   shipping_plan?: Maybe<ShippingPlanQueryResult>;
+  tote?: Maybe<ToteContentQueryResult>;
   tote_history?: Maybe<ToteHistoryQueryResult>;
   user_quota?: Maybe<UserQuota>;
   /** When using the old webhooks you might receive resource ids as numeric ids.If you need any of those ids in one of our new queries or mutations, you can usethis query to retrieve the uuid corresponding to that resource/entity numeric id */
@@ -2904,6 +2974,7 @@ export type QueryLocationArgs = {
 
 export type QueryLocationsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
+  sku?: InputMaybe<Scalars['String']>;
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
@@ -2931,15 +3002,19 @@ export type QueryOrder_HistoryArgs = {
 };
 
 export type QueryOrdersArgs = {
+  address_hold?: InputMaybe<Scalars['Boolean']>;
   allocated_warehouse_id?: InputMaybe<Scalars['String']>;
   analyze?: InputMaybe<Scalars['Boolean']>;
   customer_account_id?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
+  fraud_hold?: InputMaybe<Scalars['Boolean']>;
   fulfillment_status?: InputMaybe<Scalars['String']>;
+  operator_hold?: InputMaybe<Scalars['Boolean']>;
   order_date_from?: InputMaybe<Scalars['ISODateTime']>;
   order_date_to?: InputMaybe<Scalars['ISODateTime']>;
   order_number?: InputMaybe<Scalars['String']>;
   partner_order_id?: InputMaybe<Scalars['String']>;
+  payment_hold?: InputMaybe<Scalars['Boolean']>;
   shop_name?: InputMaybe<Scalars['String']>;
   sku?: InputMaybe<Scalars['String']>;
   updated_from?: InputMaybe<Scalars['ISODateTime']>;
@@ -2992,6 +3067,8 @@ export type QueryPurchase_OrdersArgs = {
   created_from?: InputMaybe<Scalars['ISODateTime']>;
   created_to?: InputMaybe<Scalars['ISODateTime']>;
   customer_account_id?: InputMaybe<Scalars['String']>;
+  date_closed_from?: InputMaybe<Scalars['ISODateTime']>;
+  date_closed_to?: InputMaybe<Scalars['ISODateTime']>;
   po_date_from?: InputMaybe<Scalars['ISODateTime']>;
   po_date_to?: InputMaybe<Scalars['ISODateTime']>;
   sku?: InputMaybe<Scalars['String']>;
@@ -3035,6 +3112,11 @@ export type QueryShipmentsArgs = {
 export type QueryShipping_PlanArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
+};
+
+export type QueryToteArgs = {
+  analyze?: InputMaybe<Scalars['Boolean']>;
+  barcode: Scalars['String'];
 };
 
 export type QueryTote_HistoryArgs = {
@@ -3113,18 +3195,23 @@ export type RmaLabelType = {
   address_state?: Maybe<Scalars['String']>;
   address_zip?: Maybe<Scalars['String']>;
   carrier?: Maybe<Scalars['String']>;
-  cost?: Maybe<Scalars['Float']>;
+  cost?: Maybe<Scalars['String']>;
   created_date?: Maybe<Scalars['ISODateTime']>;
+  dimensions?: Maybe<Dimensions>;
+  /** @deprecated Use dimensions instead */
   height?: Maybe<Scalars['Float']>;
   id?: Maybe<Scalars['String']>;
   legacy_id?: Maybe<Scalars['Int']>;
+  /** @deprecated Use dimensions instead */
   length?: Maybe<Scalars['Float']>;
   pdf_location?: Maybe<Scalars['String']>;
   shipping_method?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   to_name?: Maybe<Scalars['String']>;
   tracking_number?: Maybe<Scalars['String']>;
+  /** @deprecated Use dimensions instead */
   weight?: Maybe<Scalars['Float']>;
+  /** @deprecated Use dimensions instead */
   width?: Maybe<Scalars['Float']>;
 };
 
@@ -3337,6 +3424,7 @@ export type Shipment = {
   refunded?: Maybe<Scalars['Boolean']>;
   shipped_off_shiphero?: Maybe<Scalars['Boolean']>;
   shipping_labels?: Maybe<Array<Maybe<ShippingLabel>>>;
+  total_packages?: Maybe<Scalars['Int']>;
   user_id?: Maybe<Scalars['String']>;
   warehouse?: Maybe<Warehouse>;
   warehouse_id?: Maybe<Scalars['String']>;
@@ -3417,6 +3505,11 @@ export type ShipmentsQueryResultDataArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
+export type ShippedLineItemInput = {
+  quantity: Scalars['Int'];
+  sku: Scalars['String'];
+};
+
 export type ShippedLineItemLot = {
   __typename?: 'ShippedLineItemLot';
   id?: Maybe<Scalars['String']>;
@@ -3425,6 +3518,18 @@ export type ShippedLineItemLot = {
   lot_expiration_date?: Maybe<Scalars['ISODateTime']>;
   lot_id?: Maybe<Scalars['String']>;
   lot_name?: Maybe<Scalars['String']>;
+};
+
+export type ShippedPackagesInput = {
+  address: CreateOrderAddressInput;
+  carrier: Scalars['String'];
+  cost?: InputMaybe<Scalars['String']>;
+  dimensions?: InputMaybe<DimensionsInput>;
+  label_url?: InputMaybe<Scalars['String']>;
+  line_items?: InputMaybe<Array<InputMaybe<ShippedLineItemInput>>>;
+  method: Scalars['String'];
+  tracking_number?: InputMaybe<Scalars['String']>;
+  tracking_url?: InputMaybe<Scalars['String']>;
 };
 
 export type ShippingLabel = {
@@ -3451,7 +3556,9 @@ export type ShippingLabel = {
   order_account_id?: Maybe<Scalars['String']>;
   order_id?: Maybe<Scalars['String']>;
   order_number?: Maybe<Scalars['String']>;
+  package_number?: Maybe<Scalars['Int']>;
   packing_slip?: Maybe<Scalars['String']>;
+  parcelview_url?: Maybe<Scalars['String']>;
   partner_fulfillment_id?: Maybe<Scalars['String']>;
   picked_up?: Maybe<Scalars['Boolean']>;
   profile?: Maybe<Scalars['String']>;
@@ -3463,6 +3570,7 @@ export type ShippingLabel = {
   source?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   tracking_number?: Maybe<Scalars['String']>;
+  tracking_url?: Maybe<Scalars['String']>;
   warehouse?: Maybe<Scalars['String']>;
   warehouse_id?: Maybe<Scalars['String']>;
 };
@@ -3712,6 +3820,24 @@ export type SubmitBillInput = {
   id: Scalars['String'];
 };
 
+export type Tote = {
+  __typename?: 'Tote';
+  barcode?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['String']>;
+  legacy_id?: Maybe<Scalars['Int']>;
+  name?: Maybe<Scalars['String']>;
+  orders?: Maybe<Array<Maybe<Order>>>;
+  picks?: Maybe<Array<Maybe<TotePick>>>;
+  warehouse?: Maybe<Warehouse>;
+};
+
+export type ToteContentQueryResult = {
+  __typename?: 'ToteContentQueryResult';
+  complexity?: Maybe<Scalars['Int']>;
+  data?: Maybe<Tote>;
+  request_id?: Maybe<Scalars['String']>;
+};
+
 export type ToteHistory = {
   __typename?: 'ToteHistory';
   action?: Maybe<Scalars['String']>;
@@ -3756,12 +3882,33 @@ export type TotePick = {
   __typename?: 'TotePick';
   created_at?: Maybe<Scalars['ISODateTime']>;
   current?: Maybe<Scalars['Int']>;
+  id?: Maybe<Scalars['String']>;
   inventory_bin?: Maybe<Scalars['String']>;
-  location_id?: Maybe<Scalars['Int']>;
+  legacy_id?: Maybe<Scalars['Int']>;
+  line_item?: Maybe<LineItem>;
+  location?: Maybe<Location>;
   picked_quantity?: Maybe<Scalars['Int']>;
   quantity?: Maybe<Scalars['Int']>;
+  sku?: Maybe<Scalars['String']>;
   tote_id?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['ISODateTime']>;
+};
+
+export type TransferInventoryInput = {
+  customer_account_id?: InputMaybe<Scalars['String']>;
+  location_from_id: Scalars['String'];
+  location_to_id: Scalars['String'];
+  quantity: Scalars['Int'];
+  reason?: InputMaybe<Scalars['String']>;
+  sku: Scalars['String'];
+  warehouse_id: Scalars['String'];
+};
+
+export type TransferInventoryOutput = {
+  __typename?: 'TransferInventoryOutput';
+  complexity?: Maybe<Scalars['Int']>;
+  ok?: Maybe<Scalars['Boolean']>;
+  request_id?: Maybe<Scalars['String']>;
 };
 
 export type UpdateBillInput = {
@@ -3941,6 +4088,11 @@ export type UpdateOrderInputBase = {
   order_id: Scalars['String'];
 };
 
+export type UpdateProductCaseInput = {
+  case_barcode: Scalars['String'];
+  case_quantity: Scalars['Int'];
+};
+
 export type UpdateProductImageInput = {
   position?: InputMaybe<Scalars['Int']>;
   src: Scalars['String'];
@@ -3948,6 +4100,7 @@ export type UpdateProductImageInput = {
 
 export type UpdateProductInput = {
   barcode?: InputMaybe<Scalars['String']>;
+  cases?: InputMaybe<Array<InputMaybe<UpdateProductCaseInput>>>;
   country_of_manufacture?: InputMaybe<Scalars['String']>;
   /** Use this when you are a 3PL acting on behalf of one of your customers */
   customer_account_id?: InputMaybe<Scalars['String']>;
@@ -4372,6 +4525,12 @@ export type GetVendorsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetVendorsQuery = { __typename?: 'Query', vendors?: { __typename?: 'VendorsQueryResult', data?: { __typename?: 'VendorConnection', edges: Array<{ __typename?: 'VendorEdge', node?: { __typename?: 'Vendor', id?: string | null, name?: string | null } | null } | null> } | null } | null };
 
+export type UpdateOrderMutationVariables = Exact<{
+  input: UpdateOrderInput;
+}>;
+
+export type UpdateOrderMutation = { __typename?: 'Mutation', order_update?: { __typename?: 'OrderMutationOutput', request_id?: string | null, complexity?: number | null, order?: { __typename?: 'Order', hold_until_date?: any | null, order_number?: string | null } | null } | null };
+
 export const GetProductInventoryDocument = gql`
     query getProductInventory {
   products {
@@ -4500,6 +4659,18 @@ export const GetVendorsDocument = gql`
   }
 }
     `;
+export const UpdateOrderDocument = gql`
+    mutation UpdateOrder($input: UpdateOrderInput!) {
+  order_update(data: $input) {
+    request_id
+    complexity
+    order {
+      hold_until_date
+      order_number
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
 
@@ -4521,6 +4692,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getVendors(variables?: GetVendorsQueryVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<GetVendorsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetVendorsQuery>(GetVendorsDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'getVendors');
+    },
+    UpdateOrder(variables: UpdateOrderMutationVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<UpdateOrderMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateOrderMutation>(UpdateOrderDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'UpdateOrder');
     },
   };
 }

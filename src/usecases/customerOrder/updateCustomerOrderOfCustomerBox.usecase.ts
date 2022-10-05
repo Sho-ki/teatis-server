@@ -150,19 +150,19 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
       );
     }
 
-    const [[, updateOrderError], [, updateOrderHoldUntilDateError]] = await Promise.all([
+    const [[, updateOrderError], [, updateOrderInformationError]] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
       }),
-      this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
+      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId }),
     ]);
     if (updateOrderError) {
       return [undefined, updateOrderError];
     }
-    if(updateOrderHoldUntilDateError){
-      return [undefined, updateOrderHoldUntilDateError];
+    if(updateOrderInformationError){
+      return [undefined, updateOrderInformationError];
     }
     [orderQueue, orderQueueError] =
       await this.orderQueueRepository.updateOrderQueue({

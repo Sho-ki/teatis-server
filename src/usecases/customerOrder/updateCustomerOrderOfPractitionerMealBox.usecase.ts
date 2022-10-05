@@ -156,7 +156,7 @@ implements UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface
       [, updateOrderError],
       [, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
-      [, updateOrderHoldUntilDateError],
+      [, updateOrderInformationError],
     ] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
@@ -177,7 +177,7 @@ implements UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface
         orderNumber: name,
         status: 'ordered',
       }),
-      this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
+      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId }),
     ]);
 
     if (updateOrderError) {
@@ -189,8 +189,8 @@ implements UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface
     if (orderQueueOrderedError) {
       return [undefined, orderQueueOrderedError];
     }
-    if(updateOrderHoldUntilDateError){
-      return [undefined, updateOrderHoldUntilDateError];
+    if(updateOrderInformationError){
+      return [undefined, updateOrderInformationError];
     }
 
     return [
