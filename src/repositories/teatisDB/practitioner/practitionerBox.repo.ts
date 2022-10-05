@@ -371,55 +371,42 @@ implements PractitionerBoxRepositoryInterface
 
   async getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
   Promise<ReturnValueType<PractitionerAndBox>> {
+    console.time('Time this');
     const response = await this.prisma.practitionerBox.findUnique({
       where: { uuid: practitionerBoxUuid },
-      select: {
+      include: {
         intermediatePractitionerBoxProduct: {
-          select: {
+          include: {
             product: {
-              select: {
-                id: true,
-                productVendor: { select: { label: true } },
-                externalSku: true,
-                productImages: { select: { id: true, src: true, position: true } },
-                expertComment: true,
-                label: true,
-                name: true,
+              include: {
+                productVendor: true,
+                productImages: true,
                 productNutritionFact: true,
-                ingredientLabel: true,
-                allergenLabel: true,
               },
             },
           },
         },
-        id: true,
-        uuid: true,
-        label: true,
-        description: true,
-        note: true,
-        practitioner: {
-          select: {
-            practitionerSocialMedia: {
-              select: {
-                instagram: true,
-                facebook: true,
-                twitter: true,
-                website: true,
-              },
-            },
-            id: true,
-            email: true,
-            uuid: true,
-            profileImage: true,
-            firstName: true,
-            lastName: true,
-            middleName: true,
-            message: true,
-          },
-        },
+        practitioner: { include: { practitionerSocialMedia: true } },
       },
     });
-
+    console.timeEnd('Time this');
+    console.log('________________');
+    console.time('Time this');
+    await this.prisma.intermediatePractitionerBoxProduct.findMany(
+      {
+        where: { practitionerBox: { uuid: practitionerBoxUuid } },
+        include: {
+          practitionerBox: { include: { practitioner: { include: { practitionerSocialMedia: true } } } },
+          product: {
+            include: {
+              productVendor: true,
+              productImages: true,
+              productNutritionFact: true,
+            },
+          },
+        },
+      });
+    console.timeEnd('Time this');
     if (
       !response?.practitioner ||
       !response?.intermediatePractitionerBoxProduct
@@ -432,7 +419,6 @@ implements PractitionerBoxRepositoryInterface
         },
       ];
     }
-
     const socialMedia: SocialMedia =
       response.practitioner.practitionerSocialMedia;
     delete response.practitioner.practitionerSocialMedia;
