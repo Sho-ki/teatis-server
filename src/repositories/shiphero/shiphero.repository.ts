@@ -24,8 +24,9 @@ interface CreateOrderArgs {
   orderNumber: string;
 }
 
-interface UpdateOrderHoldUntilDateArgs {
+interface UpdateOrderInformationArgs {
   orderId: string;
+  note?: string;
 }
 
 export interface GetOrderByOrderNumberArgs {
@@ -35,7 +36,7 @@ export interface GetOrderByOrderNumberArgs {
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepositoryInterface {
-  updateOrderHoldUntilDate({ orderId }: UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>;
+  updateOrderInformation({ orderId, note }: UpdateOrderInformationArgs): Promise<[void?, Error?]>;
   getLastCustomerOrder({ email }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
   getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>>;
@@ -224,28 +225,22 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     return [customerOrders];
   }
 
-  async updateOrderHoldUntilDate({ orderId }:UpdateOrderHoldUntilDateArgs):
+  async updateOrderInformation({ orderId, note }:UpdateOrderInformationArgs):
   Promise<[void?, Error?]>{
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
+    const sdk = getSdk(client);
+
     const holdUntilDate = new Date();
     holdUntilDate.setHours(holdUntilDate.getHours() + 24);
-    const mutation = gql`
-        mutation {
-          order_update(
-            data: {
-              order_id: "${orderId}"
-              hold_until_date: "${holdUntilDate.toISOString().replace(/T/, ' ').replace(/\..+/, '')}"
-            }
-          ) {
-            request_id
-            complexity
-            order {
-              hold_until_date
-            }
-          }
-        }`;
-    await client.request(mutation);
+    await sdk.UpdateOrder({
+      input: {
+        hold_until_date: holdUntilDate.toISOString().replace(/T/, ' ').replace(/\..+/, ''),
+        order_id: orderId,
+        packing_note: note ||'',
+
+      },
+    });
     return [];
   }
 

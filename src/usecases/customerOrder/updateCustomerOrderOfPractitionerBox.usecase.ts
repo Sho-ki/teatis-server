@@ -164,15 +164,17 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
       );
     }
+    let note = undefined;
     if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       orderProducts= orderProducts.slice(0, 8);
+      note = 'Please ship with USPS First Class Parcel Only';
     }
     const transactionPrice = Number(subtotal_price);
     const [
       [, updateOrderError],
       [, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
-      [, updateOrderHoldUntilDateError],
+      [, updateOrderInformationError],
     ] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
@@ -193,7 +195,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         orderNumber: name,
         status: 'ordered',
       }),
-      this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
+      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note }),
     ]);
 
     if (updateOrderError) {
@@ -205,8 +207,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueOrderedError) {
       return [undefined, orderQueueOrderedError];
     }
-    if(updateOrderHoldUntilDateError){
-      return [undefined, updateOrderHoldUntilDateError];
+    if(updateOrderInformationError){
+      return [undefined, updateOrderInformationError];
     }
 
     return [
