@@ -3,6 +3,7 @@ import { Status } from '@Domains/Status';
 import { ReturnValueType } from '../../../filter/customError';
 import { CheckUpdateOrderUsecaseInterface } from '@Usecases/webhookEvent/checkUpdateOrder.usecase';
 import { WebhookEventService } from './webhookEvent.service';
+import { Logger } from '@nestjs/common';
 
 describe('WebhookEventService', () => {
   let controller: WebhookEventService;
@@ -11,6 +12,7 @@ describe('WebhookEventService', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WebhookEventService],
       providers: [
+        Logger,
         {
           provide: 'CheckUpdateOrderUsecaseInterface',
           useValue: {
