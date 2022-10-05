@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { CronMetaDataRepository } from '@Repositories/teatisDB/webhookEvent/cronMetaData.repository';
 import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
 import { WebhookEventService } from './webhookEvent.service';
@@ -129,6 +129,7 @@ import { GetSuggestion } from '../../../usecases/utils/getSuggestion';
       useClass: KlaviyoRepository,
     },
     PrismaService,
+    Logger,
   ],
 })
 export class WebhookEventModule {}
