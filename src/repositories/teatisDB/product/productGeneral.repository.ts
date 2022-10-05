@@ -73,6 +73,7 @@ interface UpsertProductArgs {
   allergenLabel?: string;
   ingredientLabel?: string;
   expertComment?: string;
+  glucoseValues?: number[];
   WSP?: number;
   MSP?: number;
   label: string;
@@ -114,6 +115,7 @@ export interface ProductGeneralRepositoryInterface extends Transactionable{
     allergenLabel,
     ingredientLabel,
     expertComment,
+    glucoseValues,
     WSP,
     MSP,
     label,
@@ -555,6 +557,7 @@ implements ProductGeneralRepositoryInterface
     allergenLabel,
     ingredientLabel,
     expertComment,
+    glucoseValues,
     WSP,
     MSP,
     label,
@@ -605,6 +608,7 @@ implements ProductGeneralRepositoryInterface
         allergenLabel,
         ingredientLabel,
         expertComment,
+        glucoseValues,
         WSP,
         MSP,
         label,
@@ -623,6 +627,7 @@ implements ProductGeneralRepositoryInterface
         allergenLabel,
         ingredientLabel,
         expertComment,
+        glucoseValues,
         WSP,
         MSP,
         label,
@@ -656,7 +661,6 @@ implements ProductGeneralRepositoryInterface
       name: productName,
       label: productLabel,
     } = response;
-
     return [{ id, sku, name: productName, label: productLabel }];
   }
   async getProductsBySku({ products }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>> {
