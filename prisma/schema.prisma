@@ -230,6 +230,8 @@ model Product{
   customerFoodLog CustomerFoodLog[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
+
+   @@index([externalSku], type: BTree)
 }
 
 
@@ -435,6 +437,8 @@ model ProductNutritionFact{
   texture String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
+
+  @@index([productId], type: BTree)
 }
 
 model ProductProvider{
@@ -621,11 +625,13 @@ model PractitionerSocialMedia{
   website String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
+
+  @@index([practitionerId], type: BTree)
 }
 
 model PractitionerBox{
   id  Int @default(autoincrement()) @id
-  uuid String @unique
+  uuid String  @unique 
   practitioner Practitioner @relation(fields: [practitionerId], references: [id])
   practitionerId Int
   practitionerCustomerOrderHistory PractitionerCustomerOrderHistory[]
@@ -638,6 +644,7 @@ model PractitionerBox{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 
+ @@index([uuid], type: Hash)
  @@unique([practitionerId, label], name: "PractitionerBoxIdentifier")
 }
 
@@ -649,6 +656,8 @@ model IntermediatePractitionerBoxProduct{
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 
+  @@index([productId], type: BTree)
+  @@index([practitionerBoxId], type: BTree)
   @@id([practitionerBoxId, productId])
 }
 

@@ -19,13 +19,12 @@ export class PrismaService
         },
       ],
     });
-    if(process.env.E){
- this.$on('query', (e) => {
+
+    this.$on('query', (e) => {
       this.logger.debug(`${e.query} ${e.params}______________________END______________________ `,
       );
     });
-    }
-   
+
   }
   async onModuleInit() {
     await this.$connect();

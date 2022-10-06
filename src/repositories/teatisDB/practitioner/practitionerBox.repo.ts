@@ -371,7 +371,6 @@ implements PractitionerBoxRepositoryInterface
 
   async getPractitionerAndBoxByUuid({ practitionerBoxUuid }: getPractitionerAndBoxByUuidArgs):
   Promise<ReturnValueType<PractitionerAndBox>> {
-    console.time('Time this');
     const response = await this.prisma.practitionerBox.findUnique({
       where: { uuid: practitionerBoxUuid },
       include: {
@@ -389,24 +388,6 @@ implements PractitionerBoxRepositoryInterface
         practitioner: { include: { practitionerSocialMedia: true } },
       },
     });
-    console.timeEnd('Time this');
-    console.log('________________');
-    console.time('Time this');
-    await this.prisma.intermediatePractitionerBoxProduct.findMany(
-      {
-        where: { practitionerBox: { uuid: practitionerBoxUuid } },
-        include: {
-          practitionerBox: { include: { practitioner: { include: { practitionerSocialMedia: true } } } },
-          product: {
-            include: {
-              productVendor: true,
-              productImages: true,
-              productNutritionFact: true,
-            },
-          },
-        },
-      });
-    console.timeEnd('Time this');
     if (
       !response?.practitioner ||
       !response?.intermediatePractitionerBoxProduct
