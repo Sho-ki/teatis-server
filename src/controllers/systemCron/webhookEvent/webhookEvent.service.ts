@@ -11,8 +11,8 @@ export class WebhookEventService {
     private logger: Logger
   ) {}
 
-  // Once a day
-  @Cron('0 0 * * *')
+  // Every 3 hours
+  @Cron('0 */3 * * *')
   async checkUpdateOrderWebhook() {
     const [usecaseResponse, error] =
       await this.checkUpdateOrderUsecase.checkUpdateOrder();
