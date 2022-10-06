@@ -166,7 +166,34 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
     let note = undefined;
     if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
-      orderProducts= orderProducts.slice(0, 8);
+      switch (customerOrderCount.orderCount){
+        case 2:
+          orderProducts = [
+            { sku: 'x10245-GUM-SN20102' },
+            { sku: 'x10437-SWT-SN20187' },
+            { sku: 'x10300-CHC-SN20172' },
+            { sku: 'x10429-CHP-SN20206' },
+            { sku: 'x10224-CHP-SN20122' },
+            { sku: 'x10427-GRA-SN20205' },
+            { sku: 'x10319-SWT-SN20176' },
+            { sku: 'x10351-CHP-SN20182' },
+          ];
+          break;
+        case 3: orderProducts = [
+          { sku: 'x10266-CHP-SN20115' },
+          { sku: 'x10415-CHP-SN20203' },
+          { sku: 'x10337-JRK-SN20148' },
+          { sku: 'x10225-BAR-SN20154' },
+          { sku: 'x10328-BAR-SN20178' },
+          { sku: 'x10366-GUM-SN20188' },
+          { sku: 'x10213-BAR-SN20123' },
+          { sku: 'x10203-CER-SN20110' },
+        ];
+          break;
+        default:
+          orderProducts= orderProducts.slice(0, 8);
+          break;
+      }
       note = 'Please ship with USPS First Class Parcel Only';
     }
     const transactionPrice = Number(subtotal_price);
