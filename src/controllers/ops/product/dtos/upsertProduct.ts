@@ -25,6 +25,10 @@ export class UpsertProductDto {
   @IsOptional()
     expertComment?: string;
 
+  @IsArray()
+  @IsOptional()
+    glucoseValues?: number[];
+
   @IsNumber()
   @IsOptional()
     WSP?: number;
