@@ -202,6 +202,7 @@ model Product{
   ingredientLabel String?
   allergenLabel String?
   expertComment String?
+  glucoseValues Json?
   productProvider     ProductProvider @relation(fields: [productProviderId], references: [id])
   productProviderId  Int
   productCategory ProductCategory? @relation(fields: [productCategoryId], references: [id])

@@ -9,6 +9,7 @@ export interface Product {
 
 export interface DisplayProduct extends Product {
   expertComment: string;
+  glucoseValues?: number[];
   ingredientLabel: string;
   images: ProductImage[];
   allergenLabel: string;
