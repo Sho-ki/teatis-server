@@ -16,6 +16,7 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 import { currentMonth } from '../utils/dates';
 import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
+import { ProductGeneralRepositoryInterface } from '../../repositories/teatisDB/product/productGeneral.repository';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -56,8 +57,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private getSuggestionUtil: GetSuggestionInterface,
     @Inject('CustomerProductsAutoSwapInterface')
     private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
-   @Inject('CustomerGeneralRepositoryInterface')
+    @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('ProductGeneralRepositoryInterface')
+    private productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfPractitionerBox({
@@ -198,7 +201,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
     const transactionPrice = Number(subtotal_price);
     const [
-      [, updateOrderError],
+      [productOnHand, updateOrderError],
       [, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
       [, updateOrderInformationError],
@@ -207,6 +210,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
+        warehouseCode: 'CLB-DB',
       }),
       this.practitionerBoxOrderHistoryRepository.createPractitionerBoxOrderHistory(
         {
@@ -237,6 +241,19 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if(updateOrderInformationError){
       return [undefined, updateOrderInformationError];
     }
+
+    const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
+
+    if(fiveOrLessStocks.length){
+      const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
+        {
+          isActive: false,
+          skus: fiveOrLessStocks.map(({ sku }) => { return sku; }),
+        }
+      );
+      if(updateProductStatusError){
+        return [undefined, updateProductStatusError];
+      } }
 
     return [
       {
