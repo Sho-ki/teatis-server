@@ -33,7 +33,6 @@ import { PractitionerBoxOrderHistoryRepository } from '@Repositories/teatisDB/pr
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
-import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
 import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
 import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { EmailModule } from './email/email.module';
@@ -52,10 +51,6 @@ import { CustomerProductsAutoSwap } from '../../usecases/utils/customerProductsA
     {
       provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
       useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
-    },
-    {
-      provide: 'UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface',
-      useClass: UpdateCustomerOrderOfPractitionerMealBoxUsecase,
     },
     {
       provide: 'CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface',

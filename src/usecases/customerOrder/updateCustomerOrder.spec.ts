@@ -22,6 +22,9 @@ import {
 } from '@Usecases/utils/getSuggestion';
 import { CustomerBoxType } from '../../domains/CustomerBoxType';
 import { ReturnValueType } from '@Filters/customError';
+import { ProductOnHand } from '../../domains/ProductOnHand';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { Status } from '../../domains/Status';
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface;
@@ -30,7 +33,7 @@ describe('GetOptions', () => {
   let MockedShipheroRepository: Partial<ShipheroRepositoryInterface>;
   let MockedCustomerBoxRepository: Partial<CustomerBoxRepositoryInterface>;
   let MockedShopifyRepository: Partial<ShopifyRepositoryInterface>;
-  // let MockedNextBoxUtil: GetSuggestionInterface;
+  let MockedProductGeneralRepository: Partial<ProductGeneralRepositoryInterface>;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
   // let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>;
 
@@ -55,13 +58,7 @@ describe('GetOptions', () => {
           },
         ]),
       updateCustomerOrder: () =>
-        Promise.resolve<ReturnValueType<CustomerOrder>>([
-          {
-            orderNumber: '12345',
-            orderId: '123',
-            products: [{ sku: '987654321' }],
-          },
-        ]),
+        Promise.resolve<ReturnValueType<ProductOnHand[]>>([[{ sku: '123', onHand: 50 }, { sku: 'stock5', onHand: 5 }]]),
     };
     MockedCustomerBoxRepository = {
       getCustomerBoxProducts: () =>
@@ -71,42 +68,6 @@ describe('GetOptions', () => {
       getOrderCount: () =>
         Promise.resolve<ReturnValueType<CustomerOrderCount>>([{ orderCount: 1, email: 'test@test.com' }]),
     };
-
-    // MockedNextBoxUtil = {
-    //   getSuggestion: () =>
-    //     Promise.resolve<[GetSuggestionRes, Error]>([
-    //       {
-    //         products: [
-    //           {
-    //             id: 40,
-    //             sku: '00000000000024',
-    //             name: 'PURPO All-in-One Cereal Cup 1.73 oz',
-    //             label: 'PURPO All-in-One Cereal Cup',
-    //             vendor: 'Chef Soraya',
-    //             images: [],
-    //             expertComment: '',
-    //             ingredientLabel: '',
-    //             allergenLabel: '',
-    //             nutritionFact: {
-    //               calorie: 100,
-    //               totalFat: 100,
-    //               saturatedFat: 100,
-    //               transFat: 100,
-    //               cholesterole: 100,
-    //               sodium: 100,
-    //               totalCarbohydrate: 100,
-    //               dietaryFiber: 100,
-    //               totalSugar: 100,
-    //               addedSugar: 100,
-    //               sugarAlcohol: 100
-    //               protein: 100,
-    //             },
-    //           },
-    //         ],
-    //       },
-    //       null,
-    //     ]),
-    // };
 
     MockedPostPrePurchaseSurveyUsecase = {
       postPrePurchaseSurvey: () =>
@@ -119,46 +80,20 @@ describe('GetOptions', () => {
           undefined,
         ]),
     };
-
-    // MockedGetSuggestionInterface = {
-    //   getSuggestion: () =>
-    //     Promise.resolve<[GetSuggestionRes, Error]>([
-    //       {
-    //         products: [
-    //           {
-    //             id: 1,
-    //             name: 'product1',
-    //             label: '',
-    //             sku: 'sku_test',
-    //             expertComment: '',
-    //             ingredientLabel: '',
-    //             images: [],
-    //             allergenLabel: '',
-    //             nutritionFact: {
-    //               calorie: 123,
-    //               totalFat: 123,
-    //               saturatedFat: 123,
-    //               transFat: 123,
-    //               cholesterole: 123,
-    //               sodium: 123,
-    //               totalCarbohydrate: 123,
-    //               dietaryFiber: 123,
-    //               totalSugar: 123,
-    //               addedSugar: 123,
-    //               sugarAlcohol: 123,
-    //               protein: 123,
-    //             },
-    //             vendor: '',
-    //           },
-    //         ],
-    //       },
-    //       null,
-    //     ]),
-    // };
+    MockedProductGeneralRepository = {
+      updateProductsStatus: ({ skus }) =>
+        (skus[0] === 'stock5'?
+          Promise.resolve<ReturnValueType<Status>>([{ success: true }, undefined])
+          : Promise.resolve<ReturnValueType<Status>>([undefined, { name: 'ERROR', message: 'invalid' }])),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateCustomerOrderOfCustomerBoxUsecase,
+        {
+          provide: 'ProductGeneralRepositoryInterface',
+          useValue: MockedProductGeneralRepository,
+        },
         {
           provide: 'ShipheroRepositoryInterface',
           useValue: MockedShipheroRepository,

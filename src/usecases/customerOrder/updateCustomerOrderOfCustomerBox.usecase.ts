@@ -13,6 +13,7 @@ import { OrderQueue } from '@Domains/OrderQueue';
 import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
 import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
   extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'> {
@@ -45,6 +46,8 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     private readonly shopifyRepository: ShopifyRepositoryInterface,
     @Inject('GetSuggestionInterface')
     private getSuggestionUtil: GetSuggestionInterface,
+     @Inject('ProductGeneralRepositoryInterface')
+    private productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfCustomerBox({
@@ -150,11 +153,12 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
       );
     }
 
-    const [[, updateOrderError], [, updateOrderInformationError]] = await Promise.all([
+    const [[productOnHand, updateOrderError], [, updateOrderInformationError]] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
+        warehouseCode: 'CLB-DB',
       }),
       this.shipheroRepository.updateOrderInformation({ orderId: order.orderId }),
     ]);
@@ -173,6 +177,19 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     if (orderQueueError) {
       return [undefined, orderQueueError];
     }
+
+    const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
+
+    if(fiveOrLessStocks.length){
+      const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
+        {
+          isActive: false,
+          skus: fiveOrLessStocks.map(({ sku }) => { return sku; }),
+        }
+      );
+      if(updateProductStatusError){
+        return [undefined, updateProductStatusError];
+      } }
 
     return [
       {
