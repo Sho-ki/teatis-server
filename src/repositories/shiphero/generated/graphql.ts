@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
@@ -4499,6 +4497,12 @@ export type WebhooksQueryResultDataArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
+export type AddOrderLineItemsMutationVariables = Exact<{
+  data: AddLineItemsInput;
+}>;
+
+export type AddOrderLineItemsMutation = { __typename?: 'Mutation', order_add_line_items?: { __typename?: 'OrderMutationOutput', request_id?: string | null, order?: { __typename?: 'Order', line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', sku?: string | null, product?: { __typename?: 'Product', warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null, warehouse?: { __typename?: 'Warehouse', identifier?: string | null } | null } | null> | null } | null } | null } | null> } | null } | null } | null };
+
 export type GetProductInventoryQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetProductInventoryQuery = { __typename?: 'Query', products?: { __typename?: 'ProductsQueryResult', data?: { __typename?: 'ProductConnection', edges: Array<{ __typename?: 'ProductEdge', node?: { __typename?: 'Product', sku?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null } | null> | null } | null } | null> } | null } | null };
@@ -4531,6 +4535,30 @@ export type UpdateOrderMutationVariables = Exact<{
 
 export type UpdateOrderMutation = { __typename?: 'Mutation', order_update?: { __typename?: 'OrderMutationOutput', request_id?: string | null, complexity?: number | null, order?: { __typename?: 'Order', hold_until_date?: any | null, order_number?: string | null } | null } | null };
 
+export const AddOrderLineItemsDocument = gql`
+    mutation AddOrderLineItems($data: AddLineItemsInput!) {
+  order_add_line_items(data: $data) {
+    request_id
+    order {
+      line_items {
+        edges {
+          node {
+            sku
+            product {
+              warehouse_products {
+                warehouse {
+                  identifier
+                }
+                on_hand
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
 export const GetProductInventoryDocument = gql`
     query getProductInventory {
   products {
@@ -4678,6 +4706,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    AddOrderLineItems(variables: AddOrderLineItemsMutationVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<AddOrderLineItemsMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddOrderLineItemsMutation>(AddOrderLineItemsDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'AddOrderLineItems');
+    },
     getProductInventory(variables?: GetProductInventoryQueryVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<GetProductInventoryQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventoryQuery>(GetProductInventoryDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'getProductInventory');
     },

@@ -111,5 +111,6 @@
         }
       }
     ]
-  }
+  },
+   "ignorePatterns": ["/src/repositories/shopify/generated/*", "/src/repositories/shiphero/generated/*"]
 }

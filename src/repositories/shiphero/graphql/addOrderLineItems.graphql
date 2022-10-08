@@ -1,0 +1,22 @@
+mutation AddOrderLineItems ($data: AddLineItemsInput!){
+  order_add_line_items(data: $data) {
+    request_id
+		order {
+		line_items {
+			edges{
+				node{
+					sku
+					product{
+						warehouse_products{
+							warehouse{
+								identifier
+							}
+							on_hand
+						}
+					}
+				}
+			}
+		}
+   }
+  }
+}
