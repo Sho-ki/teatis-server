@@ -4,8 +4,9 @@ import { GraphQLClient } from 'graphql-request';
 import { Cart } from '@Domains/Cart';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import { CreateCartMutation, getSdk } from './generated/graphql';
-import { ShopifyGetCustomerRes } from './shopify.interface';
+import { RetrieveOrdersListResponse, ShopifyGetCustomerRes } from './shopify.interface';
 import { ReturnValueType } from '../../filter/customError';
+import { ShopifyWebhook } from '../../domains/ShopifyWebhook';
 
 interface GetOrderCountArgs {
   shopifyCustomerId: number;
@@ -18,6 +19,10 @@ interface CreateCartArgs {
   attributes: { key: string, value: string }[];
 }
 
+interface GetShopifyWebhooksArgs {
+  fromDate: Date;
+}
+
 export interface ShopifyRepositoryInterface {
   getOrderCount({ shopifyCustomerId }: GetOrderCountArgs): Promise<ReturnValueType<CustomerOrderCount>>;
   createCart({
@@ -26,6 +31,7 @@ export interface ShopifyRepositoryInterface {
     sellingPlanId,
     attributes,
   }: CreateCartArgs): Promise<ReturnValueType<Cart>>;
+  getShopifyWebhooks({ fromDate }:GetShopifyWebhooksArgs):Promise<ReturnValueType<ShopifyWebhook[]>>;
 }
 
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
@@ -90,4 +96,34 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     }
     return [{ orderCount, email }];
   }
+  async getShopifyWebhooks({ fromDate }:GetShopifyWebhooksArgs):Promise<ReturnValueType<ShopifyWebhook[]>>{
+    const response = await axios.get<RetrieveOrdersListResponse.Root>(
+      `https://thetis-tea.myshopify.com/admin/api/2022-10/orders.json?status=any&created_at_min=${fromDate.toDateString()}`,
+      {
+        auth: {
+          username: process.env.SHOPIFY_API_KEY as string,
+          password: process.env.SHOPIFY_API_PASSWORD as string,
+        },
+      },
+    );
+    if(response.status !== 200){
+      throw new Error(response.status + '- getShopifyWebhooks failed');
+    }
+    const shopifyWebhookData:ShopifyWebhook[] = response.data.orders? response.data.orders.map(
+      ({ admin_graphql_api_id, name, subtotal_price, note_attributes, line_items, customer }) =>
+      {
+        return {
+          apiId: admin_graphql_api_id,
+          orderNumber: name,
+          totalPrice: subtotal_price,
+          attributes: note_attributes,
+          lineItems: line_items.map(({ product_id }) => { return { productId: product_id }; }),
+          shopifyCustomer: { email: customer.email, id: customer.id },
+        };
+      })
+      :[];
+
+    return [shopifyWebhookData];
+  }
+
 }
