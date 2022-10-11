@@ -703,9 +703,11 @@ model CronMetadata {
 
 model WebhookEvents {
   id  Int @default(autoincrement()) @id
-  apiId String @unique
-  cronMetadata CronMetadata @relation(fields: [cronMetadataId], references: [id])
-  cronMetadataId Int
+  apiId String
+  cronMetadata CronMetadata @relation(fields: [cronMetadataName], references: [name])
+  cronMetadataName String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
+
+  @@unique([apiId, cronMetadataName], name: "WebhookIdentifier")
 }
