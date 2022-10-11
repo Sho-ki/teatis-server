@@ -170,6 +170,18 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     let note = undefined;
     if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
+        case 1:
+          orderProducts = [
+            { sku: 'x10264-BAR-SN20154' },
+            { sku: 'x10217-CHP-SN20144' },
+            { sku: 'x10362-SWT-SN20187' },
+            { sku: 'x10428-CHP-SN20206' },
+            { sku: 'x10206-GUM-SN20127' },
+            { sku: 'x10404-CHC-SN20199' },
+            { sku: 'x10325-JRK-SN20177' },
+            { sku: 'x10250-CER-SN20110' },
+          ];
+          break;
         case 2:
           orderProducts = [
             { sku: 'x10245-GUM-SN20102' },
