@@ -123,14 +123,13 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
   Promise<[ Product[]?, Error?]> {
     let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
-      await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
+      await this.shipheroRepository.getLastFulfilledOrder({ email: customer.email });
     if (getLastCustomerOrderError) {
       return [undefined, getLastCustomerOrderError];
     }
     if (lastCustomerOrder.products.length === 0) {
       isFirstOrder = true;
     }
-
     const [[nextWantProducts, getNextWantError], [nextUnwantedProducts, getCustomerUnwantedError]]
     =
     !isFirstOrder

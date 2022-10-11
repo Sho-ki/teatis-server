@@ -15,6 +15,10 @@ interface GetLastOrderArgs {
   email: string;
 }
 
+interface GetLastFulfilledOrderArgs {
+  email: string;
+}
+
 interface GetCustomerOrdersArgs {
   email: string;
 }
@@ -40,6 +44,7 @@ const endpoint = 'https://public-api.shiphero.com/graphql';
 export interface ShipheroRepositoryInterface {
   updateOrderInformation({ orderId, note }: UpdateOrderInformationArgs): Promise<[void?, Error?]>;
   getLastCustomerOrder({ email }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
+  getLastFulfilledOrder({ email }: GetLastFulfilledOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
   getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>>;
   getCustomerOrderByOrderNumber({ orderNumber }: GetOrderByOrderNumberArgs): Promise<ReturnValueType<CustomerOrder>>;
@@ -134,6 +139,46 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       },
     ];
   }
+
+  async getLastFulfilledOrder({ email }: GetLastFulfilledOrderArgs): Promise<ReturnValueType<CustomerOrder>>{
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
+    const sdk = getSdk(client);
+
+    const res: GetLastOrderByEmailQuery = await sdk.getLastFulfilledOrderByEmail({ email });
+
+    const hasOrdered = res?.orders?.data?.edges.length > 0;
+    if (!hasOrdered) {
+      return [
+        {
+          orderNumber: undefined,
+          products: [],
+          orderDate: undefined,
+          orderId: undefined,
+        },
+      ];
+    }
+
+    const node = res?.orders?.data?.edges[0]?.node;
+    const orderNumber = node?.order_number;
+    const items = node?.line_items?.edges;
+    const orderId = node?.id;
+    const orderDate = node?.order_date;
+    if (!node || !items || !orderId || !orderDate) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'email is invalid',
+        },
+      ];
+    }
+
+    const products: Pick<Product, 'sku'>[] = this.getLastSentProducts({ items });
+
+    return [{ orderNumber, products, orderDate, orderId }];
+  }
+
   async getLastCustomerOrder({ email }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
