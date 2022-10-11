@@ -12,14 +12,10 @@ export interface PostApiIdArgs {
 export interface GetApiIdsArgs {
   fromDate: Date;
 }
-export interface GetApiIdArgs{
-  apiId: string;
-}
 
 export interface WebhookEventRepositoryInterface {
   postApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>>;
   getApiIds({ fromDate }: GetApiIdsArgs): Promise<ReturnValueType<ShopifyWebhookApiId[]>>;
-  getApiId({ apiId }: GetApiIdArgs): Promise<ReturnValueType<ShopifyWebhookApiId>>;
 }
 
 @Injectable()
@@ -28,7 +24,7 @@ export class WebhookEventRepository implements WebhookEventRepositoryInterface {
 
   async postApiId({ apiId }: PostApiIdArgs): Promise<ReturnValueType<Status>> {
     await this.prisma.webhookEvents.upsert({
-      where: { apiId },
+      where: { WebhookIdentifier: { apiId, cronMetadataName: SHOPIFY_WEBHOOK_EVENT_NAME.updateOrder  } },
       create: {
         apiId, cronMetadata: {
           connectOrCreate: {
@@ -49,11 +45,5 @@ export class WebhookEventRepository implements WebhookEventRepositoryInterface {
     const shopifyWebhookApiIds: ShopifyWebhookApiId[] =
     response.length? response.map(({ apiId }) => { return { apiId }; }):[];
     return [shopifyWebhookApiIds];
-  }
-
-  async getApiId({ apiId }: GetApiIdArgs): Promise<ReturnValueType<ShopifyWebhookApiId>> {
-    const response = await this.prisma.webhookEvents.findUnique({ where: { apiId } });
-
-    return response? [{ apiId: response.apiId }] : [{ apiId: undefined }];
   }
 }
