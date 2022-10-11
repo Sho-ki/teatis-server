@@ -52,7 +52,11 @@ implements CheckUpdateOrderUsecaseInterface
       return [undefined, getApiIdsError];
     }
 
-    const uncompletedWebhooks = shopifyWebhooks.filter(({ apiId }) => { return !apiIds.includes({ apiId }); });
+    const apiIdsSet = new Set(apiIds.map(({ apiId }) => { return apiId; }));
+
+    const uncompletedWebhooks = shopifyWebhooks.filter(({ apiId }) => {
+      return !apiIdsSet.has(apiId);
+    });
 
     for(const webhook of uncompletedWebhooks){
       const { orderNumber, lineItems, apiId, attributes, shopifyCustomer, totalPrice } = webhook;
