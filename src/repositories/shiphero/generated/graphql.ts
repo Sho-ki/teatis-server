@@ -74,6 +74,7 @@ export type Account = {
   warehouses?: Maybe<Array<Maybe<Warehouse>>>;
 };
 
+
 export type AccountCustomersArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -234,6 +235,7 @@ export type Bill = {
   totals?: Maybe<FeeCategoryTotalConnection>;
 };
 
+
 export type BillBill_ExportsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -241,6 +243,7 @@ export type BillBill_ExportsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<Scalars['String']>;
 };
+
 
 export type BillTotalsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -311,6 +314,7 @@ export type BillsQueryResult = {
   data?: Maybe<BillConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type BillsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1022,6 +1026,7 @@ export type FulfillmentInvoice = {
   stripe_next_payment_attempt?: Maybe<Scalars['ISODateTime']>;
 };
 
+
 export type FulfillmentInvoiceInbound_Shipping_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1029,6 +1034,7 @@ export type FulfillmentInvoiceInbound_Shipping_ItemsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<Scalars['String']>;
 };
+
 
 export type FulfillmentInvoiceReturns_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1038,6 +1044,7 @@ export type FulfillmentInvoiceReturns_ItemsArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
+
 export type FulfillmentInvoiceShipping_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1045,6 +1052,7 @@ export type FulfillmentInvoiceShipping_ItemsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<Scalars['String']>;
 };
+
 
 export type FulfillmentInvoiceStorage_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1212,6 +1220,7 @@ export type FulfillmentInvoicesQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type FulfillmentInvoicesQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1272,6 +1281,7 @@ export type InventoryChangesQueryResult = {
   data?: Maybe<InventoryChangeConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type InventoryChangesQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1366,6 +1376,7 @@ export type InventorySnapshotsQueryResult = {
   snapshots?: Maybe<InventorySnapshotConnection>;
 };
 
+
 export type InventorySnapshotsQueryResultSnapshotsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1387,6 +1398,7 @@ export type InventorySyncBatchesQueryResult = {
   data?: Maybe<InventorySyncStatusConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type InventorySyncBatchesQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1448,6 +1460,7 @@ export type InventorySyncRowsQueryResult = {
   data?: Maybe<InventorySyncItemStatusConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type InventorySyncRowsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1655,6 +1668,7 @@ export type Location = {
   zone?: Maybe<Scalars['String']>;
 };
 
+
 export type LocationExpiration_LotsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1711,6 +1725,7 @@ export type LocationsQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type LocationsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1734,6 +1749,7 @@ export type Lot = {
   sku?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['ISODateTime']>;
 };
+
 
 export type LotLocationsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1766,6 +1782,7 @@ export type LotsQueryResult = {
   data?: Maybe<LotConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type LotsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1850,253 +1867,316 @@ export type Mutation = {
   webhook_delete?: Maybe<MutationOutput>;
 };
 
+
 export type MutationBill_CreateArgs = {
   data: CreateBillInput;
 };
+
 
 export type MutationBill_DeleteArgs = {
   data: DeleteBillInput;
 };
 
+
 export type MutationBill_RecalculateArgs = {
   data: RecalculateBillInput;
 };
+
 
 export type MutationBill_SubmitArgs = {
   data: SubmitBillInput;
 };
 
+
 export type MutationBill_UpdateArgs = {
   data: UpdateBillInput;
 };
+
 
 export type MutationInventory_Abort_SnapshotArgs = {
   data: InventoryAbortSnapshotInput;
 };
 
+
 export type MutationInventory_AddArgs = {
   data: UpdateInventoryInput;
 };
+
 
 export type MutationInventory_Generate_SnapshotArgs = {
   data: InventoryGenerateSnapshotInput;
 };
 
+
 export type MutationInventory_RemoveArgs = {
   data: UpdateInventoryInput;
 };
+
 
 export type MutationInventory_ReplaceArgs = {
   data: ReplaceInventoryInput;
 };
 
+
 export type MutationInventory_SubtractArgs = {
   data: UpdateInventoryInput;
 };
+
 
 export type MutationInventory_SyncArgs = {
   data: InventorySyncInput;
 };
 
+
 export type MutationInventory_Sync_AbortArgs = {
   data: AbortInventorySyncInput;
 };
+
 
 export type MutationInventory_TransferArgs = {
   data: TransferInventoryInput;
 };
 
+
 export type MutationKit_BuildArgs = {
   data: BuildKitInput;
 };
+
 
 export type MutationKit_ClearArgs = {
   data: ClearKitInput;
 };
 
+
 export type MutationKit_Remove_ComponentsArgs = {
   data: RemoveKitComponentsInput;
 };
+
 
 export type MutationLocation_CreateArgs = {
   data: CreateLocationInput;
 };
 
+
 export type MutationLocation_UpdateArgs = {
   data: UpdateLocationInput;
 };
+
 
 export type MutationLot_Assign_To_LocationArgs = {
   data: AssignLotToLocationInput;
 };
 
+
 export type MutationLot_CreateArgs = {
   data: CreateLotInput;
 };
+
 
 export type MutationLot_DeleteArgs = {
   data: DeleteLotInput;
 };
 
+
 export type MutationLot_UpdateArgs = {
   data: UpdateLotInput;
 };
+
 
 export type MutationLots_UpdateArgs = {
   data: UpdateLotsInput;
 };
 
+
 export type MutationNodeArgs = {
   id: Scalars['ID'];
 };
+
 
 export type MutationOrder_Add_History_EntryArgs = {
   data: AddHistoryInput;
 };
 
+
 export type MutationOrder_Add_Line_ItemsArgs = {
   data: AddLineItemsInput;
 };
+
 
 export type MutationOrder_Add_TagsArgs = {
   data: UpdateTagsInput;
 };
 
+
 export type MutationOrder_CancelArgs = {
   data: CancelOrderInput;
 };
+
 
 export type MutationOrder_Change_WarehouseArgs = {
   data: ChangeOrderWarehouseInput;
 };
 
+
 export type MutationOrder_Clear_TagsArgs = {
   data: UpdateOrderInputBase;
 };
+
 
 export type MutationOrder_CreateArgs = {
   data: CreateOrderInput;
 };
 
+
 export type MutationOrder_FulfillArgs = {
   data: FulfillOrderInput;
 };
+
 
 export type MutationOrder_Remove_Line_ItemsArgs = {
   data: RemoveLineItemsInput;
 };
 
+
 export type MutationOrder_UpdateArgs = {
   data: UpdateOrderInput;
 };
+
 
 export type MutationOrder_Update_Fulfillment_StatusArgs = {
   data: UpdateOrderFulfillmentStatusInput;
 };
 
+
 export type MutationOrder_Update_HoldsArgs = {
   data: UpdateOrderHoldsInput;
 };
+
 
 export type MutationOrder_Update_Line_ItemsArgs = {
   data: UpdateLineItemsInput;
 };
 
+
 export type MutationOrder_Update_TagsArgs = {
   data: UpdateTagsInput;
 };
+
 
 export type MutationProduct_Add_To_WarehouseArgs = {
   data: AddProductToWarehouseInput;
 };
 
+
 export type MutationProduct_CreateArgs = {
   data: CreateProductInput;
 };
+
 
 export type MutationProduct_DeleteArgs = {
   data: DeleteProductInput;
 };
 
+
 export type MutationProduct_UpdateArgs = {
   data: UpdateProductInput;
 };
+
 
 export type MutationPurchase_Order_Add_AttachmentArgs = {
   data: AddPurchaseOrderAttachmentInput;
 };
 
+
 export type MutationPurchase_Order_CancelArgs = {
   data: CancelPurchaseOrderInput;
 };
+
 
 export type MutationPurchase_Order_CloseArgs = {
   data: ClosePurchaseOrderInput;
 };
 
+
 export type MutationPurchase_Order_CreateArgs = {
   data: CreatePurchaseOrderInput;
 };
+
 
 export type MutationPurchase_Order_Set_Fulfillment_StatusArgs = {
   data: SetPurchaseOrderFulfillmentStatusInput;
 };
 
+
 export type MutationPurchase_Order_UpdateArgs = {
   data: UpdatePurchaseOrderInput;
 };
+
 
 export type MutationReturn_CreateArgs = {
   data: CreateReturnInput;
 };
 
+
 export type MutationReturn_Create_ExchangeArgs = {
   data: CreateReturnExchangeInput;
 };
+
 
 export type MutationReturn_Update_StatusArgs = {
   data: UpdateReturnStatusInput;
 };
 
+
 export type MutationShipment_CreateArgs = {
   data: CreateShipmentInput;
 };
+
 
 export type MutationShipment_Create_Shipping_LabelArgs = {
   data: CreateShippingLabelInput;
 };
 
+
 export type MutationShipping_Plan_CreateArgs = {
   data: CreateShippingPlanInput;
 };
+
 
 export type MutationVendor_Add_ProductArgs = {
   data: AddProductToVendorInput;
 };
 
+
 export type MutationVendor_CreateArgs = {
   data: CreateVendorInput;
 };
+
 
 export type MutationVendor_DeleteArgs = {
   data: DeleteVendorInput;
 };
 
+
 export type MutationVendor_Remove_ProductArgs = {
   data: RemoveProductFromVendorInput;
 };
+
 
 export type MutationWarehouse_Product_DeleteArgs = {
   data: DeleteWarehouseProductInput;
 };
 
+
 export type MutationWarehouse_Product_UpdateArgs = {
   data: UpdateWarehouseProductInput;
 };
 
+
 export type MutationWebhook_CreateArgs = {
   data: CreateWebhookInput;
 };
+
 
 export type MutationWebhook_DeleteArgs = {
   data: DeleteWebhookInput;
@@ -2183,6 +2263,7 @@ export type Order = {
   updated_at?: Maybe<Scalars['ISODateTime']>;
 };
 
+
 export type OrderLine_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2267,6 +2348,7 @@ export type OrderHistoryQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type OrderHistoryQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2346,6 +2428,7 @@ export type OrdersQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type OrdersQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2408,6 +2491,7 @@ export type PacksPerDayQueryResult = {
   data?: Maybe<PackageConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type PacksPerDayQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -2489,6 +2573,7 @@ export type PicksPerDayQueryResult = {
   data?: Maybe<PickConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type PicksPerDayQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -2614,6 +2699,7 @@ export type ProductsQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type ProductsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2665,6 +2751,7 @@ export type PurchaseOrder = {
   warehouse_id?: Maybe<Scalars['String']>;
 };
 
+
 export type PurchaseOrderAttachmentsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2673,6 +2760,7 @@ export type PurchaseOrderAttachmentsArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
+
 export type PurchaseOrderLine_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2680,6 +2768,7 @@ export type PurchaseOrderLine_ItemsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<Scalars['String']>;
 };
+
 
 export type PurchaseOrderTracking_NumbersArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -2770,6 +2859,7 @@ export type PurchaseOrderLineItem = {
   warehouse_id?: Maybe<Scalars['String']>;
 };
 
+
 export type PurchaseOrderLineItemExpiration_LotsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2836,6 +2926,7 @@ export type PurchaseOrdersQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type PurchaseOrdersQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -2890,14 +2981,17 @@ export type Query = {
   webhooks?: Maybe<WebhooksQueryResult>;
 };
 
+
 export type QueryAccountArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
 };
+
 
 export type QueryBillArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['String'];
 };
+
 
 export type QueryBillsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -2906,22 +3000,26 @@ export type QueryBillsArgs = {
   to_date?: InputMaybe<Scalars['ISODateTime']>;
 };
 
+
 export type QueryExpiration_LotsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   po_id?: InputMaybe<Scalars['String']>;
   sku?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryFulfillment_InvoiceArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryFulfillment_InvoicesArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   date_from?: InputMaybe<Scalars['ISODateTime']>;
   date_to?: InputMaybe<Scalars['ISODateTime']>;
 };
+
 
 export type QueryInventory_ChangesArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -2934,10 +3032,12 @@ export type QueryInventory_ChangesArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryInventory_SnapshotArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   snapshot_id: Scalars['String'];
 };
+
 
 export type QueryInventory_SnapshotsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -2946,16 +3046,19 @@ export type QueryInventory_SnapshotsArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryInventory_Sync_Items_StatusArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['String'];
   status?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryInventory_Sync_StatusArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryInventory_Sync_StatusesArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -2964,11 +3067,13 @@ export type QueryInventory_Sync_StatusesArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryLocationArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryLocationsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -2976,18 +3081,22 @@ export type QueryLocationsArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryMeArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
 };
+
 
 export type QueryNodeArgs = {
   id: Scalars['ID'];
 };
 
+
 export type QueryOrderArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['String'];
 };
+
 
 export type QueryOrder_HistoryArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -2998,6 +3107,7 @@ export type QueryOrder_HistoryArgs = {
   user_id?: InputMaybe<Scalars['String']>;
   username?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryOrdersArgs = {
   address_hold?: InputMaybe<Scalars['Boolean']>;
@@ -3020,6 +3130,7 @@ export type QueryOrdersArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryPacks_Per_DayArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   date_from?: InputMaybe<Scalars['ISODateTime']>;
@@ -3030,6 +3141,7 @@ export type QueryPacks_Per_DayArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryPicks_Per_DayArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   date_from?: InputMaybe<Scalars['ISODateTime']>;
@@ -3037,11 +3149,13 @@ export type QueryPicks_Per_DayArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryProductArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
   sku?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryProductsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -3054,11 +3168,13 @@ export type QueryProductsArgs = {
   updated_to?: InputMaybe<Scalars['ISODateTime']>;
 };
 
+
 export type QueryPurchase_OrderArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
   po_number?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryPurchase_OrdersArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -3073,15 +3189,18 @@ export type QueryPurchase_OrdersArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryReturnArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['String'];
 };
 
+
 export type QueryReturn_ExchangeArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['String'];
 };
+
 
 export type QueryReturnsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -3092,10 +3211,12 @@ export type QueryReturnsArgs = {
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryShipmentArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryShipmentsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -3107,15 +3228,18 @@ export type QueryShipmentsArgs = {
   tracking_number?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryShipping_PlanArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   id?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryToteArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   barcode: Scalars['String'];
 };
+
 
 export type QueryTote_HistoryArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -3125,15 +3249,18 @@ export type QueryTote_HistoryArgs = {
   tote_name?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryUuidArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
   entity: EntityType;
   legacy_id: Scalars['Int'];
 };
 
+
 export type QueryVendorsArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
 };
+
 
 export type QueryWarehouse_ProductsArgs = {
   active?: InputMaybe<Scalars['Boolean']>;
@@ -3146,6 +3273,7 @@ export type QueryWarehouse_ProductsArgs = {
   updated_to?: InputMaybe<Scalars['ISODateTime']>;
   warehouse_id?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryWebhooksArgs = {
   analyze?: InputMaybe<Scalars['Boolean']>;
@@ -3380,6 +3508,7 @@ export type ReturnsQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type ReturnsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -3427,6 +3556,7 @@ export type Shipment = {
   warehouse?: Maybe<Warehouse>;
   warehouse_id?: Maybe<Scalars['String']>;
 };
+
 
 export type ShipmentLine_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -3494,6 +3624,7 @@ export type ShipmentsQueryResult = {
   data?: Maybe<ShipmentConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type ShipmentsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -3573,6 +3704,7 @@ export type ShippingLabel = {
   warehouse_id?: Maybe<Scalars['String']>;
 };
 
+
 export type ShippingLabelShipment_Line_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -3615,6 +3747,7 @@ export type ShippingPlan = {
   warehouse_note?: Maybe<Scalars['String']>;
 };
 
+
 export type ShippingPlanLine_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -3622,6 +3755,7 @@ export type ShippingPlanLine_ItemsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<Scalars['String']>;
 };
+
 
 export type ShippingPlanPackagesArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -3631,6 +3765,7 @@ export type ShippingPlanPackagesArgs = {
   sort?: InputMaybe<Scalars['String']>;
 };
 
+
 export type ShippingPlanPalletsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -3638,6 +3773,7 @@ export type ShippingPlanPalletsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<Scalars['String']>;
 };
+
 
 export type ShippingPlanTracking_NumbersArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -3698,6 +3834,7 @@ export type ShippingPlanPackage = {
   legacy_id?: Maybe<Scalars['Int']>;
   line_items?: Maybe<ShippingPlanPackageLineItemConnection>;
 };
+
 
 export type ShippingPlanPackageLine_ItemsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -3867,6 +4004,7 @@ export type ToteHistoryQueryResult = {
   data?: Maybe<ToteHistoryConnection>;
   request_id?: Maybe<Scalars['String']>;
 };
+
 
 export type ToteHistoryQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -4277,6 +4415,7 @@ export type VendorsQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type VendorsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -4302,6 +4441,7 @@ export type Warehouse = {
   profile?: Maybe<Scalars['String']>;
   return_address?: Maybe<Address>;
 };
+
 
 export type WarehouseProductsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -4360,6 +4500,7 @@ export type WarehouseProduct = {
   warehouse_identifier?: Maybe<Scalars['String']>;
 };
 
+
 export type WarehouseProductInboundsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -4370,6 +4511,7 @@ export type WarehouseProductInboundsArgs = {
   sort?: InputMaybe<Scalars['String']>;
   status?: InputMaybe<Scalars['String']>;
 };
+
 
 export type WarehouseProductLocationsArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -4444,6 +4586,7 @@ export type WarehouseProductsQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type WarehouseProductsQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -4489,6 +4632,7 @@ export type WebhooksQueryResult = {
   request_id?: Maybe<Scalars['String']>;
 };
 
+
 export type WebhooksQueryResultDataArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -4501,9 +4645,11 @@ export type AddOrderLineItemsMutationVariables = Exact<{
   data: AddLineItemsInput;
 }>;
 
+
 export type AddOrderLineItemsMutation = { __typename?: 'Mutation', order_add_line_items?: { __typename?: 'OrderMutationOutput', request_id?: string | null, order?: { __typename?: 'Order', line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', sku?: string | null, product?: { __typename?: 'Product', warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null, warehouse?: { __typename?: 'Warehouse', identifier?: string | null } | null } | null> | null } | null } | null } | null> } | null } | null } | null };
 
-export type GetProductInventoryQueryVariables = Exact<{ [key: string]: never }>;
+export type GetProductInventoryQueryVariables = Exact<{ [key: string]: never; }>;
+
 
 export type GetProductInventoryQuery = { __typename?: 'Query', products?: { __typename?: 'ProductsQueryResult', data?: { __typename?: 'ProductConnection', edges: Array<{ __typename?: 'ProductEdge', node?: { __typename?: 'Product', sku?: string | null, warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null } | null> | null } | null } | null> } | null } | null };
 
@@ -4511,11 +4657,20 @@ export type GetCustomerOrderByEmailQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
 
+
 export type GetCustomerOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+
+export type GetLastFulfilledOrderByEmailQueryVariables = Exact<{
+  email: Scalars['String'];
+}>;
+
+
+export type GetLastFulfilledOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetLastOrderByEmailQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
+
 
 export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
 
@@ -4523,9 +4678,11 @@ export type GetOrderProductsByOrderNumberQueryVariables = Exact<{
   orderNumber: Scalars['String'];
 }>;
 
+
 export type GetOrderProductsByOrderNumberQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
 
-export type GetVendorsQueryVariables = Exact<{ [key: string]: never }>;
+export type GetVendorsQueryVariables = Exact<{ [key: string]: never; }>;
+
 
 export type GetVendorsQuery = { __typename?: 'Query', vendors?: { __typename?: 'VendorsQueryResult', data?: { __typename?: 'VendorConnection', edges: Array<{ __typename?: 'VendorEdge', node?: { __typename?: 'Vendor', id?: string | null, name?: string | null } | null } | null> } | null } | null };
 
@@ -4533,7 +4690,9 @@ export type UpdateOrderMutationVariables = Exact<{
   input: UpdateOrderInput;
 }>;
 
+
 export type UpdateOrderMutation = { __typename?: 'Mutation', order_update?: { __typename?: 'OrderMutationOutput', request_id?: string | null, complexity?: number | null, order?: { __typename?: 'Order', hold_until_date?: any | null, order_number?: string | null } | null } | null };
+
 
 export const AddOrderLineItemsDocument = gql`
     mutation AddOrderLineItems($data: AddLineItemsInput!) {
@@ -4581,6 +4740,38 @@ export const GetCustomerOrderByEmailDocument = gql`
     data(last: 10) {
       edges {
         node {
+          order_number
+          fulfillment_status
+          order_date
+          email
+          line_items {
+            edges {
+              node {
+                fulfillment_status
+                product_name
+                sku
+                product {
+                  kit
+                  kit_components {
+                    sku
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const GetLastFulfilledOrderByEmailDocument = gql`
+    query getLastFulfilledOrderByEmail($email: String!) {
+  orders(email: $email) {
+    data(last: 2) {
+      edges {
+        node {
+          id
           order_number
           fulfillment_status
           order_date
@@ -4702,31 +4893,35 @@ export const UpdateOrderDocument = gql`
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
 
+
 const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    AddOrderLineItems(variables: AddOrderLineItemsMutationVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<AddOrderLineItemsMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AddOrderLineItemsMutation>(AddOrderLineItemsDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'AddOrderLineItems');
+    AddOrderLineItems(variables: AddOrderLineItemsMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddOrderLineItemsMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddOrderLineItemsMutation>(AddOrderLineItemsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AddOrderLineItems');
     },
-    getProductInventory(variables?: GetProductInventoryQueryVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<GetProductInventoryQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventoryQuery>(GetProductInventoryDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'getProductInventory');
+    getProductInventory(variables?: GetProductInventoryQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductInventoryQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventoryQuery>(GetProductInventoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductInventory');
     },
-    getCustomerOrderByEmail(variables: GetCustomerOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<GetCustomerOrderByEmailQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetCustomerOrderByEmailQuery>(GetCustomerOrderByEmailDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'getCustomerOrderByEmail');
+    getCustomerOrderByEmail(variables: GetCustomerOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetCustomerOrderByEmailQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetCustomerOrderByEmailQuery>(GetCustomerOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getCustomerOrderByEmail');
     },
-    getLastOrderByEmail(variables: GetLastOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<GetLastOrderByEmailQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderByEmailQuery>(GetLastOrderByEmailDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'getLastOrderByEmail');
+    getLastFulfilledOrderByEmail(variables: GetLastFulfilledOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastFulfilledOrderByEmailQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastFulfilledOrderByEmailQuery>(GetLastFulfilledOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastFulfilledOrderByEmail');
     },
-    getOrderProductsByOrderNumber(variables: GetOrderProductsByOrderNumberQueryVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<GetOrderProductsByOrderNumberQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetOrderProductsByOrderNumberQuery>(GetOrderProductsByOrderNumberDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'getOrderProductsByOrderNumber');
+    getLastOrderByEmail(variables: GetLastOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderByEmailQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderByEmailQuery>(GetLastOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderByEmail');
     },
-    getVendors(variables?: GetVendorsQueryVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<GetVendorsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetVendorsQuery>(GetVendorsDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'getVendors');
+    getOrderProductsByOrderNumber(variables: GetOrderProductsByOrderNumberQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetOrderProductsByOrderNumberQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetOrderProductsByOrderNumberQuery>(GetOrderProductsByOrderNumberDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getOrderProductsByOrderNumber');
     },
-    UpdateOrder(variables: UpdateOrderMutationVariables, requestHeaders?: Dom.RequestInit['headers']): Promise<UpdateOrderMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateOrderMutation>(UpdateOrderDocument, variables, { ...requestHeaders, ...wrappedRequestHeaders }), 'UpdateOrder');
+    getVendors(variables?: GetVendorsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetVendorsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetVendorsQuery>(GetVendorsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getVendors');
     },
+    UpdateOrder(variables: UpdateOrderMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateOrderMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateOrderMutation>(UpdateOrderDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateOrder');
+    }
   };
 }
 export type Sdk = ReturnType<typeof getSdk>;

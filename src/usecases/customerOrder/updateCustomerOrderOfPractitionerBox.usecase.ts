@@ -254,7 +254,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       if(updateProductStatusError){
         return [undefined, updateProductStatusError];
       } }
-
     return [
       {
         customerId: orderQueueOrdered.customerId,
