@@ -30,6 +30,7 @@ export interface UpsertProductUsecaseInterface {
     ingredientIds,
     cookingMethodIds,
     nutritionFact,
+    weight,
   }: UpsertProductDto): Promise<ReturnValueType<Product>>;
 }
 
@@ -65,6 +66,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
     ingredientIds: newProductIngredientIds,
     cookingMethodIds: newProductCookingMethodIds,
     nutritionFact,
+    weight,
   }: UpsertProductDto): Promise<ReturnValueType<Product>> {
     // Transaction
     const [updatedProduct, upsertProductError] =
@@ -91,6 +93,7 @@ export class UpsertProductUsecase implements UpsertProductUsecaseInterface {
                 vendorId,
                 externalSku,
                 nutritionFact,
+                weight,
               });
             if (upsertProductError) {
               return [undefined, upsertProductError];
