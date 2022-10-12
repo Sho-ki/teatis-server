@@ -222,6 +222,7 @@ model Product{
   upcCode  String?
   MSP Float?
   WSP Float?
+  weight Float?
   surveyQuestionAnswer SurveyQuestionAnswer[]
   customerProductDistances CustomerProductDistance[]
   customerBoxItems CustomerBoxItems[]

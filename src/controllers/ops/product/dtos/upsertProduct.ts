@@ -77,6 +77,10 @@ export class UpsertProductDto {
   @IsArray()
     cookingMethodIds: number[];
 
+  @IsNumber()
+  @IsOptional()
+    weight?: number;
+
   @IsObject()
     nutritionFact: {
     quantity: number | null;

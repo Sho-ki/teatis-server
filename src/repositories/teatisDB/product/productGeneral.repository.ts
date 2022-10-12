@@ -107,6 +107,7 @@ interface UpsertProductArgs {
     spicy: number | null;
     texture: string | null;
   };
+  weight?:number;
 }
 
 interface UpdateProductsStatusArgs {
@@ -133,6 +134,7 @@ export interface ProductGeneralRepositoryInterface extends Transactionable{
     vendorId,
     externalSku,
     nutritionFact,
+    weight,
   }: UpsertProductArgs): Promise<ReturnValueType<Product>>;
 
   getProductsBySku({ products }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>>;
@@ -577,6 +579,7 @@ implements ProductGeneralRepositoryInterface
     vendorId,
     externalSku,
     nutritionFact,
+    weight,
   }: UpsertProductArgs): Promise<ReturnValueType<Product>> {
     const {
       quantity, servingSize, calories, totalFat, saturatedFat,
@@ -628,6 +631,7 @@ implements ProductGeneralRepositoryInterface
         productVendorId: vendorId,
         externalSku,
         productNutritionFact: { create: productNutritionInput },
+        weight,
       },
       update: {
         activeStatus,
@@ -652,6 +656,7 @@ implements ProductGeneralRepositoryInterface
             update: productNutritionInput,
           },
         },
+        weight,
       },
       select: {
         id: true,
