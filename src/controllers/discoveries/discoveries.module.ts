@@ -39,11 +39,15 @@ import { EmailModule } from './email/email.module';
 import { CreateCheckoutCartOfCustomerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { CustomerProductsAutoSwap } from '../../usecases/utils/customerProductsAutoSwap';
+import { WebhookEventRepository } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
-
+    {
+      provide: 'WebhookEventRepositoryInterface',
+      useClass: WebhookEventRepository,
+    },
     {
       provide: 'CustomerProductsAutoSwapInterface',
       useClass: CustomerProductsAutoSwap,

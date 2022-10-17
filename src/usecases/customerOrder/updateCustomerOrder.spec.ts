@@ -22,6 +22,8 @@ import {
 } from '@Usecases/utils/getSuggestion';
 import { CustomerBoxType } from '../../domains/CustomerBoxType';
 import { ReturnValueType } from '@Filters/customError';
+
+import { WebhookEventRepositoryInterface } from '../../repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { ProductOnHand } from '../../domains/ProductOnHand';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { Status } from '../../domains/Status';
@@ -35,7 +37,7 @@ describe('GetOptions', () => {
   let MockedShopifyRepository: Partial<ShopifyRepositoryInterface>;
   let MockedProductGeneralRepository: Partial<ProductGeneralRepositoryInterface>;
   let MockedPostPrePurchaseSurveyUsecase: Partial<PostPrePurchaseSurveyUsecaseInterface>;
-  // let MockedGetSuggestionInterface: Partial<GetSuggestionInterface>;
+  let MockedWebhookEventRepository: Partial<WebhookEventRepositoryInterface>;
 
   beforeEach(async () => {
     MockedCustomerGeneralRepository = {
@@ -69,6 +71,11 @@ describe('GetOptions', () => {
         Promise.resolve<ReturnValueType<CustomerOrderCount>>([{ orderCount: 1, email: 'test@test.com' }]),
     };
 
+    MockedWebhookEventRepository = {
+      postApiId: () =>
+        Promise.resolve<ReturnValueType<Status>>([{ success: true }]),
+    };
+ 
     MockedPostPrePurchaseSurveyUsecase = {
       postPrePurchaseSurvey: () =>
         Promise.resolve<ReturnValueType<CustomerBoxType>>([
@@ -91,6 +98,10 @@ describe('GetOptions', () => {
       providers: [
         UpdateCustomerOrderOfCustomerBoxUsecase,
         {
+          provide: 'WebhookEventRepositoryInterface',
+          useValue: MockedWebhookEventRepository,
+          },
+          {
           provide: 'ProductGeneralRepositoryInterface',
           useValue: MockedProductGeneralRepository,
         },
@@ -141,6 +152,7 @@ describe('GetOptions', () => {
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       uuid: '1234',
+      admin_graphql_api_id: '98765',
     });
     expect(res.status).toBe('ordered');
     expect(error).toBeUndefined();
@@ -154,6 +166,7 @@ describe('GetOptions', () => {
       customer: { email: 'teatis@teatis.com', id: 4321 },
       line_items: [{ product_id: 1234 }],
       uuid: '1234',
+      admin_graphql_api_id: '98765',
     });
     expect(res.status).toBe('ordered');
     expect(error).toBeUndefined();

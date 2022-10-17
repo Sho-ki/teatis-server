@@ -16,4 +16,7 @@ export class UpdateCustomerOrderDto {
   @IsArray()
   @IsOptional()
     note_attributes?: { name: string, value: string }[];
+
+  @IsString()
+    admin_graphql_api_id: string;
 }
