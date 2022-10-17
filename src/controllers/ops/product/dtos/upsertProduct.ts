@@ -25,6 +25,10 @@ export class UpsertProductDto {
   @IsOptional()
     expertComment?: string;
 
+  @IsArray()
+  @IsOptional()
+    glucoseValues?: number[];
+
   @IsNumber()
   @IsOptional()
     WSP?: number;
@@ -72,6 +76,10 @@ export class UpsertProductDto {
 
   @IsArray()
     cookingMethodIds: number[];
+
+  @IsNumber()
+  @IsOptional()
+    weight?: number;
 
   @IsObject()
     nutritionFact: {

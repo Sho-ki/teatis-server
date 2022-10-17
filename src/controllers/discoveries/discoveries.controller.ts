@@ -39,7 +39,6 @@ import { GetFirstBoxDto } from './dtos/getFirstBox';
 import { GetFirstBoxRes, GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CreateCheckoutCartOfPractitionerMealBoxDto } from './dtos/createCheckoutCartOfPractitionerMealBox';
 import { CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
-import { UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { Status } from '@Domains/Status';
 import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
@@ -86,8 +85,6 @@ export class DiscoveriesController {
     private getFirstBoxUsecase: GetFirstBoxUsecaseInterface,
     @Inject('CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface')
     private createCheckoutCartOfPractitionerMealBoxUsecase: CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface,
-    @Inject('UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface')
-    private updateCustomerOrderOfPractitionerMealBoxUsecase: UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface,
     @Inject('CreateCheckoutCartOfPractitionerBoxUsecaseInterface')
     private CreateCheckoutCartOfPractitionerBoxUsecase: CreateCheckoutCartOfPractitionerBoxUsecaseInterface,
     private teatisJob: TeatisJobs,

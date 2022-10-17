@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GraphQLClient, gql } from 'graphql-request';
+import { GraphQLClient } from 'graphql-request';
 import { Product } from '@Domains/Product';
 
 import {
@@ -9,8 +9,13 @@ import {
 } from './generated/graphql';
 import { CustomerOrder } from '@Domains/CustomerOrder';
 import { ReturnValueType } from '@Filters/customError';
+import { ProductOnHand } from '../../domains/ProductOnHand';
 
 interface GetLastOrderArgs {
+  email: string;
+}
+
+interface GetLastFulfilledOrderArgs {
   email: string;
 }
 
@@ -18,14 +23,16 @@ interface GetCustomerOrdersArgs {
   email: string;
 }
 
-interface CreateOrderArgs {
+interface UpdateCustomerOrderArgs {
   orderId: string;
   products: Pick<Product, 'sku'>[];
   orderNumber: string;
+  warehouseCode:'CLB-DB';
 }
 
-interface UpdateOrderHoldUntilDateArgs {
+interface UpdateOrderInformationArgs {
   orderId: string;
+  note?: string;
 }
 
 export interface GetOrderByOrderNumberArgs {
@@ -35,8 +42,9 @@ export interface GetOrderByOrderNumberArgs {
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepositoryInterface {
-  updateOrderHoldUntilDate({ orderId }: UpdateOrderHoldUntilDateArgs): Promise<[void?, Error?]>;
+  updateOrderInformation({ orderId, note }: UpdateOrderInformationArgs): Promise<[void?, Error?]>;
   getLastCustomerOrder({ email }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
+  getLastFulfilledOrder({ email }: GetLastFulfilledOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
   getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>>;
   getCustomerOrderByOrderNumber({ orderNumber }: GetOrderByOrderNumberArgs): Promise<ReturnValueType<CustomerOrder>>;
@@ -45,7 +53,8 @@ export interface ShipheroRepositoryInterface {
     orderId,
     products,
     orderNumber,
-  }: CreateOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
+    warehouseCode,
+  }: UpdateCustomerOrderArgs): Promise<ReturnValueType<ProductOnHand[]>>;
 
   getCustomerOrders({ email }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>>;
 }
@@ -130,6 +139,46 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       },
     ];
   }
+
+  async getLastFulfilledOrder({ email }: GetLastFulfilledOrderArgs): Promise<ReturnValueType<CustomerOrder>>{
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
+    const sdk = getSdk(client);
+
+    const res: GetLastOrderByEmailQuery = await sdk.getLastFulfilledOrderByEmail({ email });
+
+    const hasOrdered = res?.orders?.data?.edges.length > 0;
+    if (!hasOrdered) {
+      return [
+        {
+          orderNumber: undefined,
+          products: [],
+          orderDate: undefined,
+          orderId: undefined,
+        },
+      ];
+    }
+
+    const node = res?.orders?.data?.edges[0]?.node;
+    const orderNumber = node?.order_number;
+    const items = node?.line_items?.edges;
+    const orderId = node?.id;
+    const orderDate = node?.order_date;
+    if (!node || !items || !orderId || !orderDate) {
+      return [
+        undefined,
+        {
+          name: 'Internal Server Error',
+          message: 'email is invalid',
+        },
+      ];
+    }
+
+    const products: Pick<Product, 'sku'>[] = this.getLastSentProducts({ items });
+
+    return [{ orderNumber, products, orderDate, orderId }];
+  }
+
   async getLastCustomerOrder({ email }: GetLastOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
@@ -224,28 +273,22 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     return [customerOrders];
   }
 
-  async updateOrderHoldUntilDate({ orderId }:UpdateOrderHoldUntilDateArgs):
+  async updateOrderInformation({ orderId, note }:UpdateOrderInformationArgs):
   Promise<[void?, Error?]>{
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
+    const sdk = getSdk(client);
+
     const holdUntilDate = new Date();
     holdUntilDate.setHours(holdUntilDate.getHours() + 24);
-    const mutation = gql`
-        mutation {
-          order_update(
-            data: {
-              order_id: "${orderId}"
-              hold_until_date: "${holdUntilDate.toISOString().replace(/T/, ' ').replace(/\..+/, '')}"
-            }
-          ) {
-            request_id
-            complexity
-            order {
-              hold_until_date
-            }
-          }
-        }`;
-    await client.request(mutation);
+    await sdk.UpdateOrder({
+      input: {
+        hold_until_date: holdUntilDate.toISOString().replace(/T/, ' ').replace(/\..+/, ''),
+        order_id: orderId,
+        packing_note: note ||'',
+
+      },
+    });
     return [];
   }
 
@@ -253,36 +296,61 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     orderId,
     products,
     orderNumber,
-  }: CreateOrderArgs): Promise<ReturnValueType<CustomerOrder>> {
+    warehouseCode,
+  }: UpdateCustomerOrderArgs): Promise<ReturnValueType<ProductOnHand[]>> {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
 
-    let orderProducts = '';
-    let ct = 1;
-    for (const product of products) {
-      orderProducts += String(`{
-        sku: "${product.sku}",
-        partner_line_item_id: "${product.sku}_${orderNumber}_#${ct}",
-        quantity: 1,
-        price: "0",
-     }, `);
-      ct++;
-    }
+    const sdk = getSdk(client);
 
-    const mutation = gql`
-    mutation {
-      order_add_line_items (
-        data: {	
-          order_id: "${orderId}"
-          line_items: [${orderProducts}]
-        }
-      ) {
-        request_id
-      }
-    }
-  `;
-    await client.request(mutation);
+    const response = await sdk.AddOrderLineItems(
+      {
+        data: {
+          order_id: orderId,
+          line_items: products.map(({ sku }, i) => {
+            return {
+              sku,
+              partner_line_item_id: `${sku}_${orderNumber}_${i}`,
+              quantity: 1,
+              price: '0',
+            };
+          }),
+        },
+      });
+    const itemsOnHand:ProductOnHand[] = response.order_add_line_items.order.line_items.edges.map(({ node }) => {
+      return {
+        sku: node.sku,
+        onHand: node.product.warehouse_products.find(({ warehouse }) => {
+          return warehouse.identifier === warehouseCode;
+        }).on_hand,
+      };
+    });
+    //   let orderProducts = '';
+    //   let ct = 1;
+    //   for (const product of products) {
+    //     orderProducts += String(`{
+    //       sku: "${product.sku}",
+    //       partner_line_item_id: "${product.sku}_${orderNumber}_#${ct}",
+    //       quantity: 1,
+    //       price: "0",
+    //    }, `);
+    //     ct++;
+    //   }
 
-    return [{ orderId, orderNumber, products }];
+    //   const mutation = gql`
+    //   mutation {
+    //     order_add_line_items (
+    //       data: {
+    //         order_id: "${orderId}"
+    //         line_items: [${orderProducts}]
+    //       }
+    //     ) {
+    //       request_id
+    //     }
+    //   }
+    // `;
+    //   await client.request(mutation);
+
+    return [itemsOnHand];
   }
 }

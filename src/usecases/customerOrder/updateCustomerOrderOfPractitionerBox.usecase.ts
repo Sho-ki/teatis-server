@@ -10,7 +10,6 @@ import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
-import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
@@ -18,6 +17,7 @@ import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 import { currentMonth } from '../utils/dates';
 import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
 import { WebhookEventRepositoryInterface } from '../../repositories/teatisDB/webhookEvent/webhookEvent.repository';
+import { ProductGeneralRepositoryInterface } from '../../repositories/teatisDB/product/productGeneral.repository';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -63,6 +63,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('WebhookEventRepositoryInterface')
     private webhookEventRepository: WebhookEventRepositoryInterface,
+    @Inject('ProductGeneralRepositoryInterface')
+    private productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfPractitionerBox({
@@ -163,24 +165,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, autoSwapBoxProductsError];
     }
     let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
-    if (!practitionerAndBox.box.products.length) {
-      // analyze
-      const [nextBoxProductsRes, nextBoxProductsError] =
-        await this.getSuggestionUtil.getSuggestion({
-          customer,
-          productCount: PRODUCT_COUNT,
-        });
-      orderProducts = nextBoxProductsRes.products.map((product) => {
-        return { sku: product.sku };
-      });
-      if (nextBoxProductsError) {
-        return [undefined, nextBoxProductsError];
-      }
-    }
-
-    if(customer.createAt > new Date('2022-09-28') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
-      orderProducts= orderProducts.slice(0, 8);
-    }
 
     if(isFirstOrder){
       orderProducts.push(
@@ -188,17 +172,62 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
       );
     }
+    let note = undefined;
+    if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+      switch (customerOrderCount.orderCount){
+        case 1:
+          orderProducts = [
+            { sku: 'x10264-BAR-SN20154' },
+            { sku: 'x10217-CHP-SN20144' },
+            { sku: 'x10362-SWT-SN20187' },
+            { sku: 'x10428-CHP-SN20206' },
+            { sku: 'x10206-GUM-SN20127' },
+            { sku: 'x10404-CHC-SN20199' },
+            { sku: 'x10325-JRK-SN20177' },
+            { sku: 'x10250-CER-SN20110' },
+          ];
+          break;
+        case 2:
+          orderProducts = [
+            { sku: 'x10245-GUM-SN20102' },
+            { sku: 'x10437-SWT-SN20187' },
+            { sku: 'x10300-CHC-SN20172' },
+            { sku: 'x10429-CHP-SN20206' },
+            { sku: 'x10224-CHP-SN20122' },
+            { sku: 'x10427-GRA-SN20205' },
+            { sku: 'x10319-SWT-SN20176' },
+            { sku: 'x10351-CHP-SN20182' },
+          ];
+          break;
+        case 3: orderProducts = [
+          { sku: 'x10266-CHP-SN20115' },
+          { sku: 'x10415-CHP-SN20203' },
+          { sku: 'x10337-JRK-SN20148' },
+          { sku: 'x10225-BAR-SN20154' },
+          { sku: 'x10328-BAR-SN20178' },
+          { sku: 'x10366-GUM-SN20188' },
+          { sku: 'x10213-BAR-SN20123' },
+          { sku: 'x10203-CER-SN20110' },
+        ];
+          break;
+        default:
+          orderProducts= orderProducts.slice(0, 8);
+          break;
+      }
+      note = 'Please ship with USPS First Class Parcel Only';
+    }
     const transactionPrice = Number(subtotal_price);
     const [
-      [, updateOrderError],
+      [productOnHand, updateOrderError],
       [, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
-      [, updateOrderHoldUntilDateError],
+      [, updateOrderInformationError],
     ] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
+        warehouseCode: 'CLB-DB',
       }),
       this.practitionerBoxOrderHistoryRepository.createPractitionerBoxOrderHistory(
         {
@@ -214,7 +243,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         orderNumber: name,
         status: 'ordered',
       }),
-      this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
+      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note }),
     ]);
 
     if (updateOrderError) {
@@ -226,8 +255,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueOrderedError) {
       return [undefined, orderQueueOrderedError];
     }
-    if(updateOrderHoldUntilDateError){
-      return [undefined, updateOrderHoldUntilDateError];
+    if(updateOrderInformationError){
+      return [undefined, updateOrderInformationError];
     }
 
     const [, postApiIdError] = await this.webhookEventRepository.postApiId({ apiId });
@@ -235,6 +264,18 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, postApiIdError];
     }
 
+    const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
+
+    if(fiveOrLessStocks.length){
+      const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
+        {
+          isActive: false,
+          skus: fiveOrLessStocks.map(({ sku }) => { return sku; }),
+        }
+      );
+      if(updateProductStatusError){
+        return [undefined, updateProductStatusError];
+      } }
     return [
       {
         customerId: orderQueueOrdered.customerId,

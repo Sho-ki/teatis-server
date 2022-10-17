@@ -14,6 +14,7 @@ import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
 import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
 import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 
 interface UpdateCustomerOrderOfCustomerBoxArgs
   extends Pick<UpdateCustomerOrderDto, 'name' | 'customer' | 'line_items'| 'admin_graphql_api_id'> {
@@ -49,6 +50,8 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     private getSuggestionUtil: GetSuggestionInterface,
     @Inject('WebhookEventRepositoryInterface')
     private webhookEventRepository: WebhookEventRepositoryInterface,
+     @Inject('ProductGeneralRepositoryInterface')
+    private productGeneralRepository: ProductGeneralRepositoryInterface,
   ) {}
 
   async updateCustomerOrderOfCustomerBox({
@@ -155,19 +158,20 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
       );
     }
 
-    const [[, updateOrderError], [, updateOrderHoldUntilDateError]] = await Promise.all([
+    const [[productOnHand, updateOrderError], [, updateOrderInformationError]] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
         products: orderProducts,
         orderNumber: name,
+        warehouseCode: 'CLB-DB',
       }),
-      this.shipheroRepository.updateOrderHoldUntilDate({ orderId: order.orderId }),
+      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId }),
     ]);
     if (updateOrderError) {
       return [undefined, updateOrderError];
     }
-    if(updateOrderHoldUntilDateError){
-      return [undefined, updateOrderHoldUntilDateError];
+    if(updateOrderInformationError){
+      return [undefined, updateOrderInformationError];
     }
     [orderQueue, orderQueueError] =
       await this.orderQueueRepository.updateOrderQueue({
@@ -183,6 +187,18 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     if(postApiIdError){
       return [undefined, postApiIdError];
     }
+    const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
+
+    if(fiveOrLessStocks.length){
+      const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
+        {
+          isActive: false,
+          skus: fiveOrLessStocks.map(({ sku }) => { return sku; }),
+        }
+      );
+      if(updateProductStatusError){
+        return [undefined, updateProductStatusError];
+      } }
 
     return [
       {

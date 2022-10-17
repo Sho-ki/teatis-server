@@ -112,7 +112,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
       customerId: customerAnswer.id,
       surveyQuestions: [],
       redirectEndpoint: customerOrder.products.find(({ sku }) =>
-        sku===PRACTITIONER_BOX_PLANS.original.sku || sku===PRACTITIONER_BOX_PLANS.customized.sku)
+      { return sku===PRACTITIONER_BOX_PLANS.original.sku || sku===PRACTITIONER_BOX_PLANS.customized.sku; })
         ? '/teatis-meal-box'
         : `/teatis-meal-box/next-box?uuid=${customer.uuid}`,
     };
@@ -133,7 +133,6 @@ implements GetPostPurchaseSurveyUsecaseInterface
         title: undefined,
         content: undefined,
       };
-
       if (question.label.includes('${PRODUCT_NAME}')) {
         for (const product of detailedProductList) {
           if (!product) continue;

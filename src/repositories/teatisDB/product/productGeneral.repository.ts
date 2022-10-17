@@ -12,6 +12,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { ReturnValueType } from '@Filters/customError';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { nutritionFactField } from '../../utils/nutritionFactField';
+import { Status } from '../../../domains/Status';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -73,6 +74,7 @@ interface UpsertProductArgs {
   allergenLabel?: string;
   ingredientLabel?: string;
   expertComment?: string;
+  glucoseValues?: number[];
   WSP?: number;
   MSP?: number;
   label: string;
@@ -105,6 +107,12 @@ interface UpsertProductArgs {
     spicy: number | null;
     texture: string | null;
   };
+  weight?:number;
+}
+
+interface UpdateProductsStatusArgs {
+  isActive:boolean;
+  skus:string[];
 }
 
 export interface ProductGeneralRepositoryInterface extends Transactionable{
@@ -114,6 +122,7 @@ export interface ProductGeneralRepositoryInterface extends Transactionable{
     allergenLabel,
     ingredientLabel,
     expertComment,
+    glucoseValues,
     WSP,
     MSP,
     label,
@@ -125,6 +134,7 @@ export interface ProductGeneralRepositoryInterface extends Transactionable{
     vendorId,
     externalSku,
     nutritionFact,
+    weight,
   }: UpsertProductArgs): Promise<ReturnValueType<Product>>;
 
   getProductsBySku({ products }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>>;
@@ -155,6 +165,8 @@ export interface ProductGeneralRepositoryInterface extends Transactionable{
     newProductImages,
     productId,
   }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>>;
+
+  updateProductsStatus({ isActive, skus }:UpdateProductsStatusArgs): Promise<ReturnValueType<Status>>;
 }
 
 @Injectable()
@@ -555,6 +567,7 @@ implements ProductGeneralRepositoryInterface
     allergenLabel,
     ingredientLabel,
     expertComment,
+    glucoseValues,
     WSP,
     MSP,
     label,
@@ -566,6 +579,7 @@ implements ProductGeneralRepositoryInterface
     vendorId,
     externalSku,
     nutritionFact,
+    weight,
   }: UpsertProductArgs): Promise<ReturnValueType<Product>> {
     const {
       quantity, servingSize, calories, totalFat, saturatedFat,
@@ -605,6 +619,7 @@ implements ProductGeneralRepositoryInterface
         allergenLabel,
         ingredientLabel,
         expertComment,
+        glucoseValues,
         WSP,
         MSP,
         label,
@@ -616,6 +631,7 @@ implements ProductGeneralRepositoryInterface
         productVendorId: vendorId,
         externalSku,
         productNutritionFact: { create: productNutritionInput },
+        weight,
       },
       update: {
         activeStatus,
@@ -623,6 +639,7 @@ implements ProductGeneralRepositoryInterface
         allergenLabel,
         ingredientLabel,
         expertComment,
+        glucoseValues,
         WSP,
         MSP,
         label,
@@ -639,6 +656,7 @@ implements ProductGeneralRepositoryInterface
             update: productNutritionInput,
           },
         },
+        weight,
       },
       select: {
         id: true,
@@ -656,31 +674,23 @@ implements ProductGeneralRepositoryInterface
       name: productName,
       label: productLabel,
     } = response;
-
     return [{ id, sku, name: productName, label: productLabel }];
   }
   async getProductsBySku({ products }: GetProductsBySkuArgs): Promise<ReturnValueType<DisplayProduct[]>> {
-    const res = await this.prisma.product.findMany({
+    const response = await this.prisma.product.findMany({
       where: {
         OR: products.map((product) => {
           return { externalSku: product.sku };
         }),
       },
-      select: {
-        id: true,
-        productVendor: { select: { label: true } },
-        externalSku: true,
-        productImages: { select: { id: true, src: true, position: true } },
-        expertComment: true,
-        label: true,
-        name: true,
+      include: {
+        productVendor: true,
+        productImages: true,
         productNutritionFact: true,
-        ingredientLabel: true,
-        allergenLabel: true,
       },
     });
 
-    const displayProducts: DisplayProduct[] = res.map((product) => {
+    const displayProducts: DisplayProduct[] = response.map((product) => {
       return {
         id: product.id,
         sku: product.externalSku,
@@ -706,42 +716,16 @@ implements ProductGeneralRepositoryInterface
           ? { sodiumMg: { lt: 500 } }
           : {},
       },
-      select: {
-        id: true,
-        name: true,
-        label: true,
-        externalSku: true,
-        productVendor: { select: { label: true, id: true } },
-        productImages: { select: { id: true, position: true, src: true } },
-        productFlavor: { select: { id: true, name: true, label: true } },
-        productCategory: { select: { id: true, name: true, label: true } },
-        expertComment: true,
-        allergenLabel: true,
-        ingredientLabel: true,
-        productNutritionFact: {
-          select: {
-            calories: true,
-            totalFatG: true,
-            saturatedFatG: true,
-            transFatG: true,
-            cholesteroleMg: true,
-            sodiumMg: true,
-            totalCarbohydrateG: true,
-            dietaryFiberG: true,
-            totalSugarG: true,
-            addedSugarG: true,
-            proteinG: true,
-            sugarAlcoholG: true,
-          },
-        },
-        intermediateProductAllergens:
-        { select: { productAllergen: { select: { id: true, name: true, label: true } } } },
-        intermediateProductFoodTypes:
-        { select: { productFoodType: { select: { id: true, name: true, label: true } } } },
-        intermediateProductCookingMethods:
-        { select: { productCookingMethod: { select: { id: true, name: true, label: true } } } },
-        intermediateProductIngredients:
-        { select: { productIngredient: { select: { id: true, name: true, label: true } } } },
+      include: {
+        productVendor: true,
+        productImages: true,
+        productFlavor: true,
+        productCategory: true,
+        productNutritionFact: true,
+        intermediateProductAllergens: { include: { productAllergen: true } },
+        intermediateProductFoodTypes: { include: { productFoodType: true } },
+        intermediateProductCookingMethods: { include: { productCookingMethod: true } },
+        intermediateProductIngredients: { include: { productIngredient: true } },
       },
     });
 
@@ -874,5 +858,17 @@ implements ProductGeneralRepositoryInterface
     }
 
     return [getOptionsRes];
+  }
+
+  async updateProductsStatus({ isActive, skus }:UpdateProductsStatusArgs): Promise<ReturnValueType<Status>>{
+    const response = await this.prisma.product.updateMany({
+      where: { externalSku: { in: skus } },
+      data: { activeStatus: isActive?'active':'inactive' },
+    });
+
+    if(!response){
+      return [undefined, { name: 'updateProductStatus error', message: 'sku is invalid' }];
+    }
+    return [{ success: true }];
   }
 }

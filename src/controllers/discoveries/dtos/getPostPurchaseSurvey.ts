@@ -2,7 +2,7 @@ import {  IsOptional, IsString } from 'class-validator';
 
 export class GetPostPurchaseSurveyInfoDto {
   @IsString()
-    uuid: string;
+    uuid: string; // customer uuid
 
   @IsOptional()
   @IsString()
