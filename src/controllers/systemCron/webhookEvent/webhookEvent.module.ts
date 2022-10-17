@@ -21,7 +21,6 @@ import { PractitionerBoxRepository } from '../../../repositories/teatisDB/practi
 import { PractitionerBoxOrderHistoryRepository } from '../../../repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { CreateCheckoutCartOfCustomerBoxUsecase } from '../../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
-import { UpdateCustomerOrderOfPractitionerMealBoxUsecase } from '../../../usecases/customerOrder/updateCustomerOrderOfPractitionerMealBox.usecase';
 import { CreateCustomerUsecase } from '../../../usecases/utils/createCustomer';
 import { CustomerProductsAutoSwap } from '../../../usecases/utils/customerProductsAutoSwap';
 import { GetSuggestion } from '../../../usecases/utils/getSuggestion';
@@ -55,11 +54,6 @@ import { GetSuggestion } from '../../../usecases/utils/getSuggestion';
       provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
       useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
     },
-    {
-      provide: 'UpdateCustomerOrderOfPractitionerMealBoxUsecaseInterface',
-      useClass: UpdateCustomerOrderOfPractitionerMealBoxUsecase,
-    },
-
     {
       provide: 'PractitionerBoxOrderHistoryRepositoryInterface',
       useClass: PractitionerBoxOrderHistoryRepository,
