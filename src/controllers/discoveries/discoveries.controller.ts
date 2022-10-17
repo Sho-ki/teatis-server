@@ -49,7 +49,6 @@ import { NutritionNeed } from '../../domains/NutritionNeed';
 import { CreateCheckoutCartOfCustomerBoxUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
 import { CreateCheckoutCartDto } from './dtos/createCheckoutCartOfCustomerBoxDto';
 import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
-import axios from 'axios';
 
 // api/discovery
 @Controller('api/discovery')

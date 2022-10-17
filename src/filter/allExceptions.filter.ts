@@ -26,9 +26,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
     };
-    // if (process.env.ENV === 'production') {
-    //   Sentry.captureException(exception);
-    // }
+    if (process.env.ENV === 'production') {
+      Sentry.captureException(exception);
+    }
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }
 }
