@@ -40,7 +40,13 @@ export class WebhookEventRepository implements WebhookEventRepositoryInterface {
   }
 
   async getApiIds({ fromDate }: GetApiIdsArgs): Promise<ReturnValueType<ShopifyWebhookApiId[]>>{
-    const response = await this.prisma.webhookEvents.findMany({ where: { createdAt: { gte: fromDate } } });
+    const response = await this.prisma.webhookEvents.findMany({
+      where:
+      {
+        createdAt: { gte: fromDate },
+        cronMetadataName: SHOPIFY_WEBHOOK_EVENT_NAME.updateOrder,
+      },
+    });
 
     const shopifyWebhookApiIds: ShopifyWebhookApiId[] =
     response.length? response.map(({ apiId }) => { return { apiId }; }):[];
