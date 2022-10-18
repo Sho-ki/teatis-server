@@ -20,6 +20,7 @@ export class PrismaService
     });
   }
   async onModuleInit() {
+
     await this.$connect();
   }
   async enableShutdownHooks(app: INestApplication) {
