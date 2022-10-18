@@ -17,7 +17,6 @@ export class NewrelicInterceptor implements NestInterceptor {
 
     return newrelic.startWebTransaction(context.getHandler().name, function () {
       const transaction = newrelic.getTransaction();
-      // const now = Date.now();
       return next.handle().pipe(
         tap(() => {
           return transaction.end();

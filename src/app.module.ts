@@ -10,8 +10,6 @@ import { AllExceptionsFilter } from './filter/allExceptions.filter';
 import { TerraModule } from './controllers/terra/terra.module';
 import { ShipheroKeyModule } from './controllers/systemCron/shipheroKey/shipheroKey.module';
 import { WebhookEventModule } from './controllers/systemCron/webhookEvent/webhookEvent.module';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
 
 @Module({
   imports: [

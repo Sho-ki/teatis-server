@@ -5,15 +5,21 @@
  * See lib/config/default.js in the agent distribution for a more complete
  * description of configuration variables and their potential values.
  */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
+
+const NEW_RELIC_LICENSE_KEY = process.env.NEW_RELIC_LICENSE_KEY;
+const NEW_RELIC_APP_NAME = process.env.NEW_RELIC_APP_NAME || 'teatis';
+
 exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['teatis-server'],
+  app_name: [NEW_RELIC_APP_NAME],
   /**
    * Your New Relic license key.
    */
-  license_key: '5be0ba6ef01c2c99dc8311f580e7af71FFFFNRAL',
+  license_key: NEW_RELIC_LICENSE_KEY,
   /**
    * This setting controls distributed tracing.
    * Distributed tracing lets you see the path that a request takes through your
