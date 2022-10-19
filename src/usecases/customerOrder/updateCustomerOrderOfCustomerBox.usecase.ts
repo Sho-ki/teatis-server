@@ -124,11 +124,11 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
         ];
       }
     }
-    // const [customerOrderCount, getOrderCountError] =
-    //   await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
-    // if (getOrderCountError) {
-    //   return [undefined, getOrderCountError];
-    // }
+    const [customerOrderCount, getOrderCountError] =
+      await this.shopifyRepository.getOrderCount({ shopifyCustomerId: shopifyCustomer.id });
+    if (getOrderCountError) {
+      return [undefined, getOrderCountError];
+    }
     const [products, getCustomerBoxProductsError] =
       await this.customerBoxRepository.getCustomerBoxProducts({ email: customer.email });
     if (getCustomerBoxProductsError) {
@@ -151,12 +151,12 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
     } else {
       orderProducts = products;
     }
-    // if(customerOrderCount.orderCount <= 1){
-    //   orderProducts.push(
-    //     { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
-    //     { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-    //   );
-    // }
+    if(customerOrderCount.orderCount <= 1){
+      orderProducts.push(
+        { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
+        { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
+      );
+    }
 
     const [[productOnHand, updateOrderError], [, updateOrderInformationError]] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
