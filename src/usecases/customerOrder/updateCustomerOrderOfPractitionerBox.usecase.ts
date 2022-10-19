@@ -6,7 +6,6 @@ import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCust
 import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { Product } from 'src/domains/Product';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
-import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
@@ -55,8 +54,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private practitionerBoxRepository: PractitionerBoxRepositoryInterface,
     @Inject('ShopifyRepositoryInterface')
     private readonly shopifyRepository: ShopifyRepositoryInterface,
-    @Inject('GetSuggestionInterface')
-    private getSuggestionUtil: GetSuggestionInterface,
     @Inject('CustomerProductsAutoSwapInterface')
     private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
     @Inject('CustomerGeneralRepositoryInterface')
@@ -166,12 +163,12 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
     let orderProducts: Pick<Product, 'sku'>[] = autoSwapBoxProducts;
 
-    if(isFirstOrder){
-      orderProducts.push(
-        { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
-        { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
-      );
-    }
+    // if(isFirstOrder){
+    //   orderProducts.push(
+    //     { sku: 'NP-brochure-2022q1' }, //  Uprinting brochure and
+    //     { sku: 'x10278-SHK-SN20156' }, // Teatis Cacao powder
+    //   );
+    // }
     let note = undefined;
     if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
@@ -208,6 +205,28 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           { sku: 'x10366-GUM-SN20188' },
           { sku: 'x10213-BAR-SN20123' },
           { sku: 'x10203-CER-SN20110' },
+        ];
+          break;
+        case 4: orderProducts = [
+          { sku: 'x10226-CHP-SN20118' },
+          { sku: 'x10354-CHC-SN20183' },
+          { sku: 'x10324-JRK-SN20177' },
+          { sku: 'x10328-BAR-SN20178' },
+          { sku: 'x10399-BAR-SN20197' },
+          { sku: 'x10365-SWT-SN20187' },
+          { sku: 'x10394-JRK-SN20195' },
+          { sku: 'x10298-CHC-SN20170' },
+        ];
+          break;
+        case 5: orderProducts = [
+          { sku: 'x10403-CHC-SN20199' },
+          { sku: 'x10437-SWT-SN20187' },
+          { sku: 'x10220-SWT-SN20111' },
+          { sku: 'x10272-CHP-SN20144' },
+          { sku: 'x10430-CHP-SN20206' },
+          { sku: 'x10420-CER-SN20110' },
+          { sku: 'x10408-GUM-SN20201' },
+          { sku: 'x10390-CHP-SN20194' },
         ];
           break;
         default:
