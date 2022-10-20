@@ -186,14 +186,14 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           break;
         case 2:
           orderProducts = [
-            { sku: 'x10245-GUM-SN20102' },
-            { sku: 'x10437-SWT-SN20187' },
-            { sku: 'x10300-CHC-SN20172' },
+            { sku: 'x10366-GUM-SN20188' },
             { sku: 'x10429-CHP-SN20206' },
-            { sku: 'x10224-CHP-SN20122' },
-            { sku: 'x10427-GRA-SN20205' },
             { sku: 'x10319-SWT-SN20176' },
             { sku: 'x10351-CHP-SN20182' },
+            { sku: 'x10427-GRA-SN20205' },
+            { sku: 'x10437-SWT-SN20187' },
+            { sku: 'x10409-JRK-SN20158' },
+            { sku: 'x10224-CHP-SN20122' },
           ];
           break;
         case 3: orderProducts = [
@@ -202,7 +202,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           { sku: 'x10337-JRK-SN20148' },
           { sku: 'x10225-BAR-SN20154' },
           { sku: 'x10328-BAR-SN20178' },
-          { sku: 'x10366-GUM-SN20188' },
+          { sku: 'x10206-GUM-SN20127' },
           { sku: 'x10213-BAR-SN20123' },
           { sku: 'x10203-CER-SN20110' },
         ];
