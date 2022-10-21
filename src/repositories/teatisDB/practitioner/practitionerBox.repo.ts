@@ -277,7 +277,7 @@ implements PractitionerBoxRepositoryInterface
             product: {
               select: {
                 id: true,
-                productVendor: true,
+                productVendor: { select: { label: true } },
                 externalSku: true,
                 productImages: { select: { id: true, src: true, position: true } },
                 expertComment: true,
@@ -348,7 +348,7 @@ implements PractitionerBoxRepositoryInterface
           ingredientLabel: product.ingredientLabel,
           images: product.productImages,
           allergenLabel: product.allergenLabel,
-          vendor: product.productVendor,
+          vendor: product.productVendor.label,
           nutritionFact: product?.productNutritionFact? nutritionFactField(product.productNutritionFact): null,
         };
       })
@@ -381,7 +381,7 @@ implements PractitionerBoxRepositoryInterface
             product: {
               select: {
                 id: true,
-                productVendor: true,
+                productVendor: { select: { label: true } },
                 externalSku: true,
                 productImages: { select: { id: true, src: true, position: true } },
                 expertComment: true,
@@ -453,7 +453,7 @@ implements PractitionerBoxRepositoryInterface
           ingredientLabel: product.ingredientLabel,
           images: product.productImages,
           allergenLabel: product.allergenLabel,
-          vendor: product.productVendor,
+          vendor: product.productVendor.label,
           nutritionFact: product?.productNutritionFact? nutritionFactField(product.productNutritionFact): null,
         };
       })
