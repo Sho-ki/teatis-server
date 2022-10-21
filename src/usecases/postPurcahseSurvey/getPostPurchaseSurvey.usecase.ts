@@ -77,7 +77,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
       >;
       displayProducts.map((product) => {
         if (!product.vendor) {
-          product.vendor.label = 'Teatis Meal';
+          product.vendor = 'Teatis Meal';
         }
         if (orderProduct.sku === product.sku) {
           detailedProduct = {
