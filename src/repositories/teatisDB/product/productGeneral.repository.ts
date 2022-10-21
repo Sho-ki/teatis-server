@@ -695,7 +695,7 @@ implements ProductGeneralRepositoryInterface
         id: product.id,
         sku: product.externalSku,
         images: product.productImages,
-        vendor: product?.productVendor?.label || '',
+        vendor: product?.productVendor,
         label: product.label || '',
         expertComment: product.expertComment || '',
         name: product.name,

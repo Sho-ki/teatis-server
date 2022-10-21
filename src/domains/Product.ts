@@ -14,7 +14,7 @@ export interface DisplayProduct extends Product {
   images: ProductImage[];
   allergenLabel: string;
   nutritionFact: NutritionFact;
-  vendor: string;
+  vendor: ProductFeature;
 }
 
 export interface AnalyzeProduct extends Product {
