@@ -10,7 +10,7 @@ export const PRACTITIONER_BOX_PLANS ={
     merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC8zOTk0NjE0MjMxODY0Nw==',
     sellingPlanId: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi82MDM0MjI3NzU=',
     id: 6710679601207,
-    sku: 'NP-influencer-curate-box',
+    sku: 'NP-influencer-curate-box-8',
   },
 };
 
