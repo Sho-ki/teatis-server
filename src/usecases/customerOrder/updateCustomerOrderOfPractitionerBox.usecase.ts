@@ -182,8 +182,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10404-CHC-SN20199' },
             { sku: 'x10325-JRK-SN20177' },
             { sku: 'x10250-CER-SN20110' },
-            { sku: 'x10443-NP-SN20215' }, // brochure
           ];
+          if(new Date() >= new Date('2022-11-02')){
+            orderProducts.push({ sku: 'x10443-NP-SN20215' }); // brochure
+          }
           break;
         case 2:
           orderProducts = [
@@ -234,7 +236,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           orderProducts= orderProducts.slice(0, 8);
           break;
       }
-      note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+      note = 'Please ship with USPS First Class Parcel Only. ';
+      if(new Date() >= new Date('2022-11-02')){
+        note  += 'Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+      }
     }
     const transactionPrice = Number(subtotal_price);
     const [
