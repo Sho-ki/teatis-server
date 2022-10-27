@@ -183,7 +183,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10325-JRK-SN20177' },
             { sku: 'x10250-CER-SN20110' },
           ];
-          if(new Date() >= new Date('2022-11-02')){
+          if(new Date() >= new Date('2022-11-01')){
             orderProducts.push({ sku: 'x10443-NP-SN20215' }); // brochure
           }
           break;
@@ -192,7 +192,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10366-GUM-SN20188' },
             { sku: 'x10429-CHP-SN20206' },
             { sku: 'x10319-SWT-SN20176' },
-            { sku: 'x10351-CHP-SN20182' },
+            { sku: 'x10442-CHP-SN20214' },
             { sku: 'x10427-GRA-SN20205' },
             { sku: 'x10437-SWT-SN20187' },
             { sku: 'x10409-JRK-SN20158' },
@@ -237,7 +237,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           break;
       }
       note = 'Please ship with USPS First Class Parcel Only. ';
-      if(new Date() >= new Date('2022-11-02')){
+      if(new Date() >= new Date('2022-11-01')){
         note  += 'Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
       }
     }
