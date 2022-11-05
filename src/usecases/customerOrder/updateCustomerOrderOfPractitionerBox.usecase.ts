@@ -17,6 +17,10 @@ import { currentMonth } from '../utils/dates';
 import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
 import { WebhookEventRepositoryInterface } from '../../repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { ProductGeneralRepositoryInterface } from '../../repositories/teatisDB/product/productGeneral.repository';
+import * as ClientOAuth2 from 'client-oauth2';
+import { createGooglClientOptions } from '../utils/googleProvider';
+import { CustomerAuthRepositoryInterface } from '../../repositories/teatisDB/customer/customerAuth.repository';
+import { CreateCalendarEventInterface } from '../utils/createCalendarEvent';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -62,6 +66,11 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private webhookEventRepository: WebhookEventRepositoryInterface,
     @Inject('ProductGeneralRepositoryInterface')
     private productGeneralRepository: ProductGeneralRepositoryInterface,
+    @Inject('CustomerAuthRepositoryInterface')
+    private customerAuthRepository: CustomerAuthRepositoryInterface,
+    @Inject('CreateCalendarEventInterface')
+    private createCalendarEvent: CreateCalendarEventInterface,
+
   ) {}
 
   async updateCustomerOrderOfPractitionerBox({
@@ -247,6 +256,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       [, createPractitionerBoxHistoryError],
       [orderQueueOrdered, orderQueueOrderedError],
       [, updateOrderInformationError],
+      [customerAuth, getCustomerAuthError],
     ] = await Promise.all([
       this.shipheroRepository.updateCustomerOrder({
         orderId: order.orderId,
@@ -269,6 +279,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         status: 'ordered',
       }),
       this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note }),
+      this.customerAuthRepository.getCustomerAuthToken({ customerId: customer.id, provider: 'google' }),
     ]);
 
     if (updateOrderError) {
@@ -283,6 +294,13 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if(updateOrderInformationError){
       return [undefined, updateOrderInformationError];
     }
+    if(getCustomerAuthError){
+      return [undefined, getCustomerAuthError];
+    }
+
+    const client = new ClientOAuth2(createGooglClientOptions());
+    const token = client.createToken(customerAuth.token, customerAuth.refreshToken, customerAuth.tokenType, {});
+    await this.createCalendarEvent.createCalendarEvent({ customer, token });
 
     const [, postApiIdError] = await this.webhookEventRepository.postApiId({ apiId });
     if(postApiIdError){

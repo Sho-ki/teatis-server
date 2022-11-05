@@ -7,12 +7,6 @@ import { BoxType } from '@Domains/BoxType';
 import { CustomerBoxType } from '../../domains/CustomerBoxType';
 import { ReturnValueType } from '@Filters/customError';
 
-export interface PostPrePurchaseSurveyUsecaseRes {
-  customerId: number;
-  customerUuid: string;
-  recommendBoxType: string;
-}
-
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
     diabetes,
@@ -107,7 +101,6 @@ implements PostPrePurchaseSurveyUsecaseInterface
     if (createCustomerError) {
       return [undefined, createCustomerError];
     }
-
     return [
       {
         customerId: customer.id,
