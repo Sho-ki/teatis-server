@@ -10,6 +10,7 @@ import { AllExceptionsFilter } from './filter/allExceptions.filter';
 import { TerraModule } from './controllers/terra/terra.module';
 import { ShipheroKeyModule } from './controllers/systemCron/shipheroKey/shipheroKey.module';
 import { WebhookEventModule } from './controllers/systemCron/webhookEvent/webhookEvent.module';
+import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { WebhookEventModule } from './controllers/systemCron/webhookEvent/webhoo
     WebhookEventModule,
     ProductModule,
     TerraModule,
+    OAuth2Module,
     ScheduleModule.forRoot(),
   ],
 

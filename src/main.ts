@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const newrelic = require('newrelic');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -43,18 +44,48 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as Sentry from '@sentry/node';
 import { NewrelicInterceptor } from './newrelic.interceptor';
+import * as session from 'express-session';
+import * as createStore from 'connect-pg-simple';
+const SessionStore = createStore(session);
+const sessionStore = new SessionStore({
+  conString: process.env.DATABASE_URL,
+  tableName: 'CustomerSessionStore',
+});
+
+const expiresDate = new Date();
+expiresDate.setFullYear(expiresDate.getFullYear() + 1);
+
+const pgSimple = session({
+  name: 'teatis_session',
+  store: sessionStore,
+  secret: process.env.COOKIE_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { expires: expiresDate },
+});
 
 async function bootstrap() {
-
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const vercelOrigins = /^https:\/\/(.*)\.vercel\.app\/?$/;
+  const app = await NestFactory.create(
+    AppModule,
+    {
+      cors: {
+        origin: ['http://localhost:3000', 'https://app.teatismeal.com', vercelOrigins],
+        credentials: true,
+      },
+    },
+  );
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  Sentry.init({ dsn: process.env.SENTRY_DSN });
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true }),
   );
   if (process.env.ENV === 'production') {
     app.useGlobalInterceptors(new NewrelicInterceptor());
+    Sentry.init({ dsn: process.env.SENTRY_DSN });
   }
+
+  app.use(pgSimple);
+
   await app.listen(process.env.PORT || 8080);
 }
 bootstrap();
