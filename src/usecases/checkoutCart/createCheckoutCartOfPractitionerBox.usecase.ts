@@ -5,18 +5,21 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { ReturnValueType } from '@Filters/customError';
 
-import { PractitionerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
+import { PractitionerBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
+import { CustomerSessionRepositoryInterface } from '@Repositories/teatisDB/customer/customerSession.repository';
 
+export interface PractitionerBoxArgs extends PractitionerBoxDto {
+  sessionId:string;
+}
 export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
   createCheckoutCartOfPractitionerBox({
-    // boxType,
-    // deliveryInterval,
     uuid,
     practitionerBoxUuid,
-  }: PractitionerBoxDto): Promise<
+    sessionId,
+  }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   >;
 }
@@ -30,14 +33,15 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     private ShopifyRepository: ShopifyRepositoryInterface,
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('CustomerSessionRepositoryInterface')
+    private readonly customerSessionRepository: CustomerSessionRepositoryInterface,
   ) {}
 
   async createCheckoutCartOfPractitionerBox({
-    //   boxType,
-    //   deliveryInterval,
     uuid,
     practitionerBoxUuid,
-  }: PractitionerBoxDto): Promise<
+    sessionId,
+  }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }, { key: 'uuid', value: uuid }];
@@ -62,6 +66,12 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
       return [undefined, createCheckoutCartOfPractitionerBoxError];
     }
 
+    const [, upsertCustomerSessionError] =
+    await this.customerSessionRepository.upsetCustomerSession({ customerId: customer.id, sessionId });
+
+    if(upsertCustomerSessionError){
+      return [undefined, upsertCustomerSessionError];
+    }
     return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, undefined];
   }
 }

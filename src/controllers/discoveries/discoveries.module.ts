@@ -36,14 +36,35 @@ import { CreateCheckoutCartOfPractitionerMealBoxUsecase } from '@Usecases/checko
 import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
 import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { EmailModule } from './email/email.module';
-import { CreateCheckoutCartOfCustomerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
-import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
-import { CustomerProductsAutoSwap } from '../../usecases/utils/customerProductsAutoSwap';
+import { CreateCheckoutCartOfCustomerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
+import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { CustomerProductsAutoSwap } from '@Usecases/utils/customerProductsAutoSwap';
 import { WebhookEventRepository } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
+import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
+import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
+import { CreateCalendarEvent } from '@Usecases/utils/createCalendarEvent';
+import { GoogleCalendarRepository } from '@Repositories/googleOAuth2/googleCalendar.repository';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+
+    {
+      provide: 'GoogleCalendarRepositoryInterface',
+      useClass: GoogleCalendarRepository,
+    },
+    {
+      provide: 'CreateCalendarEventInterface',
+      useClass: CreateCalendarEvent,
+    },
+    {
+      provide: 'CustomerAuthRepositoryInterface',
+      useClass: CustomerAuthRepository,
+    },
+    {
+      provide: 'CustomerSessionRepositoryInterface',
+      useClass: CustomerSessionRepository,
+    },
     {
       provide: 'WebhookEventRepositoryInterface',
       useClass: WebhookEventRepository,

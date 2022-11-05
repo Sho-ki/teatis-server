@@ -8,8 +8,8 @@ import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { SocialMedia } from '@Domains/SocialMedia';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { MasterMonthlyBox } from '../../../domains/MasterMonthlyBox';
-import { Status } from '../../../domains/Status';
+import { MasterMonthlyBox } from '@Domains/MasterMonthlyBox';
+import { Status } from '@Domains/Status';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { nutritionFactField } from '../../utils/nutritionFactField';
@@ -375,51 +375,19 @@ implements PractitionerBoxRepositoryInterface
   Promise<ReturnValueType<PractitionerAndBox>> {
     const response = await this.prisma.practitionerBox.findUnique({
       where: { uuid: practitionerBoxUuid },
-      select: {
+      include: {
         intermediatePractitionerBoxProduct: {
-          select: {
+          include: {
             product: {
-              select: {
-                id: true,
-                productVendor: true,
-                externalSku: true,
-                productImages: { select: { id: true, src: true, position: true } },
-                expertComment: true,
-                glucoseValues: true,
-                label: true,
-                name: true,
+              include: {
+                productImages: true,
                 productNutritionFact: true,
-                ingredientLabel: true,
-                allergenLabel: true,
+                productVendor: true,
               },
             },
           },
         },
-        id: true,
-        uuid: true,
-        label: true,
-        description: true,
-        note: true,
-        practitioner: {
-          select: {
-            practitionerSocialMedia: {
-              select: {
-                instagram: true,
-                facebook: true,
-                twitter: true,
-                website: true,
-              },
-            },
-            id: true,
-            email: true,
-            uuid: true,
-            profileImage: true,
-            firstName: true,
-            lastName: true,
-            middleName: true,
-            message: true,
-          },
-        },
+        practitioner: { include: { practitionerSocialMedia: true } },
       },
     });
 

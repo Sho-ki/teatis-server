@@ -44,12 +44,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     sellingPlanId,
     attributes,
   }: CreateCartArgs): Promise<ReturnValueType<Cart>> {
-    const client = new GraphQLClient(endpoint, {
-      headers: {
-        // TODO: To .env file
-        'X-Shopify-Storefront-Access-Token': 'd710761c009d16ed459f7014d119093c',
-      },
-    });
+    const client = new GraphQLClient(endpoint, { headers: { 'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_TOKEN } });
     const sdk = getSdk(client);
     const res: CreateCartMutation = await sdk.CreateCart({
       input: {
