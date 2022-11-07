@@ -216,7 +216,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           { sku: 'x10328-BAR-SN20178' },
           { sku: 'x10206-GUM-SN20127' },
           { sku: 'x10213-BAR-SN20123' },
-          { sku: 'x10203-CER-SN20110' },
+          { sku: 'x10413-COK-SN20113' },
         ];
           break;
         case 4: orderProducts = [
