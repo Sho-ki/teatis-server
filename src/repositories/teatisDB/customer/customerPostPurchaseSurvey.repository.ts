@@ -193,6 +193,7 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
     title,
     content,
     reason,
+    glucoseImpact,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
     ReturnValueType<PostPurchaseSurveyAnswer>
@@ -213,6 +214,7 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
       content,
       reason,
       orderNumber,
+      glucoseImpact,
       answerCount: currentMaxAnswerCount,
     };
     const productSatisfactionUpdateQuery = {
@@ -226,6 +228,7 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
       content,
       reason,
       orderNumber,
+      glucoseImpact,
       answerCount: currentMaxAnswerCount,
     };
     if (answer.singleOption) {
