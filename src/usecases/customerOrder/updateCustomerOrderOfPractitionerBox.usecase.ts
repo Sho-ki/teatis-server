@@ -298,7 +298,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, getCustomerAuthError];
     }
 
-    const client = new ClientOAuth2(createGooglClientOptions());
+    const client = new ClientOAuth2(createGooglClientOptions(customer.uuid));
     const token = client.createToken(customerAuth.token, customerAuth.refreshToken, customerAuth.tokenType, {});
     await this.createCalendarEvent.createCalendarEvent({ customer, token });
 

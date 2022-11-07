@@ -46,27 +46,11 @@ import * as Sentry from '@sentry/node';
 import { NewrelicInterceptor } from './newrelic.interceptor';
 import * as session from 'express-session';
 import * as createStore from 'connect-pg-simple';
-const SessionStore = createStore(session);
-const sessionStore = new SessionStore({
-  conString: process.env.DATABASE_URL,
-  tableName: 'CustomerSessionStore',
-});
-
-const expiresDate = new Date();
-expiresDate.setFullYear(expiresDate.getFullYear() + 1);
-
-const pgSimple = session({
-  name: 'teatis_session',
-  store: sessionStore,
-  secret: process.env.COOKIE_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { expires: expiresDate },
-});
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const vercelOrigins = /^https:\/\/(.*)\.vercel\.app\/?$/;
-  const app = await NestFactory.create(
+  const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     {
       cors: {
@@ -75,6 +59,7 @@ async function bootstrap() {
       },
     },
   );
+  app.set('trust proxy', 1);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true }),
@@ -83,6 +68,26 @@ async function bootstrap() {
     app.useGlobalInterceptors(new NewrelicInterceptor());
     Sentry.init({ dsn: process.env.SENTRY_DSN });
   }
+
+  const SessionStore = createStore(session);
+  const sessionStore = new SessionStore({
+    conString: process.env.DATABASE_URL,
+    tableName: 'CustomerSessionStore',
+  });
+  const expiresDate = new Date();
+  expiresDate.setFullYear(expiresDate.getFullYear() + 1);
+  const pgSimple = session({
+    name: 'Ateatis_session',
+    store: sessionStore,
+    secret: process.env.COOKIE_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: expiresDate,
+      sameSite: 'none',
+      secure: true,
+    },
+  });
 
   app.use(pgSimple);
 
