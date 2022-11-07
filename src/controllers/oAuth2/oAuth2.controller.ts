@@ -41,12 +41,12 @@ export class OAuth2Controller {
   async oAuth2Callback(
     @Req() req:Request,
     @Param('provider') name: 'google',
-    @Query('uuid') uuid:any
+    @Query('state') state:string
   ) {
     if(name === 'google'){
       const[usecaseResponse, error] =
       await this.storeCustomerTokenUsecase.storeCustomerToken(
-        { originalUrl: req.originalUrl, client: this.client, uuid } );
+        { originalUrl: req.originalUrl, client: this.client, uuid: state } );
       if(error){
         return {};
       }

@@ -77,7 +77,7 @@ async function bootstrap() {
   const expiresDate = new Date();
   expiresDate.setFullYear(expiresDate.getFullYear() + 1);
   const pgSimple = session({
-    name: 'Ateatis_session',
+    name: 'teatis_session',
     store: sessionStore,
     secret: process.env.COOKIE_SECRET,
     resave: false,
