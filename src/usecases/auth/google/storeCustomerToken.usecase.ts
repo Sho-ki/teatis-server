@@ -2,18 +2,18 @@ import {  Inject, Injectable } from '@nestjs/common';
 import * as ClientOAuth2 from 'client-oauth2';
 
 import { ReturnValueType } from '@Filters/customError';
-import { CustomerSessionRepositoryInterface } from '@Repositories/teatisDB/customer/customerSession.repository';
 import {  CreateCalendarEventInterface } from '../../utils/createCalendarEvent';
-import { createGooglClientOptions } from '../../utils/googleProvider';
 import { Url } from '@Domains/Url';
+import {  CustomerGeneralRepositoryInterface } from '../../../repositories/teatisDB/customer/customerGeneral.repository';
 
 interface StoreCustomerTokenArgs {
   originalUrl:string;
-  sessionId:string;
+  client:ClientOAuth2;
+  uuid:string;
 }
 
 export interface StoreCustomerTokenUsecaseInterface {
-  storeCustomerToken( { originalUrl, sessionId }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>>;
+  storeCustomerToken( { originalUrl, client, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>>;
 }
 
 @Injectable()
@@ -21,21 +21,20 @@ export class StoreCustomerTokenUsecase
 implements StoreCustomerTokenUsecaseInterface
 {
   constructor(
-    @Inject('CustomerSessionRepositoryInterface')
-    private customerSessionRepository: CustomerSessionRepositoryInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('CreateCalendarEventInterface')
     private createCalendarEvent: CreateCalendarEventInterface,
   ) {}
 
-  async storeCustomerToken( { originalUrl, sessionId }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>> {
-    const client = new ClientOAuth2(createGooglClientOptions());
-
+  async storeCustomerToken( { originalUrl, client, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>> {
     const [customerSession, getCustomerBySessionId] =
-    await this.customerSessionRepository.getCustomerByCustomerSession({ sessionId });
+    await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if(getCustomerBySessionId){
       return [undefined, getCustomerBySessionId];
     }
-    const { email, id, uuid } = customerSession;
+
+    const { email, id } = customerSession;
     const token = await client.code.getToken(originalUrl);
     await this.createCalendarEvent.createCalendarEvent({ customer: { email, id, uuid }, token });
 
