@@ -234,8 +234,6 @@ model Product{
   updatedAt DateTime @updatedAt @default(now())
 }
 
-
-
 enum PreservationStyle {
   normal
   refrigerated
@@ -252,7 +250,6 @@ model ProductImage{
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now())
 }
-
 
 model IntermediateProductCookingMethod{
   product Product @relation(fields: [productId], references: [id])
@@ -286,7 +283,6 @@ model ProductCookingMethod{
   updatedAt DateTime @updatedAt @default(now())
 }
 
-
 model ProductFlavor{
   id       Int         @default(autoincrement()) @id
   label String 
@@ -306,7 +302,6 @@ model ProductVendor{
   updatedAt DateTime @updatedAt @default(now())
 }
 
-
 model IntermediateCustomerFlavorDislike{
   productFlavor ProductFlavor @relation(fields: [productFlavorId], references: [id])
   productFlavorId Int
@@ -317,7 +312,6 @@ model IntermediateCustomerFlavorDislike{
 
   @@id([productFlavorId, customerId])
 }
-
 
 model ProductCategory{
   id       Int         @default(autoincrement()) @id
@@ -331,7 +325,6 @@ model ProductCategory{
   updatedAt DateTime @updatedAt @default(now())
 }
 
-
 model IntermediateCustomerCategoryPreference{
   productCategory ProductCategory @relation(fields: [productCategoryId], references: [id])
   productCategoryId Int
@@ -343,7 +336,6 @@ model IntermediateCustomerCategoryPreference{
 
   @@id([productCategoryId, customerId])
 }
-
 
 model IntermediateProductIngredient{
   product Product @relation(fields: [productId], references: [id])
@@ -409,7 +401,6 @@ model IntermediateCustomerAllergen{
 
   @@id([customerId, productAllergenId])
 }
-
 
 model ProductNutritionFact{
   id                  Int             @default(autoincrement()) @id
@@ -534,6 +525,7 @@ model SurveyQuestionAnswer{
   answerNumeric Int?
   answerText String?
   answerBool Boolean?
+  glucoseImpact Int? // 0: NOT_SURE, 1: YES, 2: NO
   reason String?
   title String?
   content String?
@@ -543,7 +535,6 @@ model SurveyQuestionAnswer{
   orderNumber String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt @default(now()) 
-
 }
 
 model IntermediateSurveyQuestionAnswerProduct{

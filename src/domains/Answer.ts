@@ -1,3 +1,5 @@
+import { ProductHasGlucoseImpact } from './PostPurchaseSurvey';
+
 export interface Answer {
   id: number;
   surveyQuestionId: number;
@@ -15,4 +17,5 @@ export interface Answer {
   answerCount: number;
   productId?: number;
   orderNumber: string;
+  glucoseImpact?: ProductHasGlucoseImpact;
 }

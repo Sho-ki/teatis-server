@@ -38,6 +38,7 @@ implements PostPostPurchaseSurveyUsecaseInterface
     title,
     content,
     reason,
+    glucoseImpact,
   }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>> {
     const [answerCount, answerCountError] =
       await this.customerPostPurchaseSurveyRepository.getAnswerCount({ customerId });
@@ -72,6 +73,7 @@ implements PostPostPurchaseSurveyUsecaseInterface
           title,
           content,
           reason,
+          glucoseImpact,
           currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
         },
       );
