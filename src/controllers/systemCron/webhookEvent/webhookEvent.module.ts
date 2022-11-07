@@ -5,31 +5,45 @@ import { WebhookEventService } from './webhookEvent.service';
 import { WebhookEventRepository } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { CheckUpdateOrderUsecase } from '@Usecases/webhookEvent/checkUpdateOrder.usecase';
 import { PrismaService } from '../../../prisma.service';
-import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '../../../usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
-import { UpdateCustomerOrderOfCustomerBoxUsecase } from '../../../usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
-import { ShipheroRepository } from '../../../repositories/shiphero/shiphero.repository';
-import { ProductGeneralRepository } from '../../../repositories/teatisDB/product/productGeneral.repository';
-import { AnalyzePreferenceRepository } from '../../../repositories/dataAnalyze/dataAnalyze.respository';
-import { KlaviyoRepository } from '../../../repositories/klaviyo/klaviyo.repository';
-import { CustomerBoxRepository } from '../../../repositories/teatisDB/customer/customerBox.repository';
-import { CustomerGeneralRepository } from '../../../repositories/teatisDB/customer/customerGeneral.repository';
-import { CustomerPostPurchaseSurveyRepository } from '../../../repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
-import { CustomerPreferenceRepository } from '../../../repositories/teatisDB/customer/customerPreference.repository';
-import { CustomerPrePurchaseSurveyRepository } from '../../../repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
-import { OrderQueueRepository } from '../../../repositories/teatisDB/order/orderQueue.repository';
-import { PractitionerBoxRepository } from '../../../repositories/teatisDB/practitioner/practitionerBox.repo';
-import { PractitionerBoxOrderHistoryRepository } from '../../../repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
-import { CreateCheckoutCartOfCustomerBoxUsecase } from '../../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
-import { CreateCheckoutCartOfPractitionerBoxUsecase } from '../../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
-import { CreateCustomerUsecase } from '../../../usecases/utils/createCustomer';
-import { CustomerProductsAutoSwap } from '../../../usecases/utils/customerProductsAutoSwap';
-import { GetSuggestion } from '../../../usecases/utils/getSuggestion';
+import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
+import { UpdateCustomerOrderOfCustomerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
+import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { AnalyzePreferenceRepository } from '@Repositories/dataAnalyze/dataAnalyze.respository';
+import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
+import { CustomerBoxRepository } from '@Repositories/teatisDB/customer/customerBox.repository';
+import { CustomerGeneralRepository } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { CustomerPostPurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
+import { CustomerPreferenceRepository } from '@Repositories/teatisDB/customer/customerPreference.repository';
+import { CustomerPrePurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
+import { OrderQueueRepository } from '@Repositories/teatisDB/order/orderQueue.repository';
+import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxOrderHistoryRepository } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
+import { CreateCheckoutCartOfCustomerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
+import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
+import { CustomerProductsAutoSwap } from '@Usecases/utils/customerProductsAutoSwap';
+import { GetSuggestion } from '@Usecases/utils/getSuggestion';
+import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
+import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
 
 @Module({
-//   controllers: [WebhookEventService],
   exports: [WebhookEventService],
   providers: [
     WebhookEventService,
+    {
+      provide: 'CustomerAuthRepositoryInterface',
+      useClass: CustomerAuthRepository,
+    },
+    {
+      provide: 'CreateCalendarEventInterface',
+      useClass: CustomerAuthRepository,
+    },
+
+    {
+      provide: 'CustomerSessionRepositoryInterface',
+      useClass: CustomerSessionRepository,
+    },
     {
       provide: 'CheckUpdateOrderUsecaseInterface',
       useClass: CheckUpdateOrderUsecase,

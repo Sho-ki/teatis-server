@@ -16,6 +16,7 @@ import { GetPractitionerBoxDto } from '../dtos/getPractitionerBox';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
 import { UpsertRecurringPractitionerBoxDto } from '../dtos/upsertRecurringPractitionerBox';
 import { UpsertRecurringPractitionerBoxesUsecaseInterface } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
+
 @Controller('api/discovery')
 export class PractitionerBoxController {
   constructor(
@@ -38,9 +39,7 @@ export class PractitionerBoxController {
     let [usecaseResponse, error]: [PractitionerAndBox, Error] = [undefined, undefined];
     if (query.practitionerBoxUuid) {
       [usecaseResponse, error] =
-        await this.getPractitionerBoxByUuidUsecase.getPractitionerBoxByUuid(
-          query,
-        );
+        await this.getPractitionerBoxByUuidUsecase.getPractitionerBoxByUuid(query);
     } else if (query.email && query.label) {
       [usecaseResponse, error] =
         await this.getPractitionerBoxByLabelUsecase.getPractitionerBoxByLabel(

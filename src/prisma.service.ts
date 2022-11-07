@@ -1,5 +1,6 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { fieldEncryptionMiddleware } from 'prisma-field-encryption';
 
 @Injectable()
 export class PrismaService
@@ -20,6 +21,9 @@ export class PrismaService
     });
   }
   async onModuleInit() {
+    this.$use(
+      fieldEncryptionMiddleware({ encryptionKey: process.env.PRISMA_ENCRYPT_KEY })
+    );
     await this.$connect();
   }
   async enableShutdownHooks(app: INestApplication) {

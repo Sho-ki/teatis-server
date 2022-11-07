@@ -6,6 +6,7 @@ import {
   Post,
   Query,
   Res,
+  Session,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -45,10 +46,10 @@ import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
 import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
 import { ProductOptions } from '@Domains/ProductOptions';
 import { CustomerBoxType } from '@Domains/CustomerBoxType';
-import { NutritionNeed } from '../../domains/NutritionNeed';
-import { CreateCheckoutCartOfCustomerBoxUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
+import { NutritionNeed } from '@Domains/NutritionNeed';
+import { CreateCheckoutCartOfCustomerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
 import { CreateCheckoutCartDto } from './dtos/createCheckoutCartOfCustomerBoxDto';
-import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
+import { CreateCheckoutCartOfPractitionerBoxUsecaseInterface } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -292,9 +293,12 @@ export class DiscoveriesController {
   // Post: api/discovery/box-cart
   @Post('box-cart')
   async createCheckoutCartOfCustomerBox(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Session() session: Record<string, any>,
     @Body() body: CreateCheckoutCartDto,
     @Res() response: Response<CustomerCheckoutCart | Error>,
   ) {
+    session['sessionId'] = session['sessionId'] || session.id;
     const { boxType } = body;
 
     if(boxType === 'CustomerBox'){
@@ -309,7 +313,7 @@ export class DiscoveriesController {
     } else if(boxType === 'PractitionerBox'){
       const [usecaseResponse, error] =
       await this.CreateCheckoutCartOfPractitionerBoxUsecase.createCheckoutCartOfPractitionerBox(
-        body,
+        { ...body, sessionId: session['sessionId'] }
       );
       if (error) {
         return response.status(500).send(error);

@@ -12,12 +12,16 @@ import { ProductGeneralRepository } from '@Repositories/teatisDB/product/product
 import { UpsertRecurringPractitionerBoxesUsecase } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 import { CreateMasterMonthlyBoxUsecase } from '@Usecases/masterMonthlyBox/createMasterMonthlyBox.usecase';
 import { MasterMonthlyBoxRepository } from '@Repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
-import { TransactionOperator } from '../../../repositories/utils/transactionOperator';
+import { TransactionOperator } from '@Repositories/utils/transactionOperator';
+import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
 
 @Module({
   controllers: [PractitionerBoxController],
   providers: [
-
+    {
+      provide: 'CustomerSessionRepositoryInterface',
+      useClass: CustomerSessionRepository,
+    },
     {
       provide: 'TransactionOperatorInterface',
       useClass: TransactionOperator,
