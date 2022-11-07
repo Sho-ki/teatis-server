@@ -18,6 +18,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
   createCheckoutCartOfPractitionerBox({
     uuid,
     practitionerBoxUuid,
+    discountCode,
     sessionId,
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
@@ -40,6 +41,7 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
   async createCheckoutCartOfPractitionerBox({
     uuid,
     practitionerBoxUuid,
+    discountCode,
     sessionId,
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
@@ -54,11 +56,11 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     }
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart({
-        discountCode: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid) && new Date() >= new Date('2022-10-01')?
+        discountCode: discountCode? discountCode: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid) ?
           DISCOUNT_CODES.testPractitionerBox.firstPurchase: DISCOUNT_CODES.practitionerBox.firstPurchase,
-        merchandiseId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)&& new Date() >= new Date('2022-10-01')?
+        merchandiseId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
           PRACTITIONER_BOX_PLANS.customized.merchandiseId: PRACTITIONER_BOX_PLANS.original.merchandiseId,
-        sellingPlanId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)&& new Date() >= new Date('2022-10-01')?
+        sellingPlanId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
           PRACTITIONER_BOX_PLANS.customized.sellingPlanId:PRACTITIONER_BOX_PLANS.original.sellingPlanId,
         attributes,
       });

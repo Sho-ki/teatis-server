@@ -13,6 +13,7 @@ export interface CreateCheckoutCartOfCustomerBoxUsecaseInterface {
     boxName,
     boxType,
     deliveryInterval,
+    discountCode,
     uuid,
   }: CustomerBoxDto): Promise<
     ReturnValueType<CustomerCheckoutCart>
@@ -33,6 +34,7 @@ implements CreateCheckoutCartOfCustomerBoxUsecaseInterface
   async createCheckoutCartOfCustomerBox({
     boxName,
     deliveryInterval,
+    discountCode,
     uuid,
   }: CustomerBoxDto): Promise<
     ReturnValueType<CustomerCheckoutCart>
@@ -41,7 +43,7 @@ implements CreateCheckoutCartOfCustomerBoxUsecaseInterface
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if (getCustomerError) {
-      return [null, getCustomerError];
+      return [undefined, getCustomerError];
     }
     let merchandiseId:string,
       sellingPlanId:string = undefined;
@@ -88,7 +90,7 @@ implements CreateCheckoutCartOfCustomerBoxUsecaseInterface
     }
     const [cart, createCheckoutCartOfCustomerBoxError] =
       await this.ShopifyRepository.createCart({
-        discountCode: DISCOUNT_CODES.customerBox.firstPurchase,
+        discountCode: discountCode || DISCOUNT_CODES.customerBox.firstPurchase,
         merchandiseId,
         sellingPlanId,
         attributes,
@@ -97,6 +99,6 @@ implements CreateCheckoutCartOfCustomerBoxUsecaseInterface
       return [null, createCheckoutCartOfCustomerBoxError];
     }
 
-    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, null];
+    return [{ checkoutUrl: cart.checkoutUrl, email: customer.email }, undefined];
   }
 }

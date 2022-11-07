@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CustomerBoxDto{
   @IsString()
@@ -12,6 +12,10 @@ export class CustomerBoxDto{
 
   @IsString()
     boxName: 'HC' | 'HCLS';
+
+  @IsString()
+  @IsOptional()
+    discountCode?:string;
 }
 
 export class PractitionerBoxDto{
@@ -26,6 +30,10 @@ export class PractitionerBoxDto{
 
   @IsString()
     practitionerBoxUuid: string;
+
+  @IsString()
+  @IsOptional()
+    discountCode?:string;
 }
 
 export type CreateCheckoutCartDto = CustomerBoxDto | PractitionerBoxDto;
