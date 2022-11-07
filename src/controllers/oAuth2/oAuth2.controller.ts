@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Controller, Get, Inject, Param, Redirect, Req, Res, Session } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Query, Redirect, Req, Res, Session } from '@nestjs/common';
 import { StoreCustomerTokenUsecaseInterface } from '@Usecases/auth/google/storeCustomerToken.usecase';
 import * as ClientOAuth2 from 'client-oauth2';
 import { createGooglClientOptions } from '@Usecases/utils/googleProvider';
@@ -7,6 +7,7 @@ import { Request } from 'express';
 import { CustomerAuthDto } from './dtos/customerAuthDto';
 import { CheckHasValidTokenUsecaseInterface } from '@Usecases/auth/google/checkHasValidToken.usecase';
 import { Response } from 'express';
+import { GetCustomerBySessionIdUsecaseInterface } from '../../usecases/auth/google/getCustomerBySessionId.usecase';
 
 @Controller('api/oauth2')
 export class OAuth2Controller {
@@ -16,14 +17,21 @@ export class OAuth2Controller {
     private storeCustomerTokenUsecase: StoreCustomerTokenUsecaseInterface,
     @Inject('CheckHasValidTokenUsecaseInterface')
     private checkHasValidTokenUsecase: CheckHasValidTokenUsecaseInterface,
+    @Inject('GetCustomerBySessionIdUsecaseInterface')
+    private getCustomerBySessionIdUsecase: GetCustomerBySessionIdUsecaseInterface,
 
   ) {}
 
   @Get('auth/:provider')
   @Redirect()
-  async getAuthUrl(@Param('provider') name: 'google') {
+  async getAuthUrl(@Param('provider') name: 'google', @Session() session: Record<string, any>,) {
+    const sessionId = session['sessionId'];
+    const [usecaseResponse, error] = await this.getCustomerBySessionIdUsecase.getCustomerBySessionId({ sessionId });
+    if(error){
+      return [undefined, error];
+    }
     if(name === 'google'){
-      this.client = new ClientOAuth2(createGooglClientOptions());
+      this.client = new ClientOAuth2(createGooglClientOptions(usecaseResponse.uuid));
       const url = this.client.code.getUri();
       return { url };
     } }
@@ -31,13 +39,14 @@ export class OAuth2Controller {
   @Get('callback/:provider')
   @Redirect()
   async oAuth2Callback(
-    @Session() session: Record<string, any>,
     @Req() req:Request,
     @Param('provider') name: 'google',
+    @Query('uuid') uuid:any
   ) {
     if(name === 'google'){
       const[usecaseResponse, error] =
-      await this.storeCustomerTokenUsecase.storeCustomerToken( { originalUrl: req.originalUrl, sessionId: session['sessionId'] } );
+      await this.storeCustomerTokenUsecase.storeCustomerToken(
+        { originalUrl: req.originalUrl, client: this.client, uuid } );
       if(error){
         return {};
       }

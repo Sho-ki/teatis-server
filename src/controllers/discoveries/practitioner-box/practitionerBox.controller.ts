@@ -6,6 +6,7 @@ import {
   Post,
   Query,
   Res,
+  Session,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { CreatePractitionerBoxDto } from '../dtos/createPractitionerBox';
@@ -32,10 +33,13 @@ export class PractitionerBoxController {
   // Get: api/discovery/practitioner-box
   @Get('practitioner-box')
   async getPractitionerBox(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Session() session: Record<string, any>,
     @Query()
       query: GetPractitionerBoxDto,
     @Res() response: Response<PractitionerAndBox | Error>,
   ) {
+    session['sessionId'] = session['sessionId'] || session.id;
     let [usecaseResponse, error]: [PractitionerAndBox, Error] = [undefined, undefined];
     if (query.practitionerBoxUuid) {
       [usecaseResponse, error] =
