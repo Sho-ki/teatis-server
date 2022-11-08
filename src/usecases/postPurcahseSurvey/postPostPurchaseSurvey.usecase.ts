@@ -16,6 +16,7 @@ export interface PostPostPurchaseSurveyUsecaseInterface {
     title,
     content,
     reason,
+    glucoseImpact,
   }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>>;
 }
 

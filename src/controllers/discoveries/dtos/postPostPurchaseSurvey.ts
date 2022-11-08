@@ -44,6 +44,7 @@ export class PostPostPurchaseSurveyDto {
   @IsString()
     reason?: string;
 
+  @IsOptional()
   @IsNumber()
-    glucoseImpact: ProductHasGlucoseImpact;
+    glucoseImpact?: ProductHasGlucoseImpact;
 }

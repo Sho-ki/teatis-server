@@ -25,7 +25,7 @@ export interface SurveyQuestions {
   reason?: string;
   title?: string;
   content?: string;
-  glucoseImpact: ProductHasGlucoseImpact;
+  glucoseImpact?: ProductHasGlucoseImpact;
   product?: {
     id: number;
     label: string;
@@ -41,7 +41,7 @@ interface QuestionOption {
 }
 
 export enum ProductHasGlucoseImpact {
-  Unknown,
-  Yes,
-  No
+  Unknown = -1,
+  Yes = 1,
+  No = 2,
 }

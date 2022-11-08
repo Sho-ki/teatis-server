@@ -37,7 +37,7 @@ interface PostPostPurchaseSurveyCustomerAnswerArgs {
   title?: string;
   content?: string;
   reason?: string;
-  glucoseImpact: ProductHasGlucoseImpact;
+  glucoseImpact?: ProductHasGlucoseImpact;
   currentMaxAnswerCount: number;
 }
 
