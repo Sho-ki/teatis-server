@@ -543,7 +543,7 @@ model SurveyQuestionAnswer {
   answerCount                             Int?
   productId                               Int?
   orderNumber                             String?
-  glucoseImpact                           Int?                                      // 0: NOT_SURE, 1: YES, 2: NO
+  glucoseImpact                           Int?                                      // -1: NOT_SURE, 1: YES, 2: NO
   createdAt                               DateTime                                  @default(now())
   updatedAt                               DateTime                                  @default(now()) @updatedAt
   responseId                              String?                                   @unique
