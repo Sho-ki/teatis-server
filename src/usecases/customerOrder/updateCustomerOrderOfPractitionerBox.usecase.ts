@@ -199,9 +199,9 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         case 2:
           orderProducts = [
             { sku: 'x10366-GUM-SN20188' },
-            { sku: 'x10429-CHP-SN20206' },
+            { sku: 'x10441-SWT-SN20141' },
             { sku: 'x10319-SWT-SN20176' },
-            { sku: 'x10442-CHP-SN20214' },
+            { sku: 'x10221-CHP-SN20101' },
             { sku: 'x10427-GRA-SN20205' },
             { sku: 'x10437-SWT-SN20187' },
             { sku: 'x10409-JRK-SN20158' },
@@ -223,7 +223,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           { sku: 'x10226-CHP-SN20118' },
           { sku: 'x10354-CHC-SN20183' },
           { sku: 'x10324-JRK-SN20177' },
-          { sku: 'x10328-BAR-SN20178' },
+          { sku: 'x10333-BAR-SN20178' },
           { sku: 'x10399-BAR-SN20197' },
           { sku: 'x10365-SWT-SN20187' },
           { sku: 'x10394-JRK-SN20195' },
@@ -231,10 +231,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         ];
           break;
         case 5: orderProducts = [
-          { sku: 'x10403-CHC-SN20199' },
+          { sku: 'x10405-CHC-SN20199' },
           { sku: 'x10437-SWT-SN20187' },
           { sku: 'x10220-SWT-SN20111' },
-          { sku: 'x10272-CHP-SN20144' },
+          { sku: 'x10351-CHP-SN20182' },
           { sku: 'x10430-CHP-SN20206' },
           { sku: 'x10420-CER-SN20110' },
           { sku: 'x10408-GUM-SN20201' },
@@ -298,9 +298,11 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, getCustomerAuthError];
     }
 
-    const client = new ClientOAuth2(createGooglClientOptions(customer.uuid));
-    const token = client.createToken(customerAuth.token, customerAuth.refreshToken, customerAuth.tokenType, {});
-    await this.createCalendarEvent.createCalendarEvent({ customer, token });
+    if(customerOrderCount.orderCount >= 2 && customerAuth.isAuthenticated){
+      const client = new ClientOAuth2(createGooglClientOptions(customer.uuid));
+      const token = client.createToken(customerAuth.token, customerAuth.refreshToken, customerAuth.tokenType, {});
+      await this.createCalendarEvent.createCalendarEvent({ customer, token });
+    }
 
     const [, postApiIdError] = await this.webhookEventRepository.postApiId({ apiId });
     if(postApiIdError){
