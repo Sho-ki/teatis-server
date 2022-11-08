@@ -6,6 +6,7 @@ import { CustomerAnswer } from '@Domains/CustomerAnswer';
 import { PrismaService } from '../../../prisma.service';
 import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
 import { ReturnValueType } from '@Filters/customError';
+import { ProductHasGlucoseImpact } from '@Domains/PostPurchaseSurvey';
 
 interface GetCustomerAnswersArgs {
   email: string;
@@ -36,6 +37,7 @@ interface PostPostPurchaseSurveyCustomerAnswerArgs {
   title?: string;
   content?: string;
   reason?: string;
+  glucoseImpact?: ProductHasGlucoseImpact;
   currentMaxAnswerCount: number;
 }
 
@@ -64,6 +66,7 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
     title,
     content,
     reason,
+    glucoseImpact,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
     ReturnValueType<PostPurchaseSurveyAnswer>
@@ -134,11 +137,11 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
             answerCount: true,
             productId: true,
             orderNumber: true,
+            glucoseImpact: true,
           },
         },
       },
     });
-
     const customerAnswers: Answer[] = [];
     for (const customerAnswer of getCustomerRes.surveyQuestionAnswer) {
       const answer: Answer = {
@@ -165,6 +168,7 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
         answerCount: customerAnswer.answerCount,
         productId: customerAnswer?.productId,
         orderNumber: customerAnswer.orderNumber,
+        glucoseImpact: customerAnswer.glucoseImpact,
       };
       customerAnswers.push(answer);
     }
@@ -189,6 +193,7 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
     title,
     content,
     reason,
+    glucoseImpact,
     currentMaxAnswerCount,
   }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
     ReturnValueType<PostPurchaseSurveyAnswer>
@@ -198,54 +203,45 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
       create: undefined,
       update: undefined,
     };
+    const productSatisfactionCreateQuery = {
+      customer: { connect: { id: customerId } },
+      surveyQuestion: { connect: { id } },
+      product: productId
+        ? { connect: { id: productId } }
+        : {},
+      responseId,
+      title,
+      content,
+      reason,
+      orderNumber,
+      glucoseImpact,
+      answerCount: currentMaxAnswerCount,
+    };
+    const productSatisfactionUpdateQuery = {
+      customer: { connect: { id: customerId } },
+      surveyQuestion: { connect: { id } },
+      product: productId
+        ? { connect: { id: productId } }
+        : {},
+      responseId,
+      title,
+      content,
+      reason,
+      orderNumber,
+      glucoseImpact,
+      answerCount: currentMaxAnswerCount,
+    };
     if (answer.singleOption) {
       prismaQuery = {
         ...prismaQuery,
-        create: {
-          customer: { connect: { id: customerId } },
-          surveyQuestion: { connect: { id } },
-          product: productId
-            ? { connect: { id: productId } }
-            : {},
-          answerOption: { connect: { id: answer.singleOption.id } },
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
-        },
-        update: {
-          customer: { connect: { id: customerId } },
-          surveyQuestion: { connect: { id } },
-          product: productId
-            ? { connect: { id: productId } }
-            : {},
-          answerOption: { connect: { id: answer.singleOption.id } },
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
-        },
+        create: { ...productSatisfactionCreateQuery, answerOption: { connect: { id: answer.singleOption.id } } },
+        update: { ...productSatisfactionUpdateQuery, answerOption: { connect: { id: answer.singleOption.id } } },
       };
     } else if (answer.multipleOptions) {
       prismaQuery = {
         ...prismaQuery,
         create: {
-          customer: { connect: { id: customerId } },
-          surveyQuestion: { connect: { id } },
-
-          product: productId
-            ? { connect: { id: productId } }
-            : {},
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
+          ...productSatisfactionCreateQuery,
           intermediateSurveyQuestionAnswerProduct: {
             create: answer.multipleOptions.map((option) => {
               return { surveyQuestionOptionId: option.id };
@@ -253,15 +249,8 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
           },
         },
         update: {
-          customer: { connect: { id: customerId } },
-          surveyQuestion: { connect: { id } },
+          ...productSatisfactionUpdateQuery,
           product: { connect: { id: productId } },
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
           // intermediateSurveyQuestionAnswerProduct: {
           //   // needs to be updated
           //   deleteMany: {},
@@ -275,36 +264,16 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
       prismaQuery = {
         ...prismaQuery,
         create: {
-          customer: { connect: { id: customerId } },
-          surveyQuestion: { connect: { id } },
-          product: productId
-            ? { connect: { id: productId } }
-            : {},
+          ...productSatisfactionCreateQuery,
           answerBool: answer.bool,
           answerNumeric: answer.numeric,
           answerText: answer.text,
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
         },
         update: {
-          customer: { connect: { id: customerId } },
-          surveyQuestion: { connect: { id } },
-          product: productId
-            ? { connect: { id: productId } }
-            : {},
+          ...productSatisfactionUpdateQuery,
           answerBool: answer.bool,
           answerNumeric: answer.numeric,
           answerText: answer.text,
-          responseId,
-          title,
-          content,
-          reason,
-          orderNumber,
-          answerCount: currentMaxAnswerCount,
         },
       };
     }

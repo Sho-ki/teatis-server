@@ -132,6 +132,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
         reason: undefined,
         title: undefined,
         content: undefined,
+        glucoseImpact: undefined,
       };
       if (question.label.includes('${PRODUCT_NAME}')) {
         for (const product of detailedProductList) {
@@ -183,6 +184,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
             : undefined;
 
           question.responseId = customerAns.responseId;
+          question.glucoseImpact = customerAns.glucoseImpact;
 
           if (customerAns.surveyQuestionId === question.id) {
             switch (question.answerType) {
@@ -221,7 +223,6 @@ implements GetPostPurchaseSurveyUsecaseInterface
         }
       }
     }
-
     return [personalizedPostPurchaseSurveyQuestions, undefined];
   }
 }
