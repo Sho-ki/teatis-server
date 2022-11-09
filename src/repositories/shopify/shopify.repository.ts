@@ -15,7 +15,7 @@ interface GetOrderCountArgs {
 interface CreateCartArgs {
   discountCode?: string;
   merchandiseId: string;
-  sellingPlanId: string;
+  sellingPlanId?: string;
   attributes: { key: string, value: string }[];
 }
 

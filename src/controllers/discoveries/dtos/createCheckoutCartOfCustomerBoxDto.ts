@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CustomerBoxDto{
   @IsString()
@@ -34,6 +34,10 @@ export class PractitionerBoxDto{
   @IsString()
   @IsOptional()
     discountCode?:string;
+
+  @IsBoolean()
+  @IsOptional()
+    isOneTimePurchase?: boolean;
 }
 
 export type CreateCheckoutCartDto = CustomerBoxDto | PractitionerBoxDto;
