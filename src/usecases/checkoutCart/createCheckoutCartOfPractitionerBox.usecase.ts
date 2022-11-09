@@ -55,15 +55,15 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
-    const merchandiseId__ = isOneTimePurchase
-      ? PRACTITIONER_BOX_PLANS.oneTimePurchase.merchandiseId
-      : PRACTITIONER_BOX_PLANS.original.merchandiseId;
     const isTest = TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid);
     const discountCode_ = discountCode || isTest
       ? DISCOUNT_CODES.testPractitionerBox.firstPurchase
       : DISCOUNT_CODES.practitionerBox.firstPurchase;
-    const merchandiseId_ = isTest
+    const merchandiseId__ = isTest
       ? PRACTITIONER_BOX_PLANS.customized.merchandiseId
+      : PRACTITIONER_BOX_PLANS.original.merchandiseId;
+    const merchandiseId_ = isOneTimePurchase
+      ? PRACTITIONER_BOX_PLANS.oneTimePurchase.merchandiseId
       : merchandiseId__;
     const sellingPlanId_ = isTest
       ? PRACTITIONER_BOX_PLANS.customized.sellingPlanId
