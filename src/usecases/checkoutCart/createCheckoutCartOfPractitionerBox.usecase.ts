@@ -20,6 +20,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
     practitionerBoxUuid,
     discountCode,
     sessionId,
+    isOneTimePurchase,
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   >;
@@ -43,27 +44,40 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     practitionerBoxUuid,
     discountCode,
     sessionId,
+    isOneTimePurchase,
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   > {
     const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }, { key: 'uuid', value: uuid }];
-
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
+    const merchandiseId__ = isOneTimePurchase
+      ? PRACTITIONER_BOX_PLANS.oneTimePurchase.merchandiseId
+      : PRACTITIONER_BOX_PLANS.original.merchandiseId;
+    const isTest = TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid);
+    const discountCode_ = discountCode || isTest
+      ? DISCOUNT_CODES.testPractitionerBox.firstPurchase
+      : DISCOUNT_CODES.practitionerBox.firstPurchase;
+    const merchandiseId_ = isTest
+      ? PRACTITIONER_BOX_PLANS.customized.merchandiseId
+      : merchandiseId__;
+    const sellingPlanId_ = isTest
+      ? PRACTITIONER_BOX_PLANS.customized.sellingPlanId
+      : PRACTITIONER_BOX_PLANS.original.sellingPlanId;
+    const createCartArgs = {
+      merchandiseId: merchandiseId_,
+      attributes,
+    };
     const [cart, createCheckoutCartOfPractitionerBoxError] =
-      await this.ShopifyRepository.createCart({
-        discountCode: discountCode? discountCode: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid) ?
-          DISCOUNT_CODES.testPractitionerBox.firstPurchase: DISCOUNT_CODES.practitionerBox.firstPurchase,
-        merchandiseId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
-          PRACTITIONER_BOX_PLANS.customized.merchandiseId: PRACTITIONER_BOX_PLANS.original.merchandiseId,
-        sellingPlanId: TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)?
-          PRACTITIONER_BOX_PLANS.customized.sellingPlanId:PRACTITIONER_BOX_PLANS.original.sellingPlanId,
-        attributes,
-      });
+      await this.ShopifyRepository.createCart(
+        isOneTimePurchase
+          ? createCartArgs
+          : { ...createCartArgs, discountCode: discountCode_, sellingPlanId: sellingPlanId_ }
+      );
     if (createCheckoutCartOfPractitionerBoxError) {
       return [undefined, createCheckoutCartOfPractitionerBoxError];
     }
