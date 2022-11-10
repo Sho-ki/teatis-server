@@ -52,7 +52,7 @@ on:
 
 env:
   PROJECT_ID: teatis-discovery
-  SERVICE: teatis-discovery
+  SERVICE: teatis-server
   REGION: us-central1
 
 jobs:
