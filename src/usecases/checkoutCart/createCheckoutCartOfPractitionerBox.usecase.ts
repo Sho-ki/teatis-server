@@ -48,6 +48,7 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   > {
+
     const attributes: { key: string, value: string }[] = [{ key: 'practitionerBoxUuid', value: practitionerBoxUuid }, { key: 'uuid', value: uuid }];
     const [customer, getCustomerError] =
       await this.customerGeneralRepository.getCustomerByUuid({ uuid });
@@ -56,9 +57,9 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
       return [undefined, getCustomerError];
     }
     const isTest = TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid);
-    const discountCode_ = discountCode || isTest
+    const discountCode_ = discountCode || (isTest
       ? DISCOUNT_CODES.testPractitionerBox.firstPurchase
-      : DISCOUNT_CODES.practitionerBox.firstPurchase;
+      : DISCOUNT_CODES.practitionerBox.firstPurchase);
     const merchandiseId__ = isTest
       ? PRACTITIONER_BOX_PLANS.customized.merchandiseId
       : PRACTITIONER_BOX_PLANS.original.merchandiseId;
