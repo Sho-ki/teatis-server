@@ -742,3 +742,7 @@ enum ActiveStatus {
   active
   inactive
 }
+
+model USER {
+  id               Int          @id @default(autoincrement())
+}
