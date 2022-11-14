@@ -742,3 +742,11 @@ enum ActiveStatus {
   active
   inactive
 }
+
+
+
+model Post {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  lastRunAt     DateTime
+}
