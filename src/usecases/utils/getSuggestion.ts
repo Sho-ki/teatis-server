@@ -133,7 +133,7 @@ export class GetSuggestion implements GetSuggestionInterface {
   }: GetSuggestionArgs): Promise<[GetSuggestionRes?, Error?]> {
     let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
-      await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
+      await this.shipheroRepository.getLastCustomerOrder({ email: customer.email, uuid: customer.uuid });
     if (getLastCustomerOrderError) {
       return [undefined, getLastCustomerOrderError];
     }

@@ -1,6 +1,6 @@
-query getLastFulfilledOrderByEmail ($email:String!) {
-  orders(email: $email) {
-    data(last: 2) {
+query getLastOrderByUuid ($uuid:String!) {
+  orders(partner_order_id: $uuid) {
+      data(last:1) {
       edges {
         node {
           id
@@ -8,10 +8,11 @@ query getLastFulfilledOrderByEmail ($email:String!) {
           fulfillment_status
           order_date
           email
+		  partner_order_id
           line_items {
             edges {
               node {
-              fulfillment_status
+				fulfillment_status
                 product_name
                 sku
               }

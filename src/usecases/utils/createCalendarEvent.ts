@@ -57,7 +57,7 @@ export class CreateCalendarEvent implements CreateCalendarEventInterface {
     // Refresh the current users access token.
     await token.refresh().then(async(updatedUser) => {
       const [customerLastOrder, getCustomerLastOrder] =
-            await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
+            await this.shipheroRepository.getLastCustomerOrder({ email: customer.email, uuid: customer.uuid });
       if(getCustomerLastOrder){
         return [undefined, getCustomerLastOrder];
       }

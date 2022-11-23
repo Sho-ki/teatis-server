@@ -56,7 +56,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
 
     const [customerOrder, getOrderError] = orderNumber
       ? await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber })
-      : await this.shipheroRepository.getLastCustomerOrder({ email: customer.email });
+      : await this.shipheroRepository.getLastCustomerOrder({ email: customer.email, uuid });
 
     if (getOrderError) {
       return [undefined, getOrderError];

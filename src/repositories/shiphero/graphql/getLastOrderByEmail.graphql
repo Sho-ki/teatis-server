@@ -14,12 +14,6 @@ query getLastOrderByEmail ($email:String!) {
               fulfillment_status
                 product_name
                 sku
-                product{
-									kit
-									kit_components{
-									  sku
-								  }
-								}
               }
             }
           }
