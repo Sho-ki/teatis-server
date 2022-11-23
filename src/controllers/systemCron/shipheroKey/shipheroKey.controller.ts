@@ -11,11 +11,13 @@ export class ShipheroKeyController {
   ) {}
   @Post('shiphero-key')
   async updateShipherokey(@Res() response: Response<Status | Error>) {
+    if(process.env.ENV !== 'production') return response.status(200).send({ success: true });
     const [usecaseResponse, error] =
       await this.updateShipheoKeyUsecaseInterface.updateShipheroKey();
     if (error) {
       return response.status(500).send(error);
     }
     return response.status(200).send(usecaseResponse);
+
   }
 }

@@ -165,7 +165,7 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
         orderNumber: name,
         warehouseCode: 'CLB-DB',
       }),
-      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId }),
+      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, uuid }),
     ]);
     if (updateOrderError) {
       return [undefined, updateOrderError];
