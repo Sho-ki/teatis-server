@@ -82,25 +82,13 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     practitionerBoxUuid,
     admin_graphql_api_id: apiId,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
-    let [customer, getCustomerError] =
-      await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email });
+    const [customer, getCustomerError] =
+      await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
 
-    // Swap user's email address if pre-purchase email and payment email are different
-    if (!customer.email) {
-      [customer, getCustomerError] =
-        await this.customerGeneralRepository.updateCustomerEmailByUuid({
-          uuid,
-          newEmail: shopifyCustomer.email,
-        });
-
-      if (getCustomerError) {
-        return [undefined, getCustomerError];
-      }
-    }
     const [orderQueueScheduled, orderQueueScheduledError] =
       await this.orderQueueRepository.updateOrderQueue({
         customerId: customer.id,
@@ -245,10 +233,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           orderProducts= orderProducts.slice(0, 8);
           break;
       }
-      note = 'Please ship with USPS First Class Parcel Only. ';
-      if(new Date() >= new Date('2022-11-01')){
-        note  += 'Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
-      }
+      note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
     }
     const transactionPrice = Number(subtotal_price);
     const [
@@ -278,7 +263,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         orderNumber: name,
         status: 'ordered',
       }),
-      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note }),
+      this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note, uuid }),
       this.customerAuthRepository.getCustomerAuthToken({ customerId: customer.id, provider: 'google' }),
     ]);
 

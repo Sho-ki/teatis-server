@@ -1,4 +1,4 @@
-query getOrderProductsByOrderNumber ($orderNumber:String!){
+query getOrderByOrderNumber ($orderNumber:String!){
   orders(order_number: $orderNumber) {
     data(last: 1) {
       edges {
@@ -16,12 +16,6 @@ query getOrderProductsByOrderNumber ($orderNumber:String!){
               fulfillment_status
                 product_name
                 sku
-                product{
-				  kit
-				  kit_components{
-					sku
-				  }
-				}
                 quantity
               }
             }

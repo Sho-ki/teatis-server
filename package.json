@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@google-cloud/secret-manager": "^3.12.0",
-    "@graphql-codegen/typescript-graphql-request": "^4.3.3",
+    "@graphql-codegen/typescript-graphql-request": "^4.5.8",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.2.1",
     "@nestjs/core": "^8.0.0",
@@ -64,7 +64,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.4.0",
+    "@graphql-codegen/cli": "^2.13.12",
     "@graphql-codegen/typescript": "^2.4.2",
     "@graphql-codegen/typescript-operations": "^2.2.3",
     "@nestjs/cli": "^8.0.0",

@@ -257,59 +257,59 @@ export class TeatisJobs implements TeatisJobsInterface {
     }
   }
 
-  async getCustomerBox(): Promise<any> {
-    const customerPref = await this.prisma.customers.findMany({
-      where: {
-        OR: [// email
-        ].map((email) => {
-          return { email };
-        }),
-      },
-      select: {
-        id: true,
-        email: true,
-        intermediateCustomerCategoryPreferences: { select: { productCategory: { select: { name: true } } } },
-      },
-    });
+  // async getCustomerBox(): Promise<any> {
+  //   const customerPref = await this.prisma.customers.findMany({
+  //     where: {
+  //       OR: [// email
+  //       ].map((email) => {
+  //         return { email };
+  //       }),
+  //     },
+  //     select: {
+  //       id: true,
+  //       email: true,
+  //       intermediateCustomerCategoryPreferences: { select: { productCategory: { select: { name: true } } } },
+  //     },
+  //   });
 
-    const customerInfo = [];
-    for (const customer of customerPref) {
-      const [dataSet, err] = await this.shipheroRepository.getCustomerOrders({ email: customer.email });
+  //   const customerInfo = [];
+  //   for (const customer of customerPref) {
+  //     const [dataSet, err] = await this.shipheroRepository.getCustomerOrders({ email: customer.email });
 
-      const orderInfo = [];
-      for (const orderData of dataSet) {
-        const productBySku = await this.prisma.product.findMany({
-          where: {
-            OR: orderData.products.map((product) => {
-              return { externalSku: product.sku };
-            }),
-          },
-          select: { name: true, productCategory: { select: { name: true } } },
-        });
-        orderInfo.push({
-          shipDate: orderData.orderDate,
-          sentProducts: productBySku.map((product) => {
-            return {
-              name: product.name,
-              category: product.productCategory.name,
-            };
-          }),
-        });
-      }
-      const customerOrders = {
-        customerId: customer.id,
-        customerCategory: customer.intermediateCustomerCategoryPreferences.map(
-          (e) => {
-            return e.productCategory.name;
-          },
-        ),
-        ...orderInfo,
-      };
-      customerInfo.push(customerOrders);
-    }
+  //     const orderInfo = [];
+  //     for (const orderData of dataSet) {
+  //       const productBySku = await this.prisma.product.findMany({
+  //         where: {
+  //           OR: orderData.products.map((product) => {
+  //             return { externalSku: product.sku };
+  //           }),
+  //         },
+  //         select: { name: true, productCategory: { select: { name: true } } },
+  //       });
+  //       orderInfo.push({
+  //         shipDate: orderData.orderDate,
+  //         sentProducts: productBySku.map((product) => {
+  //           return {
+  //             name: product.name,
+  //             category: product.productCategory.name,
+  //           };
+  //         }),
+  //       });
+  //     }
+  //     const customerOrders = {
+  //       customerId: customer.id,
+  //       customerCategory: customer.intermediateCustomerCategoryPreferences.map(
+  //         (e) => {
+  //           return e.productCategory.name;
+  //         },
+  //       ),
+  //       ...orderInfo,
+  //     };
+  //     customerInfo.push(customerOrders);
+  //   }
 
-    return customerInfo;
-  }
+  //   return customerInfo;
+  // }
 
   async addUUID(): Promise<void> {
     let count = 0;

@@ -13,35 +13,10 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /**
-   * The `Date` scalar type represents a Date
-   * value as specified by
-   * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-   */
   Date: any;
-  /**
-   * The `DateTime` scalar type represents a DateTime
-   * value as specified by
-   * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-   */
   DateTime: any;
-  /** The `Decimal` scalar type represents a python Decimal. */
   Decimal: any;
-  /**
-   * The `GenericScalar` scalar type represents a generic
-   * GraphQL scalar value that could be:
-   * String, Boolean, Int, Float, List or Object.
-   */
   GenericScalar: any;
-  /**
-   * A DateTime field type that understand ISO 8601 strings, besides datetime objects.
-   * It supports strings with and without times, as well as using T or space as delimiter
-   *
-   * Ex.
-   *  - YYYY-mm-dd
-   *  - YYYY-mm-dd HH:MM:SS
-   *  - YYYY-mm-ddTHH:MM:SS
-   */
   ISODateTime: any;
   Money: any;
 };
@@ -4665,26 +4640,35 @@ export type GetLastFulfilledOrderByEmailQueryVariables = Exact<{
 }>;
 
 
-export type GetLastFulfilledOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastFulfilledOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+
+export type GetLastFulfilledOrderByUuidQueryVariables = Exact<{
+  uuid: Scalars['String'];
+}>;
+
+
+export type GetLastFulfilledOrderByUuidQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetLastOrderByEmailQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
 
 
-export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
 
-export type GetOrderProductsByOrderNumberQueryVariables = Exact<{
+export type GetLastOrderByUuidQueryVariables = Exact<{
+  uuid: Scalars['String'];
+}>;
+
+
+export type GetLastOrderByUuidQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, partner_order_id?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+
+export type GetOrderByOrderNumberQueryVariables = Exact<{
   orderNumber: Scalars['String'];
 }>;
 
 
-export type GetOrderProductsByOrderNumberQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
-
-export type GetVendorsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetVendorsQuery = { __typename?: 'Query', vendors?: { __typename?: 'VendorsQueryResult', data?: { __typename?: 'VendorConnection', edges: Array<{ __typename?: 'VendorEdge', node?: { __typename?: 'Vendor', id?: string | null, name?: string | null } | null } | null> } | null } | null };
+export type GetOrderByOrderNumberQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type UpdateOrderMutationVariables = Exact<{
   input: UpdateOrderInput;
@@ -4782,12 +4766,32 @@ export const GetLastFulfilledOrderByEmailDocument = gql`
                 fulfillment_status
                 product_name
                 sku
-                product {
-                  kit
-                  kit_components {
-                    sku
-                  }
-                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const GetLastFulfilledOrderByUuidDocument = gql`
+    query getLastFulfilledOrderByUuid($uuid: String!) {
+  orders(partner_order_id: $uuid) {
+    data(last: 2) {
+      edges {
+        node {
+          id
+          order_number
+          fulfillment_status
+          order_date
+          email
+          line_items {
+            edges {
+              node {
+                fulfillment_status
+                product_name
+                sku
               }
             }
           }
@@ -4814,12 +4818,6 @@ export const GetLastOrderByEmailDocument = gql`
                 fulfillment_status
                 product_name
                 sku
-                product {
-                  kit
-                  kit_components {
-                    sku
-                  }
-                }
               }
             }
           }
@@ -4829,8 +4827,35 @@ export const GetLastOrderByEmailDocument = gql`
   }
 }
     `;
-export const GetOrderProductsByOrderNumberDocument = gql`
-    query getOrderProductsByOrderNumber($orderNumber: String!) {
+export const GetLastOrderByUuidDocument = gql`
+    query getLastOrderByUuid($uuid: String!) {
+  orders(partner_order_id: $uuid) {
+    data(last: 1) {
+      edges {
+        node {
+          id
+          order_number
+          fulfillment_status
+          order_date
+          email
+          partner_order_id
+          line_items {
+            edges {
+              node {
+                fulfillment_status
+                product_name
+                sku
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const GetOrderByOrderNumberDocument = gql`
+    query getOrderByOrderNumber($orderNumber: String!) {
   orders(order_number: $orderNumber) {
     data(last: 1) {
       edges {
@@ -4848,30 +4873,10 @@ export const GetOrderProductsByOrderNumberDocument = gql`
                 fulfillment_status
                 product_name
                 sku
-                product {
-                  kit
-                  kit_components {
-                    sku
-                  }
-                }
                 quantity
               }
             }
           }
-        }
-      }
-    }
-  }
-}
-    `;
-export const GetVendorsDocument = gql`
-    query getVendors {
-  vendors {
-    data {
-      edges {
-        node {
-          id
-          name
         }
       }
     }
@@ -4891,36 +4896,39 @@ export const UpdateOrderDocument = gql`
 }
     `;
 
-export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
+export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
 
-const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
+const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
     AddOrderLineItems(variables: AddOrderLineItemsMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddOrderLineItemsMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AddOrderLineItemsMutation>(AddOrderLineItemsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AddOrderLineItems');
+      return withWrapper((wrappedRequestHeaders) => client.request<AddOrderLineItemsMutation>(AddOrderLineItemsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AddOrderLineItems', 'mutation');
     },
     getProductInventory(variables?: GetProductInventoryQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductInventoryQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventoryQuery>(GetProductInventoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductInventory');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventoryQuery>(GetProductInventoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductInventory', 'query');
     },
     getCustomerOrderByEmail(variables: GetCustomerOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetCustomerOrderByEmailQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetCustomerOrderByEmailQuery>(GetCustomerOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getCustomerOrderByEmail');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetCustomerOrderByEmailQuery>(GetCustomerOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getCustomerOrderByEmail', 'query');
     },
     getLastFulfilledOrderByEmail(variables: GetLastFulfilledOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastFulfilledOrderByEmailQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetLastFulfilledOrderByEmailQuery>(GetLastFulfilledOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastFulfilledOrderByEmail');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastFulfilledOrderByEmailQuery>(GetLastFulfilledOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastFulfilledOrderByEmail', 'query');
+    },
+    getLastFulfilledOrderByUuid(variables: GetLastFulfilledOrderByUuidQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastFulfilledOrderByUuidQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastFulfilledOrderByUuidQuery>(GetLastFulfilledOrderByUuidDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastFulfilledOrderByUuid', 'query');
     },
     getLastOrderByEmail(variables: GetLastOrderByEmailQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderByEmailQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderByEmailQuery>(GetLastOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderByEmail');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderByEmailQuery>(GetLastOrderByEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderByEmail', 'query');
     },
-    getOrderProductsByOrderNumber(variables: GetOrderProductsByOrderNumberQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetOrderProductsByOrderNumberQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetOrderProductsByOrderNumberQuery>(GetOrderProductsByOrderNumberDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getOrderProductsByOrderNumber');
+    getLastOrderByUuid(variables: GetLastOrderByUuidQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLastOrderByUuidQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLastOrderByUuidQuery>(GetLastOrderByUuidDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLastOrderByUuid', 'query');
     },
-    getVendors(variables?: GetVendorsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetVendorsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetVendorsQuery>(GetVendorsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getVendors');
+    getOrderByOrderNumber(variables: GetOrderByOrderNumberQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetOrderByOrderNumberQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetOrderByOrderNumberQuery>(GetOrderByOrderNumberDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getOrderByOrderNumber', 'query');
     },
     UpdateOrder(variables: UpdateOrderMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateOrderMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateOrderMutation>(UpdateOrderDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateOrder');
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateOrderMutation>(UpdateOrderDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateOrder', 'mutation');
     }
   };
 }
