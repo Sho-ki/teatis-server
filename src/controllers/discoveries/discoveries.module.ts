@@ -44,6 +44,7 @@ import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/custo
 import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
 import { CreateCalendarEvent } from '@Usecases/utils/createCalendarEvent';
 import { GoogleCalendarRepository } from '@Repositories/googleOAuth2/googleCalendar.repository';
+import { TemporaryPrePurchaseSurveysModule } from './temporaryPrePurchaseSurvey/temporaryPrePurchaseSurvey.module';
 
 @Module({
   controllers: [DiscoveriesController],
@@ -211,7 +212,12 @@ import { GoogleCalendarRepository } from '@Repositories/googleOAuth2/googleCalen
     DiscoveriesController,
     PrismaService,
   ],
-  imports: [PractitionerModule, PractitionerBoxModule, EmailModule],
+  imports: [
+    PractitionerModule,
+    PractitionerBoxModule,
+    EmailModule,
+    TemporaryPrePurchaseSurveysModule,
+  ],
   exports: [DiscoveriesController],
 })
 export class DiscoveriesModule {}

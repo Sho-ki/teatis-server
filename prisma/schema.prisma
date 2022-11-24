@@ -56,6 +56,29 @@ model Customers {
   terraCustomer                                 TerraCustomer?
 }
 
+model TemporaryPrePurchaseAnswer {
+  id                                            Int                                            @id @default(autoincrement())
+  answerIdentifier String   @unique
+  email String     @unique
+  diabetes    Json?
+  gender  Json?
+  height  Json?
+  weight  Json?
+  age   Json?
+  medicalConditions   Json?
+  activeLevel   Json?
+  A1c   Json?
+  mealsPerDay   Json?
+  categoryPreferences   Json?
+  flavorDislikes  Json?
+  ingredientDislikes  Json?
+  allergens   Json?
+  unavailableCookingMethods   Json?
+  boxPlan   Json?
+  createdAt                                     DateTime                                       @default(now())
+  updatedAt                                     DateTime                                       @default(now()) @updatedAt
+}
+
 model CustomerOAuth2 {
   id             Int           @id @default(autoincrement())
   customerId     Int
