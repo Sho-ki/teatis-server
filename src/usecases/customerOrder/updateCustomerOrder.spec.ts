@@ -75,7 +75,7 @@ describe('GetOptions', () => {
       postApiId: () =>
         Promise.resolve<ReturnValueType<Status>>([{ success: true }]),
     };
- 
+
     MockedPostPrePurchaseSurveyUsecase = {
       postPrePurchaseSurvey: () =>
         Promise.resolve<ReturnValueType<CustomerBoxType>>([
@@ -100,8 +100,8 @@ describe('GetOptions', () => {
         {
           provide: 'WebhookEventRepositoryInterface',
           useValue: MockedWebhookEventRepository,
-          },
-          {
+        },
+        {
           provide: 'ProductGeneralRepositoryInterface',
           useValue: MockedProductGeneralRepository,
         },
