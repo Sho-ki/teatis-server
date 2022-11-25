@@ -59,7 +59,7 @@ model Customers {
 model TemporaryPrePurchaseAnswer {
   id                                            Int                                            @id @default(autoincrement())
   answerIdentifier String   @unique
-  email String     @unique
+  email String 
   diabetes    Json?
   gender  Json?
   height  Json?
