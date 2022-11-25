@@ -55,6 +55,6 @@ export class TemporaryPrePurchaseSurveyController {
       return response.status(500).send(error);
     }
 
-    return response.status(201).send(usecaseResponse);
+    return response.status(200).send(usecaseResponse);
   }
 }
