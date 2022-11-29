@@ -2,24 +2,25 @@ import {  Inject, Injectable } from '@nestjs/common';
 import * as ClientOAuth2 from 'client-oauth2';
 
 import { ReturnValueType } from '@Filters/customError';
-import {  CreateCalendarEventInterface } from '../../utils/createCalendarEvent';
+import {  CreateCalendarEventInterface } from '@Usecases/utils/createCalendarEvent';
 import { Url } from '@Domains/Url';
-import {  CustomerGeneralRepositoryInterface } from '../../../repositories/teatisDB/customer/customerGeneral.repository';
+import {  CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { createGoogleOAuthClient } from '@Usecases/utils/OAuthClient';
 
 interface StoreCustomerTokenArgs {
   originalUrl:string;
-  client:ClientOAuth2;
   uuid:string;
 }
 
 export interface StoreCustomerTokenUsecaseInterface {
-  storeCustomerToken( { originalUrl, client, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>>;
+  storeCustomerToken( { originalUrl, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>>;
 }
 
 @Injectable()
 export class StoreCustomerTokenUsecase
 implements StoreCustomerTokenUsecaseInterface
 {
+
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
@@ -27,7 +28,8 @@ implements StoreCustomerTokenUsecaseInterface
     private createCalendarEvent: CreateCalendarEventInterface,
   ) {}
 
-  async storeCustomerToken( { originalUrl, client, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>> {
+  async storeCustomerToken( { originalUrl, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>> {
+    const client:ClientOAuth2 = createGoogleOAuthClient(uuid);
     const [customerSession, getCustomerBySessionId] =
     await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if(getCustomerBySessionId){

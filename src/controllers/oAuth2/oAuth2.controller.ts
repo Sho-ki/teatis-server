@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Controller, Get, Inject, Param, Query, Redirect, Req, Res, Session } from '@nestjs/common';
 import { StoreCustomerTokenUsecaseInterface } from '@Usecases/auth/google/storeCustomerToken.usecase';
-import * as ClientOAuth2 from 'client-oauth2';
-import { createGooglClientOptions } from '@Usecases/utils/googleProvider';
 import { Request } from 'express';
 import { CustomerAuthDto } from './dtos/customerAuthDto';
 import { CheckHasValidTokenUsecaseInterface } from '@Usecases/auth/google/checkHasValidToken.usecase';
 import { Response } from 'express';
 import { GetCustomerBySessionIdUsecaseInterface } from '../../usecases/auth/google/getCustomerBySessionId.usecase';
+import { GetOAuthUriUsecaseInterface } from '../../usecases/auth/google/getOAuthUri.usecase';
 
 @Controller('api/oauth2')
 export class OAuth2Controller {
-  private client: ClientOAuth2;
   constructor(
     @Inject('StoreCustomerTokenUsecaseInterface')
     private storeCustomerTokenUsecase: StoreCustomerTokenUsecaseInterface,
@@ -19,9 +17,12 @@ export class OAuth2Controller {
     private checkHasValidTokenUsecase: CheckHasValidTokenUsecaseInterface,
     @Inject('GetCustomerBySessionIdUsecaseInterface')
     private getCustomerBySessionIdUsecase: GetCustomerBySessionIdUsecaseInterface,
+    @Inject('GetOAuthUriUsecaseInterface')
+    private getOAuthUriUsecase: GetOAuthUriUsecaseInterface,
 
   ) {}
 
+  // api/oauth2/google
   @Get('auth/:provider')
   @Redirect()
   async getAuthUrl(@Param('provider') name: 'google', @Session() session: Record<string, any>,) {
@@ -31,9 +32,8 @@ export class OAuth2Controller {
       return [undefined, error];
     }
     if(name === 'google'){
-      this.client = new ClientOAuth2(createGooglClientOptions(usecaseResponse.uuid));
-      const url = this.client.code.getUri();
-      return { url };
+      const [response] = this.getOAuthUriUsecase.getUri({ uuid: usecaseResponse.uuid });
+      return { url: response.url };
     } }
 
   @Get('callback/:provider')
@@ -43,12 +43,13 @@ export class OAuth2Controller {
     @Param('provider') name: 'google',
     @Query('state') state:string
   ) {
+    if(!state) return { url: 'https://app.teatismeal.com' };
     if(name === 'google'){
       const[usecaseResponse, error] =
       await this.storeCustomerTokenUsecase.storeCustomerToken(
-        { originalUrl: req.originalUrl, client: this.client, uuid: state } );
+        { originalUrl: req.originalUrl, uuid: state } );
       if(error){
-        return {};
+        return { url: 'https://app.teatismeal.com' };
       }
       const domain  = process.env.ENV === 'local'? 'http://localhost:3000':'https://app.teatismeal.com';
       return { url: domain + usecaseResponse.url };
