@@ -5,21 +5,22 @@ import { ReturnValueType } from '@Filters/customError';
 import {  CreateCalendarEventInterface } from '../../utils/createCalendarEvent';
 import { Url } from '@Domains/Url';
 import {  CustomerGeneralRepositoryInterface } from '../../../repositories/teatisDB/customer/customerGeneral.repository';
+import { googleBaseOptions } from '../../utils/OAuthBaseOptions';
 
 interface StoreCustomerTokenArgs {
   originalUrl:string;
-  client:ClientOAuth2;
   uuid:string;
 }
 
 export interface StoreCustomerTokenUsecaseInterface {
-  storeCustomerToken( { originalUrl, client, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>>;
+  storeCustomerToken( { originalUrl, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>>;
 }
 
 @Injectable()
 export class StoreCustomerTokenUsecase
 implements StoreCustomerTokenUsecaseInterface
 {
+
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
@@ -27,7 +28,8 @@ implements StoreCustomerTokenUsecaseInterface
     private createCalendarEvent: CreateCalendarEventInterface,
   ) {}
 
-  async storeCustomerToken( { originalUrl, client, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>> {
+  async storeCustomerToken( { originalUrl, uuid }:StoreCustomerTokenArgs): Promise<ReturnValueType<Url>> {
+    const client:ClientOAuth2 = new ClientOAuth2({ ...googleBaseOptions, state: uuid });
     const [customerSession, getCustomerBySessionId] =
     await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if(getCustomerBySessionId){

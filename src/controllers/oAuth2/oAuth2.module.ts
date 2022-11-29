@@ -10,12 +10,18 @@ import { GoogleCalendarRepository } from '@Repositories/googleOAuth2/googleCalen
 import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
 import { CreateCalendarEvent } from '@Usecases/utils/createCalendarEvent';
 import { CheckHasValidTokenUsecase } from '@Usecases/auth/google/checkHasValidToken.usecase';
-import { GetCustomerBySessionIdUsecase } from '../../usecases/auth/google/getCustomerBySessionId.usecase';
+import { GetCustomerBySessionIdUsecase } from '@Usecases/auth/google/getCustomerBySessionId.usecase';
+import { GetOAuthUriUsecase } from '@Usecases/auth/google/getOAuthUri.usecase';
 
 @Module({
   controllers: [OAuth2Controller],
   exports: [OAuth2Controller],
   providers: [
+    {
+      provide: 'GetOAuthUriUsecaseInterface',
+      useClass: GetOAuthUriUsecase,
+    },
+
     {
       provide: 'GetCustomerBySessionIdUsecaseInterface',
       useClass: GetCustomerBySessionIdUsecase,
