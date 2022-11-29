@@ -8,42 +8,6 @@ import { Response } from 'express';
 import { GetCustomerBySessionIdUsecaseInterface } from '../../usecases/auth/google/getCustomerBySessionId.usecase';
 import { GetOAuthUriUsecaseInterface } from '../../usecases/auth/google/getOAuthUri.usecase';
 
-// export function createGooglClientOptions(uuid:string) : ClientOAuth2.Options {
-//   return {
-//     clientId: process.env.GOOGLE_CLIENT_ID,
-//     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//     accessTokenUri: 'https://oauth2.googleapis.com/token',
-//     authorizationUri: `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent`,
-//     redirectUri: `${process.env.SERVER_URL}/api/oauth2/callback/google`,
-//     scopes: ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-//     state: `${uuid}`,
-//   };
-// }
-
-// // class GoogleClientManager {
-// //   const baseOptions: any;
-
-// //   constructor() {
-// //     baseOptions = {
-// //       clientId: process.env.GOOGLE_CLIENT_ID,
-// //       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-// //       accessTokenUri: 'https://oauth2.googleapis.com/token',
-// //       authorizationUri: `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent`,
-// //       redirectUri: `${process.env.SERVER_URL}/api/oauth2/callback/google`,
-// //       scopes: ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-// //     };
-// //   }
-
-// //   const getUri(uuid: string): string {
-// //     const client = new ClientOAuth2({
-// //       ...this.baseOptions,
-// //       state: `${uuid}`,
-// //     });
-// //     return client.code.getUri();
-// //   }
-
-// // }
-
 @Controller('api/oauth2')
 export class OAuth2Controller {
   constructor(
