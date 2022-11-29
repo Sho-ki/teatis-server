@@ -3,7 +3,7 @@ import * as ClientOAuth2 from 'client-oauth2';
 
 import { ReturnValueType } from '@Filters/customError';
 import { Url } from '@Domains/Url';
-import { googleBaseOptions } from '../../utils/OAuthBaseOptions';
+import { createGoogleOAuthClient } from '@Usecases/utils/OAuthClient';
 
 interface GetOAuthUriArgs {
   uuid:string;
@@ -18,10 +18,7 @@ export class GetOAuthUriUsecase
 implements GetOAuthUriUsecaseInterface
 {
   getUri({ uuid }: GetOAuthUriArgs): ReturnValueType<Url> {
-    const client = new ClientOAuth2({
-      ...googleBaseOptions,
-      state: uuid,
-    });
+    const client:ClientOAuth2 = createGoogleOAuthClient(uuid);
     return [{ url: client.code.getUri() }];
   }
 }
