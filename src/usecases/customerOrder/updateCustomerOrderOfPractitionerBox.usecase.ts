@@ -10,17 +10,17 @@ import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/pract
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { ReturnValueType } from '@Filters/customError';
-import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAutoSwap';
+import { CustomerProductsAutoSwapInterface } from '@Usecases/utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
-import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
-import { currentMonth } from '../utils/dates';
-import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
-import { WebhookEventRepositoryInterface } from '../../repositories/teatisDB/webhookEvent/webhookEvent.repository';
-import { ProductGeneralRepositoryInterface } from '../../repositories/teatisDB/product/productGeneral.repository';
+import { PRACTITIONER_BOX_PLANS } from '@Usecases/utils/practitionerBoxPlan';
+import { currentMonth } from '@Usecases/utils/dates';
+import { TEST_PRACTITIONER_BOX_UUIDS } from '@Usecases/utils/testPractitionerBoxUuids';
+import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import * as ClientOAuth2 from 'client-oauth2';
-import { createGooglClientOptions } from '../utils/googleProvider';
-import { CustomerAuthRepositoryInterface } from '../../repositories/teatisDB/customer/customerAuth.repository';
-import { CreateCalendarEventInterface } from '../utils/createCalendarEvent';
+import { CustomerAuthRepositoryInterface } from '@Repositories/teatisDB/customer/customerAuth.repository';
+import { CreateCalendarEventInterface } from '@Usecases/utils/createCalendarEvent';
+import { createGoogleOAuthClient } from '@Usecases/utils/OAuthClient';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -284,7 +284,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
 
     if(customerOrderCount.orderCount >= 2 && customerAuth.isAuthenticated){
-      const client = new ClientOAuth2(createGooglClientOptions(customer.uuid));
+      const client:ClientOAuth2 = createGoogleOAuthClient(uuid);
       const token = client.createToken(customerAuth.token, customerAuth.refreshToken, customerAuth.tokenType, {});
       await this.createCalendarEvent.createCalendarEvent({ customer, token });
     }
