@@ -12,7 +12,6 @@ import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/te
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerProductsAutoSwapInterface } from '@Usecases/utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
-import { PRACTITIONER_BOX_PLANS } from '@Usecases/utils/practitionerBoxPlan';
 import { currentMonth } from '@Usecases/utils/dates';
 import { TEST_PRACTITIONER_BOX_UUIDS } from '@Usecases/utils/testPractitionerBoxUuids';
 import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
@@ -25,7 +24,7 @@ import { createGoogleOAuthClient } from '@Usecases/utils/OAuthClient';
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
     UpdateCustomerOrderDto,
-    'name' | 'customer' | 'subtotal_price' | 'line_items' | 'admin_graphql_api_id'
+    'name' | 'customer' | 'subtotal_price' | 'admin_graphql_api_id'
   > {
   uuid: string;
   practitionerBoxUuid: string;
@@ -36,7 +35,6 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     name,
     customer,
     subtotal_price,
-    line_items,
     uuid,
     practitionerBoxUuid,
     admin_graphql_api_id,
@@ -77,7 +75,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     name,
     customer: shopifyCustomer,
     subtotal_price,
-    line_items,
     uuid,
     practitionerBoxUuid,
     admin_graphql_api_id: apiId,
@@ -98,22 +95,13 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueScheduledError) {
       return [undefined, orderQueueScheduledError];
     }
-    const purchasedProducts = line_items.map((lineItem) => {
-      return lineItem.product_id;
-    });
 
     const [order, orderError] =
       await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
       return [undefined, orderError];
     }
-    const PractitionerBoxID = 6603694014519;
-    if (
-      order.products.length > 1 &&
-      purchasedProducts.includes(PRACTITIONER_BOX_PLANS.original.id
-         || PRACTITIONER_BOX_PLANS.customized.id
-         || PractitionerBoxID)
-    ) {
+    if (order.products.length > 1) {
       return [
         {
           customerId: orderQueueScheduled.customerId,

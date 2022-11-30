@@ -80,7 +80,6 @@ implements CheckUpdateOrderUsecaseInterface
             name: orderNumber,
             customer: shopifyCustomer,
             subtotal_price: totalPrice,
-            line_items: lineItems.map(({ productId }) => { return { product_id: productId }; }),
             uuid: customerAttributes.uuid,
             practitionerBoxUuid: customerAttributes.practitionerBoxUuid,
             admin_graphql_api_id: apiId,
