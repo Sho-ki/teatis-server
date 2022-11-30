@@ -251,7 +251,6 @@ export class DiscoveriesController {
             name: body.name,
             customer: body.customer,
             subtotal_price: body.subtotal_price,
-            line_items: body.line_items,
             uuid: noteAttributes.uuid,
             practitionerBoxUuid: noteAttributes.practitionerBoxUuid,
             admin_graphql_api_id: body.admin_graphql_api_id,
