@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient } from 'graphql-request';
 import { Product } from '@Domains/Product';
@@ -75,6 +76,8 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       if (!item) continue;
 
       const itemNode = item?.node;
+      console.log('check3', { itemNode } );
+
       if (
         itemNode?.product?.kit &&
         itemNode?.fulfillment_status !== 'canceled'
@@ -126,6 +129,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     const orderId = node?.id;
     const orderDate = node?.order_date;
 
+    console.log('check1', { node, items, orderId, orderDate } );
     if (!node || !items || !orderId || !orderDate) {
       return [
         undefined,
@@ -136,7 +140,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       ];
     }
     const products: Pick<Product, 'sku'>[] = this.getLastSentProducts({ items });
-
+    console.log('check2', { products } );
     return [
       {
         orderNumber,
