@@ -101,6 +101,9 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderError) {
       return [undefined, orderError];
     }
+    // eslint-disable-next-line no-console
+    console.log('order.products', order.products);
+    console.log('order.products.length', order.products.length);
     if (order.products.length > 1) {
       return [
         {
@@ -171,6 +174,15 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           if(new Date() >= new Date('2022-11-01')){
             orderProducts.push({ sku: 'x10443-NP-SN20215' }); // brochure
           }
+          //  orderProducts = [
+          //   { sku: 'x10404-CHC-SN20199' },
+          //   { sku: 'x10428-CHP-SN20206' },
+          //   { sku: 'x10206-GUM-SN20127' },
+          //   { sku: 'x10362-SWT-SN20187' },
+          //   { sku: 'x10217-CHP-SN20144' },
+          //   { sku: 'x10325-JRK-SN20177' },
+          //   { sku: 'x10264-BAR-SN20154' },
+          // ];
           break;
         case 2:
           orderProducts = [
