@@ -70,11 +70,6 @@ export interface ShipheroRepositoryInterface {
 @Injectable()
 export class ShipheroRepository implements ShipheroRepositoryInterface {
 
-  // shiphero can store only uo to 32 characters
-  private createShorterUuid(uuid:string):string{
-    return uuid.split('-').join();
-  }
-
   private getLastSentProducts({ items }):Pick<Product, 'sku'>[]{
     const lastSentProducts :Pick<Product, 'sku'>[]= [];
     for (const item of items) {
@@ -161,7 +156,6 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
 
-    uuid = this.createShorterUuid(uuid);
     const response: GetLastFulfilledOrderByEmailQuery|GetLastFulfilledOrderByUuidQuery = email?
       await sdk.getLastFulfilledOrderByEmail({ email }): await sdk.getLastFulfilledOrderByUuid({ uuid });
 
@@ -202,7 +196,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
-    uuid = this.createShorterUuid(uuid);
+
     const response: GetLastOrderByEmailQuery|GetLastOrderByUuidQuery = email?
       await sdk.getLastOrderByEmail({ email }): await sdk.getLastOrderByUuid({ uuid });
 
@@ -299,7 +293,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
-    uuid = this.createShorterUuid(uuid);
+
     const holdUntilDate = new Date();
     holdUntilDate.setHours(holdUntilDate.getHours() + 24);
     await sdk.UpdateOrder({
