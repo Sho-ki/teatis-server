@@ -61,13 +61,13 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
       ? DISCOUNT_CODES.testPractitionerBox.firstPurchase
       : DISCOUNT_CODES.practitionerBox.firstPurchase);
     const merchandiseId__ = isTest
-      ? PRACTITIONER_BOX_PLANS.customized7.merchandiseId
+      ? PRACTITIONER_BOX_PLANS.customized.merchandiseId
       : PRACTITIONER_BOX_PLANS.original.merchandiseId;
     const merchandiseId_ = isOneTimePurchase
       ? PRACTITIONER_BOX_PLANS.oneTimePurchase.merchandiseId
       : merchandiseId__;
     const sellingPlanId_ = isTest
-      ? PRACTITIONER_BOX_PLANS.customized7.sellingPlanId
+      ? PRACTITIONER_BOX_PLANS.customized.sellingPlanId
       : PRACTITIONER_BOX_PLANS.original.sellingPlanId;
     const createCartArgs = {
       merchandiseId: merchandiseId_,
