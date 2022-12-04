@@ -5,12 +5,17 @@ export const PRACTITIONER_BOX_PLANS ={
     id: 6666539204663,
     sku: 'NP-influencer-curate-box',
   },
-
   customized: {
     merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC8zOTk0NjE0MjMxODY0Nw==',
     sellingPlanId: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi82MDM0MjI3NzU=',
     id: 6710679601207,
     sku: 'NP-influencer-curate-box-8',
+  },
+  customized7: {
+    merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC80MDAzNjYzMzgzNzYyMw==',
+    sellingPlanId: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MTQ3Njg0Mzk=',
+    id: 6738837307447,
+    sku: 'NP-influencer-curate-box-7',
   },
   oneTimePurchase: {
     merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC80MDAwNjQ1ODQ0MTc4Mw==',
