@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
@@ -103,6 +104,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
     // eslint-disable-next-line no-console
     console.log('order.products', order.products);
+    // eslint-disable-next-line no-console
     console.log('order.products.length', order.products.length);
     if (order.products.length > 1) {
       return [
@@ -158,7 +160,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     //   );
     // }
     let note = undefined;
-    if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    console.log('customer.createAt', customer.createAt);
+    console.log('practitionerBoxUuid', practitionerBoxUuid);
+    console.log('customerOrderCount.orderCount', customerOrderCount.orderCount);
+    if(customer.updatedAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
         case 1:
           orderProducts = [
@@ -170,19 +175,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10404-CHC-SN20199' },
             { sku: 'x10325-JRK-SN20177' },
             { sku: 'x10250-CER-SN20110' },
+            { sku: 'x10443-NP-SN20215' }, // brochure
           ];
-          if(new Date() >= new Date('2022-11-01')){
-            orderProducts.push({ sku: 'x10443-NP-SN20215' }); // brochure
-          }
-          //  orderProducts = [
-          //   { sku: 'x10404-CHC-SN20199' },
-          //   { sku: 'x10428-CHP-SN20206' },
-          //   { sku: 'x10206-GUM-SN20127' },
-          //   { sku: 'x10362-SWT-SN20187' },
-          //   { sku: 'x10217-CHP-SN20144' },
-          //   { sku: 'x10325-JRK-SN20177' },
-          //   { sku: 'x10264-BAR-SN20154' },
-          // ];
           break;
         case 2:
           orderProducts = [
@@ -235,6 +229,48 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       }
       note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
     }
+
+    if(customer.updatedAt >= new Date('2022-12-03') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+      switch (customerOrderCount.orderCount){
+        case 1:
+          orderProducts = [
+            { sku: 'x10404-CHC-SN20199' },
+            { sku: 'x10428-CHP-SN20206' },
+            { sku: 'x10206-GUM-SN20127' },
+            { sku: 'x10362-SWT-SN20187' },
+            { sku: 'x10217-CHP-SN20144' },
+            { sku: 'x10325-JRK-SN20177' },
+            { sku: 'x10264-BAR-SN20154' },
+          ];
+          break;
+        case 2:
+          orderProducts = [
+            { sku: 'x10437-SWT-SN20187' },
+            { sku: 'x10441-SWT-SN20141' },
+            { sku: 'x10319-SWT-SN20176' },
+            { sku: 'x10215-CER-SN20110' },
+            { sku: 'x10225-BAR-SN20154' },
+            { sku: 'x10328-BAR-SN20178' },
+            { sku: 'x10413-COK-SN20113' },
+          ];
+          break;
+        case 3: orderProducts = [
+          { sku: 'x10415-CHP-SN20203' },
+          { sku: 'x10221-CHP-SN20101' },
+          { sku: 'x10430-CHP-SN20206' },
+          { sku: 'x10409-JRK-SN20158' },
+          { sku: 'x10266-CHP-SN20115' },
+          { sku: 'x10337-JRK-SN20148' },
+          { sku: 'x10226-CHP-SN20118' },
+        ];
+          break;
+        default:
+          orderProducts= orderProducts.slice(0, 7);
+          break;
+      }
+      note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+    }
+
     const transactionPrice = Number(subtotal_price);
     const [
       [productOnHand, updateOrderError],
