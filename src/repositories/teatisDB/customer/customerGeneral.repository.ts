@@ -133,15 +133,20 @@ implements CustomerGeneralRepositoryInterface
   }
 
   async getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
-    const response = await this.prisma.customers.findUnique({
-      where: { uuid },
-      select: { id: true, email: true, uuid: true },
-    });
+    const response = await this.prisma.customers.findUnique({ where: { uuid } });
     if (!response?.email || !response?.id || !response.uuid) {
       return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
     }
 
-    return [{ id: response.id, email: response.email, uuid: response.uuid }];
+    return [
+      {
+        id: response.id,
+        email: response.email,
+        uuid: response.uuid,
+        createAt: response.createdAt,
+        updatedAt: response.updatedAt,
+      },
+    ];
   }
   async getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
