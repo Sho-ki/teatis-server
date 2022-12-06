@@ -86,6 +86,18 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
+    const changePhone = shopifyCustomer.phone && customer.phone !== shopifyCustomer.phone;
+    const changeFirstName = shopifyCustomer.first_name && customer.firstName !== shopifyCustomer.first_name;
+    const changeLastName = shopifyCustomer.last_name && customer.lastName !== shopifyCustomer.last_name;
+    if(changePhone|| changeFirstName || changeLastName){
+      await this.customerGeneralRepository.updateCustomerByUuid({
+        uuid,
+        phone: shopifyCustomer.phone,
+        firstName: shopifyCustomer.first_name,
+        lastName: shopifyCustomer.last_name,
+      });
+
+    }
 
     const [orderQueueScheduled, orderQueueScheduledError] =
       await this.orderQueueRepository.updateOrderQueue({
@@ -96,7 +108,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueScheduledError) {
       return [undefined, orderQueueScheduledError];
     }
-
+    return;
     const [order, orderError] =
       await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
