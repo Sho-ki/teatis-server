@@ -11,6 +11,7 @@ import { TerraModule } from './controllers/terra/terra.module';
 import { ShipheroKeyModule } from './controllers/systemCron/shipheroKey/shipheroKey.module';
 import { WebhookEventModule } from './controllers/systemCron/webhookEvent/webhookEvent.module';
 import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
+import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
     ProductModule,
     TerraModule,
     OAuth2Module,
+    CoachingModule,
     ScheduleModule.forRoot(),
   ],
 

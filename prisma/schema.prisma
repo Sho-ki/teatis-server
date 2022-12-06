@@ -25,6 +25,10 @@ model Discoveries {
 model Customers {
   id                                            Int                                            @id @default(autoincrement())
   email                                         String                                         @unique
+  phone                                         String?                                        @unique
+  firstName                                     String?
+  lastName                                      String?
+  middleName                                    String?
   createdAt                                     DateTime                                       @default(now())
   updatedAt                                     DateTime                                       @default(now()) @updatedAt
   activeLevel                                   String?
@@ -50,6 +54,7 @@ model Customers {
   intermediateCustomerMedicalConditions         IntermediateCustomerMedicalCondition[]
   intermediateCustomerNutritionNeeds            IntermediateCustomerNutritionNeed[]
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
+  intermediateCustomerCoach                     IntermediateCustomerCoach[]
   practitionerCustomerOrderHistory              PractitionerCustomerOrderHistory[]
   queuedShopifyOrder                            QueuedShopifyOrder[]
   surveyQuestionAnswer                          SurveyQuestionAnswer[]
@@ -738,6 +743,27 @@ model CustomerSessionStore {
   expire DateTime @db.Timestamp(6)
 
   @@index([expire], map: "IDX_session_expire")
+}
+
+model Coach {
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  intermediateCustomerCoach IntermediateCustomerCoach[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now()) @updatedAt
+}
+
+model IntermediateCustomerCoach {
+  coachId           Int
+  customerId        Int
+  coachingNumber    Int @default(1) // when a customer changes their coach, it will be increased
+  activeStatus      ActiveStatus    @default(active)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
+  coach             Coach @relation(fields: [coachId], references: [id])
+  customer          Customers       @relation(fields: [customerId], references: [id])
+
+  @@id([coachId, customerId])
 }
 
 enum OAuthProvider {
