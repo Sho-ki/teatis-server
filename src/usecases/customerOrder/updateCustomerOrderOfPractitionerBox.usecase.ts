@@ -21,11 +21,12 @@ import * as ClientOAuth2 from 'client-oauth2';
 import { CustomerAuthRepositoryInterface } from '@Repositories/teatisDB/customer/customerAuth.repository';
 import { CreateCalendarEventInterface } from '@Usecases/utils/createCalendarEvent';
 import { createGoogleOAuthClient } from '@Usecases/utils/OAuthClient';
+import { CustomerCoachRepositoryInterface } from '../../repositories/teatisDB/coach/customerCoach.repository';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
     UpdateCustomerOrderDto,
-    'name' | 'customer' | 'subtotal_price' | 'admin_graphql_api_id'
+    'name' | 'customer' | 'subtotal_price' | 'admin_graphql_api_id' | 'line_items'
   > {
   uuid: string;
   practitionerBoxUuid: string;
@@ -36,6 +37,7 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     name,
     customer,
     subtotal_price,
+    line_items,
     uuid,
     practitionerBoxUuid,
     admin_graphql_api_id,
@@ -69,6 +71,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private customerAuthRepository: CustomerAuthRepositoryInterface,
     @Inject('CreateCalendarEventInterface')
     private createCalendarEvent: CreateCalendarEventInterface,
+    @Inject('CustomerCoachRepositoryInterface')
+    private customerCoachRepository: CustomerCoachRepositoryInterface,
 
   ) {}
 
@@ -77,6 +81,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     customer: shopifyCustomer,
     subtotal_price,
     uuid,
+    line_items = [{ product_id: 6738837307447 }],
     practitionerBoxUuid,
     admin_graphql_api_id: apiId,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
@@ -108,7 +113,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueScheduledError) {
       return [undefined, orderQueueScheduledError];
     }
-    return;
     const [order, orderError] =
       await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
@@ -134,6 +138,20 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
+
+    // tmp code
+    if(line_items.includes({ product_id: 6738837307447 }) && customerOrderCount.orderCount <= 1){ // coaching box
+      const [coach, getCoachError] = await this.customerCoachRepository.getCoachByEmail({ email: 'coach@teatismeal.com' });
+      if(getCoachError){
+        return [undefined, getCoachError];
+      }
+      const [, getConnectCoachError] = await this.customerCoachRepository.
+        connectCustomerCoach({ coachId: coach.id, customerId: customer.id });
+      if(getConnectCoachError){
+        return [undefined, getConnectCoachError];
+      }
+    }
+
     const isFirstOrder = customerOrderCount.orderCount === 1;
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
