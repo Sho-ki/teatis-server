@@ -14,12 +14,13 @@ export interface ConnectCustomerCoachArgs {
   coachEmail:string;
 }
 
-export interface GetCoachArgs {
-  email:string;
+export interface GetCustomerDetailArgs {
+  id:number;
 }
 
 export interface CoachRepositoryInterface {
   getCoachCustomers({ email }: GetCoachCustomersArgs): Promise<ReturnValueType<CoachCustomer[]>>;
+  getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachCustomer>>;
 
   connectCustomerCoach({ coachEmail, customerId }:ConnectCustomerCoachArgs):
   Promise<ReturnValueType<Coach>>;
@@ -28,6 +29,23 @@ export interface CoachRepositoryInterface {
 @Injectable()
 export class CoachRepository implements CoachRepositoryInterface {
   constructor(private prisma: PrismaService) {}
+  async getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachCustomer>> {
+    const response = await this.prisma.customers.findUnique({
+      where: { id },
+      include: { coach: true },
+    });
+    if (!response) {
+      return [undefined, { name: 'Internal Server Error', message: 'id is invalid' }];
+    }
+
+    const {  email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone  } = response;
+    const customerDetails: CoachCustomer =  {
+      id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
+      coach: { id: response.id, email: response.email },
+    };
+
+    return [customerDetails];
+  }
 
   async connectCustomerCoach({ coachEmail, customerId }: ConnectCustomerCoachArgs)
   : Promise<ReturnValueType<Coach>> {

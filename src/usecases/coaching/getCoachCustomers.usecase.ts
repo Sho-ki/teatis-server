@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ReturnValueType } from '@Filters/customError';
-import { TwilioCustomer } from '@Domains/TwilioCustomer';
+import { TwilioCustomerList } from '@Domains/TwilioCustomerList';
 import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
 
 export interface GetCoachCustomersUsecaseInterface {
-  getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomer[]>>;
+  getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomerList>>;
 }
 
 @Injectable()
@@ -17,7 +17,7 @@ implements GetCoachCustomersUsecaseInterface
     private coachCustomerRepository: CoachRepositoryInterface,
   ) {}
 
-  async getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomer[]>> {
+  async getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomerList>> {
     const [coachCustomers, getCoachCustomersError] =
       await this.coachCustomerRepository.getCoachCustomers({ email });
 
@@ -25,23 +25,29 @@ implements GetCoachCustomersUsecaseInterface
       return [undefined, getCoachCustomersError];
     }
 
-    const twilioCustomers:TwilioCustomer[] = coachCustomers.length ?
-      coachCustomers.map(({ id, phone, coach, note, firstName, lastName }) => {
-        let displayName = `customer ${id}`;
-        if(firstName && lastName) displayName = `${firstName} ${lastName}`;
-        else if(firstName) displayName = firstName;
-        return {
-          customer_id: id,
-          display_name: displayName,
-          channels: [{ type: 'sms', value: phone }],
-          details: {
-            title: 'Customer note',
-            content: note,
-          },
-          worker: coach.email, // assign this customer to a worker
-          address: phone,
-        };
-      }):[];
+    const twilioCustomers:TwilioCustomerList = coachCustomers.length ?
+      {
+        objects: {
+          customers: coachCustomers.map(({ id, phone, coach, note, firstName, lastName }) => {
+            let displayName = `customer ${id}`;
+            if(firstName && lastName) displayName = `${firstName} ${lastName}`;
+            else if(firstName) displayName = firstName;
+
+            return {
+              customer_id: id,
+              display_name: displayName,
+              channels: [{ type: 'sms', value: phone }],
+              details: {
+                title: 'Customer note',
+                content: note,
+              },
+              worker: coach.email, // assign this customer to a worker
+              address: phone,
+            };
+          }),
+        },
+      }
+      :{ objects: { customers: [] } };
 
     return [twilioCustomers, undefined];
   }
