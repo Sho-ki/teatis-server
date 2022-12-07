@@ -21,7 +21,7 @@ import * as ClientOAuth2 from 'client-oauth2';
 import { CustomerAuthRepositoryInterface } from '@Repositories/teatisDB/customer/customerAuth.repository';
 import { CreateCalendarEventInterface } from '@Usecases/utils/createCalendarEvent';
 import { createGoogleOAuthClient } from '@Usecases/utils/OAuthClient';
-import { CustomerCoachRepositoryInterface } from '../../repositories/teatisDB/coach/customerCoach.repository';
+import { CoachRepositoryInterface } from '../../repositories/teatisDB/coach/coach.repository';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
@@ -71,8 +71,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private customerAuthRepository: CustomerAuthRepositoryInterface,
     @Inject('CreateCalendarEventInterface')
     private createCalendarEvent: CreateCalendarEventInterface,
-    @Inject('CustomerCoachRepositoryInterface')
-    private customerCoachRepository: CustomerCoachRepositoryInterface,
+    @Inject('CoachRepositoryInterface')
+    private coachRepository: CoachRepositoryInterface,
 
   ) {}
 
@@ -141,12 +141,9 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
 
     // tmp code
     if(line_items.includes({ product_id: 6738837307447 }) && customerOrderCount.orderCount <= 1){ // coaching box
-      const [coach, getCoachError] = await this.customerCoachRepository.getCoachByEmail({ email: 'coach@teatismeal.com' });
-      if(getCoachError){
-        return [undefined, getCoachError];
-      }
-      const [, getConnectCoachError] = await this.customerCoachRepository.
-        connectCustomerCoach({ coachId: coach.id, customerId: customer.id });
+
+      const [, getConnectCoachError] = await this.coachRepository.
+        connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
       if(getConnectCoachError){
         return [undefined, getConnectCoachError];
       }

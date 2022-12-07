@@ -750,7 +750,7 @@ model CustomerSessionStore {
 model CustomerCoachHistory{
   customerId            Int
   coachId Int
-  startDate DateTime
+  startDate DateTime  @default(now())
   endDate DateTime?
   coach   Coach @relation(fields: [coachId], references: [id])
   customer Customers  @relation(fields: [customerId], references: [id])

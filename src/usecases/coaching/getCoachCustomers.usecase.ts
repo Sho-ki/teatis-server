@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ReturnValueType } from '@Filters/customError';
-import { CustomerCoachRepositoryInterface } from '../../repositories/teatisDB/coach/customerCoach.repository';
-import { TwilioCustomer } from '../../domains/TwilioCustomer';
+import { TwilioCustomer } from '@Domains/TwilioCustomer';
+import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
 
 export interface GetCoachCustomersUsecaseInterface {
   getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomer[]>>;
@@ -13,20 +13,20 @@ export class GetCoachCustomersUsecase
 implements GetCoachCustomersUsecaseInterface
 {
   constructor(
-    @Inject('CustomerCoachRepositoryInterface')
-    private customerCoachRepository: CustomerCoachRepositoryInterface,
+    @Inject('CoachRepositoryInterface')
+    private coachCustomerRepository: CoachRepositoryInterface,
   ) {}
 
   async getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomer[]>> {
-    const [customerCoach, getCustomerCoachError] =
-      await this.customerCoachRepository.getCustomerCoach({ email });
+    const [coachCustomers, getCoachCustomersError] =
+      await this.coachCustomerRepository.getCoachCustomers({ email });
 
-    if (getCustomerCoachError) {
-      return [undefined, getCustomerCoachError];
+    if (getCoachCustomersError) {
+      return [undefined, getCoachCustomersError];
     }
 
-    const twilioCustomers:TwilioCustomer[] = customerCoach.length ?
-      customerCoach.map(({ id, phone, coach, note, firstName, lastName }) => {
+    const twilioCustomers:TwilioCustomer[] = coachCustomers.length ?
+      coachCustomers.map(({ id, phone, coach, note, firstName, lastName }) => {
         let displayName = `customer ${id}`;
         if(firstName && lastName) displayName = `${firstName} ${lastName}`;
         else if(firstName) displayName = firstName;

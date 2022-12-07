@@ -25,7 +25,7 @@ import { CustomerProductsAutoSwap } from '@Usecases/utils/customerProductsAutoSw
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
 import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
-import { CustomerCoachRepository } from '../repositories/teatisDB/coach/customerCoach.repository';
+import { CoachRepository } from '../repositories/teatisDB/coach/coach.repository';
 import { PrismaService } from '../prisma.service';
 import { CreateCalendarEvent } from '../usecases/utils/createCalendarEvent';
 
@@ -34,8 +34,8 @@ import { CreateCalendarEvent } from '../usecases/utils/createCalendarEvent';
   providers: [
     WebhookEventService,
     {
-      provide: 'CustomerCoachRepositoryInterface',
-      useClass: CustomerCoachRepository,
+      provide: 'CoachRepositoryInterface',
+      useClass: CoachRepository,
     },
     {
       provide: 'CustomerAuthRepositoryInterface',
