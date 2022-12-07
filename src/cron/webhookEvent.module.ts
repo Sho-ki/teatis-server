@@ -4,7 +4,6 @@ import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
 import { WebhookEventService } from './webhookEvent.service';
 import { WebhookEventRepository } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { CheckUpdateOrderUsecase } from '@Usecases/webhookEvent/checkUpdateOrder.usecase';
-import { PrismaService } from '../prisma.service';
 import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
 import { UpdateCustomerOrderOfCustomerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
@@ -26,18 +25,25 @@ import { CustomerProductsAutoSwap } from '@Usecases/utils/customerProductsAutoSw
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
 import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
+import { CoachRepository } from '../repositories/teatisDB/coach/coach.repository';
+import { PrismaService } from '../prisma.service';
+import { CreateCalendarEvent } from '../usecases/utils/createCalendarEvent';
 
 @Module({
   exports: [WebhookEventService],
   providers: [
     WebhookEventService,
     {
+      provide: 'CoachRepositoryInterface',
+      useClass: CoachRepository,
+    },
+    {
       provide: 'CustomerAuthRepositoryInterface',
       useClass: CustomerAuthRepository,
     },
     {
       provide: 'CreateCalendarEventInterface',
-      useClass: CustomerAuthRepository,
+      useClass: CreateCalendarEvent,
     },
 
     {

@@ -25,6 +25,10 @@ model Discoveries {
 model Customers {
   id                                            Int                                            @id @default(autoincrement())
   email                                         String                                         @unique
+  phone                                         String?                                        @unique
+  firstName                                     String?
+  lastName                                      String?
+  middleName                                    String?
   createdAt                                     DateTime                                       @default(now())
   updatedAt                                     DateTime                                       @default(now()) @updatedAt
   activeLevel                                   String?
@@ -36,6 +40,9 @@ model Customers {
   uuid                                          String?                                        @unique
   frozenAvailable                               Boolean?                                       @default(false)
   note                                          String?
+  coachId                                       Int?
+  coach                                         Coach? @relation(fields: [coachId], references: [id])
+  customerCoachHistory                          CustomerCoachHistory[]
   customerBoxItems                              CustomerBoxItems[]
   customerFoodLog                               CustomerFoodLog[]
   customerOAuth                                 CustomerOAuth2[]
@@ -740,6 +747,26 @@ model CustomerSessionStore {
   @@index([expire], map: "IDX_session_expire")
 }
 
+model CustomerCoachHistory{
+  customerId            Int
+  coachId Int
+  startDate DateTime  @default(now())
+  endDate DateTime?
+  coach   Coach @relation(fields: [coachId], references: [id])
+  customer Customers  @relation(fields: [customerId], references: [id])
+
+  @@id([customerId, coachId])
+}
+
+model Coach {
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  customer Customers[]
+  customerCoachHistory CustomerCoachHistory[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now()) @updatedAt
+}
+
 enum OAuthProvider {
   google
 }
@@ -764,4 +791,5 @@ enum QueueStatus {
 enum ActiveStatus {
   active
   inactive
+  // pending
 }

@@ -6,6 +6,7 @@ import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
+import { Prisma } from '@prisma/client';
 
 export interface GetCustomerArgs {
   email: string;
@@ -29,9 +30,12 @@ interface GetCustomerMedicalConditionArgs {
   email: string;
 }
 
-interface UpdateEmailByUuidArgs {
+interface UpdateCustomerByUuidArgs {
   uuid: string;
-  newEmail: string;
+  newEmail?: string;
+  phone?:string;
+  firstName?:string;
+  lastName?:string;
 }
 
 interface GetCustomerNutritionArgs {
@@ -47,10 +51,11 @@ export interface CustomerGeneralRepositoryInterface {
   getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>>;
   getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
 
-  updateCustomerEmailByUuid({
+  updateCustomerByUuid({
     uuid,
     newEmail,
-  }: UpdateEmailByUuidArgs): Promise<ReturnValueType<Customer>>;
+    phone, firstName, lastName,
+  }: UpdateCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
 }
 
 @Injectable()
@@ -120,16 +125,30 @@ implements CustomerGeneralRepositoryInterface
     return [nutritions];
   }
 
-  async updateCustomerEmailByUuid({
+  async updateCustomerByUuid({
     uuid,
-    newEmail,
-  }: UpdateEmailByUuidArgs): Promise<ReturnValueType<Customer>> {
+    newEmail, phone, firstName, lastName,
+  }: UpdateCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
+    const data:Prisma.CustomersUpdateInput = {};
+    if(newEmail) data.email = newEmail;
+    if(phone) data.phone = phone;
+    if(firstName) data.firstName = firstName;
+    if(lastName) data.lastName = lastName;
+
     const response = await this.prisma.customers.update({
       where: { uuid },
-      data: { email: newEmail },
-      select: { id: true, createdAt: true, updatedAt: true },
+      data,
     });
-    return [{ id: response.id, email: newEmail, uuid, createAt: response.createdAt, updatedAt: response.updatedAt }];
+    if(!response){
+      return [undefined, { name: 'Error', message: 'uuid is invalid' }];
+    }
+    return [
+      {
+        id: response.id, email: newEmail, uuid,
+        phone: response.phone, firstName: response.firstName, lastName: response.lastName,
+        createAt: response.createdAt, updatedAt: response.updatedAt,
+      },
+    ];
   }
 
   async getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
@@ -143,6 +162,9 @@ implements CustomerGeneralRepositoryInterface
         id: response.id,
         email: response.email,
         uuid: response.uuid,
+        phone: response.phone,
+        firstName: response.firstName,
+        lastName: response.lastName,
         createAt: response.createdAt,
         updatedAt: response.updatedAt,
       },
@@ -273,10 +295,7 @@ implements CustomerGeneralRepositoryInterface
   }
 
   async getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>> {
-    const response = await this.prisma.customers.findUnique({
-      where: { email },
-      select: { id: true, email: true, uuid: true, createdAt: true, updatedAt: true },
-    });
+    const response = await this.prisma.customers.findUnique({ where: { email } });
     if (!response) {
       return [{ id: undefined, email: undefined, uuid: undefined }];
     }
@@ -288,7 +307,9 @@ implements CustomerGeneralRepositoryInterface
     return [
       {
         id: response.id, email: response.email, uuid: response.uuid,
-        createAt: response.createdAt, updatedAt: response.updatedAt,
+        createAt: response.createdAt, updatedAt: response.updatedAt, phone: response.phone,
+        firstName: response.firstName,
+        lastName: response.lastName,
       },
     ];
   }

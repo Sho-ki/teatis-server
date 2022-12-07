@@ -254,6 +254,7 @@ export class DiscoveriesController {
             uuid: noteAttributes.uuid,
             practitionerBoxUuid: noteAttributes.practitionerBoxUuid,
             admin_graphql_api_id: body.admin_graphql_api_id,
+            line_items: body.line_items,
           },
         );
 

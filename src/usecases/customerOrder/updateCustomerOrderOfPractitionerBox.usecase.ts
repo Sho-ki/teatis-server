@@ -21,11 +21,12 @@ import * as ClientOAuth2 from 'client-oauth2';
 import { CustomerAuthRepositoryInterface } from '@Repositories/teatisDB/customer/customerAuth.repository';
 import { CreateCalendarEventInterface } from '@Usecases/utils/createCalendarEvent';
 import { createGoogleOAuthClient } from '@Usecases/utils/OAuthClient';
+import { CoachRepositoryInterface } from '../../repositories/teatisDB/coach/coach.repository';
 
 interface UpdateCustomerOrderOfPractitionerBoxArgs
   extends Pick<
     UpdateCustomerOrderDto,
-    'name' | 'customer' | 'subtotal_price' | 'admin_graphql_api_id'
+    'name' | 'customer' | 'subtotal_price' | 'admin_graphql_api_id' | 'line_items'
   > {
   uuid: string;
   practitionerBoxUuid: string;
@@ -36,6 +37,7 @@ export interface UpdateCustomerOrderOfPractitionerBoxUsecaseInterface {
     name,
     customer,
     subtotal_price,
+    line_items,
     uuid,
     practitionerBoxUuid,
     admin_graphql_api_id,
@@ -69,6 +71,8 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     private customerAuthRepository: CustomerAuthRepositoryInterface,
     @Inject('CreateCalendarEventInterface')
     private createCalendarEvent: CreateCalendarEventInterface,
+    @Inject('CoachRepositoryInterface')
+    private coachRepository: CoachRepositoryInterface,
 
   ) {}
 
@@ -77,6 +81,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     customer: shopifyCustomer,
     subtotal_price,
     uuid,
+    line_items = [{ product_id: 6738837307447 }],
     practitionerBoxUuid,
     admin_graphql_api_id: apiId,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
@@ -85,6 +90,18 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
 
     if (getCustomerError) {
       return [undefined, getCustomerError];
+    }
+    const changePhone = shopifyCustomer.phone && customer.phone !== shopifyCustomer.phone;
+    const changeFirstName = shopifyCustomer.first_name && customer.firstName !== shopifyCustomer.first_name;
+    const changeLastName = shopifyCustomer.last_name && customer.lastName !== shopifyCustomer.last_name;
+    if(changePhone|| changeFirstName || changeLastName){
+      await this.customerGeneralRepository.updateCustomerByUuid({
+        uuid,
+        phone: shopifyCustomer.phone,
+        firstName: shopifyCustomer.first_name,
+        lastName: shopifyCustomer.last_name,
+      });
+
     }
 
     const [orderQueueScheduled, orderQueueScheduledError] =
@@ -96,7 +113,6 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (orderQueueScheduledError) {
       return [undefined, orderQueueScheduledError];
     }
-
     const [order, orderError] =
       await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber: name });
     if (orderError) {
@@ -122,6 +138,17 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
+
+    // tmp code
+    if(line_items.includes({ product_id: 6738837307447 }) && customerOrderCount.orderCount <= 1){ // coaching box
+
+      const [, getConnectCoachError] = await this.coachRepository.
+        connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
+      if(getConnectCoachError){
+        return [undefined, getConnectCoachError];
+      }
+    }
+
     const isFirstOrder = customerOrderCount.orderCount === 1;
     const [practitionerAndBox, getPractitionerAndBoxByUuidError] =
       await this.practitionerBoxRepository.getPractitionerAndBoxByUuid({ practitionerBoxUuid });
