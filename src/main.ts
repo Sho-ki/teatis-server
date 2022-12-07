@@ -54,12 +54,7 @@ async function bootstrap() {
     AppModule,
     {
       cors: {
-        origin: [
-          'http://localhost:3000',
-          'https://app.teatismeal.com',
-          'https://teatismeal.com',
-          vercelOrigins,
-        ],
+        origin: ['http://localhost:3000', 'https://teatismeal.com', vercelOrigins],
         credentials: true,
       },
     },
@@ -88,6 +83,7 @@ async function bootstrap() {
     resave: false,
     saveUninitialized: false,
     cookie: {
+      // domain: 'teatismeal.com',
       expires: expiresDate,
       sameSite: 'none',
       secure: true,

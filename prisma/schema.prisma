@@ -40,6 +40,9 @@ model Customers {
   uuid                                          String?                                        @unique
   frozenAvailable                               Boolean?                                       @default(false)
   note                                          String?
+  coachId                                       Int?
+  coach                                         Coach? @relation(fields: [coachId], references: [id])
+  customerCoachHistory                          CustomerCoachHistory[]
   customerBoxItems                              CustomerBoxItems[]
   customerFoodLog                               CustomerFoodLog[]
   customerOAuth                                 CustomerOAuth2[]
@@ -54,7 +57,6 @@ model Customers {
   intermediateCustomerMedicalConditions         IntermediateCustomerMedicalCondition[]
   intermediateCustomerNutritionNeeds            IntermediateCustomerNutritionNeed[]
   intermediateCustomerUnavailableCookingMethods IntermediateCustomerUnavailableCookingMethod[]
-  intermediateCustomerCoach                     IntermediateCustomerCoach[]
   practitionerCustomerOrderHistory              PractitionerCustomerOrderHistory[]
   queuedShopifyOrder                            QueuedShopifyOrder[]
   surveyQuestionAnswer                          SurveyQuestionAnswer[]
@@ -745,25 +747,24 @@ model CustomerSessionStore {
   @@index([expire], map: "IDX_session_expire")
 }
 
+model CustomerCoachHistory{
+  customerId            Int
+  coachId Int
+  startDate DateTime
+  endDate DateTime?
+  coach   Coach @relation(fields: [coachId], references: [id])
+  customer Customers  @relation(fields: [customerId], references: [id])
+
+  @@id([customerId, coachId])
+}
+
 model Coach {
   id            Int             @id @default(autoincrement())
   email         String          @unique
-  intermediateCustomerCoach IntermediateCustomerCoach[]
+  customer Customers[]
+  customerCoachHistory CustomerCoachHistory[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @default(now()) @updatedAt
-}
-
-model IntermediateCustomerCoach {
-  coachId           Int
-  customerId        Int
-  coachingNumber    Int @default(1) // when a customer changes their coach, it will be increased
-  activeStatus      ActiveStatus    @default(active)
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @default(now()) @updatedAt
-  coach             Coach @relation(fields: [coachId], references: [id])
-  customer          Customers       @relation(fields: [customerId], references: [id])
-
-  @@id([coachId, customerId])
 }
 
 enum OAuthProvider {
@@ -790,4 +791,5 @@ enum QueueStatus {
 enum ActiveStatus {
   active
   inactive
+  // pending
 }
