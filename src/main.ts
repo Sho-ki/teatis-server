@@ -83,7 +83,7 @@ async function bootstrap() {
     resave: false,
     saveUninitialized: false,
     cookie: {
-      // domain: 'teatismeal.com',
+      domain: 'teatismeal.com',
       expires: expiresDate,
       sameSite: 'none',
       secure: true,
