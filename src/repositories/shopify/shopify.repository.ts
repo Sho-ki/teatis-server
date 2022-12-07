@@ -113,7 +113,10 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
           totalPrice: subtotal_price,
           attributes: note_attributes,
           lineItems: line_items.map(({ product_id }) => { return { productId: product_id }; }),
-          shopifyCustomer: { email: customer.email, id: customer.id },
+          shopifyCustomer: {
+            email: customer.email, id: customer.id,
+            phone: customer?.phone, first_name: customer?.first_name, last_name: customer?.last_name,
+          },
         };
       })
       :[];

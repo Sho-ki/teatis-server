@@ -45,11 +45,16 @@ import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customer
 import { CreateCalendarEvent } from '@Usecases/utils/createCalendarEvent';
 import { GoogleCalendarRepository } from '@Repositories/googleOAuth2/googleCalendar.repository';
 import { TemporaryPrePurchaseSurveysModule } from './temporaryPrePurchaseSurvey/temporaryPrePurchaseSurvey.module';
+import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
 
 @Module({
   controllers: [DiscoveriesController],
   providers: [
 
+    {
+      provide: 'CoachRepositoryInterface',
+      useClass: CoachRepository,
+    },
     {
       provide: 'GoogleCalendarRepositoryInterface',
       useClass: GoogleCalendarRepository,

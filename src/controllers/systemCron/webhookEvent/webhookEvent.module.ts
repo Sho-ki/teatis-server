@@ -26,18 +26,24 @@ import { CustomerProductsAutoSwap } from '@Usecases/utils/customerProductsAutoSw
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
 import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
+import { CreateCalendarEvent } from '../../../usecases/utils/createCalendarEvent';
+import { CoachRepository } from '../../../repositories/teatisDB/coach/coach.repository';
 
 @Module({
   exports: [WebhookEventService],
   providers: [
     WebhookEventService,
     {
+      provide: 'CoachRepositoryInterface',
+      useClass: CoachRepository,
+    },
+    {
       provide: 'CustomerAuthRepositoryInterface',
       useClass: CustomerAuthRepository,
     },
     {
       provide: 'CreateCalendarEventInterface',
-      useClass: CustomerAuthRepository,
+      useClass: CreateCalendarEvent,
     },
 
     {

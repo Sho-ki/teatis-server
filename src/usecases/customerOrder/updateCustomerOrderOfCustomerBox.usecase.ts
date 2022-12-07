@@ -66,7 +66,7 @@ implements UpdateCustomerOrderOfCustomerBoxUsecaseInterface
 
     if (!customer.id) {
       [customer, getCustomerError] =
-        await this.customerGeneralRepository.updateCustomerEmailByUuid({
+        await this.customerGeneralRepository.updateCustomerByUuid({
           uuid,
           newEmail: shopifyCustomer.email,
         });
