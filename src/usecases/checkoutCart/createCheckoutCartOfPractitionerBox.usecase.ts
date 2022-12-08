@@ -57,37 +57,34 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
-    const isTest = VALID_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid);
-    let deliveryIntervalMerchandiseId: string | null = null;
-    switch(deliveryInterval) {
-      case 1:
-        deliveryIntervalMerchandiseId = PRACTITIONER_BOX_PLANS.customized7.merchandiseId;
-        break;
-      case 12:
-        deliveryIntervalMerchandiseId = PRACTITIONER_BOX_PLANS.customized7Annual.merchandiseId;
-        break;
-    }
-    const discountCode_ = discountCode || (isTest
+    const isTrial = VALID_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid);
+    const discountCode_ = discountCode || (isTrial
       ? DISCOUNT_CODES.testPractitionerBox.firstPurchase
       : DISCOUNT_CODES.practitionerBox.firstPurchase);
-    const merchandiseId__ = isTest
-      ? (deliveryIntervalMerchandiseId || PRACTITIONER_BOX_PLANS.customized7.merchandiseId)
-      : PRACTITIONER_BOX_PLANS.original.merchandiseId;
-    const merchandiseId_ = isOneTimePurchase
+
+    const deliveryIntervalMap = {
+      1: PRACTITIONER_BOX_PLANS.customized7,
+      12: PRACTITIONER_BOX_PLANS.customized7Annual,
+    };
+    const deliveryIntervalPlan = deliveryIntervalMap[deliveryInterval] || PRACTITIONER_BOX_PLANS.customized7;
+    const merchandiseId = isOneTimePurchase
       ? PRACTITIONER_BOX_PLANS.oneTimePurchase.merchandiseId
-      : merchandiseId__;
-    const sellingPlanId_ = isTest
-      ? PRACTITIONER_BOX_PLANS.customized7.sellingPlanId
+      : isTrial
+        ? deliveryIntervalPlan.merchandiseId
+        : PRACTITIONER_BOX_PLANS.original.merchandiseId;
+    const sellingPlanId = isTrial
+      ? deliveryIntervalPlan.sellingPlanId
       : PRACTITIONER_BOX_PLANS.original.sellingPlanId;
     const createCartArgs = {
-      merchandiseId: merchandiseId_,
+      merchandiseId,
       attributes,
     };
+
     const [cart, createCheckoutCartOfPractitionerBoxError] =
       await this.ShopifyRepository.createCart(
         isOneTimePurchase
           ? createCartArgs
-          : { ...createCartArgs, discountCode: discountCode_, sellingPlanId: sellingPlanId_ }
+          : { ...createCartArgs, discountCode: discountCode_, sellingPlanId }
       );
     if (createCheckoutCartOfPractitionerBoxError) {
       return [undefined, createCheckoutCartOfPractitionerBoxError];

@@ -22,9 +22,6 @@ export class PractitionerBoxDto{
   @IsString()
     boxType: 'PractitionerBox';
 
-  // @IsNumber()
-  // deliveryInterval: 1 | 3 | 6 | 12
-
   @IsString()
     uuid: string;
 
