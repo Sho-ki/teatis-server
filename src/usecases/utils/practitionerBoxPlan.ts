@@ -20,7 +20,7 @@ export const PRACTITIONER_BOX_PLANS ={
   customized7Annual: {
     merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC80MDA0MzU1NDk5NjI3OQ==',
     sellingPlanId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY3NDIzOTIzNDA1MzU=',
-    id: 6710679601207,
+    id: 6742392340535,
     sku: 'NP-influencer-curate-box-7',
   },
   oneTimePurchase: {
