@@ -8,7 +8,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { PractitionerBoxDto } from '@Controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
-import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
+import { VALID_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
 import { CustomerSessionRepositoryInterface } from '@Repositories/teatisDB/customer/customerSession.repository';
 
 export interface PractitionerBoxArgs extends PractitionerBoxDto {
@@ -45,6 +45,7 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     discountCode,
     sessionId,
     isOneTimePurchase,
+    deliveryInterval,
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   > {
@@ -56,12 +57,21 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
-    const isTest = TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid);
+    const isTest = VALID_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid);
+    let deliveryIntervalMerchandiseId: string | null = null;
+    switch(deliveryInterval) {
+      case 1:
+        deliveryIntervalMerchandiseId = PRACTITIONER_BOX_PLANS.customized7.merchandiseId;
+        break;
+      case 12:
+        deliveryIntervalMerchandiseId = PRACTITIONER_BOX_PLANS.customized7Annual.merchandiseId;
+        break;
+    }
     const discountCode_ = discountCode || (isTest
       ? DISCOUNT_CODES.testPractitionerBox.firstPurchase
       : DISCOUNT_CODES.practitionerBox.firstPurchase);
     const merchandiseId__ = isTest
-      ? PRACTITIONER_BOX_PLANS.customized7.merchandiseId
+      ? (deliveryIntervalMerchandiseId || PRACTITIONER_BOX_PLANS.customized7.merchandiseId)
       : PRACTITIONER_BOX_PLANS.original.merchandiseId;
     const merchandiseId_ = isOneTimePurchase
       ? PRACTITIONER_BOX_PLANS.oneTimePurchase.merchandiseId

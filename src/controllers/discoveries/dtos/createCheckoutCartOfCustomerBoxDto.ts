@@ -38,6 +38,11 @@ export class PractitionerBoxDto{
   @IsBoolean()
   @IsOptional()
     isOneTimePurchase?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+    deliveryInterval?: 1 | 12;
+
 }
 
 export type CreateCheckoutCartDto = CustomerBoxDto | PractitionerBoxDto;

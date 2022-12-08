@@ -14,7 +14,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { CustomerProductsAutoSwapInterface } from '@Usecases/utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { currentMonth } from '@Usecases/utils/dates';
-import { TEST_PRACTITIONER_BOX_UUIDS } from '@Usecases/utils/testPractitionerBoxUuids';
+import { VALID_PRACTITIONER_BOX_UUIDS } from '@Usecases/utils/testPractitionerBoxUuids';
 import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import * as ClientOAuth2 from 'client-oauth2';
@@ -190,7 +190,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     console.log('customer.createAt', customer.createAt);
     console.log('practitionerBoxUuid', practitionerBoxUuid);
     console.log('customerOrderCount.orderCount', customerOrderCount.orderCount);
-    if(customer.updatedAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    if(customer.updatedAt >= new Date('2022-10-01') && VALID_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
         case 1:
           orderProducts = [
@@ -257,7 +257,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
     }
 
-    if(customer.updatedAt >= new Date('2022-12-03') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    if(customer.updatedAt >= new Date('2022-12-03') && VALID_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
         case 1:
           orderProducts = [
