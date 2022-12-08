@@ -116,6 +116,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
           shopifyCustomer: {
             email: customer.email, id: customer.id,
             phone: customer?.phone, first_name: customer?.first_name, last_name: customer?.last_name,
+            default_address: { phone: customer?.default_address?.phone },
           },
         };
       })

@@ -81,7 +81,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     customer: shopifyCustomer,
     subtotal_price,
     uuid,
-    line_items = [{ product_id: 6738837307447 }],
+    line_items,
     practitionerBoxUuid,
     admin_graphql_api_id: apiId,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
@@ -91,13 +91,15 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
-    const changePhone = shopifyCustomer.phone && customer.phone !== shopifyCustomer.phone;
+
+    const phoneNumber = shopifyCustomer.phone || shopifyCustomer.default_address.phone;
+    const changePhone = phoneNumber && customer.phone !== phoneNumber;
     const changeFirstName = shopifyCustomer.first_name && customer.firstName !== shopifyCustomer.first_name;
     const changeLastName = shopifyCustomer.last_name && customer.lastName !== shopifyCustomer.last_name;
     if(changePhone|| changeFirstName || changeLastName){
       await this.customerGeneralRepository.updateCustomerByUuid({
         uuid,
-        phone: shopifyCustomer.phone,
+        phone: phoneNumber,
         firstName: shopifyCustomer.first_name,
         lastName: shopifyCustomer.last_name,
       });
@@ -138,9 +140,11 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
-
     // tmp code
-    if(line_items.includes({ product_id: 6738837307447 }) && customerOrderCount.orderCount <= 1){ // coaching box
+    const hasCoachingBox =
+    line_items.some(item => item.product_id === 6738837307447 || item.product_id === 6742392340535);
+
+    if(hasCoachingBox && customerOrderCount.orderCount <= 1){ // coaching box
 
       const [, getConnectCoachError] = await this.coachRepository.
         connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
@@ -257,7 +261,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
     }
 
-    if(customer.updatedAt >= new Date('2022-12-03') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    if(customer.createAt >= new Date('2022-12-03') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
         case 1:
           orderProducts = [
