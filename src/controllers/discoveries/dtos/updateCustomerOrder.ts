@@ -8,7 +8,8 @@ export class UpdateCustomerOrderDto {
     subtotal_price: string;
 
   @IsObject()
-    customer: { email: string, id: number, phone?:string, first_name?:string, last_name?: string };
+    customer: { email: string; id: number; phone?:string; first_name?:string; last_name?: string;
+      default_address?:{phone?:string};  };
 
   @IsArray()
     line_items: { product_id: number }[];
