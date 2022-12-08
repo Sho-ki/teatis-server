@@ -92,7 +92,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, getCustomerError];
     }
 
-    const phoneNumber = shopifyCustomer.phone || shopifyCustomer.default_address.phone;
+    let phoneNumber = shopifyCustomer.phone || shopifyCustomer.default_address.phone;
+    if(phoneNumber.substring(0, 1) !== '+'){
+      phoneNumber = '+1' + phoneNumber;
+    }
     const changePhone = phoneNumber && customer.phone !== phoneNumber;
     const changeFirstName = shopifyCustomer.first_name && customer.firstName !== shopifyCustomer.first_name;
     const changeLastName = shopifyCustomer.last_name && customer.lastName !== shopifyCustomer.last_name;
