@@ -93,7 +93,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     }
 
     let phoneNumber = shopifyCustomer.phone || shopifyCustomer.default_address.phone;
-    if(phoneNumber.substring(0, 1) !== '+'){
+    if(phoneNumber || phoneNumber.substring(0, 1) !== '+'){
       phoneNumber = '+1' + phoneNumber;
     }
     const changePhone = phoneNumber && customer.phone !== phoneNumber;
