@@ -28,11 +28,16 @@ import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/custo
 import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
 import { CreateCalendarEvent } from '../../../usecases/utils/createCalendarEvent';
 import { CoachRepository } from '../../../repositories/teatisDB/coach/coach.repository';
+import { GoogleCalendarRepository } from '../../../repositories/googleOAuth2/googleCalendar.repository';
 
 @Module({
   exports: [WebhookEventService],
   providers: [
     WebhookEventService,
+    {
+      provide: 'GoogleCalendarRepositoryInterface',
+      useClass: GoogleCalendarRepository,
+    },
     {
       provide: 'CoachRepositoryInterface',
       useClass: CoachRepository,

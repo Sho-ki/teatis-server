@@ -9,7 +9,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filter/allExceptions.filter';
 import { TerraModule } from './controllers/terra/terra.module';
 import { ShipheroKeyModule } from './controllers/systemCron/shipheroKey/shipheroKey.module';
-// import { WebhookEventModule } from './controllers/systemCron/webhookEvent/webhookEvent.module';
+import { WebhookEventModule } from './controllers/systemCron/webhookEvent/webhookEvent.module';
 import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
 
@@ -17,7 +17,7 @@ import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
   imports: [
     DiscoveriesModule,
     ShipheroKeyModule,
-    // WebhookEventModule,
+    WebhookEventModule,
     ProductModule,
     TerraModule,
     OAuth2Module,
