@@ -1,3 +1,4 @@
+/* eslint-disable array-element-newline */
 export const TEST_PRACTITIONER_BOX_UUIDS = [
   // eslint-disable-next-line array-element-newline
   '0e49014f-3cf0-45ff-bee7-10ad5808d2a9', // whitney box Prod
