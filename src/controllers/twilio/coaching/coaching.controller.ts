@@ -33,8 +33,9 @@ export class CoachingController {
         return response.status(200).send(usecaseResponse);
       }
       case 'GetCustomersList':{
+        const pageToken = body.Anchor? Number(body.Anchor):undefined;
         const [usecaseResponse, error] =
-      await this.getCoachCustomersUsecase.getCoachCustomers(Worker);
+      await this.getCoachCustomersUsecase.getCoachCustomers(Worker, pageToken);
         if (error) {
           return response.status(500).send(error);
         }
