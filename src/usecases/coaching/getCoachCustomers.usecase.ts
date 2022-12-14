@@ -5,7 +5,7 @@ import { TwilioCustomerList } from '@Domains/TwilioCustomerList';
 import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
 
 export interface GetCoachCustomersUsecaseInterface {
-  getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomerList>>;
+  getCoachCustomers(email:string, oldCursorId:number): Promise<ReturnValueType<TwilioCustomerList>>;
 }
 
 @Injectable()
@@ -17,9 +17,9 @@ implements GetCoachCustomersUsecaseInterface
     private coachCustomerRepository: CoachRepositoryInterface,
   ) {}
 
-  async getCoachCustomers(email:string): Promise<ReturnValueType<TwilioCustomerList>> {
+  async getCoachCustomers(email:string, oldCursorId :number): Promise<ReturnValueType<TwilioCustomerList>> {
     const [coachCustomers, getCoachCustomersError] =
-      await this.coachCustomerRepository.getCoachCustomers({ email });
+      await this.coachCustomerRepository.getCoachCustomers({ email, oldCursorId });
 
     if (getCoachCustomersError) {
       return [undefined, getCoachCustomersError];
