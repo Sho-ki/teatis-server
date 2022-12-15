@@ -15,6 +15,7 @@ interface UpsertCustomerArgs {
   A1c: string;
   mealsPerDay: number;
   categoryPreferences: { name: string, label?: string }[];
+  coachingPreferences: { name: string, label?: string }[];
   flavorDislikes: { name: string, label?: string }[];
   ingredientDislikes: { name: string, label?: string }[];
   allergens: { name: string, label?: string }[];
@@ -44,6 +45,7 @@ export interface CustomerPrePurchaseSurveyRepositoryInterface {
     A1c,
     mealsPerDay,
     categoryPreferences,
+    coachingPreferences,
     flavorDislikes,
     ingredientDislikes,
     allergens,
@@ -79,6 +81,7 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
     A1c,
     mealsPerDay,
     categoryPreferences,
+    coachingPreferences,
     flavorDislikes,
     ingredientDislikes,
     allergens,
@@ -159,6 +162,14 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
                 }),
               }
               : {},
+        intermediateCustomerCoachingPreferences:
+        coachingPreferences.length > 0
+          ? {
+            create: coachingPreferences.map((coachingPreference) => {
+              return { coachingPreference: { connect: { name: coachingPreference.name } } };
+            }),
+          }
+          : {},
         intermediateCustomerIngredientDislikes:
             ingredientDislikes.length > 0
               ? {
@@ -252,6 +263,14 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
               ? {
                 create: categoryPreferences.map((categoryPreference) => {
                   return { productCategory: { connect: { name: categoryPreference.name } } };
+                }),
+              }
+              : {},
+        intermediateCustomerCoachingPreferences:
+            coachingPreferences.length > 0
+              ? {
+                create: coachingPreferences.map((coachingPreference) => {
+                  return { coachingPreference: { connect: { name: coachingPreference.name } } };
                 }),
               }
               : {},
