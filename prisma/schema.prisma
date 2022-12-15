@@ -61,34 +61,78 @@ model Customers {
   queuedShopifyOrder                            QueuedShopifyOrder[]
   surveyQuestionAnswer                          SurveyQuestionAnswer[]
   terraCustomer                                 TerraCustomer?
-  // intermediateCustomerAutoMessageHistory  IntermediateCustomerAutoMessageHistory[]
+  intermediateCustomerAutoMessageHistory  IntermediateCustomerAutoMessageHistory[]
+  messageTimePreference MessageTimePreference @default(at18)
+  coachingSubscribed Boolean @default(false)
+  coachingSubscribedAt    DateTime?
+  coachingUnsubscribedAt  DateTime?
+  // messageSkip Int @desfault(0)
+  // lastSentCateogryOrder
 }
 
-// model IntermediateCustomerAutoMessageHistory {
-//   autoMessageId Int
-//   customerId        Int
-//   status MessageStatus
-//   createdAt         DateTime        @default(now())
-//   updatedAt         DateTime        @default(now()) @updatedAt
-//   autoMessage   AutoMessage @relation(fields: [autoMessageId], references: [id])
-//   customer          Customers       @relation(fields: [customerId], references: [id])
+model IntermediateCustomerAutoMessageHistory {
+  autoMessageId Int
+  customerId        Int
+  twilioSid String?
+  twilioLog Json?
+  status MessageStatus
+  content   Content @relation(fields: [contentId], references: [id])
+  contentId Int
+  createdAt         DateTime        @default(now())
+  autoMessage   AutoMessage @relation(fields: [autoMessageId], references: [id])
+  customer          Customers       @relation(fields: [customerId], references: [id])
 
-//   @@id([autoMessageId, customerId])
-// }
+  @@id([autoMessageId, customerId])
+}
 
-// enum MessageStatus {
-//   success
-//   failed
-// }
+enum MessageTimePreference {
+  at0
+  at3
+  at6
+  at9
+  at12
+  at15
+  at18
+  at21
+}
 
-// model AutoMessage {
-//   id                                            Int                                            @id @default(autoincrement())
-//   content String
-//   intermediateCustomerAutoMessageHistory  IntermediateCustomerAutoMessageHistory[]
-//   createdAt                                     DateTime                                       @default(now())
-//   updatedAt                                     DateTime                                       @default(now()) @updatedAt
+enum MessageStatus {
+  success
+  failed
+  unsubscribed // when attempting to send unsubscribed customers
+}
 
-// }
+model AutoMessage {
+  id  Int  @id @default(autoincrement())
+  messageCategory MessageCategory @relation(fields: [messageCategoryId], references: [id])
+  messageCategoryId Int
+  messageOrder Int
+  content Content[]
+  intermediateCustomerAutoMessageHistory  IntermediateCustomerAutoMessageHistory[]
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+
+  @@unique([messageOrder, messageCategoryId], name: "MessageOrderByCategoryIdentifier")
+}
+
+model MessageCategory {
+  id  Int  @id @default(autoincrement())
+  category String @unique
+  categoryOrder Int
+  autoMessage AutoMessage[]
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model Content {
+  id  Int  @id @default(autoincrement())
+  content String
+  intermediateCustomerAutoMessageHistory IntermediateCustomerAutoMessageHistory[]
+  autoMessage   AutoMessage @relation(fields: [autoMessageId], references: [id])
+  autoMessageId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
 
 model TemporaryPrePurchaseAnswer {
   id                                            Int                                            @id @default(autoincrement())
@@ -788,6 +832,7 @@ model CustomerCoachHistory{
 model Coach {
   id            Int             @id @default(autoincrement())
   email         String          @unique
+  // phoneNumber String
   customer Customers[]
   customerCoachHistory CustomerCoachHistory[]
   createdAt     DateTime        @default(now())
