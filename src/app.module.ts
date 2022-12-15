@@ -8,10 +8,11 @@ import { PrismaService } from './prisma.service';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filter/allExceptions.filter';
 import { TerraModule } from './controllers/terra/terra.module';
-import { ShipheroKeyModule } from './controllers/systemCron/shipheroKey/shipheroKey.module';
-import { WebhookEventModule } from './controllers/systemCron/webhookEvent/webhookEvent.module';
+import { ShipheroKeyModule } from './controllers/cloudScheduler/shipheroKey/shipheroKey.module';
+import { WebhookEventModule } from './controllers/cloudScheduler/webhookEvent/webhookEvent.module';
 import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
+import { TwilioModule } from './controllers/cloudScheduler/twilio/twilio.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
     TerraModule,
     OAuth2Module,
     CoachingModule,
+    TwilioModule,
     ScheduleModule.forRoot(),
   ],
 
