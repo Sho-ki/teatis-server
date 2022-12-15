@@ -121,6 +121,7 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
     if (checkIfExists) {
       await Promise.all([
         this.prisma.intermediateCustomerCategoryPreference.deleteMany({ where: { customerId: checkIfExists.id } }),
+        this.prisma.intermediateCustomerCoachingPreference.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerIngredientDislike.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerAllergen.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerFlavorDislike.deleteMany({ where: { customerId: checkIfExists.id } }),
