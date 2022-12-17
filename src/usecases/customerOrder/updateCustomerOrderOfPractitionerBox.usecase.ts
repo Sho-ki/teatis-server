@@ -221,7 +221,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10427-GRA-SN20205' },
             { sku: 'x10437-SWT-SN20187' },
             { sku: 'x10409-JRK-SN20158' },
-            { sku: 'x10224-CHP-SN20122' },
+            { sku: 'x10415-CHP-SN20203' },
           ];
           break;
         case 3: orderProducts = [
