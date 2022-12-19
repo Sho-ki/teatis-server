@@ -39,7 +39,7 @@ implements GetCustomerDetailUsecaseInterface
             channels: [{ type: 'sms', value: phone }],
             details: {
               title: 'Customer note',
-              content: 'customer ID:' + customerDetail.uuid + ' - ' + note,
+              content: 'customer ID:\n' + customerDetail.uuid + '\ncustomer note:\n' + note||'',
             },
             worker: coach.email, // assign this customer to a worker
             address: phone,
