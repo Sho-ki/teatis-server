@@ -7,6 +7,7 @@ import { Coach } from '@Domains/Coach';
 
 export interface GetCoachCustomersArgs {
   email: string;
+  oldCursorId?:number;
 }
 
 export interface ConnectCustomerCoachArgs {
@@ -19,7 +20,7 @@ export interface GetCustomerDetailArgs {
 }
 
 export interface CoachRepositoryInterface {
-  getCoachCustomers({ email }: GetCoachCustomersArgs): Promise<ReturnValueType<CoachCustomer[]>>;
+  getCoachCustomers({ email, oldCursorId }: GetCoachCustomersArgs): Promise<ReturnValueType<CoachCustomer[]>>;
   getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachCustomer>>;
 
   connectCustomerCoach({ coachEmail, customerId }:ConnectCustomerCoachArgs):
@@ -70,22 +71,26 @@ export class CoachRepository implements CoachRepositoryInterface {
     return [{ id: response.coachId, email: response.coach.email }];
   }
 
-  async getCoachCustomers({ email }: GetCoachCustomersArgs): Promise<ReturnValueType<CoachCustomer[]>> {
-    const response = await this.prisma.coach.findUnique({
-      where: { email },
-      include: { customer: true },
+  async getCoachCustomers({ email, oldCursorId }: GetCoachCustomersArgs): Promise<ReturnValueType<CoachCustomer[]>> {
+    const skipCount = oldCursorId?1:0;
+    const cursor = oldCursorId? { id: oldCursorId }:undefined;
+
+    const response = await this.prisma.customers.findMany({
+      where: { coach: { email } },
+      take: 30, skip: skipCount, cursor,
+      orderBy: { id: 'asc' },
     });
     if (!response) {
       return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
     const coachCustomers: CoachCustomer[] =
-    response.customer.length ?
-      response.customer.map((
+    response.length ?
+      response.map((
         { id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone  }) => {
         return {
           id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-          coach: { id: response.id, email: response.email },
+          coach: { id, email },
         };
       }):[];
 

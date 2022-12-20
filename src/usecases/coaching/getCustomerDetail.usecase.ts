@@ -25,7 +25,7 @@ implements GetCustomerDetailUsecaseInterface
       return [undefined, getCustomerDetailError];
     }
 
-    const { phone, coach, note, firstName, lastName } = customerDetail;
+    const { phone, coach,  firstName, lastName } = customerDetail;
     let displayName = `customer ${id}`;
     if(firstName && lastName) displayName = `${firstName} ${lastName}`;
     else if(firstName) displayName = firstName;
@@ -39,7 +39,7 @@ implements GetCustomerDetailUsecaseInterface
             channels: [{ type: 'sms', value: phone }],
             details: {
               title: 'Customer note',
-              content: note,
+              content: 'customer ID: ' + customerDetail.uuid,
             },
             worker: coach.email, // assign this customer to a worker
             address: phone,

@@ -92,7 +92,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       return [undefined, getCustomerError];
     }
 
-    let phoneNumber = shopifyCustomer.phone || shopifyCustomer.default_address.phone;
+    let phoneNumber = shopifyCustomer.phone || shopifyCustomer?.default_address?.phone;
     if(phoneNumber && phoneNumber.substring(0, 1) !== '+'){
       phoneNumber = '+1' + phoneNumber;
     }
@@ -197,7 +197,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     console.log('customer.createAt', customer.createAt);
     console.log('practitionerBoxUuid', practitionerBoxUuid);
     console.log('customerOrderCount.orderCount', customerOrderCount.orderCount);
-    if(customer.updatedAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
         case 1:
           orderProducts = [
@@ -221,7 +221,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10427-GRA-SN20205' },
             { sku: 'x10437-SWT-SN20187' },
             { sku: 'x10409-JRK-SN20158' },
-            { sku: 'x10224-CHP-SN20122' },
+            { sku: 'x10415-CHP-SN20203' },
           ];
           break;
         case 3: orderProducts = [
