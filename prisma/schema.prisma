@@ -51,6 +51,7 @@ model Customers {
   intermediateCustomerAllergens                 IntermediateCustomerAllergen[]
   intermediateCustomerBoxPlans                  IntermediateCustomerBoxPlan[]
   intermediateCustomerCategoryPreferences       IntermediateCustomerCategoryPreference[]
+  intermediateCustomerCoachingPreferences       IntermediateCustomerCoachingPreference[]
   intermediateCustomerFlavorDislikes            IntermediateCustomerFlavorDislike[]
   intermediateCustomerFoodTypes                 IntermediateCustomerFoodType[]
   intermediateCustomerIngredientDislikes        IntermediateCustomerIngredientDislike[]
@@ -411,6 +412,24 @@ model IntermediateCustomerCategoryPreference {
   productCategory   ProductCategory @relation(fields: [productCategoryId], references: [id])
 
   @@id([productCategoryId, customerId])
+}
+model IntermediateCustomerCoachingPreference {
+  customerId               Int
+  coachingPreferenceId     Int
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @default(now()) @updatedAt
+  customer                 Customers          @relation(fields: [customerId], references: [id])
+  coachingPreference       CoachingPreference @relation(fields: [coachingPreferenceId], references: [id])
+  @@id([coachingPreferenceId, customerId])
+}
+
+model CoachingPreference {
+  id                       Int                                     @id @default(autoincrement())
+  name                     String                                  @unique
+  label                    String
+  createdAt                DateTime                                @default(now())
+  updatedAt                DateTime                                @default(now()) @updatedAt
+  intermediateCustomerCoachingPreference IntermediateCustomerCoachingPreference[]
 }
 
 model IntermediateProductIngredient {
