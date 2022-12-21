@@ -9,7 +9,7 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start:cron": "ts-node src/standAlone/twilio/sendAutoMessage.main.ts",
+    "start:cron": "ts-node src/worker/twilio/sendAutoMessage.main.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

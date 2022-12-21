@@ -12,7 +12,6 @@ import { ShipheroKeyModule } from './controllers/cloudScheduler/shipheroKey/ship
 import { WebhookEventModule } from './controllers/cloudScheduler/webhookEvent/webhookEvent.module';
 import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
-import { TwilioModule } from './controllers/cloudScheduler/twilio/twilio.module';
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { TwilioModule } from './controllers/cloudScheduler/twilio/twilio.module'
     TerraModule,
     OAuth2Module,
     CoachingModule,
-    TwilioModule,
     ScheduleModule.forRoot(),
   ],
 
