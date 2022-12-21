@@ -1,16 +1,16 @@
 import { NestFactory } from '@nestjs/core';
-import { StandAloneModule } from '../standAlone.module';
+import { WorkerModule } from '../worker.module';
 import { SendAutoMessageService } from './sendAutoMessage.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 const sendAutoMessage = async() => {
-  const standAloneApp = await NestFactory.createApplicationContext(StandAloneModule);
-  const appService = standAloneApp.get(SendAutoMessageService);
+  const workerApp = await NestFactory.createApplicationContext(WorkerModule);
+  const appService = workerApp.get(SendAutoMessageService);
   appService.sendAutoMessage();
-  await standAloneApp.close();
+  await workerApp.close();
 
 };
-
 sendAutoMessage();
+// module.exports = sendAutoMessage;

@@ -1,6 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { PrismaService } from '../prisma.service';
+import { AutoMessageRepository } from '../repositories/teatisDB/autoMessage/autoMessage.repository';
 import { CoachRepository } from '../repositories/teatisDB/coach/coach.repository';
 import { SendAutoMessageUsecase } from '../usecases/twilio/sendAutoMessage.usecase';
 import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
@@ -18,6 +19,11 @@ import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
           process.env.TWILIO_AUTH_TOKEN,);
       },
     },
+
+    {
+      provide: 'AutoMessageRepositoryInterface',
+      useClass: AutoMessageRepository,
+    },
     {
       provide: 'SendAutoMessageUsecaseInterface',
       useClass: SendAutoMessageUsecase,
@@ -29,4 +35,4 @@ import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
 
   ],
 })
-export class StandAloneModule {}
+export class WorkerModule {}
