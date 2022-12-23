@@ -203,7 +203,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           orderProducts = [
             { sku: 'x10264-BAR-SN20154' },
             { sku: 'x10217-CHP-SN20144' },
-            { sku: 'x10362-SWT-SN20187' },
+            { sku: 'x10365-SWT-SN20187' },
             { sku: 'x10428-CHP-SN20206' },
             { sku: 'x10206-GUM-SN20127' },
             { sku: 'x10404-CHC-SN20199' },
@@ -271,7 +271,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10404-CHC-SN20199' },
             { sku: 'x10428-CHP-SN20206' },
             { sku: 'x10206-GUM-SN20127' },
-            { sku: 'x10362-SWT-SN20187' },
+            { sku: 'x10365-SWT-SN20187' },
             { sku: 'x10217-CHP-SN20144' },
             { sku: 'x10325-JRK-SN20177' },
             { sku: 'x10264-BAR-SN20154' },
