@@ -62,9 +62,12 @@ model Customers {
   surveyQuestionAnswer                          SurveyQuestionAnswer[]
   terraCustomer                                 TerraCustomer?
   customerEventLog  CustomerEventLog []
+  intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
   messageTimePreference MessageTimePreference @default(at18)
-  coachingSubscribed ActiveStatus @default(active)
-  boxSubscribed ActiveStatus @default(active)
+  coachingSubscribed ActiveStatus @default(inactive)
+  boxSubscribed ActiveStatus @default(inactive)
+  twilioChannelSid String? 
+  sequenceBasedAutoMessageInterval Int?
 }
 
 model CustomerEventLog {
@@ -81,7 +84,6 @@ enum EventType {
   boxSubscribed
   boxUnsubscribed
 }
-
 
 enum MediaType {
   mp3
@@ -106,22 +108,21 @@ enum MessageStatus {
   failed
 }
 
-model AutoMessage {
+model PurchaseDateBasedMessage {
   id  Int  @id @default(autoincrement())
   delayDaysSincePurchase Int
-  content Content[]
+  purchaseDateBasedAutoMessageContent PurchaseDateBasedAutoMessageContent[]
   createdAt  DateTime  @default(now())
   updatedAt DateTime     @default(now()) @updatedAt
-
 }
 
-model AutoMessageMedia {
+model PurchaseDateBasedAutoMessageMedia {
   id  Int  @id @default(autoincrement())
   urlTemplate String
   variable VariableType?
   type MediaType
-  content   Content @relation(fields: [contentId], references: [id])
-  contentId Int
+  purchaseDateBasedAutoMessageContent   PurchaseDateBasedAutoMessageContent @relation(fields: [purchaseDateBasedAutoMessageContentId], references: [id])
+  purchaseDateBasedAutoMessageContentId Int
   createdAt  DateTime  @default(now())
   updatedAt DateTime     @default(now()) @updatedAt
 }
@@ -130,14 +131,54 @@ enum VariableType {
   customerUuid
 }
 
-model Content {
+model PurchaseDateBasedAutoMessageContent {
   id  Int  @id @default(autoincrement())
-  content String
-  autoMessageMedia AutoMessageMedia[]
-  autoMessage   AutoMessage @relation(fields: [autoMessageId], references: [id])
-  autoMessageId Int
+  body String
+  purchaseDateBasedAutoMessageMedia PurchaseDateBasedAutoMessageMedia[]
+  purchaseDateBasedMessage   PurchaseDateBasedMessage @relation(fields: [purchaseDateBasedMessageId], references: [id])
+  purchaseDateBasedMessageId Int
   createdAt  DateTime  @default(now())
   updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessage {
+  id  Int  @id @default(autoincrement())
+  sequence Int
+  sequenceBasedAutoMessageContent SequenceBasedAutoMessageContent[]
+  intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessageContent {
+  id  Int  @id @default(autoincrement())
+  body String
+  sequenceBasedAutoMessageMedia SequenceBasedAutoMessageMedia[]
+  sequenceBasedAutoMessage   SequenceBasedAutoMessage @relation(fields: [SequenceBasedAutoMessageId], references: [id])
+  SequenceBasedAutoMessageId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessageMedia {
+  id  Int  @id @default(autoincrement())
+  urlTemplate String
+  variable VariableType?
+  type MediaType
+  SequenceBasedAutoMessageContent   SequenceBasedAutoMessageContent @relation(fields: [sequenceBasedAutoMessageContentId], references: [id])
+  sequenceBasedAutoMessageContentId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model IntermediateCustomerSequenceBasedAutoMessageHistory {
+  sequenceBasedAutoMessageId Int
+  customerId        Int
+  sentAt         DateTime        @default(now())
+  sequenceBasedAutoMessage   SequenceBasedAutoMessage @relation(fields: [sequenceBasedAutoMessageId], references: [id])
+  customer          Customers       @relation(fields: [customerId], references: [id])
+
+  @@id([sequenceBasedAutoMessageId, customerId])
 }
 
 model TemporaryPrePurchaseAnswer {
