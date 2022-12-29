@@ -162,10 +162,9 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
           region: ${{ env.REGION }}
-          function_name: twilio-auto-message-dev
-          trigger_http: true
+          name: twilio-auto-message-dev
           runtime: nodejs16
-          entrypoint: /src/worker/twilio/sendAutoMessage.main.ts
+          entry_point: /src/worker/twilio/sendAutoMessage.main.ts
 
       # If required, use the Cloud Run url output in later steps
       - name: Show deploy-main Output
