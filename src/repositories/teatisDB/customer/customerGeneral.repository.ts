@@ -47,6 +47,10 @@ interface UpdateCustomerTwilioChannelSidArgs {
   twilioChannelSid:string;
 }
 
+export interface DeactivateCustomerSubscriptionArgs {
+  uuid: string;
+}
+
 export interface CustomerGeneralRepositoryInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
   getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>>;
@@ -64,6 +68,7 @@ export interface CustomerGeneralRepositoryInterface {
 
   updateCustomerTwilioChannelSid({ customerId, twilioChannelSid }:UpdateCustomerTwilioChannelSidArgs):
    Promise<Customer>;
+  deactivateCustomerSubscription({ uuid }: DeactivateCustomerSubscriptionArgs): Promise<Customer>;
 }
 
 @Injectable()
@@ -71,6 +76,18 @@ export class CustomerGeneralRepository
 implements CustomerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
+
+  async deactivateCustomerSubscription({ uuid }: DeactivateCustomerSubscriptionArgs):
+   Promise<Customer> {
+    return await this.prisma.customers.update(
+      {
+        where: { uuid },
+        data: { boxSubscribed: 'inactive', coachingSubscribed: 'inactive' },
+      },
+    );
+
+  }
+
   async updateCustomerTwilioChannelSid({ customerId, twilioChannelSid }: UpdateCustomerTwilioChannelSidArgs):
   Promise<Customer> {
     return await this.prisma.customers.update({ where: { id: customerId }, data: { twilioChannelSid } });

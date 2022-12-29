@@ -12,11 +12,13 @@ import { ShipheroKeyModule } from './controllers/cloudScheduler/shipheroKey/ship
 import { WebhookEventModule } from './controllers/cloudScheduler/webhookEvent/webhookEvent.module';
 import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
+import { SubscriptionModule } from './controllers/recharge/subscription.module';
 
 @Module({
   imports: [
     DiscoveriesModule,
     ShipheroKeyModule,
+    SubscriptionModule,
     WebhookEventModule,
     ProductModule,
     TerraModule,
