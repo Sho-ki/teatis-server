@@ -12,5 +12,4 @@ const sendAutoMessage = async() => {
   await workerApp.close();
 
 };
-sendAutoMessage();
-// module.exports = sendAutoMessage;
+module.exports = sendAutoMessage;

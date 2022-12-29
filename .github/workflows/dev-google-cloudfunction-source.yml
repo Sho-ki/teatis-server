@@ -49,7 +49,7 @@ name: Dev Release (Testing)
 on:
   push:
     branches:
-      - main
+      - feature/twilio-auto-message-cloud-function
 
 env:
   PROJECT_ID: teatis-discovery-dev
