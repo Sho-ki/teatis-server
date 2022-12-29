@@ -44,12 +44,12 @@
 #   Cloud Run builds from source        - https://cloud.google.com/run/docs/deploying-source-code
 #   Principle of least privilege        - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 
-name: Dev Release (Testing)
+name: Deploy Test for Cloud functions
 
 on:
   push:
     branches:
-      - main
+      - feature/twilio-auto-message-cloud-function
 
 env:
   PROJECT_ID: teatis-discovery-dev
@@ -155,15 +155,6 @@ jobs:
         with:
           workload_identity_provider: '${{ secrets.WIF_PROVIDER_DEV }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}'
-
-      - name: Deploy to Cloud Run
-        id: deploy-main
-        uses: google-github-actions/deploy-cloudrun@v0
-        with:
-          service: ${{ env.SERVICE }}
-          region: ${{ env.REGION }}
-          # NOTE: If required, update to the appropriate source folder
-          source: ./
 
       - name: Deploy to Cloud Function
         id: deploy-twilio-auto-massage
