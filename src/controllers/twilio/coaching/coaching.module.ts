@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
 
-import { GetCoachCustomersUsecase } from '@Usecases/coaching/getCoachCustomers.usecase';
+import { GetCoachedCustomersUsecase } from '@Usecases/coaching/getCoachedCustomers.usecase';
 import { CoachingController } from './coaching.controller';
 import { CoachRepository } from '@Repositories/teatisDB/coach/coach.repository';
 import { GetCustomerDetailUsecase } from '@Usecases/coaching/getCustomerDetail.usecase';
@@ -16,8 +16,8 @@ import { GetCustomerDetailUsecase } from '@Usecases/coaching/getCustomerDetail.u
       useClass: GetCustomerDetailUsecase,
     },
     {
-      provide: 'GetCoachCustomersUsecaseInterface',
-      useClass: GetCoachCustomersUsecase,
+      provide: 'GetCoachedCustomersUsecaseInterface',
+      useClass: GetCoachedCustomersUsecase,
     },
     {
       provide: 'CoachRepositoryInterface',

@@ -4,31 +4,31 @@ import { ReturnValueType } from '@Filters/customError';
 import { TwilioCustomerList } from '@Domains/TwilioCustomerList';
 import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
 
-export interface GetCoachCustomersUsecaseInterface {
-  getCoachCustomers(email:string, oldCursorId:number): Promise<ReturnValueType<TwilioCustomerList>>;
+export interface GetCoachedCustomersUsecaseInterface {
+  getCoachedCustomers(email:string, oldCursorId:number): Promise<ReturnValueType<TwilioCustomerList>>;
 }
 
 @Injectable()
-export class GetCoachCustomersUsecase
-implements GetCoachCustomersUsecaseInterface
+export class GetCoachedCustomersUsecase
+implements GetCoachedCustomersUsecaseInterface
 {
   constructor(
     @Inject('CoachRepositoryInterface')
-    private coachCustomerRepository: CoachRepositoryInterface,
+    private coachedCustomerRepository: CoachRepositoryInterface,
   ) {}
 
-  async getCoachCustomers(email:string, oldCursorId :number): Promise<ReturnValueType<TwilioCustomerList>> {
-    const [coachCustomers, getCoachCustomersError] =
-      await this.coachCustomerRepository.getCoachCustomers({ email, oldCursorId });
+  async getCoachedCustomers(email:string, oldCursorId :number): Promise<ReturnValueType<TwilioCustomerList>> {
+    const [coachedCustomers, getCoachedCustomersError] =
+      await this.coachedCustomerRepository.getCoachedCustomers({ email, oldCursorId });
 
-    if (getCoachCustomersError) {
-      return [undefined, getCoachCustomersError];
+    if (getCoachedCustomersError) {
+      return [undefined, getCoachedCustomersError];
     }
 
-    const twilioCustomers:TwilioCustomerList = coachCustomers.length ?
+    const twilioCustomers:TwilioCustomerList = coachedCustomers.length ?
       {
         objects: {
-          customers: coachCustomers.map(({ id, phone, coach, note, firstName, lastName }) => {
+          customers: coachedCustomers.map(({ id, phone, coach, note, firstName, lastName }) => {
             let displayName = `customer ${id}`;
             if(firstName && lastName) displayName = `${firstName} ${lastName}`;
             else if(firstName) displayName = firstName;

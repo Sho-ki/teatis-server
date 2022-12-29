@@ -154,6 +154,23 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       if(getConnectCoachError){
         return [undefined, getConnectCoachError];
       }
+
+      if(customer.boxStatus !== 'active' && customer.coachingStatus !== 'active' ){
+        await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
+      }
+    }else {
+      if(hasCoachingBox && customer.coachingStatus !== 'active' ){
+        if(!customer.coachId){ // Customers who subscribed once without coaching, but subscribed again with coaching
+          await this.coachRepository.
+            connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
+        }
+        await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed']  });
+      }
+      if(customer.boxStatus !== 'active'){
+        await this.customerGeneralRepository.activateCustomerSubscription(
+          { uuid: customer.uuid, type: ['boxSubscribed']  }
+        );
+      }
     }
 
     const isFirstOrder = customerOrderCount.orderCount === 1;

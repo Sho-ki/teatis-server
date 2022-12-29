@@ -26,6 +26,7 @@ model Customers {
   id                                            Int                                            @id @default(autoincrement())
   email                                         String                                         @unique
   phone                                         String?                                        @unique
+  phoneStatus                                   ValidStatus?                                   @default(pending)     
   firstName                                     String?
   lastName                                      String?
   middleName                                    String?
@@ -62,34 +63,125 @@ model Customers {
   queuedShopifyOrder                            QueuedShopifyOrder[]
   surveyQuestionAnswer                          SurveyQuestionAnswer[]
   terraCustomer                                 TerraCustomer?
-  // intermediateCustomerAutoMessageHistory  IntermediateCustomerAutoMessageHistory[]
+  customerEventLog  CustomerEventLog []
+  intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
+  messageTimePreference MessageTimePreference @default(at18)
+  coachingSubscribed ActiveStatus @default(inactive)
+  boxSubscribed ActiveStatus @default(inactive)
+  twilioChannelSid String? 
+  sequenceBasedAutoMessageInterval Int?  @default(7)
 }
 
-// model IntermediateCustomerAutoMessageHistory {
-//   autoMessageId Int
-//   customerId        Int
-//   status MessageStatus
-//   createdAt         DateTime        @default(now())
-//   updatedAt         DateTime        @default(now()) @updatedAt
-//   autoMessage   AutoMessage @relation(fields: [autoMessageId], references: [id])
-//   customer          Customers       @relation(fields: [customerId], references: [id])
+enum ValidStatus {
+  valid
+  invalid
+  pending
+}
 
-//   @@id([autoMessageId, customerId])
-// }
+model CustomerEventLog {
+  id Int @id @default(autoincrement())
+  customerId Int
+  customer   Customers @relation(fields: [customerId], references: [id])
+  eventDate    DateTime   @default(now())
+  type  EventType
+}
 
-// enum MessageStatus {
-//   success
-//   failed
-// }
+enum EventType {
+  coachingSubscribed
+  coachingUnsubscribed
+  boxSubscribed
+  boxUnsubscribed
+}
 
-// model AutoMessage {
-//   id                                            Int                                            @id @default(autoincrement())
-//   content String
-//   intermediateCustomerAutoMessageHistory  IntermediateCustomerAutoMessageHistory[]
-//   createdAt                                     DateTime                                       @default(now())
-//   updatedAt                                     DateTime                                       @default(now()) @updatedAt
+enum MediaType {
+  mp3
+  mp4
+  image
+  webPage
+}
 
-// }
+enum MessageTimePreference {
+  at0
+  at3
+  at6
+  at9
+  at12
+  at15
+  at18
+  at21
+}
+
+model PurchaseDateBasedMessage {
+  id  Int  @id @default(autoincrement())
+  delayDaysSincePurchase Int
+  purchaseDateBasedAutoMessageContent PurchaseDateBasedAutoMessageContent[]
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model PurchaseDateBasedAutoMessageMedia {
+  id  Int  @id @default(autoincrement())
+  urlTemplate String
+  // variable Json?
+  type MediaType
+  purchaseDateBasedAutoMessageContent   PurchaseDateBasedAutoMessageContent @relation(fields: [purchaseDateBasedAutoMessageContentId], references: [id])
+  purchaseDateBasedAutoMessageContentId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+
+model PurchaseDateBasedAutoMessageContent {
+  id  Int  @id @default(autoincrement())
+  body String
+  // variable Json?
+  purchaseDateBasedAutoMessageMedia PurchaseDateBasedAutoMessageMedia[]
+  purchaseDateBasedMessage   PurchaseDateBasedMessage @relation(fields: [purchaseDateBasedMessageId], references: [id])
+  purchaseDateBasedMessageId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessage {
+  id  Int  @id @default(autoincrement())
+  sequence Int
+  sequenceBasedAutoMessageContent SequenceBasedAutoMessageContent[]
+  intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessageContent {
+  id  Int  @id @default(autoincrement())
+  body String
+  // variable Json?
+  sequenceBasedAutoMessageMedia SequenceBasedAutoMessageMedia[]
+  sequenceBasedAutoMessage   SequenceBasedAutoMessage @relation(fields: [SequenceBasedAutoMessageId], references: [id])
+  SequenceBasedAutoMessageId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessageMedia {
+  id  Int  @id @default(autoincrement())
+  urlTemplate String
+  // variable Json?
+  type MediaType
+  SequenceBasedAutoMessageContent   SequenceBasedAutoMessageContent @relation(fields: [sequenceBasedAutoMessageContentId], references: [id])
+  sequenceBasedAutoMessageContentId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model IntermediateCustomerSequenceBasedAutoMessageHistory {
+  sequenceBasedAutoMessageId Int
+  customerId        Int
+  sentAt         DateTime        @default(now())
+  sequenceBasedAutoMessage   SequenceBasedAutoMessage @relation(fields: [sequenceBasedAutoMessageId], references: [id])
+  customer          Customers       @relation(fields: [customerId], references: [id])
+
+  @@id([sequenceBasedAutoMessageId, customerId])
+}
 
 model TemporaryPrePurchaseAnswer {
   id                                            Int                                            @id @default(autoincrement())
@@ -807,6 +899,7 @@ model CustomerCoachHistory{
 model Coach {
   id            Int             @id @default(autoincrement())
   email         String          @unique
+  phone String?
   customer Customers[]
   customerCoachHistory CustomerCoachHistory[]
   createdAt     DateTime        @default(now())
@@ -837,5 +930,5 @@ enum QueueStatus {
 enum ActiveStatus {
   active
   inactive
-  // pending
+  pending
 }
