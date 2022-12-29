@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 
-export class GetCoachCustomersDto {
+export class GetCoachedCustomersDto {
   @IsString()
     Location:'GetCustomerDetailsByCustomerId' | 'GetCustomersList';
 

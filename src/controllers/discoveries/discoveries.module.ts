@@ -50,7 +50,6 @@ import { CoachRepository } from '../../repositories/teatisDB/coach/coach.reposit
 @Module({
   controllers: [DiscoveriesController],
   providers: [
-
     {
       provide: 'CoachRepositoryInterface',
       useClass: CoachRepository,

@@ -4,7 +4,7 @@ import { GraphQLClient } from 'graphql-request';
 import { Cart } from '@Domains/Cart';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import { CreateCartMutation, getSdk } from './generated/graphql';
-import { RetrieveOrdersListResponse, ShopifyGetCustomerRes } from './shopify.interface';
+import { GetCustomerOrdersByEmailResponse, RetrieveOrdersListResponse, ShopifyGetCustomerRes } from './shopify.interface';
 import { ReturnValueType } from '../../filter/customError';
 import { ShopifyWebhook } from '../../domains/ShopifyWebhook';
 
@@ -17,6 +17,10 @@ interface CreateCartArgs {
   merchandiseId: string;
   sellingPlanId?: string;
   attributes: { key: string, value: string }[];
+}
+
+interface GetUuidByEmailArgs {
+  email: string;
 }
 
 interface GetShopifyWebhooksArgs {
@@ -32,12 +36,40 @@ export interface ShopifyRepositoryInterface {
     attributes,
   }: CreateCartArgs): Promise<ReturnValueType<Cart>>;
   getShopifyWebhooks({ fromDate }:GetShopifyWebhooksArgs):Promise<ReturnValueType<ShopifyWebhook[]>>;
+  getCustomerUuidByEmail({ email }:GetUuidByEmailArgs):Promise<ReturnValueType<string>>;
 }
 
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
 
 @Injectable()
 export class ShopifyRepository implements ShopifyRepositoryInterface {
+  async getCustomerUuidByEmail({ email }: GetUuidByEmailArgs): Promise<ReturnValueType<string>> {
+
+    const response = await axios.get<GetCustomerOrdersByEmailResponse.RootObject>(
+      `https://thetis-tea.myshopify.com/admin/api/2022-01/orders.json?query=email:${email}&status=any`,
+      {
+        auth: {
+          username: process.env.SHOPIFY_API_KEY as string,
+          password: process.env.SHOPIFY_API_PASSWORD as string,
+        },
+      },
+    );
+
+    const orders = response?.data?.orders;
+    if(!orders || !orders.length){
+      return [undefined, { name: 'getCustomerUuidByEmail failed', message: 'No orders were found. Email is invalid' }];
+    }
+    const attributes:{ name: string, value: string }[] = orders[0].note_attributes;
+
+    let uuid: string | null = null;
+    attributes.forEach(note => {
+      if (note.name === 'uuid') {
+        uuid = note.value;
+        return;
+      }
+    });
+    return [uuid];
+  }
   async createCart({
     discountCode,
     merchandiseId,

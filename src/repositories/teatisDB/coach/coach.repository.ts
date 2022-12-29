@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
-import { CoachCustomer } from '@Domains/CoachCustomer';
+import { CoachedCustomer } from '@Domains/CoachedCustomer';
 import { Coach } from '@Domains/Coach';
 
-export interface GetCoachCustomersArgs {
+export interface GetCoachedCustomersArgs {
   email: string;
   oldCursorId?:number;
 }
@@ -19,18 +19,48 @@ export interface GetCustomerDetailArgs {
   id:number;
 }
 
+interface GetActiveCoachedCustomersBySendAtArgs {
+ sendAt: 'at0'| 'at3'| 'at6'| 'at9'| 'at12'| 'at15'| 'at18'| 'at21';
+}
+
 export interface CoachRepositoryInterface {
-  getCoachCustomers({ email, oldCursorId }: GetCoachCustomersArgs): Promise<ReturnValueType<CoachCustomer[]>>;
-  getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachCustomer>>;
+  getCoachedCustomers({ email, oldCursorId }: GetCoachedCustomersArgs): Promise<ReturnValueType<CoachedCustomer[]>>;
+  getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>>;
 
   connectCustomerCoach({ coachEmail, customerId }:ConnectCustomerCoachArgs):
   Promise<ReturnValueType<Coach>>;
+
+  getActiveCoachedCustomersBySendAt(
+    { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]>;
 }
 
 @Injectable()
 export class CoachRepository implements CoachRepositoryInterface {
   constructor(private prisma: PrismaService) {}
-  async getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachCustomer>> {
+
+  async getActiveCoachedCustomersBySendAt(
+    { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]> {
+    const response = await this.prisma.customers.findMany(
+      { where: { coachingSubscribed: 'active', messageTimePreference: sendAt, coachId: { not: null } }, include: { coach: true } });
+
+    const customers :CoachedCustomer[] =  response.length ?
+      response.map((
+        {
+          id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
+          coachingSubscribed, boxSubscribed, sequenceBasedAutoMessageInterval, twilioChannelSid,
+        }) => {
+        return {
+          id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
+          coachingStatus: coachingSubscribed, boxStatus: boxSubscribed, sequenceBasedAutoMessageInterval,
+          twilioChannelSid,
+          coach: { id: coach.id, email: coach.email, phone: coach.phone },
+        };
+      })
+      :[];
+    return customers;
+  }
+
+  async getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>> {
     const response = await this.prisma.customers.findUnique({
       where: { id },
       include: { coach: true },
@@ -39,10 +69,14 @@ export class CoachRepository implements CoachRepositoryInterface {
       return [undefined, { name: 'Internal Server Error', message: 'id is invalid' }];
     }
 
-    const {  email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone  } = response;
-    const customerDetails: CoachCustomer =  {
+    const {
+      email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
+      boxSubscribed, coachingSubscribed,
+    } = response;
+    const customerDetails: CoachedCustomer =  {
       id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-      coach: { id: response.id, email: response.email },
+      coachingStatus: coachingSubscribed, boxStatus: boxSubscribed,
+      coach: { id: coach.id, email: coach.email, phone: coach.phone },
     };
 
     return [customerDetails];
@@ -71,7 +105,8 @@ export class CoachRepository implements CoachRepositoryInterface {
     return [{ id: response.coachId, email: response.coach.email }];
   }
 
-  async getCoachCustomers({ email, oldCursorId }: GetCoachCustomersArgs): Promise<ReturnValueType<CoachCustomer[]>> {
+  async getCoachedCustomers({ email, oldCursorId }: GetCoachedCustomersArgs):
+  Promise<ReturnValueType<CoachedCustomer[]>> {
     const skipCount = oldCursorId?1:0;
     const cursor = oldCursorId? { id: oldCursorId }:undefined;
 
@@ -79,21 +114,26 @@ export class CoachRepository implements CoachRepositoryInterface {
       where: { coach: { email } },
       take: 30, skip: skipCount, cursor,
       orderBy: { id: 'asc' },
+      include: { coach: true },
     });
     if (!response) {
       return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
     }
 
-    const coachCustomers: CoachCustomer[] =
+    const coachedCustomers: CoachedCustomer[] =
     response.length ?
       response.map((
-        { id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone  }) => {
+        {
+          id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
+          coachingSubscribed, boxSubscribed,
+        }) => {
         return {
           id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-          coach: { id, email },
+          coachingStatus: coachingSubscribed, boxStatus: boxSubscribed,
+          coach: { id: coach.id, email: coach.email, phone: coach.phone },
         };
       }):[];
 
-    return [coachCustomers];
+    return [coachedCustomers];
   }
 }
