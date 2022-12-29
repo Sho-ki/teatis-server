@@ -10,6 +10,7 @@ export interface Customer {
   boxStatus?: 'active' | 'inactive'| 'pending';
   twilioChannelSid?:string;
   sequenceBasedAutoMessageInterval?:number;
+  coachId?:number;
   note?:string;
   createAt?: Date;
   updatedAt?: Date;

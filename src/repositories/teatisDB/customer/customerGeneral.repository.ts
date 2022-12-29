@@ -47,8 +47,20 @@ interface UpdateCustomerTwilioChannelSidArgs {
   twilioChannelSid:string;
 }
 
-export interface DeactivateCustomerSubscriptionArgs {
+type UnsubscribeEventType = 'boxUnsubscribed'|'coachingUnsubscribed';
+
+export interface deactivateCustomerSubscriptionArgs {
   uuid: string;
+  type: UnsubscribeEventType[];
+  eventDate?:Date;
+}
+
+type SubscribeEventType = 'boxSubscribed'|'coachingSubscribed';
+
+export interface activateCustomerSubscriptionArgs {
+  uuid: string;
+  type: SubscribeEventType[];
+  eventDate?:Date;
 }
 
 export interface CustomerGeneralRepositoryInterface {
@@ -68,7 +80,11 @@ export interface CustomerGeneralRepositoryInterface {
 
   updateCustomerTwilioChannelSid({ customerId, twilioChannelSid }:UpdateCustomerTwilioChannelSidArgs):
    Promise<Customer>;
-  deactivateCustomerSubscription({ uuid }: DeactivateCustomerSubscriptionArgs): Promise<Customer>;
+  deactivateCustomerSubscription({ uuid, eventDate, type }:
+     deactivateCustomerSubscriptionArgs): Promise<Customer>;
+
+  activateCustomerSubscription({ uuid, eventDate, type }:
+     activateCustomerSubscriptionArgs): Promise<Customer>;
 }
 
 @Injectable()
@@ -77,15 +93,53 @@ implements CustomerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async deactivateCustomerSubscription({ uuid }: DeactivateCustomerSubscriptionArgs):
-   Promise<Customer> {
-    return await this.prisma.customers.update(
-      {
-        where: { uuid },
-        data: { boxSubscribed: 'inactive', coachingSubscribed: 'inactive' },
-      },
-    );
+  async deactivateCustomerSubscription({ uuid, eventDate = new Date(), type }:
+     deactivateCustomerSubscriptionArgs): Promise<Customer> {
+    let data:Prisma.CustomersUpdateInput;
+    const eventLogData:Prisma.CustomerEventLogCreateManyCustomerInput[] = [];
 
+    for(const t of type){
+      if(t === 'boxUnsubscribed'){
+        data = {
+          ...data,
+          boxSubscribed: 'inactive',
+        };
+      }
+      if(t === 'coachingUnsubscribed'){
+        data = { ...data, coachingSubscribed: 'inactive' };
+      }
+      eventLogData.push({ eventDate, type: t });
+    }
+
+    data = { ...data, customerEventLog: { createMany: { data: eventLogData } } };
+
+    return await this.prisma.customers.update(
+      { where: { uuid }, data },
+    );
+  }
+
+  async activateCustomerSubscription({ uuid, eventDate = new Date(), type }:
+     activateCustomerSubscriptionArgs): Promise<Customer> {
+    let data:Prisma.CustomersUpdateInput;
+    const eventLogData:Prisma.CustomerEventLogCreateManyCustomerInput[] = [];
+
+    for(const t of type){
+      if(t === 'boxSubscribed'){
+        data = {
+          ...data,
+          boxSubscribed: 'active',
+        };
+      }
+      if(t === 'coachingSubscribed'){
+        data = { ...data, coachingSubscribed: 'active' };
+      }
+      eventLogData.push({ eventDate, type: t });
+    }
+    data = { ...data, customerEventLog: { createMany: { data: eventLogData } } };
+
+    return await this.prisma.customers.update(
+      { where: { uuid }, data },
+    );
   }
 
   async updateCustomerTwilioChannelSid({ customerId, twilioChannelSid }: UpdateCustomerTwilioChannelSidArgs):
@@ -186,19 +240,7 @@ implements CustomerGeneralRepositoryInterface
     if (!response?.email || !response?.id || !response.uuid) {
       return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
     }
-
-    return [
-      {
-        id: response.id,
-        email: response.email,
-        uuid: response.uuid,
-        phone: response.phone,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        createAt: response.createdAt,
-        updatedAt: response.updatedAt,
-      },
-    ];
+    return [response];
   }
   async getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]

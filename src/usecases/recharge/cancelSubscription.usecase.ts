@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 import { CancelSubscriptionDto } from '../../controllers/recharge/dto/cancelSubscription.dto';
 import { ShopifyRepositoryInterface } from '../../repositories/shopify/shopify.repository';
-import { CustomerEventRepositoryInterface } from '../../repositories/teatisDB/customer/customerEvent.repository';
 import { Customer } from '../../domains/Customer';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 
@@ -20,8 +19,6 @@ implements CancelSubscriptionUsecaseInterface
   constructor(
     @Inject('ShopifyRepositoryInterface')
     private readonly shopifyRepository: ShopifyRepositoryInterface,
-    @Inject('CustomerEventRepositoryInterface')
-    private readonly customerEventRepository: CustomerEventRepositoryInterface,
     @Inject('CustomerGeneralRepositoryInterface')
     private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
 
@@ -37,9 +34,8 @@ implements CancelSubscriptionUsecaseInterface
       return [undefined, getCustomerUuidByEmail];
     }
 
-    const customer = await this.customerGeneralRepository.deactivateCustomerSubscription({ uuid });
-    await this.customerEventRepository.addCustomerEventLog(
-      { customerId: customer.id, type: ['boxUnsubscribed', 'coachingUnsubscribed']  });
+    const customer = await this.customerGeneralRepository.deactivateCustomerSubscription(
+      { uuid, type: ['boxUnsubscribed', 'coachingUnsubscribed']  });
 
     return [customer];
   }
