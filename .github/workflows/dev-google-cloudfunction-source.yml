@@ -156,15 +156,6 @@ jobs:
           workload_identity_provider: '${{ secrets.WIF_PROVIDER_DEV }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}'
 
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v0
-        with:
-          service: ${{ env.SERVICE }}
-          region: ${{ env.REGION }}
-          # NOTE: If required, update to the appropriate source folder
-          source: ./
-
       - name: Deploy to Cloud Function
         id: deploy
         uses: google-github-actions/cloud-functions-deploy@v3
@@ -174,6 +165,7 @@ jobs:
           function_name: Twilio Auto Message
           trigger_http: true
           runtime: nodejs16
+          source: ./
           entrypoint: /src/worker/twilio/sendAutoMessage.main.ts
 
       # If required, use the Cloud Run url output in later steps

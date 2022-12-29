@@ -157,7 +157,7 @@ jobs:
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}'
 
       - name: Deploy to Cloud Run
-        id: deploy
+        id: deploy-main
         uses: google-github-actions/deploy-cloudrun@v0
         with:
           service: ${{ env.SERVICE }}
@@ -166,7 +166,7 @@ jobs:
           source: ./
 
       - name: Deploy to Cloud Function
-        id: deploy
+        id: deploy-twilio-auto-massage
         uses: google-github-actions/cloud-functions-deploy@v3
         with:
           project_id: ${{ env.PROJECT_ID }}
@@ -177,5 +177,9 @@ jobs:
           entrypoint: /src/worker/twilio/sendAutoMessage.main.ts
 
       # If required, use the Cloud Run url output in later steps
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+      - name: Show deploy-main Output
+        run: echo ${{ steps.deploy-main.outputs.url }}
+
+      # If required, use the Cloud Run url output in later steps
+      - name: Show deploy-twilio-auto-massage Output
+        run: echo ${{ steps.deploy-twilio-auto-massage.outputs.url }}
