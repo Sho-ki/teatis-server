@@ -158,11 +158,11 @@ jobs:
 
       - name: Deploy to Cloud Function
         id: deploy-twilio-auto-massage
-        uses: google-github-actions/cloud-functions-deploy@v1
+        uses: google-github-actions/deploy-cloud-functions@v1
         with:
           project_id: ${{ env.PROJECT_ID }}
           region: ${{ env.REGION }}
-          function_name: Twilio Auto Message
+          function_name: twilio-auto-message-dev
           trigger_http: true
           runtime: nodejs16
           entrypoint: /src/worker/twilio/sendAutoMessage.main.ts
