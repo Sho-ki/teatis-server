@@ -14,12 +14,12 @@ implements GetCustomerDetailUsecaseInterface
 {
   constructor(
     @Inject('CoachRepositoryInterface')
-    private coachCustomerRepository: CoachRepositoryInterface,
+    private coachedCustomerRepository: CoachRepositoryInterface,
   ) {}
 
   async getCustomerDetail(id:number): Promise<ReturnValueType<TwilioCustomerDetail>> {
     const [customerDetail, getCustomerDetailError] =
-      await this.coachCustomerRepository.getCustomerDetail({ id });
+      await this.coachedCustomerRepository.getCustomerDetail({ id });
 
     if (getCustomerDetailError) {
       return [undefined, getCustomerDetailError];

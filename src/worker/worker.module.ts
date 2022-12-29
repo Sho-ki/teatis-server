@@ -3,6 +3,8 @@ import { Twilio } from 'twilio';
 import { PrismaService } from '../prisma.service';
 import { AutoMessageRepository } from '../repositories/teatisDB/autoMessage/autoMessage.repository';
 import { CoachRepository } from '../repositories/teatisDB/coach/coach.repository';
+import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
+import { TwilioRepository } from '../repositories/twilio/twilio.repository';
 import { SendAutoMessageUsecase } from '../usecases/twilio/sendAutoMessage.usecase';
 import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
 
@@ -31,6 +33,14 @@ import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
     {
       provide: 'CoachRepositoryInterface',
       useClass: CoachRepository,
+    },
+    {
+      provide: 'TwilioRepositoryInterface',
+      useClass: TwilioRepository,
+    },
+    {
+      provide: 'CustomerGeneralRepositoryInterface',
+      useClass: CustomerGeneralRepository,
     },
 
   ],

@@ -42,6 +42,11 @@ interface GetCustomerNutritionArgs {
   uuid: string;
 }
 
+interface UpdateCustomerTwilioChannelSidArgs {
+  customerId: number;
+  twilioChannelSid:string;
+}
+
 export interface CustomerGeneralRepositoryInterface {
   getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
   getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>>;
@@ -56,6 +61,9 @@ export interface CustomerGeneralRepositoryInterface {
     newEmail,
     phone, firstName, lastName,
   }: UpdateCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
+
+  updateCustomerTwilioChannelSid({ customerId, twilioChannelSid }:UpdateCustomerTwilioChannelSidArgs):
+   Promise<Customer>;
 }
 
 @Injectable()
@@ -63,6 +71,11 @@ export class CustomerGeneralRepository
 implements CustomerGeneralRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
+  async updateCustomerTwilioChannelSid({ customerId, twilioChannelSid }: UpdateCustomerTwilioChannelSidArgs):
+  Promise<Customer> {
+    return await this.prisma.customers.update({ where: { id: customerId }, data: { twilioChannelSid } });
+
+  }
 
   async getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>> {
     const response = await this.prisma.customers.findUnique({

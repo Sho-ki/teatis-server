@@ -1,11 +1,27 @@
-export interface AutoMessage {
-  id: number;
-  delayDaysSincePurchase: number;
-  content: string;
-  media?: autoMessageMedia[];
+export interface PurchaseDateBasedAutoMessage extends PurchaseDateBasedAutoMessageHeader{
+  body: string;
+  media?: AutoMessageMedia[];
+
 }
 
-interface autoMessageMedia {
+export interface PurchaseDateBasedAutoMessageHeader {
+  id: number;
+  delayDaysSincePurchase: number;
+  type:'purchaseDateBased';
+}
+
+export interface SequenceBasedAutoMessageHeader {
+  id: number;
+  sequence:number;
+  type:'sequenceBased';
+ }
+
+export interface SequenceBasedAutoMessage extends SequenceBasedAutoMessageHeader {
+  body: string;
+  media?: AutoMessageMedia[];
+ }
+
+export interface AutoMessageMedia {
   urlTemplate: string;
-  variableName?: string;
+  type: 'mp3'|'mp4'|'image'|'webPage';
 }
