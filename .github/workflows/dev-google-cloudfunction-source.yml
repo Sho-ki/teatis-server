@@ -164,7 +164,7 @@ jobs:
           region: ${{ env.REGION }}
           name: twilio-auto-message-dev
           runtime: nodejs16
-          source: ./
+          source_dir: ./
           entry_point: ./src/worker/twilio/sendAutoMessage.main.ts
 
       # If required, use the Cloud Run url output in later steps
