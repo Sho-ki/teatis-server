@@ -167,7 +167,7 @@ jobs:
           # source_dir: ./dist
           timeout: 500
           entry_point: sendAutoMessage
-          env_vars:
+          env_vars: |
             TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
             TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
             VARIABLE_NAME3=value3
