@@ -28,5 +28,5 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "resolveJsonModule": true
-  },
+  }
 }

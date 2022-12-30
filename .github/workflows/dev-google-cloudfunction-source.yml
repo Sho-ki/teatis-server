@@ -166,7 +166,7 @@ jobs:
           runtime: nodejs16
           # source_dir: ./
           timeout: 500
-          entry_point: ./worker/twilio/sendAutoMessage.sendAutoMessage
+          entry_point: ./src/worker/twilio/sendAutoMessage.sendAutoMessage
 
       # If required, use the Cloud Run url output in later steps
       - name: Show deploy-main Output
