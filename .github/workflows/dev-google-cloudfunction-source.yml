@@ -164,7 +164,7 @@ jobs:
           region: ${{ env.REGION }}
           name: twilio-auto-message-dev-2
           runtime: nodejs16
-          source_dir: ./dist
+          source_dir: ./
           timeout: 530
           entry_point: src/worker/twilio/sendAutoMessage.sendAutoMessage
 
