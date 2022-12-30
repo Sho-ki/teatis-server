@@ -162,10 +162,10 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
           region: ${{ env.REGION }}
-          name: twilio-auto-message-dev
+          name: twilio-auto-message-dev-2
           runtime: nodejs16
-          # source_dir: ./
-          timeout: 500
+          # source_dir: ./dist
+          timeout: 530
           entry_point: ./src/worker/twilio/sendAutoMessage.sendAutoMessage
 
       # If required, use the Cloud Run url output in later steps

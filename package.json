@@ -5,7 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "main": "dist/src/worker/twilio/sendAutoMessage.js",
+  "main": "src/worker/twilio/sendAutoMessage.ts",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
