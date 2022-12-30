@@ -69,7 +69,7 @@ model Customers {
   coachingSubscribed ActiveStatus @default(inactive)
   boxSubscribed ActiveStatus @default(inactive)
   twilioChannelSid String? 
-  sequenceBasedAutoMessageInterval Int?  @default(7)
+  sequenceBasedAutoMessageInterval Int  @default(7)
 }
 
 enum ValidStatus {
@@ -122,7 +122,6 @@ model PurchaseDateBasedMessage {
 model PurchaseDateBasedAutoMessageMedia {
   id  Int  @id @default(autoincrement())
   urlTemplate String
-  // variable Json?
   type MediaType
   purchaseDateBasedAutoMessageContent   PurchaseDateBasedAutoMessageContent @relation(fields: [purchaseDateBasedAutoMessageContentId], references: [id])
   purchaseDateBasedAutoMessageContentId Int
@@ -134,7 +133,6 @@ model PurchaseDateBasedAutoMessageMedia {
 model PurchaseDateBasedAutoMessageContent {
   id  Int  @id @default(autoincrement())
   body String
-  // variable Json?
   purchaseDateBasedAutoMessageMedia PurchaseDateBasedAutoMessageMedia[]
   purchaseDateBasedMessage   PurchaseDateBasedMessage @relation(fields: [purchaseDateBasedMessageId], references: [id])
   purchaseDateBasedMessageId Int
@@ -154,7 +152,6 @@ model SequenceBasedAutoMessage {
 model SequenceBasedAutoMessageContent {
   id  Int  @id @default(autoincrement())
   body String
-  // variable Json?
   sequenceBasedAutoMessageMedia SequenceBasedAutoMessageMedia[]
   sequenceBasedAutoMessage   SequenceBasedAutoMessage @relation(fields: [SequenceBasedAutoMessageId], references: [id])
   SequenceBasedAutoMessageId Int
@@ -165,7 +162,6 @@ model SequenceBasedAutoMessageContent {
 model SequenceBasedAutoMessageMedia {
   id  Int  @id @default(autoincrement())
   urlTemplate String
-  // variable Json?
   type MediaType
   SequenceBasedAutoMessageContent   SequenceBasedAutoMessageContent @relation(fields: [sequenceBasedAutoMessageContentId], references: [id])
   sequenceBasedAutoMessageContentId Int
