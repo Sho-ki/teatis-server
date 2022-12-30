@@ -224,7 +224,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10428-CHP-SN20206' },
             { sku: 'x10206-GUM-SN20127' },
             { sku: 'x10404-CHC-SN20199' },
-            { sku: 'x10325-JRK-SN20177' },
+            { sku: 'x10444-JRK-SN20177' },
             { sku: 'x10250-CER-SN20110' },
             { sku: 'x10443-NP-SN20215' }, // brochure
           ];
@@ -290,7 +290,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10206-GUM-SN20127' },
             { sku: 'x10365-SWT-SN20187' },
             { sku: 'x10217-CHP-SN20144' },
-            { sku: 'x10325-JRK-SN20177' },
+            { sku: 'x10444-JRK-SN20177' },
             { sku: 'x10264-BAR-SN20154' },
           ];
           break;
