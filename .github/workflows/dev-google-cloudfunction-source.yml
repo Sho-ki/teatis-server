@@ -167,6 +167,10 @@ jobs:
           # source_dir: ./dist
           timeout: 530
           entry_point: sendAutoMessage
+          environment_variables: |
+            TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
+            TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
+            VARIABLE_NAME3=value3
 
       # If required, use the Cloud Run url output in later steps
       - name: Show deploy-main Output
