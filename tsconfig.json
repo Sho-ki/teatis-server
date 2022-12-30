@@ -28,5 +28,11 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "resolveJsonModule": true
-  }
+  },
+    "include": [
+    "./src/**/*.ts"
+  ],  
+  "exclude": [
+    "node_modules"
+  ]
 }
