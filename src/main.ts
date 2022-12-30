@@ -44,8 +44,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as Sentry from '@sentry/node';
 import { NewrelicInterceptor } from './newrelic.interceptor';
-import * as session from 'express-session';
-import * as createStore from 'connect-pg-simple';
+import session from 'express-session';
+import createStore from 'connect-pg-simple';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
