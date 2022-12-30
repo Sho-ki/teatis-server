@@ -165,9 +165,9 @@ jobs:
           name: twilio-auto-message-dev-2
           runtime: nodejs16
           # source_dir: ./dist
-          timeout: 530
+          timeout: 500
           entry_point: sendAutoMessage
-          environment_variables:
+          env_vars:
             TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
             TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
             VARIABLE_NAME3=value3
