@@ -162,7 +162,7 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
           region: ${{ env.REGION }}
-          name: twilio-auto-message-dev
+          name: twilio-auto-message-dev-2
           runtime: nodejs16
           source_dir: ./dist
           timeout: 530
