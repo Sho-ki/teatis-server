@@ -22,3 +22,17 @@ module.exports.sendAutoMessage = async(req:Request, res:Response) => {
   console.log('END');
   res.end();
 };
+
+// const sendAutoMessage = async() => {
+//   console.log('THIS IS POST');
+
+//   const workerApp = await NestFactory.createApplicationContext(WorkerModule);
+
+//   const appService = workerApp.get(SendAutoMessageService);
+//   appService.sendAutoMessage();
+//   await workerApp.close();
+//   console.log('SUCCESS');
+//   console.log('END');
+// };
+
+// sendAutoMessage();
