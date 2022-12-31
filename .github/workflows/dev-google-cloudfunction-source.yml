@@ -194,6 +194,7 @@ jobs:
             SECRET_MANAGER_PROJECT_ID=${{ secrets.DEV_SECRET_MANAGER_PROJECT_ID }}
 
           secret_environment_variables: ${{ env.SECRETS }}
+          deploy_timeout: 500
 
       # If required, use the Cloud Run url output in later steps
       - name: Show deploy-main Output
