@@ -171,6 +171,10 @@ jobs:
             TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
             TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
             VARIABLE_NAME3=value3
+          secret_environment_variables: |
+            COOKIE_SECRET=projects/591845469320/secrets/COOKIE_SECRET
+            PRISMA_ENCRYPT_KEY=projects/591845469320/secrets/PRISMA_ENCRYPT_KEY
+            SHIPHERO_API_KEY=projects/591845469320/secrets/shiphero_key
 
       # If required, use the Cloud Run url output in later steps
       - name: Show deploy-main Output
