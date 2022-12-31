@@ -54,7 +54,7 @@ env:
   PROJECT_ID: teatis-discovery
   SERVICE: teatis-server
   REGION: us-central1
-    SECRETS: |
+  SECRETS: |
     COOKIE_SECRET=projects/${{ secrets.DEV_SECRET_MANAGER_PROJECT_ID }}/secrets/COOKIE_SECRET
     PRISMA_ENCRYPT_KEY=projects/${{ secrets.DEV_SECRET_MANAGER_PROJECT_ID }}/secrets/PRISMA_ENCRYPT_KEY
     SHIPHERO_API_KEY=projects/${{ secrets.DEV_SECRET_MANAGER_PROJECT_ID }}/secrets/shiphero_key
