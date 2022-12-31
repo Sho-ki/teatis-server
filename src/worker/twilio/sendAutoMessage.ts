@@ -9,12 +9,16 @@ import { SendAutoMessageService } from './sendAutoMessage.service';
 require('dotenv').config();
 
 module.exports.sendAutoMessage = async(req:Request, res:Response) => {
-  const workerApp = await NestFactory.createApplicationContext(WorkerModule);
-  console.log('SUCCESS');
+  if (req.method === 'POST'){
+    console.log('THIS IS POST');
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const appService = workerApp.get(SendAutoMessageService);
-  appService.sendAutoMessage();
-  await workerApp.close();
+    const workerApp = await NestFactory.createApplicationContext(WorkerModule);
+
+    const appService = workerApp.get(SendAutoMessageService);
+    appService.sendAutoMessage();
+    await workerApp.close();
+    console.log('SUCCESS');
+  }
+  console.log('END');
   res.end();
 };
