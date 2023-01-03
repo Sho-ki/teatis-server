@@ -148,8 +148,7 @@ implements AutoMessageRepositoryInterface
       { where: { customerId, type: 'boxSubscribed', customer: { coachingSubscribed: 'active' } }, orderBy: { eventDate: 'desc' } });
 
     const today = new Date();
-    const startDate = response.eventDate;
-
+    const startDate = response?.eventDate || today;
     const elapsedTime = today.getTime() - startDate.getTime();
     const daysSincePurchase = Math.floor(elapsedTime / 86400000);
     return { daysSincePurchase };
