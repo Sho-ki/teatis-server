@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {  Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 
@@ -211,9 +212,11 @@ implements SendAutoMessageUsecaseInterface
     try{
       const currentTimeRange = this.getCurrentTimeRange();
       // Get only active coached customers
+      console.log(new Date());
+      console.log('currentTimeRange', currentTimeRange);
       const sendableCoachedCustomers =
     await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: currentTimeRange });
-
+      console.log(sendableCoachedCustomers);
       if(!sendableCoachedCustomers.length) return;
 
       const targetCustomers:CoachedCustomer[] = [];
