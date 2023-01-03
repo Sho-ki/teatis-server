@@ -43,6 +43,8 @@ export class CoachRepository implements CoachRepositoryInterface {
     const response = await this.prisma.customers.findMany(
       { where: { coachingSubscribed: 'active', messageTimePreference: sendAt, coachId: { not: null } }, include: { coach: true } });
 
+    // eslint-disable-next-line no-console
+    console.log(response);
     const customers :CoachedCustomer[] =  response.length ?
       response.map((
         {
