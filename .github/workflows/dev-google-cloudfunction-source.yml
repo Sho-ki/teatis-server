@@ -49,8 +49,7 @@ name: Dev Release (Cloud functions)
 on:
   push:
     branches:
-      - feature/cloud-function-yml
-
+      - main
 env:
   PROJECT_ID: teatis-discovery-dev
   SERVICE: teatis-server-dev

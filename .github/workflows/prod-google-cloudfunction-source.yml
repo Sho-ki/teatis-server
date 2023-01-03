@@ -46,14 +46,9 @@
 
 name: Production Release (Cloud functions)
 
-# on:
-#   release:
-#     types: [published]
-
 on:
-  push:
-    branches:
-      - feature/cloud-function-yml
+  release:
+    types: [published]
 
 env:
   PROJECT_ID: teatis-discovery
