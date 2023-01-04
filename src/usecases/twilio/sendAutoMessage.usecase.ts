@@ -8,6 +8,7 @@ import { CoachedCustomer } from '@Domains/CoachedCustomer';
 import { TwilioRepositoryInterface } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
+import { pstTime } from '../utils/dates';
 
 export interface SendAutoMessageUsecaseInterface {
   sendAutoMessage():
@@ -201,8 +202,14 @@ implements SendAutoMessageUsecaseInterface
     return [sendingMessage];
   }
 
+<<<<<<< Updated upstream
   private getCurrentTimeRange(date = new Date()):sendAt{
     const currentHour = date.getHours();
+=======
+  private getCurrentTimeRange(date = pstTime()):sendAt{
+
+    const currentHour = date;
+>>>>>>> Stashed changes
     if(0 <= currentHour && currentHour < 3) return 'at0';
     if(3 <= currentHour && currentHour < 6) return 'at3';
     if(6 <= currentHour && currentHour < 9) return 'at6';
