@@ -12,6 +12,6 @@ export interface Customer {
   sequenceBasedAutoMessageInterval?:number;
   coachId?:number;
   note?:string;
-  createAt?: Date;
+  createdAt?: Date;
   updatedAt?: Date;
 }
