@@ -202,7 +202,7 @@ implements SendAutoMessageUsecaseInterface
     return [sendingMessage];
   }
 
-  private getCurrentTimeRange(date = pstTime()):sendAt{
+  private getCustomerMessagePreferenceTime(date = pstTime()):sendAt{
 
     const currentHour = date;
     if(0 <= currentHour && currentHour < 3) return 'at0';
@@ -218,10 +218,10 @@ implements SendAutoMessageUsecaseInterface
   async sendAutoMessage():
   Promise<ReturnValueType<string>> {
     try{
-      const currentTimeRange = this.getCurrentTimeRange();
+      const customerMessagePreferenceTime = this.getCustomerMessagePreferenceTime();
       // Get only active coached customers
       const sendableCoachedCustomers =
-    await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: currentTimeRange });
+    await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: customerMessagePreferenceTime });
       if(!sendableCoachedCustomers.length) return;
 
       const targetCustomers:CoachedCustomer[] = [];
