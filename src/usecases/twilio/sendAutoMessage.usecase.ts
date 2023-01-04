@@ -214,6 +214,7 @@ implements SendAutoMessageUsecaseInterface
     if(15 <= currentHour && currentHour < 18) return 'at15';
     if(18 <= currentHour && currentHour < 21) return 'at18';
     if(21 <= currentHour) return 'at21';
+    return 'at9';
   }
 
   async sendAutoMessage():
@@ -225,7 +226,8 @@ implements SendAutoMessageUsecaseInterface
       const sendableCoachedCustomers =
     await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: customerMessagePreferenceTime });
       if(!sendableCoachedCustomers.length) return;
-
+      console.log(sendableCoachedCustomers);
+      return;
       const targetCustomers:CoachedCustomer[] = [];
       const daysSet: Set<number> = new Set();
       const sequenceSet: Set<number> = new Set();
