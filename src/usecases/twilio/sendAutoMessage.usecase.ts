@@ -226,8 +226,7 @@ implements SendAutoMessageUsecaseInterface
       const sendableCoachedCustomers =
     await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: customerMessagePreferenceTime });
       if(!sendableCoachedCustomers.length) return;
-      console.log(sendableCoachedCustomers);
-      return;
+      console.log('sendableCoachedCustomers.length', sendableCoachedCustomers.length);
       const targetCustomers:CoachedCustomer[] = [];
       const daysSet: Set<number> = new Set();
       const sequenceSet: Set<number> = new Set();
