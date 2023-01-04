@@ -202,7 +202,14 @@ implements SendAutoMessageUsecaseInterface
   }
 
   private getCurrentTimeRange(date = new Date()):sendAt{
-    const currentHour = date.getHours();
+    const pstFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: 'numeric',
+    });
+
+    console.log(parseInt(pstFormatter.format(date), 10));
+
+    const currentHour = parseInt(pstFormatter.format(date), 10);
     if(0 <= currentHour && currentHour < 3) return 'at0';
     if(3 <= currentHour && currentHour < 6) return 'at3';
     if(6 <= currentHour && currentHour < 9) return 'at6';
@@ -217,6 +224,7 @@ implements SendAutoMessageUsecaseInterface
   Promise<ReturnValueType<string>> {
     try{
       const currentTimeRange = this.getCurrentTimeRange();
+      console.log('currentTimeRange', currentTimeRange);
       // Get only active coached customers
       const sendableCoachedCustomers =
     await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: currentTimeRange });
