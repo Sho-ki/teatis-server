@@ -210,7 +210,7 @@ implements SendAutoMessageUsecaseInterface
     if(12 <= currentHour && currentHour < 15) return 'at12';
     if(15 <= currentHour && currentHour < 18) return 'at15';
     if(18 <= currentHour && currentHour < 21) return 'at18';
-    if(21 <= currentHour && currentHour < 0) return 'at21';
+    if(21 <= currentHour) return 'at21';
   }
 
   async sendAutoMessage():
@@ -218,11 +218,8 @@ implements SendAutoMessageUsecaseInterface
     try{
       const currentTimeRange = this.getCurrentTimeRange();
       // Get only active coached customers
-      console.log(new Date());
-      console.log('currentTimeRange', currentTimeRange);
       const sendableCoachedCustomers =
     await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: currentTimeRange });
-      console.log(sendableCoachedCustomers);
       if(!sendableCoachedCustomers.length) return;
 
       const targetCustomers:CoachedCustomer[] = [];

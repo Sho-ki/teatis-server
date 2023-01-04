@@ -52,7 +52,7 @@ export class CoachRepository implements CoachRepositoryInterface {
           coachingSubscribed, boxSubscribed, sequenceBasedAutoMessageInterval, twilioChannelSid,
         }) => {
         return {
-          id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
+          id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
           coachingStatus: coachingSubscribed, boxStatus: boxSubscribed, sequenceBasedAutoMessageInterval,
           twilioChannelSid,
           coach: { id: coach.id, email: coach.email, phone: coach.phone },
@@ -76,7 +76,7 @@ export class CoachRepository implements CoachRepositoryInterface {
       boxSubscribed, coachingSubscribed,
     } = response;
     const customerDetails: CoachedCustomer =  {
-      id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
+      id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
       coachingStatus: coachingSubscribed, boxStatus: boxSubscribed,
       coach: { id: coach.id, email: coach.email, phone: coach.phone },
     };
@@ -130,7 +130,7 @@ export class CoachRepository implements CoachRepositoryInterface {
           coachingSubscribed, boxSubscribed,
         }) => {
         return {
-          id, email, uuid, createAt: createdAt, updatedAt, note, firstName, middleName, lastName, phone,
+          id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
           coachingStatus: coachingSubscribed, boxStatus: boxSubscribed,
           coach: { id: coach.id, email: coach.email, phone: coach.phone },
         };

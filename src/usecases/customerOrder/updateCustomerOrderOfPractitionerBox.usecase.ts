@@ -211,10 +211,10 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     //   );
     // }
     let note = undefined;
-    console.log('customer.createAt', customer.createAt);
+    console.log('customer.createdAt', customer.createdAt);
     console.log('practitionerBoxUuid', practitionerBoxUuid);
     console.log('customerOrderCount.orderCount', customerOrderCount.orderCount);
-    if(customer.createAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    if(customer.createdAt >= new Date('2022-10-01') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
         case 1:
           orderProducts = [
@@ -281,7 +281,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
       note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
     }
 
-    if(customer.createAt >= new Date('2022-12-03') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
+    if(customer.createdAt >= new Date('2022-12-03') && TEST_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
       switch (customerOrderCount.orderCount){
         case 1:
           orderProducts = [
