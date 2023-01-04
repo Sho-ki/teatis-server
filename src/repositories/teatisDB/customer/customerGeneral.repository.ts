@@ -230,7 +230,7 @@ implements CustomerGeneralRepositoryInterface
       {
         id: response.id, email: newEmail, uuid,
         phone: response.phone, firstName: response.firstName, lastName: response.lastName,
-        createAt: response.createdAt, updatedAt: response.updatedAt,
+        createdAt: response.createdAt, updatedAt: response.updatedAt,
       },
     ];
   }
@@ -379,7 +379,7 @@ implements CustomerGeneralRepositoryInterface
     return [
       {
         id: response.id, email: response.email, uuid: response.uuid,
-        createAt: response.createdAt, updatedAt: response.updatedAt, phone: response.phone,
+        createdAt: response.createdAt, updatedAt: response.updatedAt, phone: response.phone,
         firstName: response.firstName,
         lastName: response.lastName,
       },
