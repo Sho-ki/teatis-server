@@ -14,3 +14,9 @@ export const previousMonth = (): string => {
   const nextMonth = DateTime.now().minus({ month: 1 }).toFormat('yyyy-MM');
   return nextMonth;
 };
+
+export const pstTime = ():number => {
+  const currentTime = DateTime.local();
+  const pstTime = currentTime.setZone('America/Los_Angeles');
+  return pstTime.hour;
+};

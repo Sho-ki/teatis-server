@@ -8,6 +8,7 @@ import { CoachedCustomer } from '@Domains/CoachedCustomer';
 import { TwilioRepositoryInterface } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
+import { pstTime } from '../utils/dates';
 
 export interface SendAutoMessageUsecaseInterface {
   sendAutoMessage():
@@ -201,8 +202,10 @@ implements SendAutoMessageUsecaseInterface
     return [sendingMessage];
   }
 
-  private getCurrentTimeRange(date = new Date()):sendAt{
-    const currentHour = date.getHours();
+  private getCustomerMessagePreferenceTime(date = pstTime()):sendAt{
+
+    const currentHour = date;
+
     if(0 <= currentHour && currentHour < 3) return 'at0';
     if(3 <= currentHour && currentHour < 6) return 'at3';
     if(6 <= currentHour && currentHour < 9) return 'at6';
@@ -216,10 +219,11 @@ implements SendAutoMessageUsecaseInterface
   async sendAutoMessage():
   Promise<ReturnValueType<string>> {
     try{
-      const currentTimeRange = this.getCurrentTimeRange();
+      const customerMessagePreferenceTime = this.getCustomerMessagePreferenceTime();
+      console.log('customerMessagePreferenceTime', customerMessagePreferenceTime);
       // Get only active coached customers
       const sendableCoachedCustomers =
-    await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: currentTimeRange });
+    await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: customerMessagePreferenceTime });
       if(!sendableCoachedCustomers.length) return;
 
       const targetCustomers:CoachedCustomer[] = [];
