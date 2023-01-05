@@ -290,7 +290,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10206-GUM-SN20127' },
             { sku: 'x10365-SWT-SN20187' },
             { sku: 'x10217-CHP-SN20144' },
-            { sku: 'x10444-JRK-SN20177' },
+            { sku: 'x10409-JRK-SN20158' },
             { sku: 'x10264-BAR-SN20154' },
           ];
           break;
