@@ -65,7 +65,7 @@ model Customers {
   terraCustomer                                 TerraCustomer?
   customerEventLog  CustomerEventLog []
   intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
-  messageTimePreference MessageTimePreference @default(at18)
+  messageTimePreference MessageTimePreference @default(at9)
   coachingSubscribed ActiveStatus @default(inactive)
   boxSubscribed ActiveStatus @default(inactive)
   twilioChannelSid String? 
