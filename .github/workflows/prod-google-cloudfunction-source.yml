@@ -79,6 +79,8 @@ env:
     TWILIO_ACCOUNT_SID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TWILIO_ACCOUNT_SID
     TWILIO_AUTH_TOKEN=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TWILIO_AUTH_TOKEN
     TWILIO_SERVICE_SID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TWILIO_SERVICE_SID
+    BITLY_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/BITLY_API_KEY
+    BITLY_GROUP_ID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/BITLY_GROUP_ID
 
 jobs:
   build:
