@@ -40,6 +40,9 @@ export class PractitionerBoxDto{
   @IsOptional()
     deliveryInterval?: 1 | 12;
 
+  @IsBoolean()
+  @IsOptional()
+    isWeightManagement?: boolean;
 }
 
 export type CreateCheckoutCartDto = CustomerBoxDto | PractitionerBoxDto;

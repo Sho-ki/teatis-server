@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsString, ValidateIf } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 
-export class GetCoachCustomersDto {
+export class GetCoachedCustomersDto {
   @IsString()
     Location:'GetCustomerDetailsByCustomerId' | 'GetCustomersList';
 
@@ -13,6 +13,11 @@ export class GetCoachCustomersDto {
   @IsNotEmpty()
   @IsString()
     PageSize: string;
+
+  @ValidateIf(obj => obj.Location === 'GetCustomersList')
+  @IsOptional()
+  @IsString()
+    Anchor?: string;
 
   @IsString()
     Worker: string;

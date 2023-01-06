@@ -23,6 +23,12 @@ export const PRACTITIONER_BOX_PLANS ={
     id: 6742392340535,
     sku: 'NP-influencer-curate-box-7',
   },
+  weightManagement: {
+    merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC80MDA0MzgwOTQzOTc5OQ==',
+    sellingPlanId: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MTU2MjA0MDc=',
+    id: 6742530785335,
+    sku: 'NP-influencer-curate-box-7',
+  },
   oneTimePurchase: {
     merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC80MDAwNjQ1ODQ0MTc4Mw==',
     id: 6728326348855,

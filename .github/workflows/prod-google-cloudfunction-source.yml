@@ -1,0 +1,206 @@
+# This workflow will deploy source code on Cloud Run when a commit is pushed to the "main" branch
+#
+# Overview:
+#
+# 1. Authenticate to Google Cloud
+# 2. Deploy it to Cloud Run
+#
+# To configure this workflow:
+#
+# 1. Ensure the required Google Cloud APIs are enabled:
+#
+#    Cloud Run            run.googleapis.com
+#    Cloud Build          cloudbuild.googleapis.com
+#    Artifact Registry    artifactregistry.googleapis.com
+#
+# 2. Create and configure Workload Identity Federation for GitHub (https://github.com/google-github-actions/auth#setting-up-workload-identity-federation)
+#
+# 3. Ensure the required IAM permissions are granted
+#
+#    Cloud Run
+#      roles/run.admin
+#      roles/iam.serviceAccountUser     (to act as the Cloud Run runtime service account)
+#
+#    Cloud Build
+#      roles/cloudbuild.builds.editor
+#
+#    Cloud Storage
+#      roles/storage.objectAdmin
+#
+#    Artifact Registry
+#      roles/artifactregistry.admin     (project or repository level)
+#
+#    NOTE: You should always follow the principle of least privilege when assigning IAM roles
+#
+# 4. Create GitHub secrets for WIF_PROVIDER and WIF_SERVICE_ACCOUNT
+#
+# 5. Change the values for the SERVICE and REGION environment variables (below).
+#
+# For more support on how to run this workflow, please visit https://github.com/marketplace/actions/deploy-to-cloud-run
+#
+# Further reading:
+#   Cloud Run runtime service account   - https://cloud.google.com/run/docs/securing/service-identity
+#   Cloud Run IAM permissions           - https://cloud.google.com/run/docs/deploying-source-code#permissions_required_to_deploy
+#   Cloud Run builds from source        - https://cloud.google.com/run/docs/deploying-source-code
+#   Principle of least privilege        - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
+
+name: Production Release (Cloud functions)
+
+on:
+  release:
+    types: [published]
+
+env:
+  PROJECT_ID: teatis-discovery
+  SERVICE: teatis-server
+  REGION: us-central1
+  SECRETS: |
+    COOKIE_SECRET=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/COOKIE_SECRET
+    PRISMA_ENCRYPT_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/PRISMA_ENCRYPT_KEY
+    SHIPHERO_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/shiphero_key
+    DATABASE_URL=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/DATABASE_URL
+    GCP_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/GCP_API_KEY
+    GOOGLE_CLIENT_ID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_SECRET=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/GOOGLE_CLIENT_SECRET
+    KLAVIYO_API=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/KLAVIYO_API
+    KLAVIYO_POTENTIAL_CUSTOMER_LIST=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/KLAVIYO_POTENTIAL_CUSTOMER_LIST
+    KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST
+    KLAVIYO_POTENTIAL_CUSTOMER_CGM_LIST=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/KLAVIYO_POTENTIAL_CUSTOMER_CGM_LIST
+    NEW_RELIC_LICENSE_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/NEW_RELIC_LICENSE_KEY
+    NEW_RELIC_APP_NAME=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/NEW_RELIC_APP_NAME
+    SENTRY_DSN=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/SENTRY_DSN
+    SERVER_URL=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/SERVER_URL
+    SHIPHERO_API_REFRESH_TOKEN=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/SHIPHERO_API_REFRESH_TOKEN
+    SHOPIFY_API_PASSWORD=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/SHOPIFY_API_PASSWORD
+    SHOPIFY_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/SHOPIFY_API_PASSWORD
+    SHOPIFY_STOREFRONT_TOKEN=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/SHOPIFY_API_KEY
+    TERRA_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TERRA_API_KEY
+    TERRA_DEV_ID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TERRA_DEV_ID
+    TWILIO_ACCOUNT_SID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TWILIO_ACCOUNT_SID
+    TWILIO_AUTH_TOKEN=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TWILIO_AUTH_TOKEN
+    TWILIO_SERVICE_SID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/TWILIO_SERVICE_SID
+    BITLY_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/BITLY_API_KEY
+    BITLY_GROUP_ID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}/secrets/BITLY_GROUP_ID
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16"
+
+      # Speed up subsequent runs with caching
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build the source code
+        run: npm run build
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: teatis_test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5442:5432
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16"
+
+      # Speed up subsequent runs with caching
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo KLAVIYO_API=${{ secrets.KLAVIYO_API }} >> .env
+          echo KLAVIYO_POTENTIAL_CUSTOMER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_LIST }} >> .env
+          echo KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_PRACTITIONER_LIST }} >> .env
+          echo KLAVIYO_POTENTIAL_CUSTOMER_CGM_LIST=${{ secrets.KLAVIYO_POTENTIAL_CUSTOMER_CGM_LIST }} >> .env
+
+      - name: Run the tests
+        run: npm test
+
+  deploy:
+    needs: [build, test]
+    # Add 'id-token' with the intended permissions for workload identity federation
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER_PROD }}'
+          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_PROD }}'
+
+      - name: Deploy to Cloud Function
+        id: deploy-twilio-auto-massage
+        uses: google-github-actions/deploy-cloud-functions@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          region: ${{ env.REGION }}
+          name: twilio-auto-message
+          runtime: nodejs16
+          # source_dir: ./dist
+          timeout: 500
+          entry_point: sendAutoMessage
+          env_vars: |
+            SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}
+            ENV=production
+
+          secret_environment_variables: ${{ env.SECRETS }}
+          deploy_timeout: 1000
+
+      # If required, use the Cloud Run url output in later steps
+      - name: Show deploy-twilio-auto-massage Output
+        run: echo ${{ steps.deploy-twilio-auto-massage.outputs.url }}

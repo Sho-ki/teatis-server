@@ -21,6 +21,7 @@ export interface CreateCheckoutCartOfPractitionerBoxUsecaseInterface {
     discountCode,
     sessionId,
     isOneTimePurchase,
+    isWeightManagement,
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   >;
@@ -46,6 +47,7 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     sessionId,
     isOneTimePurchase,
     deliveryInterval,
+    isWeightManagement,
   }: PractitionerBoxArgs): Promise<
      ReturnValueType<CustomerCheckoutCart>
   > {
@@ -75,6 +77,12 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
     const sellingPlanId = isTrial
       ? deliveryIntervalPlan.sellingPlanId
       : PRACTITIONER_BOX_PLANS.original.sellingPlanId;
+    const weightManagementCreateCartArgs = {
+      merchandiseId: PRACTITIONER_BOX_PLANS.weightManagement.merchandiseId,
+      sellingPlanId: PRACTITIONER_BOX_PLANS.weightManagement.sellingPlanId,
+      discountCode: discountCode_,
+      attributes,
+    };
     const createCartArgs = {
       merchandiseId,
       attributes,
@@ -84,7 +92,9 @@ implements CreateCheckoutCartOfPractitionerBoxUsecaseInterface
       await this.ShopifyRepository.createCart(
         isOneTimePurchase
           ? createCartArgs
-          : { ...createCartArgs, discountCode: discountCode_, sellingPlanId }
+          : isWeightManagement
+            ? weightManagementCreateCartArgs
+            : { ...createCartArgs, discountCode: discountCode_, sellingPlanId }
       );
     if (createCheckoutCartOfPractitionerBoxError) {
       return [undefined, createCheckoutCartOfPractitionerBoxError];

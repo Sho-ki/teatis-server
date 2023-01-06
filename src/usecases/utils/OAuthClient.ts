@@ -1,4 +1,4 @@
-import * as ClientOAuth2 from 'client-oauth2';
+import ClientOAuth2 from 'client-oauth2';
 
 export const createGoogleOAuthClient = (uuid:string) => {
   const client:ClientOAuth2 = new ClientOAuth2({

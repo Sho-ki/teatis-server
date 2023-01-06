@@ -81,7 +81,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     customer: shopifyCustomer,
     subtotal_price,
     uuid,
-    line_items = [{ product_id: 6738837307447 }],
+    line_items,
     practitionerBoxUuid,
     admin_graphql_api_id: apiId,
   }: UpdateCustomerOrderOfPractitionerBoxArgs): Promise<ReturnValueType<OrderQueue>> {
@@ -91,13 +91,18 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
-    const changePhone = shopifyCustomer.phone && customer.phone !== shopifyCustomer.phone;
+
+    let phoneNumber = shopifyCustomer.phone || shopifyCustomer?.default_address?.phone;
+    if(phoneNumber && phoneNumber.substring(0, 1) !== '+'){
+      phoneNumber = '+1' + phoneNumber;
+    }
+    const changePhone = phoneNumber && customer.phone !== phoneNumber;
     const changeFirstName = shopifyCustomer.first_name && customer.firstName !== shopifyCustomer.first_name;
     const changeLastName = shopifyCustomer.last_name && customer.lastName !== shopifyCustomer.last_name;
     if(changePhone|| changeFirstName || changeLastName){
       await this.customerGeneralRepository.updateCustomerByUuid({
         uuid,
-        phone: shopifyCustomer.phone,
+        phone: phoneNumber,
         firstName: shopifyCustomer.first_name,
         lastName: shopifyCustomer.last_name,
       });
@@ -138,14 +143,33 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     if (getOrderCountError) {
       return [undefined, getOrderCountError];
     }
-
     // tmp code
-    if(line_items.includes({ product_id: 6738837307447 }) && customerOrderCount.orderCount <= 1){ // coaching box
+    const hasCoachingBox =
+    line_items.some(item => item.product_id === 6738837307447 || item.product_id === 6742392340535);
+
+    if(hasCoachingBox && customerOrderCount.orderCount <= 1){ // coaching box
 
       const [, getConnectCoachError] = await this.coachRepository.
         connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
       if(getConnectCoachError){
         return [undefined, getConnectCoachError];
+      }
+
+      if(customer.boxStatus !== 'active' && customer.coachingStatus !== 'active' ){
+        await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
+      }
+    }else {
+      if(hasCoachingBox && customer.coachingStatus !== 'active' ){
+        if(!customer.coachId){ // Customers who subscribed once without coaching, but subscribed again with coaching
+          await this.coachRepository.
+            connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
+        }
+        await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed']  });
+      }
+      if(customer.boxStatus !== 'active'){
+        await this.customerGeneralRepository.activateCustomerSubscription(
+          { uuid: customer.uuid, type: ['boxSubscribed']  }
+        );
       }
     }
 
@@ -187,7 +211,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
     //   );
     // }
     let note = undefined;
-    console.log('customer.createAt', customer.createAt);
+    console.log('customer.createdAt', customer.createdAt);
     console.log('practitionerBoxUuid', practitionerBoxUuid);
     console.log('customerOrderCount.orderCount', customerOrderCount.orderCount);
     if(customer.updatedAt >= new Date('2022-10-01') && VALID_PRACTITIONER_BOX_UUIDS.includes(practitionerBoxUuid)){
@@ -196,11 +220,11 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
           orderProducts = [
             { sku: 'x10264-BAR-SN20154' },
             { sku: 'x10217-CHP-SN20144' },
-            { sku: 'x10362-SWT-SN20187' },
-            { sku: 'x10428-CHP-SN20206' },
+            { sku: 'x10365-SWT-SN20187' },
+            { sku: 'x10430-CHP-SN20206' },
             { sku: 'x10206-GUM-SN20127' },
             { sku: 'x10404-CHC-SN20199' },
-            { sku: 'x10325-JRK-SN20177' },
+            { sku: 'x10444-JRK-SN20177' },
             { sku: 'x10250-CER-SN20110' },
             { sku: 'x10443-NP-SN20215' }, // brochure
           ];
@@ -214,7 +238,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
             { sku: 'x10427-GRA-SN20205' },
             { sku: 'x10437-SWT-SN20187' },
             { sku: 'x10409-JRK-SN20158' },
-            { sku: 'x10224-CHP-SN20122' },
+            { sku: 'x10415-CHP-SN20203' },
           ];
           break;
         case 3: orderProducts = [
@@ -262,11 +286,11 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         case 1:
           orderProducts = [
             { sku: 'x10404-CHC-SN20199' },
-            { sku: 'x10428-CHP-SN20206' },
+            { sku: 'x10430-CHP-SN20206' },
             { sku: 'x10206-GUM-SN20127' },
-            { sku: 'x10362-SWT-SN20187' },
+            { sku: 'x10365-SWT-SN20187' },
             { sku: 'x10217-CHP-SN20144' },
-            { sku: 'x10325-JRK-SN20177' },
+            { sku: 'x10409-JRK-SN20158' },
             { sku: 'x10264-BAR-SN20154' },
           ];
           break;

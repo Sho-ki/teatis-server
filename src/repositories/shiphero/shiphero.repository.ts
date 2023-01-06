@@ -83,17 +83,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       const itemNode = item?.node;
       console.log('check3', { itemNode } );
 
-      if (
-        itemNode?.product?.kit &&
-        itemNode?.fulfillment_status !== 'canceled'
-      ) {
-        const kitComponents = itemNode?.product?.kit_components || [];
-        for (const component of kitComponents) {
-          if (component?.sku) {
-            lastSentProducts.push({ sku: component.sku });
-          }
-        }
-      } else if (itemNode?.fulfillment_status !== 'canceled' && itemNode?.sku) {
+      if (itemNode?.fulfillment_status !== 'canceled' && itemNode?.sku) {
         lastSentProducts.push({ sku: itemNode.sku });
       }
     }

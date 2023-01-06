@@ -6,6 +6,12 @@ export interface Customer {
   firstName?:string;
   lastName?:string;
   middleName?:string;
-  createAt?: Date;
+  coachingStatus?: 'active' | 'inactive' | 'pending';
+  boxStatus?: 'active' | 'inactive'| 'pending';
+  twilioChannelSid?:string;
+  sequenceBasedAutoMessageInterval?:number;
+  coachId?:number;
+  note?:string;
+  createdAt?: Date;
   updatedAt?: Date;
 }

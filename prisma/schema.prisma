@@ -26,6 +26,7 @@ model Customers {
   id                                            Int                                            @id @default(autoincrement())
   email                                         String                                         @unique
   phone                                         String?                                        @unique
+  phoneStatus                                   ValidStatus?                                   @default(pending)     
   firstName                                     String?
   lastName                                      String?
   middleName                                    String?
@@ -51,6 +52,7 @@ model Customers {
   intermediateCustomerAllergens                 IntermediateCustomerAllergen[]
   intermediateCustomerBoxPlans                  IntermediateCustomerBoxPlan[]
   intermediateCustomerCategoryPreferences       IntermediateCustomerCategoryPreference[]
+  intermediateCustomerCoachingPreferences       IntermediateCustomerCoachingPreference[]
   intermediateCustomerFlavorDislikes            IntermediateCustomerFlavorDislike[]
   intermediateCustomerFoodTypes                 IntermediateCustomerFoodType[]
   intermediateCustomerIngredientDislikes        IntermediateCustomerIngredientDislike[]
@@ -61,6 +63,120 @@ model Customers {
   queuedShopifyOrder                            QueuedShopifyOrder[]
   surveyQuestionAnswer                          SurveyQuestionAnswer[]
   terraCustomer                                 TerraCustomer?
+  customerEventLog  CustomerEventLog []
+  intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
+  messageTimePreference MessageTimePreference @default(at9)
+  coachingSubscribed ActiveStatus @default(inactive)
+  boxSubscribed ActiveStatus @default(inactive)
+  twilioChannelSid String? 
+  sequenceBasedAutoMessageInterval Int  @default(7)
+}
+
+enum ValidStatus {
+  valid
+  invalid
+  pending
+}
+
+model CustomerEventLog {
+  id Int @id @default(autoincrement())
+  customerId Int
+  customer   Customers @relation(fields: [customerId], references: [id])
+  eventDate    DateTime   @default(now())
+  type  EventType
+}
+
+enum EventType {
+  coachingSubscribed
+  coachingUnsubscribed
+  boxSubscribed
+  boxUnsubscribed
+}
+
+enum MediaType {
+  mp3
+  mp4
+  image
+  webPage
+}
+
+enum MessageTimePreference {
+  at0
+  at3
+  at6
+  at9
+  at12
+  at15
+  at18
+  at21
+}
+
+model PurchaseDateBasedMessage {
+  id  Int  @id @default(autoincrement())
+  delayDaysSincePurchase Int
+  purchaseDateBasedAutoMessageContent PurchaseDateBasedAutoMessageContent[]
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model PurchaseDateBasedAutoMessageMedia {
+  id  Int  @id @default(autoincrement())
+  urlTemplate String
+  type MediaType
+  purchaseDateBasedAutoMessageContent   PurchaseDateBasedAutoMessageContent @relation(fields: [purchaseDateBasedAutoMessageContentId], references: [id])
+  purchaseDateBasedAutoMessageContentId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+
+model PurchaseDateBasedAutoMessageContent {
+  id  Int  @id @default(autoincrement())
+  body String
+  purchaseDateBasedAutoMessageMedia PurchaseDateBasedAutoMessageMedia[]
+  purchaseDateBasedMessage   PurchaseDateBasedMessage @relation(fields: [purchaseDateBasedMessageId], references: [id])
+  purchaseDateBasedMessageId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessage {
+  id  Int  @id @default(autoincrement())
+  sequence Int
+  sequenceBasedAutoMessageContent SequenceBasedAutoMessageContent[]
+  intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessageContent {
+  id  Int  @id @default(autoincrement())
+  body String
+  sequenceBasedAutoMessageMedia SequenceBasedAutoMessageMedia[]
+  sequenceBasedAutoMessage   SequenceBasedAutoMessage @relation(fields: [SequenceBasedAutoMessageId], references: [id])
+  SequenceBasedAutoMessageId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model SequenceBasedAutoMessageMedia {
+  id  Int  @id @default(autoincrement())
+  urlTemplate String
+  type MediaType
+  SequenceBasedAutoMessageContent   SequenceBasedAutoMessageContent @relation(fields: [sequenceBasedAutoMessageContentId], references: [id])
+  sequenceBasedAutoMessageContentId Int
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+}
+
+model IntermediateCustomerSequenceBasedAutoMessageHistory {
+  sequenceBasedAutoMessageId Int
+  customerId        Int
+  sentAt         DateTime        @default(now())
+  sequenceBasedAutoMessage   SequenceBasedAutoMessage @relation(fields: [sequenceBasedAutoMessageId], references: [id])
+  customer          Customers       @relation(fields: [customerId], references: [id])
+
+  @@id([sequenceBasedAutoMessageId, customerId])
 }
 
 model TemporaryPrePurchaseAnswer {
@@ -384,6 +500,24 @@ model IntermediateCustomerCategoryPreference {
   productCategory   ProductCategory @relation(fields: [productCategoryId], references: [id])
 
   @@id([productCategoryId, customerId])
+}
+model IntermediateCustomerCoachingPreference {
+  customerId               Int
+  coachingPreferenceId     Int
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @default(now()) @updatedAt
+  customer                 Customers          @relation(fields: [customerId], references: [id])
+  coachingPreference       CoachingPreference @relation(fields: [coachingPreferenceId], references: [id])
+  @@id([coachingPreferenceId, customerId])
+}
+
+model CoachingPreference {
+  id                       Int                                     @id @default(autoincrement())
+  name                     String                                  @unique
+  label                    String
+  createdAt                DateTime                                @default(now())
+  updatedAt                DateTime                                @default(now()) @updatedAt
+  intermediateCustomerCoachingPreference IntermediateCustomerCoachingPreference[]
 }
 
 model IntermediateProductIngredient {
@@ -761,6 +895,7 @@ model CustomerCoachHistory{
 model Coach {
   id            Int             @id @default(autoincrement())
   email         String          @unique
+  phone String?
   customer Customers[]
   customerCoachHistory CustomerCoachHistory[]
   createdAt     DateTime        @default(now())
@@ -791,5 +926,5 @@ enum QueueStatus {
 enum ActiveStatus {
   active
   inactive
-  // pending
+  pending
 }
