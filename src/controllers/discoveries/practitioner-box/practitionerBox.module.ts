@@ -5,7 +5,7 @@ import { CreatePractitionerBoxUsecase } from '@Usecases/practitionerBox/createPr
 import { GetPractitionerBoxByLabelUsecase } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxByUuidUsecase } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
 import { PractitionerBoxController } from './practitionerBox.controller';
-import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { PractitionerGeneralRepository } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { UpdateRecurringPractitionerBoxesUsecase } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
 import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
