@@ -9,7 +9,6 @@ import { TwilioRepositoryInterface } from '../../repositories/twilio/twilio.repo
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
 import { pstTime } from '../utils/dates';
-import { BitlyRepositoryInterface } from '../../repositories/bitly/bitly.repository';
 
 export interface SendAutoMessageUsecaseInterface {
   sendAutoMessage():
@@ -26,8 +25,6 @@ enum TwilioError {
 export class SendAutoMessageUsecase
 implements SendAutoMessageUsecaseInterface
 {
-  private sendMessageErrorStack = [];
-  private getCustomerDataErrorStack=[];
   constructor(
 
   @Inject('AutoMessageRepositoryInterface')
@@ -38,19 +35,14 @@ implements SendAutoMessageUsecaseInterface
   private readonly twilioRepository: TwilioRepositoryInterface,
   @Inject('CustomerGeneralRepositoryInterface')
   private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
-  @Inject('BitlyRepositoryInterface')
-  private readonly bitlyRepository: BitlyRepositoryInterface,
 
   ) {}
 
-  private async registerTwilioChannelSidToCustomer(customer:CoachedCustomer): Promise<string | undefined>{
+  private async registerTwilioChannelSidToCustomer(customer:CoachedCustomer): Promise<ReturnValueType<string>>{
     const channelName = `${customer.firstName} ${customer.lastName?customer.lastName:''} - ID:${customer.id}`;
     const [twilioChannel, createTwilioChannelError] = await this.twilioRepository.createChannel(
       { channelName });
-    if(createTwilioChannelError) {
-      this.sendMessageErrorStack.push(createTwilioChannelError);
-      return undefined;
-    }
+    if(createTwilioChannelError) return [undefined, createTwilioChannelError];
 
     await this.twilioRepository.createConversationOnFrontline(
       { channelSid: twilioChannel.sid, coachEmail: customer.coach.email });
@@ -62,13 +54,13 @@ implements SendAutoMessageUsecaseInterface
       if(addParticipantsError.name === TwilioError.invalidPhoneNumber){
         // TODO: phone number invalid
       }
-      return undefined;
+      return [undefined, addParticipantsError];
     }
 
     await this.customerGeneralRepository.updateCustomerTwilioChannelSid(
       { customerId: customer.id, twilioChannelSid: twilioChannel.sid });
 
-    return twilioChannel.sid;
+    return [twilioChannel.sid];
 
   }
 
@@ -104,30 +96,15 @@ implements SendAutoMessageUsecaseInterface
     return filledTemplate;
   }
 
-  private async getShorterUrl(url:string):Promise<string | undefined>{
-    const [shorterUrl, createShorterUrlError] = await this.bitlyRepository.createShorterUrl({ url });
-    if(createShorterUrlError){
-      this.sendMessageErrorStack.push(createShorterUrlError);
-      return undefined;
-    }
-    return shorterUrl.url;
-  }
-  private findLinks(body:string):string[]{
-    const pattern =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
-
-    return body.match(pattern) || [];
-  }
-
   private async sendMessage(customer: CoachedCustomer,
-    messageDetail: PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage): Promise<string | undefined> {
+    messageDetail: PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage): Promise<ReturnValueType<string>> {
     let customerChannelId = customer.twilioChannelSid;
 
     // If the customer does not already have a Twilio channel ID, register one for them
     if (!customerChannelId) {
-      const twilioChannelSid =
+      const [twilioChannelSid, registerTwilioChannelSidToCustomerError] =
       await this.registerTwilioChannelSidToCustomer(customer);
-
+      if (registerTwilioChannelSidToCustomerError) return [undefined, registerTwilioChannelSidToCustomerError];
       customerChannelId = twilioChannelSid;
     }
 
@@ -152,23 +129,11 @@ implements SendAutoMessageUsecaseInterface
     body = this.replaceTemplateVariableWithValue(body, customer);
     body += webPageUrls.length ? '\n\n' + webPageUrls.join('\n\n') : '';
 
-    const links = this.findLinks(body);
-    console.log('links1: ', links);
-
-    // If there are long (> 40) links in body, make them shorter
-    for (const link of links) {
-
-      if (link.length > 40) {
-        const shortUrl = await this.getShorterUrl(link);
-        if(!shortUrl) break;
-        body = body.replace(link, shortUrl);
-      }
-    }
     // Send the text message
     const [, sendTextMessageError] = await this.twilioRepository.sendTextMessage({ customerChannelId, author: 'AUTO MESSAGE', body });
     if (sendTextMessageError) {
-      this.sendMessageErrorStack.push(sendTextMessageError);
-      return undefined;
+
+      return [undefined, sendTextMessageError];
     }
 
     // Once we send something, even if media might not be sent, create the history.
@@ -180,12 +145,11 @@ implements SendAutoMessageUsecaseInterface
     if (mediaUrls.length) {
       const [, sendMediaError] = await this.twilioRepository.sendMedia({ coachPhone, customerPhone, mediaUrls });
       if (sendMediaError) {
-        this.sendMessageErrorStack.push(sendMediaError);
-        return undefined;
+        return [undefined, sendMediaError];
       }
     }
 
-    return body;
+    return ['OK'];
   }
 
   private async getCustomerDaysSincePurchase( customerId :number):Promise<number>{
@@ -211,7 +175,7 @@ implements SendAutoMessageUsecaseInterface
   private findSendingMessage(customer:CoachedCustomer,
     purchaseDateBasedAutoMessages:PurchaseDateBasedAutoMessage[],
     sequenceBasedAutoMessages: SequenceBasedAutoMessage[]):
-    PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage | undefined{
+    ReturnValueType<PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage | undefined>{
     let sendingMessage: PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage | undefined;
 
     const purchaseDateBasedMatchingMessage = purchaseDateBasedAutoMessages.find(message =>
@@ -230,13 +194,12 @@ implements SendAutoMessageUsecaseInterface
         const sequentBasedMatchingMessage = sequenceBasedAutoMessages.find(message =>
           message.sequence === customer.sequenceBasedAutoMessageData.lastSequentBasedMessageSequence+1);
         if(!sequentBasedMatchingMessage){
-          this.sendMessageErrorStack.push({ name: 'findSendingMessage failed', message: `No more sequence is found. Customer ID ${customer.id} may reach to the end of the sequence` });
-          return undefined;
+          return [undefined, { name: 'findSendingMessage failed', message: `No more sequence is found. Customer ID ${customer.id} may reach to the end of the sequence` }];
         }
         sendingMessage = sequentBasedMatchingMessage;
       }
     }
-    return sendingMessage;
+    return [sendingMessage];
   }
 
   private getCustomerMessagePreferenceTime(date = pstTime()):sendAt{
@@ -268,6 +231,7 @@ implements SendAutoMessageUsecaseInterface
       const daysSet: Set<number> = new Set();
       const sequenceSet: Set<number> = new Set();
 
+      const getCustomerDataErrorStack = [];
       for(const customer of sendableCoachedCustomers){
         try{
           const customerDaysSincePurchase = await this.getCustomerDaysSincePurchase(customer.id);
@@ -286,7 +250,7 @@ implements SendAutoMessageUsecaseInterface
             { lastSequentBasedMessageDate, lastSequentBasedMessageSequence },
           });
         }catch(e){
-          this.getCustomerDataErrorStack.push(new Error(e));
+          getCustomerDataErrorStack.push(new Error(e));
           continue;
         }
       }
@@ -299,35 +263,39 @@ implements SendAutoMessageUsecaseInterface
       const sequenceBasedAutoMessages =
     await this.autoMessageRepository.getSequenceBasedAutoMessagesBySequences({ sequences: uniqueSequences });
 
+      const sendMessageErrorStack = [];
       for (const customer of targetCustomers) {
         try{
-          const sendingMessage=
+          const [sendingMessage, findSendingMessageError]=
           this.findSendingMessage(customer, purchaseDateBasedAutoMessages, sequenceBasedAutoMessages );
 
+          if(findSendingMessageError){
+            sendMessageErrorStack.push(findSendingMessageError);
+            continue;
+          }
+
           if(sendingMessage){
-            const sendMessage = await this.sendMessage(customer, sendingMessage);
-            if (!sendMessage) {
+            const [, sendMessageError] = await this.sendMessage(customer, sendingMessage);
+            if (sendMessageError) {
+              sendMessageErrorStack.push(sendMessageError);
               continue;
             }
 
           }
 
         }catch(e){
-          this.sendMessageErrorStack.push(new Error(e));
+          sendMessageErrorStack.push(new Error(e));
           continue;
         }
       }
 
-      if (this.getCustomerDataErrorStack.length || this.sendMessageErrorStack.length) {
-        const message = this.getCustomerDataErrorStack.length && this.sendMessageErrorStack.length ? 'Both getCustomerDataErrorStack and sendMessageErrorStack error' :
-          this.getCustomerDataErrorStack.length ? 'getCustomerDataErrorStack error' : 'sendMessageErrorStack error';
+      if (getCustomerDataErrorStack.length || sendMessageErrorStack.length) {
+        const message = getCustomerDataErrorStack.length && sendMessageErrorStack.length ? 'Both getCustomerDataErrorStack and sendMessageErrorStack error' :
+          getCustomerDataErrorStack.length ? 'getCustomerDataErrorStack error' : 'sendMessageErrorStack error';
         throw {
           message,
           code: 500,
-          details: {
-            getCustomerDataErrorStack: this.getCustomerDataErrorStack,
-            sendMessageErrorStack: this.sendMessageErrorStack,
-          },
+          details: { getCustomerDataErrorStack, sendMessageErrorStack },
         };
       }
 
