@@ -12,7 +12,7 @@ import { GetSuggestionInterface } from '@Usecases/utils/getSuggestion';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PRODUCT_COUNT } from '../utils/productCount';
 import { ReturnValueType } from '@Filters/customError';
-import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
+import { CUSTOMER_BOX_PLANS } from '../utils/boxPlans';
 import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 

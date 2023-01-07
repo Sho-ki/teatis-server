@@ -227,9 +227,11 @@ export class DiscoveriesController {
   // POST: api/discovery/order-update-webhook
   @Post('order-update-webhook')
   async createOrder(
-    @Body() body: UpdateCustomerOrderDto,
+    @Body() body: any,
     @Res() response:  Response<OrderQueue | Error>,
   ) {
+    console.log(body);
+    return;
     let noteAttributes = {} as { uuid?: string, practitionerBoxUuid?: string };
     for (const noteAttribute of body.note_attributes) {
       if (noteAttribute.name === 'uuid') {

@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
 import { CustomerBoxDto } from '../../controllers/discoveries/dtos/createCheckoutCartOfCustomerBoxDto';
-import { CUSTOMER_BOX_PLANS } from '../utils/customerBoxPlans';
+import { CUSTOMER_BOX_PLANS } from '../utils/boxPlans';
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { CustomerCheckoutCart } from '../../domains/CustomerCheckoutCart';
 import { ReturnValueType } from '@Filters/customError';
