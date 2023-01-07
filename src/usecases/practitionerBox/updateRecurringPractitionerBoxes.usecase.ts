@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { MasterMonthlyBoxRepositoryInterface } from '../../repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
 import { PractitionerAndBox } from '../../domains/PractitionerAndBox';
 import { PractitionerBox } from '@Domains/PractitionerBox';
-import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { Product } from '@Domains/Product';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ReturnValueType } from '@Filters/customError';

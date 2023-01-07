@@ -28,7 +28,7 @@ import { CreateCheckoutCartOfPractitionerBoxOldUsecase } from '@Usecases/checkou
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
 import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
-import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { PractitionerBoxOrderHistoryRepository } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';

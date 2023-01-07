@@ -7,7 +7,7 @@ import { UpdateCustomerOrderDto } from '@Controllers/discoveries/dtos/updateCust
 import { OrderQueueRepositoryInterface } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { Product } from 'src/domains/Product';
 import { ShopifyRepositoryInterface } from '@Repositories/shopify/shopify.repository';
-import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { OrderQueue } from '@Domains/OrderQueue';
 import { PractitionerBoxOrderHistoryRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { ReturnValueType } from '@Filters/customError';
