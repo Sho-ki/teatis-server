@@ -115,7 +115,6 @@ implements SendAutoMessageUsecaseInterface
   private findLinks(body:string):string[]{
     const pattern =
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
-
     return body.match(pattern) || [];
   }
 
@@ -151,7 +150,6 @@ implements SendAutoMessageUsecaseInterface
     let body = messageDetail.body;
     body = this.replaceTemplateVariableWithValue(body, customer);
     body += webPageUrls.length ? '\n\n' + webPageUrls.join('\n\n') : '';
-
     const links = this.findLinks(body);
     console.log('links1: ', links);
 
@@ -160,8 +158,10 @@ implements SendAutoMessageUsecaseInterface
 
       if (link.length > 40) {
         const shortUrl = await this.getShorterUrl(link);
+        console.log('shortUrl: ', shortUrl);
         if(!shortUrl) break;
         body = body.replace(link, shortUrl);
+        console.log('body: ', body);
       }
     }
     // Send the text message
@@ -242,7 +242,6 @@ implements SendAutoMessageUsecaseInterface
   private getCustomerMessagePreferenceTime(date = pstTime()):sendAt{
 
     const currentHour = date;
-
     if(0 <= currentHour && currentHour < 3) return 'at0';
     if(3 <= currentHour && currentHour < 6) return 'at3';
     if(6 <= currentHour && currentHour < 9) return 'at6';
