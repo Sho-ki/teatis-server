@@ -17,7 +17,7 @@ import { CustomerPostPurchaseSurveyRepository } from '@Repositories/teatisDB/cus
 import { CustomerPreferenceRepository } from '@Repositories/teatisDB/customer/customerPreference.repository';
 import { CustomerPrePurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
 import { OrderQueueRepository } from '@Repositories/teatisDB/order/orderQueue.repository';
-import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { PractitionerBoxOrderHistoryRepository } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { CreateCheckoutCartOfCustomerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
 import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
