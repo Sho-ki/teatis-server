@@ -855,7 +855,7 @@ model IntermediateMasterMonthlyBoxProduct {
 
 model CronMetadata {
   id            Int             @id @default(autoincrement())
-  name          String          @unique
+  name          CronMetadataName          @unique
   lastRunAt     DateTime
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @default(now()) @updatedAt
@@ -865,12 +865,16 @@ model CronMetadata {
 model WebhookEvents {
   id               Int          @id @default(autoincrement())
   apiId            String
-  cronMetadataName String
+  cronMetadataName CronMetadataName
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @default(now()) @updatedAt
   cronMetadata     CronMetadata @relation(fields: [cronMetadataName], references: [name])
 
   @@unique([apiId, cronMetadataName], name: "WebhookIdentifier")
+}
+
+enum CronMetadataName {
+  updateOrder
 }
 
 model CustomerSessionStore {
