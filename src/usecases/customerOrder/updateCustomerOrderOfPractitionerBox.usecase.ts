@@ -159,15 +159,14 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
       }
     }else{
-      if(hasCoachingBox && customer.coachingStatus !== 'active' ){
+      if(hasCoachingBox && customer.coachingStatus === 'inactive' ){
         if(!customer.coachId){ // Customers who subscribed once without coaching, but subscribed again with coaching
           await this.coachRepository.
             connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
-        }
 
-      }
-      if(customer.coachingStatus !== 'active'){
+        }
         await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed']  });
+
       }
       if(customer.boxStatus === 'inactive'){
         await this.customerGeneralRepository.activateCustomerSubscription(
