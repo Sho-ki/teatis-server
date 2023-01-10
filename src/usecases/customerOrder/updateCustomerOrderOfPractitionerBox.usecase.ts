@@ -166,7 +166,7 @@ implements UpdateCustomerOrderOfPractitionerBoxUsecaseInterface
         }
         await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed']  });
       }
-      if(customer.boxStatus !== 'active'){
+      if(customer.boxStatus === 'inactive'){
         await this.customerGeneralRepository.activateCustomerSubscription(
           { uuid: customer.uuid, type: ['boxSubscribed']  }
         );
