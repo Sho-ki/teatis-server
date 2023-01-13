@@ -26,9 +26,9 @@ export class BitlyRepository implements BitlyRepositoryInterface {
         headers:
         { 'Authorization': process.env.BITLY_API_KEY, 'Content-Type': 'application/json' },
       });
-    if(!response || response.status !== 200){
-      return [undefined, { name: 'createShorterUrl failed', message: 'You hit the monthly limit' }];
-    }
+    // if(!response || response.status !== 200){
+    //   return [undefined, { name: 'createShorterUrl failed', message: 'You hit the monthly limit' }];
+    // }
     return [{ url: response.data.link }];
   }
 
