@@ -7,30 +7,29 @@ import { UpdateOrderService } from './updateOrder.service';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-// module.exports.updateOrder = async(req:Request, res:Response) => {
-//   if (req.method === 'POST'){
-//     console.log('THIS IS POST');
+module.exports.updateOrder = async(req:Request, res:Response) => {
+  if (req.method === 'POST'){
+    console.log('THIS IS POST UPDATE ORDER');
 
-//     const workerApp = await NestFactory.createApplicationContext(WorkerModule);
+    const workerApp = await NestFactory.createApplicationContext(WorkerModule);
 
-//     const appService = workerApp.get(UpdateOrderService);
-//     appService.checkUpdateOrderWebhook();
-//     await workerApp.close();
-//     console.log('SUCCESS');
-//   }
-//   console.log('END');
-//   res.end();
-// };
-
-const updateOrder = async() => {
-  console.log('THIS IS POST');
-
-  const workerApp = await NestFactory.createApplicationContext(WorkerModule);
-
-  const appService = workerApp.get(UpdateOrderService);
-  appService.checkAndUpdateOrder();
-  await workerApp.close();
-  console.log('SUCCESS');
+    const appService = workerApp.get(UpdateOrderService);
+    appService.checkAndUpdateOrder();
+    await workerApp.close();
+  }
+  console.log('END');
+  res.end();
 };
 
-updateOrder();
+// const updateOrder = async() => {
+//   console.log('THIS IS POST');
+
+//   const workerApp = await NestFactory.createApplicationContext(WorkerModule);
+
+//   const appService = workerApp.get(UpdateOrderService);
+//   appService.checkAndUpdateOrder();
+//   await workerApp.close();
+//   console.log('SUCCESS');
+// };
+
+// updateOrder();

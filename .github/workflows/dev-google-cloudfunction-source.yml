@@ -49,7 +49,7 @@ name: Dev Release (Cloud functions)
 on:
   push:
     branches:
-      - main
+      - feature/box-type
 env:
   PROJECT_ID: teatis-discovery-dev
   SERVICE: teatis-server-dev
@@ -182,7 +182,7 @@ jobs:
           workload_identity_provider: '${{ secrets.WIF_PROVIDER_DEV }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}'
 
-      - name: Deploy to Cloud Function
+      - name: Deploy to Cloud Function (twilio-auto-message-dev-2)
         id: deploy-twilio-auto-massage
         uses: google-github-actions/deploy-cloud-functions@v1
         with:
@@ -200,6 +200,27 @@ jobs:
           secret_environment_variables: ${{ env.SECRETS }}
           deploy_timeout: 1000
 
+      - name: Deploy to Cloud Function (update-order-dev)
+        id: update-order-dev
+        uses: google-github-actions/deploy-cloud-functions@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          region: ${{ env.REGION }}
+          name: update-order-dev
+          runtime: nodejs16
+          # source_dir: ./dist
+          timeout: 500
+          entry_point: sendAutoMessage
+          env_vars: |
+            SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}
+            ENV=dev
+
+          secret_environment_variables: ${{ env.SECRETS }}
+          deploy_timeout: 1000
+
       # If required, use the Cloud Run url output in later steps
       - name: Show deploy-twilio-auto-massage Output
         run: echo ${{ steps.deploy-twilio-auto-massage.outputs.url }}
+
+      - name: Show update-order-dev Output
+        run: echo ${{ steps.update-order-dev.outputs.url }}
