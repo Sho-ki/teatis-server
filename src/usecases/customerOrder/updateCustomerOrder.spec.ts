@@ -26,6 +26,7 @@ import { CustomerProductsAutoSwapInterface } from '../utils/customerProductsAuto
 import { Order } from '../../domains/Order';
 import { ShopifyWebhook } from '../../domains/ShopifyWebhook';
 import { Product } from '../../domains/Product';
+import { CustomerPreferenceRepositoryInterface } from '../../repositories/teatisDB/customer/customerPreference.repository';
 
 describe('GetOptions', () => {
   let usecase: UpdateCustomerOrderUsecaseInterface;
@@ -42,6 +43,7 @@ describe('GetOptions', () => {
   let MockedTransactionOperator :Partial<TransactionOperatorInterface>;
   let MockedCustomerEventLogRepository :Partial<CustomerEventLogRepositoryInterface>;
   let MockedMonthlySelectionRepository :Partial<MonthlySelectionRepositoryInterface>;
+  let MockedCustomerPreferenceRepository: Partial<CustomerPreferenceRepositoryInterface>;
 
   beforeEach(async () => {
 
@@ -49,6 +51,7 @@ describe('GetOptions', () => {
     MockedCustomerAuthRepository= {};
     MockedCreateCalendarEvent= {};
     MockedCoachRepository= {};
+    MockedCustomerPreferenceRepository = {};
     MockedCronMetaDataRepository= {
       getLastRun: jest.fn<Promise<CronMetadata>, []>().mockResolvedValue({
         id: 1,
@@ -153,6 +156,10 @@ describe('GetOptions', () => {
         {
           provide: 'CustomerProductsAutoSwapInterface',
           useValue: MockedCustomerProductsAutoSwap,
+        },
+        {
+          provide: 'CustomerPreferenceRepositoryInterface',
+          useValue: MockedCustomerPreferenceRepository,
         },
       ],
     }).compile();
