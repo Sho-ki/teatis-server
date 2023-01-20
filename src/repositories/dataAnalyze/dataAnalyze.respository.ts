@@ -28,7 +28,7 @@ interface AnalyzePreferenceRes {
 export interface AnalyzePreferenceRepositoryInterface {
   getAnalyzedProducts({
     products,
-    necessary_responses: necessary_responces,
+    necessary_responses,
     user_fav_categories,
   }: AnalyzePreferenceArgs): Promise<[AnalyzePreferenceRes?, Error?]>;
 }

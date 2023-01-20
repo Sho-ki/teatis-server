@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
+  // previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -91,6 +91,7 @@ enum EventType {
   coachingUnsubscribed
   boxSubscribed
   boxUnsubscribed
+  postPurchaseCalendarCreated
 }
 
 enum MediaType {
@@ -416,7 +417,7 @@ model MonthlyBoxSelection {
   updatedAt                           DateTime                              @default(now()) @updatedAt
   intermediateMonthlyBoxSelectionProduct IntermediateMonthlyBoxSelectionProduct[]
 
-  @@unique([label, boxPlan])
+  @@unique([label, boxPlan], name: "MonthlyBoxIdentifier")
 }
 
 enum BoxPlan {

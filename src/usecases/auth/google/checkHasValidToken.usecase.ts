@@ -3,14 +3,14 @@ import {  Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerSessionRepositoryInterface } from '@Repositories/teatisDB/customer/customerSession.repository';
 import { CustomerAuthRepositoryInterface } from '@Repositories/teatisDB/customer/customerAuth.repository';
-import { CustomerAuth } from '@Domains/CustomerAuth';
+import {  CustomerIsAuthenticated } from '../../../domains/CustomerAuth';
 
 interface CheckHasValidTokenArgs {
   sessionId:string;
 }
 
 export interface CheckHasValidTokenUsecaseInterface {
-  checkHasValidToken( {  sessionId }:CheckHasValidTokenArgs): Promise<ReturnValueType<CustomerAuth>>;
+  checkHasValidToken( {  sessionId }:CheckHasValidTokenArgs): Promise<ReturnValueType<CustomerIsAuthenticated>>;
 }
 
 @Injectable()
@@ -24,36 +24,22 @@ implements CheckHasValidTokenUsecaseInterface
     private customerAuthRepository: CustomerAuthRepositoryInterface,
   ) {}
 
-  async checkHasValidToken( { sessionId }:CheckHasValidTokenArgs): Promise<ReturnValueType<CustomerAuth>> {
-    const [customerSession, getCustomerBySessionId] =
+  async checkHasValidToken( { sessionId }:CheckHasValidTokenArgs): Promise<ReturnValueType<CustomerIsAuthenticated>> {
+    const [customerSession, customerDoNotHaveSession] =
     await this.customerSessionRepository.getCustomerByCustomerSession({ sessionId });
-    if(getCustomerBySessionId){
-      return [undefined, getCustomerBySessionId];
-    }
-    if(!customerSession.id){
-      return [
-        {
-          id: undefined,
-          email: undefined,
-          uuid: undefined,
-          token: undefined,
-          refreshToken: undefined,
-          expiredAt: undefined,
-          isAuthenticated: false,
-        },
-        undefined,
-      ];
+    if(customerDoNotHaveSession){
+      return [undefined, customerDoNotHaveSession];
     }
 
-    const [customerAuth, getCustomerAuthError] =
+    const customerAuth=
     await this.customerAuthRepository.getCustomerAuthToken({
       customerId: customerSession.id,
       provider: 'google',
     });
 
-    if(getCustomerAuthError){
-      return [undefined, getCustomerAuthError];
+    if(!customerAuth || customerAuth?.tokenExpiredAt <= new Date()){
+      return [{ ...customerSession.customer, isAuthenticated: false }];
     }
-    return [customerAuth];
+    return [{ ...customerAuth.customer, isAuthenticated: true }];
   }
 }

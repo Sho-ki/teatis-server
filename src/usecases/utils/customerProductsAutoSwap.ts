@@ -10,11 +10,12 @@ import {
 import { CustomerPreferenceRepositoryInterface } from '@Repositories/teatisDB/customer/customerPreference.repository';
 
 import { Customer } from '@Domains/Customer';
-import { PRODUCT_COUNT } from './productCount';
+import { ReturnValueType } from '../../filter/customError';
 
 interface customerProductsAutoSwapArgs {
   customer: Customer;
-  practitionerProducts : Product[];
+  products : Product[];
+  count:number;
 }
 
 interface FilterProductsArgs {
@@ -35,8 +36,9 @@ interface FilterProductsArgs {
 export interface CustomerProductsAutoSwapInterface {
   customerProductsAutoSwap({
     customer,
-    practitionerProducts,
-  }: customerProductsAutoSwapArgs): Promise<[ Product[]?, Error?]>;
+    products,
+    count,
+  }: customerProductsAutoSwapArgs): Promise<ReturnValueType<Product[]>>;
 }
 
 @Injectable()
@@ -119,8 +121,8 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
     return filteredProducts;
   }
 
-  async customerProductsAutoSwap({ customer, practitionerProducts }: customerProductsAutoSwapArgs):
-  Promise<[ Product[]?, Error?]> {
+  async customerProductsAutoSwap({ customer, products, count }: customerProductsAutoSwapArgs):
+  Promise<ReturnValueType<Product[]>> {
     let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
       await this.shipheroRepository.getLastFulfilledOrder({ email: customer.email, uuid: customer.uuid });
@@ -295,34 +297,36 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
         return !nextWantProducts.find((nextWant) => nextWant.id === product.id);
       })
       : allProducts;
-    const newPractitionerProducts:Product[] = nextWantProducts? [...nextWantProducts]:[];
-    for(const practitionerProduct of practitionerProducts){
+    const newProducts:Product[] = nextWantProducts? [...nextWantProducts]:[];
+    for(const product of products){
       const foundProductIndex = shippableProducts.findIndex(
-        shippableProduct => shippableProduct.id === practitionerProduct.id);
+        shippableProduct => shippableProduct.id === product.id);
       if(foundProductIndex !== -1){
-        newPractitionerProducts.push({
-          id: practitionerProduct.id,
-          name: practitionerProduct.name,
-          label: practitionerProduct.label,
-          sku: practitionerProduct.sku,
+        newProducts.push({
+          id: product.id,
+          name: product.name,
+          label: product.label,
+          sku: product.sku,
         });
         shippableProducts.splice(foundProductIndex, 1);
       }else {
-        const categoryCode = practitionerProduct.sku.split('-')[1];
+        const categoryCode = product.sku.split('-')[1];
         let swapTargetProductIndex = shippableProducts.findIndex(
           shippableProduct => shippableProduct.sku.split('-')[1] === categoryCode);
         if(swapTargetProductIndex === -1) swapTargetProductIndex = 0;
-        const newPractitionerProduct = shippableProducts[swapTargetProductIndex];
-        newPractitionerProducts.push({
-          id: newPractitionerProduct.id,
-          name: newPractitionerProduct.name,
-          label: newPractitionerProduct.label,
-          sku: newPractitionerProduct.sku,
+        const switchedProduct = shippableProducts[swapTargetProductIndex];
+        newProducts.push({
+          id: switchedProduct.id,
+          name: switchedProduct.name,
+          label: switchedProduct.label,
+          sku: switchedProduct.sku,
         });
         shippableProducts.splice(swapTargetProductIndex, 1);
       }
-      if(newPractitionerProducts.length === PRODUCT_COUNT)break;
+      if(newProducts.length === count) break;
     }
-    return [newPractitionerProducts, undefined];
+    return [newProducts, undefined];
+
   }
+
 }

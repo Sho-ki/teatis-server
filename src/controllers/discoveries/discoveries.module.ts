@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { DiscoveriesController } from './discoveries.controller';
 import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
 import { PrismaService } from 'src/prisma.service';
@@ -15,7 +15,6 @@ import { CustomerBoxRepository } from '@Repositories/teatisDB/customer/customerB
 import { TeatisJobs } from '@Repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { UpdateCustomerOrderOfCustomerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfCustomerBox.usecase';
 import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { OrderQueueRepository } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { GetNextBoxUsecase } from '@Usecases/nextBox/getNextBox.usecase';
@@ -24,20 +23,14 @@ import { AnalyzePreferenceRepository } from '@Repositories/dataAnalyze/dataAnaly
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
-import { CreateCheckoutCartOfPractitionerBoxOldUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBoxOld.usecase';
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
-import { UpdateCustomerOrderOfPractitionerBoxUsecase } from '@Usecases/customerOrder/updateCustomerOrderOfPractitionerBox.usecase';
 import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
 import { PractitionerBoxOrderHistoryRepository } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
-import { UpdatePractitionerBoxOrderHistoryUsecase } from '@Usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';
-import { CreateCheckoutCartOfPractitionerMealBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerMealBox.usecase';
 import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
 import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { EmailModule } from './email/email.module';
-import { CreateCheckoutCartOfCustomerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfCustomerBox.usecase';
-import { CreateCheckoutCartOfPractitionerBoxUsecase } from '@Usecases/checkoutCart/createCheckoutCartOfPractitionerBox.usecase';
 import { CustomerProductsAutoSwap } from '@Usecases/utils/customerProductsAutoSwap';
 import { WebhookEventRepository } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
@@ -46,10 +39,19 @@ import { CreateCalendarEvent } from '@Usecases/utils/createCalendarEvent';
 import { GoogleCalendarRepository } from '@Repositories/googleOAuth2/googleCalendar.repository';
 import { TemporaryPrePurchaseSurveysModule } from './temporaryPrePurchaseSurvey/temporaryPrePurchaseSurvey.module';
 import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
+import { CreateCheckoutCartUsecase } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
+import { UpdatePractitionerBoxOrderHistoryUsecase } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
+import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
 
+@Global()
 @Module({
   controllers: [DiscoveriesController],
   providers: [
+
+    {
+      provide: 'CustomerEventLogRepositoryInterface',
+      useClass: CustomerEventLogRepository,
+    },
     {
       provide: 'CoachRepositoryInterface',
       useClass: CoachRepository,
@@ -79,12 +81,8 @@ import { CoachRepository } from '../../repositories/teatisDB/coach/coach.reposit
       useClass: CustomerProductsAutoSwap,
     },
     {
-      provide: 'CreateCheckoutCartOfPractitionerBoxUsecaseInterface',
-      useClass: CreateCheckoutCartOfPractitionerBoxUsecase,
-    },
-    {
-      provide: 'CreateCheckoutCartOfPractitionerMealBoxUsecaseInterface',
-      useClass: CreateCheckoutCartOfPractitionerMealBoxUsecase,
+      provide: 'CreateCheckoutCartUsecaseInterface',
+      useClass: CreateCheckoutCartUsecase,
     },
     {
       provide: 'GetFirstBoxUsecaseInterface',
@@ -99,16 +97,8 @@ import { CoachRepository } from '../../repositories/teatisDB/coach/coach.reposit
       useClass: PractitionerBoxOrderHistoryRepository,
     },
     {
-      provide: 'CreateCheckoutCartOfPractitionerBoxOldUsecaseInterface',
-      useClass: CreateCheckoutCartOfPractitionerBoxOldUsecase,
-    },
-    {
       provide: 'PractitionerBoxRepositoryInterface',
       useClass: PractitionerBoxRepository,
-    },
-    {
-      provide: 'UpdateCustomerOrderOfPractitionerBoxUsecaseInterface',
-      useClass: UpdateCustomerOrderOfPractitionerBoxUsecase,
     },
     {
       provide: 'CreateCustomerUsecaseInterface',
@@ -117,10 +107,6 @@ import { CoachRepository } from '../../repositories/teatisDB/coach/coach.reposit
     {
       provide: 'GetCustomerNutritionUsecaseInterface',
       useClass: GetCustomerNutritionUsecase,
-    },
-    {
-      provide: 'CreateCheckoutCartOfCustomerBoxUsecaseInterface',
-      useClass: CreateCheckoutCartOfCustomerBoxUsecase,
     },
     {
       provide: 'GetSuggestionInterface',
@@ -195,10 +181,6 @@ import { CoachRepository } from '../../repositories/teatisDB/coach/coach.reposit
     {
       provide: 'PostPrePurchaseSurveyUsecaseInterface',
       useClass: PostPrePurchaseSurveyUsecase,
-    },
-    {
-      provide: 'UpdateCustomerOrderOfCustomerBoxUsecaseInterface',
-      useClass: UpdateCustomerOrderOfCustomerBoxUsecase,
     },
     {
       provide: 'DeleteCustomerBoxUsecaseInterface',
