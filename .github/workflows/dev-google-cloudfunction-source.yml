@@ -49,7 +49,7 @@ name: Dev Release (Cloud functions)
 on:
   push:
     branches:
-      - feature/box-type
+      - main
 env:
   PROJECT_ID: teatis-discovery-dev
   SERVICE: teatis-server-dev
@@ -210,7 +210,7 @@ jobs:
           runtime: nodejs16
           # source_dir: ./dist
           timeout: 500
-          entry_point: sendAutoMessage
+          entry_point: updateOrder
           env_vars: |
             SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}
             ENV=dev
