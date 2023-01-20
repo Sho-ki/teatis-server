@@ -25,7 +25,7 @@ import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCust
 import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
-import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repo';
+import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { PractitionerBoxOrderHistoryRepository } from '@Repositories/teatisDB/practitioner/practitionerBoxOrderHistory.repository';
 import { GetFirstBoxUsecase } from '@Usecases/firstBox/getFirstBox.usecase';
 import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
