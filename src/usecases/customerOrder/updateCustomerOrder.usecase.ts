@@ -91,6 +91,7 @@ implements UpdateCustomerOrderUsecaseInterface
   }
 
   async updateCustomerOrder(): Promise<ReturnValueType<CustomerOrder[]>> {
+    const runDate = new Date();
     try{
       const lastRun = await this.cronMetaDataRepository.getLastRun(
         { name: 'updateOrder' });
@@ -98,7 +99,6 @@ implements UpdateCustomerOrderUsecaseInterface
       const shopifyWebhooks =
     await this.shopifyRepository.getShopifyOrdersByFromDate({ fromDate: lastRun.lastRunAt });
       console.log('shopifyWebhooks:', shopifyWebhooks);
-      const runDate = new Date();
       console.log('runDate: ', runDate);
 
       if(!shopifyWebhooks.length) {
@@ -265,13 +265,13 @@ implements UpdateCustomerOrderUsecaseInterface
         throw (this.updateCustomerOrderErrors);
       }
 
-      await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
-
       return [customerOrders];
 
     }catch(e){
       console.log(e);
       throw new Error(e);
+    }finally{
+      await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
     }
   }
 }
