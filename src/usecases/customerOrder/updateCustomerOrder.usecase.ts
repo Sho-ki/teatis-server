@@ -98,48 +98,6 @@ implements UpdateCustomerOrderUsecaseInterface
       const shopifyWebhooks =
     await this.shopifyRepository.getShopifyOrdersByFromDate({ fromDate: lastRun.lastRunAt });
 
-      // const testshopifyWebhooks =   [
-      //   {
-      //     apiId: 'gid://shopify/Order/4904022310967',
-      //     orderNumber: '#5265',
-      //     totalPrice: '29.99',
-      //     attributes: [
-      //       {
-      //         name: 'uuid',
-      //         value: '5204ae79-fe97-437f-bb24-37e798759ad1',
-      //       },
-      //     ],
-      //     lineItems: [{ productId: 11993553141815, sku: '1m-mini-coach' }],
-      //     shopifyCustomer: {
-      //       email: 'hiroshi@teatismeal.com',
-      //       id: 5726897471543,
-      //       phone: '+17433741000',
-      //       first_name: 'Shoki',
-      //       last_name: 'Ishii',
-      //       default_address: { phone: '+17433741000' },
-      //     },
-      //   },
-      // {
-      //   apiId: 'gid://shopify/Order/4682563026999',
-      //   orderNumber: '#5109',
-      //   totalPrice: '29.99',
-      //   attributes: [
-      //     {
-      //       name: 'uuid',
-      //       value: 'af5461eb-d00f-4231-b255-1ac30a6c54e6',
-      //     },
-      //   ],
-      //   lineItems: [{ productId: 11993553141815, sku: '1m-standard-coach' }],
-      //   shopifyCustomer: {
-      //     email: 'shoki0116.highjump@gmail.com',
-      //     id: 5674457858103,
-      //     phone: '+1111111111',
-      //     first_name: 'Shoki',
-      //     last_name: 'Ishii',
-      //     default_address: { phone: '+1111111111' },
-      //   },
-      // },
-      // ];
       const runDate = new Date();
       if(!shopifyWebhooks.length) {
         await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
@@ -161,7 +119,7 @@ implements UpdateCustomerOrderUsecaseInterface
               this.customerPreferenceRepository,
             ],
             async (): Promise<ReturnValueType<CustomerOrder>> => {
-              const { orderNumber, apiId, attributes, lineItems, shopifyCustomer } = task;
+              const { orderNumber, apiId, attributes, lineItems, shopifyCustomer, totalPrice } = task;
 
               const [, postApiIdError] = await this.webhookEventRepository.postApiId(
                 { apiId, name: 'updateOrder', client: 'shopify' });
@@ -204,6 +162,10 @@ implements UpdateCustomerOrderUsecaseInterface
               let hasCoachingBox = false;
 
               let boxPlan: 'mini' | 'standard' | 'max' = undefined;
+
+              // for existing customers who paid $24.44, $39.99 without coaching
+              boxPlan = Number(totalPrice) > 30?'standard':'mini';
+
               for(let { sku } of lineItems){
                 sku = sku.toLowerCase();
                 if(sku.includes('mini')) boxPlan = 'mini';
@@ -244,7 +206,13 @@ implements UpdateCustomerOrderUsecaseInterface
               if (orderError) {
                 return [undefined, orderError];
               }
-              const note = 'Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+
+              let note:string;
+              if(boxPlan === 'mini'){
+                note ='Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+              }else {
+                note ='Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+              }
 
               const [
                 productOnHand,
@@ -287,7 +255,7 @@ implements UpdateCustomerOrderUsecaseInterface
         }catch(e){
           this.updateCustomerOrderErrors.push({
             name: 'updateCustomerOrder failed',
-            message: `input: ${task}, error: ${e}`,
+            message: `input: apiId=${task.apiId},  customer:${task.shopifyCustomer}, error: ${e}`,
           });
         }
       }

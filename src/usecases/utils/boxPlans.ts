@@ -24,7 +24,7 @@ interface boxIdentifier{
 
 const sellingPlan = {
   every1: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MjQ5OTIwNTU=',
-  every3: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MjA2MDExNDM=',
+  every3: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MjY0MzM4NDc=',
   every6: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MjA1MzU2MDc=',
   every12: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MjA2NjY2Nzk=',
 };
