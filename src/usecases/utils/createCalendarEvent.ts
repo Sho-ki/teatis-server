@@ -6,16 +6,20 @@ import { CustomerAuthRepositoryInterface } from '../../repositories/teatisDB/cus
 import { GoogleCalendarRepositoryInterface } from '../../repositories/googleOAuth2/googleCalendar.repository';
 import { ReturnValueType } from '../../filter/customError';
 import ClientOAuth2 from 'client-oauth2';
-import { Customer } from '../../domains/Customer';
 import { Status } from '../../domains/Status';
+import { CustomerEventLogRepositoryInterface } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
 
 interface CreateCalendarEventArgs{
-    customer : Customer;
+    customerId: number;
+    uuid: string;
+    email: string;
     token: ClientOAuth2.Token;
 }
 export interface CreateCalendarEventInterface {
   createCalendarEvent({
-    customer,
+    customerId,
+    uuid,
+    email,
     token,
   }: CreateCalendarEventArgs): Promise<
     ReturnValueType<Status>>;
@@ -30,6 +34,9 @@ export class CreateCalendarEvent implements CreateCalendarEventInterface {
     private googleCalendarRepository: GoogleCalendarRepositoryInterface,
     @Inject('ShipheroRepositoryInterface')
     private shipheroRepository: ShipheroRepositoryInterface,
+    @Inject('CustomerEventLogRepositoryInterface')
+    private customerEventLogRepository: CustomerEventLogRepositoryInterface,
+
   ) {}
 
   private createEvent(
@@ -53,14 +60,14 @@ export class CreateCalendarEvent implements CreateCalendarEventInterface {
     return event;
   }
 
-  async createCalendarEvent({ customer, token }: CreateCalendarEventArgs): Promise<ReturnValueType<Status>>{
+  async createCalendarEvent({  customerId, uuid, email, token }: CreateCalendarEventArgs):
+  Promise<ReturnValueType<Status>>{
     // Refresh the current users access token.
-    await token.refresh().then(async(updatedUser) => {
-      const [customerLastOrder, getCustomerLastOrder] =
-            await this.shipheroRepository.getLastCustomerOrder({ email: customer.email, uuid: customer.uuid });
-      if(getCustomerLastOrder){
-        return [undefined, getCustomerLastOrder];
-      }
+    try{
+      const updatedUser = await token.refresh();
+      const [customerLastOrder] =
+            await this.shipheroRepository.getLastCustomerOrder({ email, uuid });
+
       const calendarDate =  customerLastOrder.orderDate? new Date(customerLastOrder.orderDate): new Date();
       calendarDate.setDate(calendarDate.getDate() + 20);
 
@@ -68,19 +75,6 @@ export class CreateCalendarEvent implements CreateCalendarEventInterface {
       tokenExpiredAt.setFullYear(tokenExpiredAt.getFullYear() + 20);
       updatedUser.expiresIn(tokenExpiredAt);
       const { accessToken, refreshToken } = updatedUser;
-
-      const [, upsertCustomerAuthError] =
-          await this.customerAuthRepository.upsertCustomerAuthToken({
-            customerId: customer.id,
-            provider: 'google',
-            accessToken,
-            tokenType: 'bearer',
-            refreshToken,
-            tokenExpiredAt,
-          });
-      if(upsertCustomerAuthError){
-        return [undefined, upsertCustomerAuthError];
-      }
 
       const event = this.createEvent({
         summary: 'Time to Customize Your Snacks!',
@@ -100,16 +94,31 @@ export class CreateCalendarEvent implements CreateCalendarEventInterface {
           ],
           useDefault: false,
         },
-        description: `Evaluate your box in this month and customize your next box in the link below: https://app.teatismeal.com/teatis-meal-box/post-purchase?uuid=${customer.uuid}`,
+        description: `Evaluate your box in this month and customize your next box in the link below: https://app.teatismeal.com/teatis-meal-box/post-purchase?uuid=${uuid}`,
         colorId: '4',
       });
-      const [, createCalendarEventError] = await this.googleCalendarRepository.createCalendarEvent(
-        { accessToken, event }
-      );
-      if(createCalendarEventError){
-        return [undefined, createCalendarEventError];
+
+      await Promise.all([
+        this.googleCalendarRepository.createCalendarEvent(
+          { accessToken, event }
+        ),
+        this.customerAuthRepository.upsertCustomerAuthToken({
+          customerId,
+          provider: 'google',
+          accessToken,
+          tokenType: 'bearer',
+          refreshToken,
+          tokenExpiredAt,
+        }),
+        this.customerEventLogRepository.createCustomerEventLog({ customerId, event: 'postPurchaseCalendarCreated', date: new Date() }),
+      ]);
+
+    }catch(e){
+      if(e.code === 'EAUTH'){
+        return [undefined, { name: 'createCalendarEvent failed', message: 'refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.' }];
       }
-    });
+      throw e;
+    }
 
     return [{ success: true }];
   }

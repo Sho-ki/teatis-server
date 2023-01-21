@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Customer } from '@Domains/Customer';
 
 import { PrismaService } from '../../../prisma.service';
@@ -6,7 +6,8 @@ import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { Transactionable } from '../../utils/transactionable.interface';
 
 export interface GetCustomerArgs {
   email: string;
@@ -63,7 +64,7 @@ export interface activateCustomerSubscriptionArgs {
   eventDate?:Date;
 }
 
-export interface CustomerGeneralRepositoryInterface {
+export interface CustomerGeneralRepositoryInterface extends Transactionable {
   getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
   getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>>;
   getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
@@ -91,7 +92,17 @@ export interface CustomerGeneralRepositoryInterface {
 export class CustomerGeneralRepository
 implements CustomerGeneralRepositoryInterface
 {
-  constructor(private prisma: PrismaService) {}
+  private originalPrismaClient : PrismaClient;
+  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
+  setPrismaClient(prisma: Prisma.TransactionClient): CustomerGeneralRepositoryInterface {
+    this.originalPrismaClient = this.prisma as PrismaClient;
+    this.prisma = prisma;
+    return this;
+  }
+
+  setDefaultPrismaClient() {
+    this.prisma = this.originalPrismaClient;
+  }
 
   async deactivateCustomerSubscription({ uuid, eventDate = new Date(), type }:
      deactivateCustomerSubscriptionArgs): Promise<Customer> {
@@ -213,6 +224,12 @@ implements CustomerGeneralRepositoryInterface
     uuid,
     newEmail, phone, firstName, lastName,
   }: UpdateCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
+    const existingCustomer = await this.prisma.customers.findUnique({ where: { phone } });
+
+    if(existingCustomer && existingCustomer.uuid !== uuid){
+      return [undefined,  { name: 'Phone constraint', message: 'The phone number is already used' }];
+    }
+
     const data:Prisma.CustomersUpdateInput = {};
     if(newEmail) data.email = newEmail;
     if(phone) data.phone = phone;
@@ -233,6 +250,7 @@ implements CustomerGeneralRepositoryInterface
         createdAt: response.createdAt, updatedAt: response.updatedAt,
       },
     ];
+
   }
 
   async getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {

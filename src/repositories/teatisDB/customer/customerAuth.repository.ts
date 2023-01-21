@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../prisma.service';
-import { ReturnValueType } from '@Filters/customError';
-import { CustomerAuth } from '@Domains/CustomerAuth';
+import { CustomerAuth } from '../../../domains/CustomerAuth';
+import { Transactionable } from '../../utils/transactionable.interface';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 interface GetCustomerAuthTokenArgs {
   customerId: number;
@@ -18,52 +19,38 @@ interface UpsertCustomerAuthTokenArgs {
   tokenType:'bearer';
 }
 
-export interface CustomerAuthRepositoryInterface {
-  getCustomerAuthToken({ customerId, provider }: GetCustomerAuthTokenArgs): Promise<ReturnValueType<CustomerAuth>>;
+export interface CustomerAuthRepositoryInterface extends Transactionable{
+  getCustomerAuthToken({ customerId, provider }: GetCustomerAuthTokenArgs): Promise<CustomerAuth>;
   upsertCustomerAuthToken({ customerId, provider, accessToken, refreshToken, tokenExpiredAt, tokenType }:
-    UpsertCustomerAuthTokenArgs):Promise<ReturnValueType<CustomerAuth>>;
+    UpsertCustomerAuthTokenArgs):Promise<CustomerAuth>;
 }
 
 @Injectable()
 export class CustomerAuthRepository
 implements CustomerAuthRepositoryInterface
 {
-  constructor(private prisma: PrismaService) {}
+  private originalPrismaClient : PrismaClient;
+  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
+  setPrismaClient(prisma: Prisma.TransactionClient): CustomerAuthRepositoryInterface {
+    this.originalPrismaClient = this.prisma as PrismaClient;
+    this.prisma = prisma;
+    return this;
+  }
+
+  setDefaultPrismaClient() {
+    this.prisma = this.originalPrismaClient;
+  }
 
   async getCustomerAuthToken(
-    { customerId, provider }: GetCustomerAuthTokenArgs): Promise<ReturnValueType<CustomerAuth>> {
+    { customerId, provider }: GetCustomerAuthTokenArgs): Promise<CustomerAuth> {
     const response = await this.prisma.customerOAuth2.findUnique(
       { where: { CustomerOAuthIdentifier: { customerId, provider } }, include: { customer: true } });
-    if(!response){
-      return [
-        {
-          id: undefined,
-          email: undefined,
-          uuid: undefined,
-          token: undefined,
-          refreshToken: undefined,
-          expiredAt: undefined,
-          isAuthenticated: false,
-        },
-        undefined,
-      ];
-    }
-    return [
-      {
-        id: response.customer.id,
-        email: response.customer.email,
-        uuid: response.customer.uuid,
-        token: response.accessToken,
-        refreshToken: response.refreshToken,
-        expiredAt: response.tokenExpiredAt,
-        isAuthenticated: true,
-      },
-    ];
+    return response;
   }
 
   async upsertCustomerAuthToken(
     { customerId, provider, accessToken, refreshToken, tokenExpiredAt, tokenType }:
-     UpsertCustomerAuthTokenArgs): Promise<ReturnValueType<CustomerAuth>> {
+     UpsertCustomerAuthTokenArgs): Promise<CustomerAuth> {
     const response = await this.prisma.customerOAuth2.upsert(
       {
         where: { CustomerOAuthIdentifier: { customerId, provider } }, include: { customer: true },
@@ -83,18 +70,7 @@ implements CustomerAuthRepositoryInterface
         },
       });
 
-    return [
-      {
-        id: response.customer.id,
-        email: response.customer.email,
-        uuid: response.customer.uuid,
-        token: response.accessToken,
-        tokenType: response.tokenType,
-        refreshToken: response.refreshToken,
-        expiredAt: response.tokenExpiredAt,
-        isAuthenticated: true,
-      },
-    ];
+    return response;
   }
 
 }

@@ -4,7 +4,7 @@ import { GraphQLClient } from 'graphql-request';
 import { Cart } from '@Domains/Cart';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import { CreateCartMutation, getSdk } from './generated/graphql';
-import { GetCustomerOrdersByEmailResponse, RetrieveOrdersListResponse, ShopifyGetCustomerRes } from './shopify.interface';
+import { GetCustomerOrdersByEmailResponse, GetShopifyOrderByApiId, RetrieveOrdersListResponse, ShopifyGetCustomerRes } from './shopify.interface';
 import { ReturnValueType } from '../../filter/customError';
 import { ShopifyWebhook } from '../../domains/ShopifyWebhook';
 
@@ -23,8 +23,12 @@ interface GetUuidByEmailArgs {
   email: string;
 }
 
-interface GetShopifyWebhooksArgs {
+export interface GetShopifyOrdersByFromDateArgs {
   fromDate: Date;
+}
+
+interface GetShopifyOrderByApiIdArgs {
+  apiId: number;
 }
 
 export interface ShopifyRepositoryInterface {
@@ -35,8 +39,9 @@ export interface ShopifyRepositoryInterface {
     sellingPlanId,
     attributes,
   }: CreateCartArgs): Promise<ReturnValueType<Cart>>;
-  getShopifyWebhooks({ fromDate }:GetShopifyWebhooksArgs):Promise<ReturnValueType<ShopifyWebhook[]>>;
+  getShopifyOrdersByFromDate({ fromDate }:GetShopifyOrdersByFromDateArgs):Promise<ShopifyWebhook[]>;
   getCustomerUuidByEmail({ email }:GetUuidByEmailArgs):Promise<ReturnValueType<string>>;
+  getShopifyOrderByApiId({ apiId }:GetShopifyOrderByApiIdArgs): Promise<ReturnValueType<ShopifyWebhook>>;
 }
 
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
@@ -123,7 +128,9 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
     }
     return [{ orderCount, email }];
   }
-  async getShopifyWebhooks({ fromDate }:GetShopifyWebhooksArgs):Promise<ReturnValueType<ShopifyWebhook[]>>{
+
+  async getShopifyOrdersByFromDate({ fromDate }:GetShopifyOrdersByFromDateArgs):
+  Promise<ShopifyWebhook[]>{
     const response = await axios.get<RetrieveOrdersListResponse.Root>(
       `https://thetis-tea.myshopify.com/admin/api/2022-10/orders.json?status=any&created_at_min=${fromDate.toDateString()}`,
       {
@@ -133,9 +140,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
         },
       },
     );
-    if(response.status !== 200){
-      throw new Error(response.status + '- getShopifyWebhooks failed');
-    }
+
     const shopifyWebhookData:ShopifyWebhook[] = response.data.orders? response.data.orders.map(
       ({ admin_graphql_api_id, name, subtotal_price, note_attributes, line_items, customer }) =>
       {
@@ -144,7 +149,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
           orderNumber: name,
           totalPrice: subtotal_price,
           attributes: note_attributes,
-          lineItems: line_items.map(({ product_id }) => { return { productId: product_id }; }),
+          lineItems: line_items.map(({ product_id, sku }) => { return { productId: product_id, sku }; }),
           shopifyCustomer: {
             email: customer.email, id: customer.id,
             phone: customer?.phone, first_name: customer?.first_name, last_name: customer?.last_name,
@@ -153,6 +158,34 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
         };
       })
       :[];
+
+    return shopifyWebhookData;
+  }
+
+  async getShopifyOrderByApiId({ apiId }:GetShopifyOrderByApiIdArgs):
+  Promise<ReturnValueType<ShopifyWebhook>>{
+    const response = await axios.get<GetShopifyOrderByApiId.RootObject>(
+      `https://thetis-tea.myshopify.com//admin/api/2022-07/orders/${apiId}.json?fields=id,line_items,name,total_price,note_attributes,customer,admin_graphql_api_id`,
+      {
+        auth: {
+          username: process.env.SHOPIFY_API_KEY as string,
+          password: process.env.SHOPIFY_API_PASSWORD as string,
+        },
+      },
+    );
+    if(response.status !== 200){
+      return [undefined, { name: 'getShopifyOrderByApiId failed', message: 'apiId is invalid' }];
+    }
+
+    const { line_items, name, note_attributes, total_price, customer, admin_graphql_api_id } = response.data.order;
+    const shopifyWebhookData:ShopifyWebhook = {
+      orderNumber: name,
+      apiId: admin_graphql_api_id,
+      attributes: note_attributes,
+      lineItems: line_items.map(({ sku, product_id }) => { return { sku, productId: product_id }; }),
+      totalPrice: total_price,
+      shopifyCustomer: customer,
+    };
 
     return [shopifyWebhookData];
   }

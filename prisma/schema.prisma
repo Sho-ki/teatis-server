@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
+  // previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -91,6 +91,7 @@ enum EventType {
   coachingUnsubscribed
   boxSubscribed
   boxUnsubscribed
+  postPurchaseCalendarCreated
 }
 
 enum MediaType {
@@ -403,6 +404,37 @@ model Product {
   productImages                       ProductImage[]
   productNutritionFact                ProductNutritionFact?
   surveyQuestionAnswer                SurveyQuestionAnswer[]
+  intermediateMonthlyBoxSelectionProduct IntermediateMonthlyBoxSelectionProduct[]
+}
+
+model MonthlyBoxSelection {
+  id                                  Int                                   @id @default(autoincrement())
+  label                               String
+  boxPlan  BoxPlan
+  description                         String?
+  note                                String?
+  createdAt                           DateTime                              @default(now())
+  updatedAt                           DateTime                              @default(now()) @updatedAt
+  intermediateMonthlyBoxSelectionProduct IntermediateMonthlyBoxSelectionProduct[]
+
+  @@unique([label, boxPlan], name: "MonthlyBoxIdentifier")
+}
+
+enum BoxPlan {
+  mini
+  standard
+  max
+}
+
+model IntermediateMonthlyBoxSelectionProduct {
+  monthlyBoxSelectionId Int
+  productId          Int
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @default(now()) @updatedAt
+  monthlyBoxSelection   MonthlyBoxSelection @relation(fields: [monthlyBoxSelectionId], references: [id])
+  product            Product          @relation(fields: [productId], references: [id])
+
+  @@id([monthlyBoxSelectionId, productId])
 }
 
 model ProductImage {
@@ -855,22 +887,31 @@ model IntermediateMasterMonthlyBoxProduct {
 
 model CronMetadata {
   id            Int             @id @default(autoincrement())
-  name          String          @unique
+  name          CronMetadataName          @unique
   lastRunAt     DateTime
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @default(now()) @updatedAt
-  webhookEvents WebhookEvents[]
+  webhookEvent WebhookEvent[]
 }
 
-model WebhookEvents {
+model WebhookEvent {
   id               Int          @id @default(autoincrement())
   apiId            String
-  cronMetadataName String
+  cronMetadataName CronMetadataName
+  client  WebhookClient
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @default(now()) @updatedAt
   cronMetadata     CronMetadata @relation(fields: [cronMetadataName], references: [name])
 
   @@unique([apiId, cronMetadataName], name: "WebhookIdentifier")
+}
+
+enum CronMetadataName {
+  updateOrder
+}
+
+enum WebhookClient {
+  shopify
 }
 
 model CustomerSessionStore {

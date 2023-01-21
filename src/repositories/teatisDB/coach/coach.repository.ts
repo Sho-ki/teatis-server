@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { CoachedCustomer } from '@Domains/CoachedCustomer';
-import { Coach } from '@Domains/Coach';
+import { Coach, Prisma, PrismaClient } from '@prisma/client';
+import { Transactionable } from '../../utils/transactionable.interface';
+// import { Coach } from '@Domains/Coach';
 
 export interface GetCoachedCustomersArgs {
   email: string;
@@ -15,6 +17,10 @@ export interface ConnectCustomerCoachArgs {
   coachEmail:string;
 }
 
+export interface FindCustomerCoachArgs {
+  customerId: number;
+}
+
 export interface GetCustomerDetailArgs {
   id:number;
 }
@@ -23,20 +29,32 @@ interface GetActiveCoachedCustomersBySendAtArgs {
  sendAt: 'at0'| 'at3'| 'at6'| 'at9'| 'at12'| 'at15'| 'at18'| 'at21';
 }
 
-export interface CoachRepositoryInterface {
+export interface CoachRepositoryInterface extends Transactionable{
   getCoachedCustomers({ email, oldCursorId }: GetCoachedCustomersArgs): Promise<ReturnValueType<CoachedCustomer[]>>;
   getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>>;
 
   connectCustomerCoach({ coachEmail, customerId }:ConnectCustomerCoachArgs):
-  Promise<ReturnValueType<Coach>>;
+  Promise<Coach>;
 
   getActiveCoachedCustomersBySendAt(
     { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]>;
+
+  // findCustomerCoach({ customerId }:FindCustomerCoachArgs):Promise<Coach> ;
 }
 
 @Injectable()
 export class CoachRepository implements CoachRepositoryInterface {
-  constructor(private prisma: PrismaService) {}
+  private originalPrismaClient : PrismaClient;
+  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
+  setPrismaClient(prisma: Prisma.TransactionClient): CoachRepositoryInterface {
+    this.originalPrismaClient = this.prisma as PrismaClient;
+    this.prisma = prisma;
+    return this;
+  }
+
+  setDefaultPrismaClient() {
+    this.prisma = this.originalPrismaClient;
+  }
 
   async getActiveCoachedCustomersBySendAt(
     { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]> {
@@ -85,18 +103,14 @@ export class CoachRepository implements CoachRepositoryInterface {
   }
 
   async connectCustomerCoach({ coachEmail, customerId }: ConnectCustomerCoachArgs)
-  : Promise<ReturnValueType<Coach>> {
+  : Promise<Coach> {
     const response = await this.prisma.customers.update(
       {
         where: { id: customerId  },
-        data: { coach: { connect: {  email: coachEmail || 'coach@teatismeal.com' } } },
+        data: { coach: { connect: {  email: coachEmail } } },
         include: { coach: true },
       },);
 
-    const { coachId, id } = response;
-    if(!coachId || !id){
-      return [undefined, { name: 'connectCustomerCoach failed', message: 'Either customerId or coachEmail is invalid' }];
-    }
     await this.prisma.customerCoachHistory.upsert(
       {
         where: { customerId_coachId: { coachId: response.coachId, customerId: response.id }  },
@@ -104,8 +118,19 @@ export class CoachRepository implements CoachRepositoryInterface {
         update: {},
       },);
 
-    return [{ id: response.coachId, email: response.coach.email }];
+    return response.coach;
   }
+
+  // async findCustomerCoach({ customerId }: FindCustomerCoachArgs)
+  // : Promise<Coach> {
+  //   const response = await this.prisma.customers.findUnique(
+  //     {
+  //       where: { id: customerId },
+  //       include: { coach: true },
+  //     },);
+
+  //   return response.coach;
+  // }
 
   async getCoachedCustomers({ email, oldCursorId }: GetCoachedCustomersArgs):
   Promise<ReturnValueType<CoachedCustomer[]>> {

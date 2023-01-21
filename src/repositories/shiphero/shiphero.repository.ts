@@ -15,6 +15,7 @@ import {
 import { CustomerOrder } from '@Domains/CustomerOrder';
 import { ReturnValueType } from '@Filters/customError';
 import { ProductOnHand } from '../../domains/ProductOnHand';
+import { Order } from '../../domains/Order';
 
 interface GetLastOrderByUuidArgs {
   email?: string;
@@ -50,7 +51,7 @@ export interface GetOrderByOrderNumberArgs {
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepositoryInterface {
-  updateOrderInformation({ orderId, note, uuid }: UpdateOrderInformationArgs): Promise<[void?, Error?]>;
+  updateOrderInformation({ orderId, note, uuid }: UpdateOrderInformationArgs): Promise<Order>;
   getLastCustomerOrder({ email, uuid }: GetLastOrderByUuidArgs): Promise<ReturnValueType<CustomerOrder>>;
   getLastFulfilledOrder({ email, uuid }: GetLastFulfilledOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
@@ -62,7 +63,7 @@ export interface ShipheroRepositoryInterface {
     products,
     orderNumber,
     warehouseCode,
-  }: UpdateCustomerOrderArgs): Promise<ReturnValueType<ProductOnHand[]>>;
+  }: UpdateCustomerOrderArgs): Promise<ProductOnHand[]>;
 
   // getCustomerOrders({ email }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>>;
 }
@@ -81,7 +82,6 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       if (!item) continue;
 
       const itemNode = item?.node;
-      console.log('check3', { itemNode } );
 
       if (itemNode?.fulfillment_status !== 'canceled' && itemNode?.sku) {
         lastSentProducts.push({ sku: itemNode.sku });
@@ -124,7 +124,6 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     const orderId = node?.id;
     const orderDate = node?.order_date;
 
-    console.log('check1', { node, items, orderId, orderDate } );
     if (!node || !items || !orderId || !orderDate) {
       return [
         undefined,
@@ -135,7 +134,6 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       ];
     }
     const products: Pick<Product, 'sku'>[] = this.getLastSentProducts({ items });
-    console.log('check2', { products } );
     return [
       {
         orderNumber,
@@ -285,14 +283,14 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
   // }
 
   async updateOrderInformation({ orderId, note, uuid }:UpdateOrderInformationArgs):
-  Promise<[void?, Error?]>{
+  Promise<Order>{
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
     uuid = this.createShorterUuid(uuid);
     const holdUntilDate = new Date();
     holdUntilDate.setHours(holdUntilDate.getHours() + 24);
-    await sdk.UpdateOrder({
+    const response = await sdk.UpdateOrder({
       input: {
         hold_until_date: holdUntilDate.toISOString().replace(/T/, ' ').replace(/\..+/, ''),
         order_id: orderId,
@@ -301,7 +299,11 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
 
       },
     });
-    return [];
+    return {
+      orderNumber: response.order_update.order.order_number,
+      orderId: response.order_update.request_id,
+    };
+
   }
 
   async updateCustomerOrder({
@@ -309,7 +311,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     products,
     orderNumber,
     warehouseCode,
-  }: UpdateCustomerOrderArgs): Promise<ReturnValueType<ProductOnHand[]>> {
+  }: UpdateCustomerOrderArgs): Promise<ProductOnHand[]> {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
 
@@ -338,6 +340,6 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       };
     });
 
-    return [itemsOnHand];
+    return itemsOnHand;
   }
 }

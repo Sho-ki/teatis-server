@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Controller, Get, Inject, Param, Query, Redirect, Req, Res, Session } from '@nestjs/common';
+import { Controller, Get, HttpException, Inject, Param, Query, Redirect, Req, Res, Session } from '@nestjs/common';
 import { StoreCustomerTokenUsecaseInterface } from '@Usecases/auth/google/storeCustomerToken.usecase';
 import { Request } from 'express';
 import { CustomerAuthDto } from './dtos/customerAuthDto';
@@ -27,6 +27,12 @@ export class OAuth2Controller {
   @Redirect()
   async getAuthUrl(@Param('provider') name: 'google', @Session() session: Record<string, any>,) {
     const sessionId = session['sessionId'];
+    if(!sessionId){
+      throw new HttpException({
+        name: 'getAuthUrl failed',
+        message: 'sessionId is undefined',
+      }, 500);
+    }
     const [usecaseResponse, error] = await this.getCustomerBySessionIdUsecase.getCustomerBySessionId({ sessionId });
     if(error){
       return [undefined, error];
@@ -63,9 +69,11 @@ export class OAuth2Controller {
     @Res() response:Response<CustomerAuthDto | Error>,
     @Param('provider') name: 'google',
   ) {
+    const sessionId = session['sessionId'];
+    if(!sessionId)return response.status(500).send({ name: 'oAuth2Me failed', message: 'sessionId is undefined' });
     if(name === 'google'){
       const[usecaseResponse, error] =
-      await this.checkHasValidTokenUsecase.checkHasValidToken( { sessionId: session['sessionId'] } );
+      await this.checkHasValidTokenUsecase.checkHasValidToken( { sessionId } );
       if(error){
         return [undefined, error];
       }

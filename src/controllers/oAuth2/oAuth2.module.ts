@@ -12,11 +12,16 @@ import { CreateCalendarEvent } from '@Usecases/utils/createCalendarEvent';
 import { CheckHasValidTokenUsecase } from '@Usecases/auth/google/checkHasValidToken.usecase';
 import { GetCustomerBySessionIdUsecase } from '@Usecases/auth/google/getCustomerBySessionId.usecase';
 import { GetOAuthUriUsecase } from '@Usecases/auth/google/getOAuthUri.usecase';
+import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
 
 @Module({
   controllers: [OAuth2Controller],
   exports: [OAuth2Controller],
   providers: [
+    {
+      provide: 'CustomerEventLogRepositoryInterface',
+      useClass: CustomerEventLogRepository,
+    },
     {
       provide: 'GetOAuthUriUsecaseInterface',
       useClass: GetOAuthUriUsecase,
