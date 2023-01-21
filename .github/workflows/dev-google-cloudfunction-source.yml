@@ -200,7 +200,7 @@ jobs:
       #     secret_environment_variables: ${{ env.SECRETS }}
       #     deploy_timeout: 1000
 
-      - name: Deploy to Cloud Function (update-order-dev)
+      - name: Deploy to Cloud Function
         id: update-order-dev
         uses: google-github-actions/deploy-cloud-functions@v1
         with:
