@@ -94,11 +94,13 @@ implements UpdateCustomerOrderUsecaseInterface
     try{
       const lastRun = await this.cronMetaDataRepository.getLastRun(
         { name: 'updateOrder' });
-
+      console.log('lastRun:', lastRun);
       const shopifyWebhooks =
     await this.shopifyRepository.getShopifyOrdersByFromDate({ fromDate: lastRun.lastRunAt });
-
+      console.log('shopifyWebhooks:', shopifyWebhooks);
       const runDate = new Date();
+      console.log('runDate: ', runDate);
+
       if(!shopifyWebhooks.length) {
         await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
         return [[]];
@@ -269,6 +271,7 @@ implements UpdateCustomerOrderUsecaseInterface
       return [customerOrders];
 
     }catch(e){
+      console.log(e);
       throw new Error(e);
     }
   }
