@@ -230,18 +230,17 @@ implements UpdateCustomerOrderUsecaseInterface
               ]);
 
               const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
-              console.log('fiveOrLessStocks: ', fiveOrLessStocks);
 
-              // if(fiveOrLessStocks.length){
-              //   const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
-              //     {
-              //       isActive: false,
-              //       skus: fiveOrLessStocks.map(({ sku }) => { return sku; }),
-              //     }
-              //   );
-              //   if(updateProductStatusError){
-              //     return [undefined, updateProductStatusError];
-              //   } }
+              if(fiveOrLessStocks.length){
+                const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
+                  {
+                    isActive: false,
+                    skus: fiveOrLessStocks.map(({ sku }) => { return sku; }),
+                  }
+                );
+                if(updateProductStatusError){
+                  return [undefined, updateProductStatusError];
+                } }
 
               await this.checkAndCreateCalendar(
                 { uuid: customer.uuid, email: customer.email, customerId: customer.id });
