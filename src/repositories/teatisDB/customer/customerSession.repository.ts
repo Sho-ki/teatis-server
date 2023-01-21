@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
-import { CustomerSession } from '@Domains/CustomerSession';
+import {  CustomerSessionInformation } from '@Domains/CustomerSessionInformation';
 
 interface UpsertCustomerSessionArgs {
   customerId: number;
@@ -14,11 +14,11 @@ interface GetCustomerByCustomerSessionArgs {
 }
 
 export interface CustomerSessionRepositoryInterface {
-  upsetCustomerSession({ customerId, sessionId }: UpsertCustomerSessionArgs):
-  Promise<ReturnValueType<CustomerSession>>;
+  upsertCustomerSession({ customerId, sessionId }: UpsertCustomerSessionArgs):
+  Promise<CustomerSessionInformation>;
 
   getCustomerByCustomerSession({ sessionId }:GetCustomerByCustomerSessionArgs):
-  Promise<ReturnValueType<CustomerSession>>;
+  Promise<ReturnValueType<CustomerSessionInformation>>;
 }
 
 @Injectable()
@@ -27,52 +27,25 @@ implements CustomerSessionRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async upsetCustomerSession({ customerId, sessionId }: UpsertCustomerSessionArgs):
-  Promise<ReturnValueType<CustomerSession>> {
+  async upsertCustomerSession({ customerId, sessionId }: UpsertCustomerSessionArgs):
+  Promise<CustomerSessionInformation> {
     const response = await this.prisma.customerSession.upsert(
       {
         where: { sessionId }, include: { customer: true },
         create: { customerId, sessionId },
         update: { sessionId },
       });
-    return [
-      {
-        id: response.customer.id,
-        email: response.customer.email,
-        uuid: response.customer.uuid,
-        sessionId: response.sessionId,
-        expiredAt: response?.expiredAt,
-        activeUntil: response.activeUntil,
-      },
-    ];
+    return response;
   }
 
-  async getCustomerByCustomerSession({ sessionId='' }:GetCustomerByCustomerSessionArgs):
-  Promise<ReturnValueType<CustomerSession>>{
+  async getCustomerByCustomerSession({ sessionId }:GetCustomerByCustomerSessionArgs):
+  Promise<ReturnValueType<CustomerSessionInformation>>{
     const response = await this.prisma.customerSession.findUnique(
       { where: { sessionId }, include: { customer: true } });
     if(!response){
-      return [
-        {
-          id: undefined,
-          email: undefined,
-          uuid: undefined,
-          sessionId: undefined,
-          expiredAt: undefined,
-          activeUntil: undefined,
-        },
-      ];
+      return [undefined, { name: 'getCustomerByCustomerSession failed', message: 'sessionId is invalid' }];
     }
-    return [
-      {
-        id: response.customer.id,
-        email: response.customer.email,
-        uuid: response.customer.uuid,
-        sessionId: response.sessionId,
-        expiredAt: response?.expiredAt,
-        activeUntil: response.activeUntil,
-      },
-    ];
+    return [response];
   }
 
 }

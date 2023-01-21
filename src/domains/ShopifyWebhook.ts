@@ -1,9 +1,8 @@
-import { ShopifyWebhookApiId } from './ShopifyWebhookApiId';
-
-export interface ShopifyWebhook extends ShopifyWebhookApiId {
+export interface ShopifyWebhook {
   orderNumber: string;
+  apiId: string;
   attributes: {name:string, value:string}[];
-  lineItems: {productId:number}[];
+  lineItems: {productId:number, sku:string}[];
   totalPrice: string;
   shopifyCustomer : {email:string; id:number; phone?:string; first_name?:string; last_name?:string;
     default_address?:{phone?:string}; };

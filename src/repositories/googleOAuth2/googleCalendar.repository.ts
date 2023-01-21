@@ -18,13 +18,14 @@ export class GoogleCalendarRepository implements GoogleCalendarRepositoryInterfa
 
   async createCalendarEvent({ accessToken, event }: CreateCalendarEventArgs):
   Promise<ReturnValueType<CustomerCalendarEvent>>{
+
     const apiKey = process.env.GCP_API_KEY;
-    const response = await axios.post<CreateCalendarEventResponse.RootObject>(
+    await axios.post<CreateCalendarEventResponse.RootObject>(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${apiKey}`,
       event,
       { headers: { Authorization: `Bearer ${accessToken}` } } );
-    if (response.status !== 200) return [undefined, { name: 'createCalendarEvent', message: 'createCalendarEvent failed' }];
 
     return [event];
+
   }
 }

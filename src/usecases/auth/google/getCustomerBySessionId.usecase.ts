@@ -22,14 +22,12 @@ implements GetCustomerBySessionIdUsecaseInterface
   ) {}
 
   async getCustomerBySessionId( { sessionId }:GetCustomerBySessionIdArgs): Promise<ReturnValueType<Customer>> {
-    const [customerSession, getCustomerBySessionId] =
+    const [customerSession, invalidCustomerSessionError] =
     await this.customerSessionRepository.getCustomerByCustomerSession({ sessionId });
-    if(getCustomerBySessionId){
-      return [undefined, getCustomerBySessionId];
+    if(invalidCustomerSessionError){
+      return [undefined, invalidCustomerSessionError];
     }
 
-    const { email, id, uuid } = customerSession;
-
-    return [{ id, email, uuid }];
+    return [customerSession.customer];
   }
 }

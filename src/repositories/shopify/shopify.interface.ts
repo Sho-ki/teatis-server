@@ -1384,3 +1384,177 @@ export declare namespace GetCustomerOrdersByEmailResponse {
 
 }
 
+export declare namespace GetShopifyOrderByApiId {
+
+    export interface NoteAttribute {
+        name: string;
+        value: string;
+    }
+
+    export interface EmailMarketingConsent {
+        state: string;
+        opt_in_level: string;
+        consent_updated_at?: any;
+    }
+
+    export interface SmsMarketingConsent {
+        state: string;
+        opt_in_level: string;
+        consent_updated_at?: any;
+        consent_collected_from: string;
+    }
+
+    export interface DefaultAddress {
+        id: number;
+        customer_id: number;
+        first_name: string;
+        last_name: string;
+        company?: any;
+        address1: string;
+        address2: string;
+        city: string;
+        province: string;
+        country: string;
+        zip: string;
+        phone: string;
+        name: string;
+        province_code: string;
+        country_code: string;
+        country_name: string;
+        default: boolean;
+    }
+
+    export interface Customer {
+        id: number;
+        email: string;
+        accepts_marketing: boolean;
+        created_at: Date;
+        updated_at: Date;
+        first_name: string;
+        last_name: string;
+        state: string;
+        note?: any;
+        verified_email: boolean;
+        multipass_identifier?: any;
+        tax_exempt: boolean;
+        tags: string;
+        currency: string;
+        phone: string;
+        accepts_marketing_updated_at: Date;
+        marketing_opt_in_level?: any;
+        tax_exemptions: any[];
+        email_marketing_consent: EmailMarketingConsent;
+        sms_marketing_consent: SmsMarketingConsent;
+        admin_graphql_api_id: string;
+        default_address: DefaultAddress;
+    }
+
+    export interface OriginLocation {
+        id: number;
+        country_code: string;
+        province_code: string;
+        name: string;
+        address1: string;
+        address2: string;
+        city: string;
+        zip: string;
+    }
+
+    export interface ShopMoney {
+        amount: string;
+        currency_code: string;
+    }
+
+    export interface PresentmentMoney {
+        amount: string;
+        currency_code: string;
+    }
+
+    export interface PriceSet {
+        shop_money: ShopMoney;
+        presentment_money: PresentmentMoney;
+    }
+
+    export interface ShopMoney2 {
+        amount: string;
+        currency_code: string;
+    }
+
+    export interface PresentmentMoney2 {
+        amount: string;
+        currency_code: string;
+    }
+
+    export interface TotalDiscountSet {
+        shop_money: ShopMoney2;
+        presentment_money: PresentmentMoney2;
+    }
+
+    export interface ShopMoney3 {
+        amount: string;
+        currency_code: string;
+    }
+
+    export interface PresentmentMoney3 {
+        amount: string;
+        currency_code: string;
+    }
+
+    export interface AmountSet {
+        shop_money: ShopMoney3;
+        presentment_money: PresentmentMoney3;
+    }
+
+    export interface DiscountAllocation {
+        amount: string;
+        amount_set: AmountSet;
+        discount_application_index: number;
+    }
+
+    export interface LineItem {
+        id: number;
+        admin_graphql_api_id: string;
+        fulfillable_quantity: number;
+        fulfillment_service: string;
+        fulfillment_status?: any;
+        gift_card: boolean;
+        grams: number;
+        name: string;
+        origin_location: OriginLocation;
+        price: string;
+        price_set: PriceSet;
+        product_exists: boolean;
+        product_id: number;
+        properties: any[];
+        quantity: number;
+        requires_shipping: boolean;
+        sku: string;
+        taxable: boolean;
+        title: string;
+        total_discount: string;
+        total_discount_set: TotalDiscountSet;
+        variant_id: number;
+        variant_inventory_management: string;
+        variant_title: string;
+        vendor: string;
+        tax_lines: any[];
+        duties: any[];
+        discount_allocations: DiscountAllocation[];
+    }
+
+    export interface Order {
+        id: number;
+        admin_graphql_api_id: string;
+        name: string;
+        note_attributes: NoteAttribute[];
+        total_price: string;
+        customer: Customer;
+        line_items: LineItem[];
+    }
+
+    export interface RootObject {
+        order: Order;
+    }
+
+}
+

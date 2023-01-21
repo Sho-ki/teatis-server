@@ -38,7 +38,7 @@ implements StoreCustomerTokenUsecaseInterface
 
     const { email, id } = customerSession;
     const token = await client.code.getToken(originalUrl);
-    await this.createCalendarEvent.createCalendarEvent({ customer: { email, id, uuid }, token });
+    await this.createCalendarEvent.createCalendarEvent({  email, customerId: id, uuid, token });
 
     return [{ url: '/teatis-meal-box/thank-you' }];
   }

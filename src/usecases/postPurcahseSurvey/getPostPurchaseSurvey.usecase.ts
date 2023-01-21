@@ -12,7 +12,6 @@ import {
 import { DisplayProduct } from '@Domains/Product';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ReturnValueType } from '@Filters/customError';
-import { PRACTITIONER_BOX_PLANS } from '../utils/practitionerBoxPlan';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   uuid: string;
@@ -111,10 +110,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
       orderNumber: customerOrder.orderNumber,
       customerId: customerAnswer.id,
       surveyQuestions: [],
-      redirectEndpoint: customerOrder.products.find(({ sku }) =>
-      { return sku===PRACTITIONER_BOX_PLANS.original.sku || sku===PRACTITIONER_BOX_PLANS.customized.sku; })
-        ? '/teatis-meal-box'
-        : `/teatis-meal-box/next-box?uuid=${customer.uuid}`,
+      redirectEndpoint: '/teatis-meal-box',
     };
     surveyQuestion.surveyQuestions.map((question) => {
       const personalizedQuestion:SurveyQuestions = {
