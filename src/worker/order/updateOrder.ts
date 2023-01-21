@@ -7,7 +7,7 @@ import { UpdateOrderService } from './updateOrder.service';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-exports.updateOrder = async(req:Request, res:Response) => {
+module.exports.updateOrder = async(req:Request, res:Response) => {
   if (req.method === 'POST'){
     console.log('THIS IS POST UPDATE ORDER');
 
