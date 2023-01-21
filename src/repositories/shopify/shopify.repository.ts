@@ -132,9 +132,9 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
 
   async getShopifyOrdersByFromDate({ fromDate }:GetShopifyOrdersByFromDateArgs):
   Promise<ShopifyWebhook[]>{
-    console.log('test:', `https://thetis-tea.myshopify.com/admin/api/2022-10/orders.json?status=any&created_at_min=${fromDate.toDateString()}`);
+    console.log('test:', `https://thetis-tea.myshopify.com/admin/api/2022-10/orders.json?status=any&created_at_min=${fromDate.toISOString()}`);
     const response = await axios.get<RetrieveOrdersListResponse.Root>(
-      `https://thetis-tea.myshopify.com/admin/api/2022-10/orders.json?status=any&created_at_min=${fromDate.toDateString()}`,
+      `https://thetis-tea.myshopify.com/admin/api/2022-10/orders.json?status=any&created_at_min=${fromDate.toISOString()}`,
       {
         auth: {
           username: process.env.SHOPIFY_API_KEY as string,
