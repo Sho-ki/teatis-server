@@ -105,7 +105,6 @@ implements UpdateCustomerOrderUsecaseInterface
         await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
         return [[]];
       }
-
       const customerOrders:CustomerOrder[] = [];
       for(const task of shopifyWebhooks){
         try{

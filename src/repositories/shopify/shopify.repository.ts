@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { GraphQLClient } from 'graphql-request';
@@ -131,6 +132,11 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
 
   async getShopifyOrdersByFromDate({ fromDate }:GetShopifyOrdersByFromDateArgs):
   Promise<ShopifyWebhook[]>{
+    console.log(fromDate);
+    console.log(  {
+      username: process.env.SHOPIFY_API_KEY as string,
+      password: process.env.SHOPIFY_API_PASSWORD as string,
+    },);
     const response = await axios.get<RetrieveOrdersListResponse.Root>(
       `https://thetis-tea.myshopify.com/admin/api/2022-10/orders.json?status=any&created_at_min=${fromDate.toDateString()}`,
       {
@@ -140,7 +146,7 @@ export class ShopifyRepository implements ShopifyRepositoryInterface {
         },
       },
     );
-
+    console.log(response);
     const shopifyWebhookData:ShopifyWebhook[] = response.data.orders? response.data.orders.map(
       ({ admin_graphql_api_id, name, subtotal_price, note_attributes, line_items, customer }) =>
       {
