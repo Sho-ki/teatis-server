@@ -8,18 +8,16 @@ import { ReturnValueType } from '@Filters/customError';
 import { CustomerProductsAutoSwapInterface } from '@Usecases/utils/customerProductsAutoSwap';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { WebhookEventRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/webhookEvent.repository';
-import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import * as ClientOAuth2 from 'client-oauth2';
 import { CustomerAuthRepositoryInterface } from '@Repositories/teatisDB/customer/customerAuth.repository';
 import { CreateCalendarEventInterface } from '@Usecases/utils/createCalendarEvent';
-import { CoachRepositoryInterface } from '../../repositories/teatisDB/coach/coach.repository';
-import { CronMetaDataRepositoryInterface } from '../../repositories/teatisDB/webhookEvent/cronMetaData.repository';
-import { TransactionOperatorInterface } from '../../repositories/utils/transactionOperator';
-import { MonthlySelectionRepositoryInterface } from '../../repositories/teatisDB/monthlySelection/monthlySelection.repository';
+import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
+import { CronMetaDataRepositoryInterface } from '@Repositories/teatisDB/webhookEvent/cronMetaData.repository';
+import { MonthlySelectionRepositoryInterface } from '@Repositories/teatisDB/monthlySelection/monthlySelection.repository';
 import { CustomerOrder } from '../../domains/CustomerOrder';
 import { createGoogleOAuthClient } from '../utils/OAuthClient';
-import { CustomerEventLogRepositoryInterface } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
-import { CustomerPreferenceRepositoryInterface } from '../../repositories/teatisDB/customer/customerPreference.repository';
+import { CustomerEventLogRepositoryInterface } from '@Repositories/teatisDB/customerEventLog/customerEventLog.repository';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 
 export interface UpdateCustomerOrderUsecaseInterface {
   updateCustomerOrder(): Promise<ReturnValueType<CustomerOrder[]>>;
@@ -40,10 +38,10 @@ implements UpdateCustomerOrderUsecaseInterface
     private customerProductsAutoSwap: CustomerProductsAutoSwapInterface,
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
-    @Inject('WebhookEventRepositoryInterface')
-    private webhookEventRepository: WebhookEventRepositoryInterface,
     @Inject('ProductGeneralRepositoryInterface')
     private productGeneralRepository: ProductGeneralRepositoryInterface,
+    @Inject('WebhookEventRepositoryInterface')
+    private webhookEventRepository: WebhookEventRepositoryInterface,
     @Inject('CustomerAuthRepositoryInterface')
     private customerAuthRepository: CustomerAuthRepositoryInterface,
     @Inject('CreateCalendarEventInterface')
@@ -52,14 +50,11 @@ implements UpdateCustomerOrderUsecaseInterface
     private coachRepository: CoachRepositoryInterface,
     @Inject('CronMetaDataRepositoryInterface')
     private cronMetaDataRepository: CronMetaDataRepositoryInterface,
-    @Inject('TransactionOperatorInterface')
-    private transactionOperator: TransactionOperatorInterface,
     @Inject('MonthlySelectionRepositoryInterface')
     private monthlySelectionRepository: MonthlySelectionRepositoryInterface,
     @Inject('CustomerEventLogRepositoryInterface')
     private customerEventLogRepository: CustomerEventLogRepositoryInterface,
-    @Inject('CustomerPreferenceRepositoryInterface')
-    private customerPreferenceRepository: CustomerPreferenceRepositoryInterface,
+
   ) {}
 
   private async checkAndCreateCalendar({ uuid, customerId, email }){
@@ -119,89 +114,77 @@ implements UpdateCustomerOrderUsecaseInterface
       const customerOrders:CustomerOrder[] = [];
       for(const task of shopifyWebhooks){
         try{
-          const [customerOrder, customerOrderError] = await this.transactionOperator.performAtomicOperations(
-            [
-              this.customerGeneralRepository,
-              this.monthlySelectionRepository,
-              this.webhookEventRepository,
-              this.productGeneralRepository,
-              this.customerAuthRepository,
-              this.coachRepository,
-              this.productGeneralRepository,
-              this.customerPreferenceRepository,
-            ],
-            async (): Promise<ReturnValueType<CustomerOrder>> => {
-              const { orderNumber, apiId, attributes, lineItems, shopifyCustomer, totalPrice } = task;
+          const { orderNumber, apiId, attributes, lineItems, shopifyCustomer, totalPrice } = task;
 
-              const [, postApiIdError] = await this.webhookEventRepository.postApiId(
-                { apiId, name: 'updateOrder', client: 'shopify' });
+          const [, postApiIdError] = await this.webhookEventRepository.postApiId(
+            { apiId, name: 'updateOrder', client: 'shopify' });
 
-              if(postApiIdError){ // This will happen when an order is already proceeded
-                return [undefined, postApiIdError];
-              }
+          if(postApiIdError){ // This will happen when an order is already proceeded
+            continue;
+          }
 
-              const uuid = attributes.find(({ name }) => { return name === 'uuid'; }).value;
+          const uuid = attributes.find(({ name }) => { return name === 'uuid'; }).value;
 
-              const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
+          const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
-              let phoneNumber = shopifyCustomer?.phone || shopifyCustomer?.default_address?.phone;
-              if (phoneNumber && !phoneNumber.startsWith('+')) {
-                phoneNumber = '+1' + phoneNumber;
-              }
+          let phoneNumber = shopifyCustomer?.phone || shopifyCustomer?.default_address?.phone;
+          if (phoneNumber && !phoneNumber.startsWith('+')) {
+            phoneNumber = '+1' + phoneNumber;
+          }
 
-              const changes:{phone?:string, firstName?:string, lastName?:string} = {};
-              if (phoneNumber && customer?.phone !== phoneNumber) {
-                changes.phone = phoneNumber;
-              }
+          const changes:{phone?:string, firstName?:string, lastName?:string} = {};
+          if (phoneNumber && customer?.phone !== phoneNumber) {
+            changes.phone = phoneNumber;
+          }
 
-              if (shopifyCustomer.first_name && !customer?.firstName) {
-                changes.firstName = shopifyCustomer.first_name;
-              }
+          if (shopifyCustomer.first_name && !customer?.firstName) {
+            changes.firstName = shopifyCustomer.first_name;
+          }
 
-              if (shopifyCustomer.last_name && !customer?.lastName) {
-                changes.lastName = shopifyCustomer.last_name;
-              }
-              let isUniquePhone = true;
-              if (Object.keys(changes).length) {
-                const [, updateCustomerByUuidError] = await this.customerGeneralRepository.updateCustomerByUuid({
-                  uuid,
-                  ...changes,
-                });
+          if (shopifyCustomer.last_name && !customer?.lastName) {
+            changes.lastName = shopifyCustomer.last_name;
+          }
+          let isUniquePhone = true;
+          if (Object.keys(changes).length) {
+            const [, updateCustomerByUuidError] = await this.customerGeneralRepository.updateCustomerByUuid({
+              uuid,
+              ...changes,
+            });
 
-                if(updateCustomerByUuidError) isUniquePhone = false;
-              }
+            if(updateCustomerByUuidError) isUniquePhone = false;
+          }
 
-              let hasCoachingBox = false;
+          let hasCoachingBox = false;
 
-              let boxPlan: 'mini' | 'standard' | 'max' = undefined;
+          let boxPlan: 'mini' | 'standard' | 'max' = undefined;
 
-              // for existing customers who paid $24.44, $39.99 without coaching
-              boxPlan = Number(totalPrice) > 30?'standard':'mini';
+          // for existing customers who paid $24.44, $39.99 without coaching
+          boxPlan = Number(totalPrice) > 30?'standard':'mini';
 
-              for(let { sku } of lineItems){
-                sku = sku.toLowerCase();
-                if(sku.includes('mini')) boxPlan = 'mini';
-                else if(sku.includes('standard')) boxPlan = 'standard';
+          for(let { sku } of lineItems){
+            sku = sku.toLowerCase();
+            if(sku.includes('mini')) boxPlan = 'mini';
+            else if(sku.includes('standard')) boxPlan = 'standard';
 
-                if(sku.includes('coach')) hasCoachingBox = true;
-              }
+            if(sku.includes('coach')) hasCoachingBox = true;
+          }
 
-              // new coaching customers (it doesn't matter if they have purchased non-coaching boxes) &
-              // customers who had subscribed the coaching before and re-subscribe the coaching
+          // new coaching customers (it doesn't matter if they have purchased non-coaching boxes) &
+          // customers who had subscribed the coaching before and re-subscribe the coaching
 
-              if(isUniquePhone && hasCoachingBox && customer.coachingSubscribed === 'inactive'){
-                if(!customer.coachId){
-                  await this.coachRepository.
-                    connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
-                }
-                await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
+          if(isUniquePhone && hasCoachingBox && customer.coachingSubscribed === 'inactive'){
+            if(!customer.coachId){
+              await this.coachRepository.
+                connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
+            }
+            await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
 
-              }
-              const [monthlyBoxSelection] =
+          }
+          const [monthlyBoxSelection] =
           await this.monthlySelectionRepository.getMonthlySelection({ date: new Date(), boxPlan });
 
-              // eslint-disable-next-line prefer-const
-              let [boxProducts, swapError] =
+          // eslint-disable-next-line prefer-const
+          let [boxProducts, swapError] =
             await this.customerProductsAutoSwap.customerProductsAutoSwap(
               {
                 products: monthlyBoxSelection.product,
@@ -209,64 +192,62 @@ implements UpdateCustomerOrderUsecaseInterface
                 count: monthlyBoxSelection.product.length,
               }
             );
-              if (!boxProducts.length || swapError) {
-                boxProducts =  monthlyBoxSelection.product;
+
+          if (!boxProducts.length || swapError) {
+            boxProducts =  monthlyBoxSelection.product;
+          }
+
+          const [order, orderError] = await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber });
+          if (orderError) {
+            continue;
+          }
+          let note:string;
+          if(boxPlan === 'mini'){
+            note ='Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+          }else {
+            note ='Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
+          }
+
+          const [
+            productOnHand,
+            ,
+          ] = await Promise.all([
+            this.shipheroRepository.updateCustomerOrder({
+              orderId: order.orderId,
+              products: boxProducts,
+              orderNumber,
+              warehouseCode: 'CLB-DB',
+            }),
+
+            this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note, uuid }),
+          ]);
+
+          const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
+          console.log('fiveOrLessStocks: ', fiveOrLessStocks);
+
+          const inactivateTarget = fiveOrLessStocks.filter(({ sku }) => {
+            return !sku.includes('mini')||!sku.includes('standard')||!sku.includes('box');
+          });
+          if(inactivateTarget.length){
+            const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
+              {
+                isActive: false,
+                skus: inactivateTarget.map(({ sku }) => { return sku; }),
               }
+            );
+            if(updateProductStatusError){
+              return [undefined, updateProductStatusError];
+            } }
 
-              const [order, orderError] = await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber });
-              if (orderError) {
-                return [undefined, orderError];
-              }
-              let note:string;
-              if(boxPlan === 'mini'){
-                note ='Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
-              }else {
-                note ='Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
-              }
+          await this.checkAndCreateCalendar(
+            { uuid: customer.uuid, email: customer.email, customerId: customer.id });
 
-              const [
-                productOnHand,
-                ,
-              ] = await Promise.all([
-                this.shipheroRepository.updateCustomerOrder({
-                  orderId: order.orderId,
-                  products: boxProducts,
-                  orderNumber,
-                  warehouseCode: 'CLB-DB',
-                }),
+          customerOrders.push({ ...order, products: boxProducts });
 
-                this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note, uuid }),
-              ]);
-
-              const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
-              console.log('fiveOrLessStocks: ', fiveOrLessStocks);
-
-              // if(fiveOrLessStocks.length){
-              //   const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
-              //     {
-              //       isActive: false,
-              //       skus: fiveOrLessStocks.map(({ sku }) => { return sku; }),
-              //     }
-              //   );
-              //   if(updateProductStatusError){
-              //     return [undefined, updateProductStatusError];
-              //   } }
-
-              await this.checkAndCreateCalendar(
-                { uuid: customer.uuid, email: customer.email, customerId: customer.id });
-
-              return [{ ...order, products: boxProducts }, undefined];
-
-            }
-          );
-
-          if(customerOrderError) continue;
-
-          customerOrders.push(customerOrder);
         }catch(e){
           this.updateCustomerOrderErrors.push({
             name: 'updateCustomerOrder failed',
-            message: `input: apiId=${task.apiId},  customer:${task.shopifyCustomer}, error: ${e}`,
+            message: `input: apiId=${task.apiId}, error: ${e}`,
           });
         }
       }

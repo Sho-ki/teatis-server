@@ -38,6 +38,7 @@ export interface CustomerProductsAutoSwapInterface {
     customer,
     products,
     count,
+
   }: customerProductsAutoSwapArgs): Promise<ReturnValueType<Product[]>>;
 }
 
