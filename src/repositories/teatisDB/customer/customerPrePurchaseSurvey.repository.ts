@@ -29,7 +29,6 @@ interface UpsertCustomerArgs {
   proteinPerMeal: number;
   fatPerMeal: number;
   caloriePerMeal: number;
-  boxPlan?: string[];
 }
 
 export interface CustomerPrePurchaseSurveyRepositoryInterface {
@@ -59,7 +58,6 @@ export interface CustomerPrePurchaseSurveyRepositoryInterface {
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
-    boxPlan,
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>>;
 }
 
@@ -95,7 +93,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
     proteinPerMeal,
     fatPerMeal,
     caloriePerMeal,
-    boxPlan,
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>> {
     const medicalConditionsQuery = [
       {
@@ -129,7 +126,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
           { where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerMedicalCondition.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerNutritionNeed.deleteMany({ where: { customerId: checkIfExists.id } }),
-        this.prisma.intermediateCustomerBoxPlan.deleteMany({ where: { customerId: checkIfExists.id } }),
       ]);
     }
     const customer = await this.prisma.customers.upsert({
@@ -147,14 +143,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
         weightKg: weight,
         activeLevel,
         mealsPerDay,
-        intermediateCustomerBoxPlans:
-            boxPlan?.length > 0
-              ? {
-                create: boxPlan.map((name) => {
-                  return { customerBoxPlan: { connect: { name } } };
-                }),
-              }
-              : {},
         intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {
@@ -251,14 +239,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
         weightKg: weight,
         activeLevel,
         mealsPerDay,
-        intermediateCustomerBoxPlans:
-            boxPlan?.length > 0
-              ? {
-                create: boxPlan.map((name) => {
-                  return { customerBoxPlan: { connect: { name } } };
-                }),
-              }
-              : {},
         intermediateCustomerCategoryPreferences:
             categoryPreferences.length > 0
               ? {

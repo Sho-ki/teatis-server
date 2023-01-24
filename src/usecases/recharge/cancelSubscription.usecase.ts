@@ -34,6 +34,9 @@ implements CancelSubscriptionUsecaseInterface
       return [undefined, getCustomerUuidByEmail];
     }
 
+    if(!uuid){
+      return [undefined, { name: 'NoUuid', message: 'uuid is not found' }];
+    }
     const customer = await this.customerGeneralRepository.deactivateCustomerSubscription(
       { uuid, type: ['boxUnsubscribed', 'coachingUnsubscribed']  });
 
