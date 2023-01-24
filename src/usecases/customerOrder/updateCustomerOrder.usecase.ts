@@ -95,12 +95,23 @@ implements UpdateCustomerOrderUsecaseInterface
     try{
       const lastRun = await this.cronMetaDataRepository.getLastRun(
         { name: 'updateOrder' });
-      console.log('lastRun:', lastRun);
       const shopifyWebhooks =
     await this.shopifyRepository.getShopifyOrdersByFromDate({ fromDate: lastRun.lastRunAt });
       console.log('shopifyWebhooks:', shopifyWebhooks);
-      console.log('runDate: ', runDate);
 
+      // const testWebhooks = [
+      //   {
+      //     orderNumber: '12345',
+      //     apiId: 'test123',
+      //     attributes: [{ name: 'uuid', value: '9cd8faae-db10-4167-a5a0-583ee9d2afff' }],
+      //     lineItems: [{ sku: '1m-mini-coach' }],
+      //     totalPrice: '123',
+      //     shopifyCustomer: {
+      //       email: 'shoki@teatismeal.com', id: 123, phone: '+17433741000', first_name: 'shoki', last_name: 'ishii',
+      //       default_address: { phone: '+17433741000' },
+      //     },
+      //   },
+      // ];
       if(!shopifyWebhooks.length) {
         await this.cronMetaDataRepository.updateLastRun({ date: runDate, name: 'updateOrder' });
         return [[]];
@@ -177,16 +188,15 @@ implements UpdateCustomerOrderUsecaseInterface
 
               // new coaching customers (it doesn't matter if they have purchased non-coaching boxes) &
               // customers who had subscribed the coaching before and re-subscribe the coaching
-              if(isUniquePhone && hasCoachingBox && customer.coachingStatus === 'inactive'){
+
+              if(isUniquePhone && hasCoachingBox && customer.coachingSubscribed === 'inactive'){
                 if(!customer.coachId){
                   await this.coachRepository.
                     connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
                 }
-
                 await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
 
               }
-
               const [monthlyBoxSelection] =
           await this.monthlySelectionRepository.getMonthlySelection({ date: new Date(), boxPlan });
 
@@ -207,7 +217,6 @@ implements UpdateCustomerOrderUsecaseInterface
               if (orderError) {
                 return [undefined, orderError];
               }
-
               let note:string;
               if(boxPlan === 'mini'){
                 note ='Please ship with USPS First Class Parcel Only. Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';

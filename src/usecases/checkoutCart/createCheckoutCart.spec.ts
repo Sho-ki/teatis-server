@@ -45,7 +45,7 @@ describe('GetOptions', () => {
               firstName: 'John',
               lastName: 'Doe',
               middleName: 'Smith',
-              coachingStatus: 'active',
+              coachingSubscribed: 'active',
             },
           },
         );
