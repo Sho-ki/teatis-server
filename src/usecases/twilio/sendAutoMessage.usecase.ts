@@ -291,7 +291,6 @@ implements SendAutoMessageUsecaseInterface
       }
       const uniqueDays = Array.from(daysSet);
       const uniqueSequences = Array.from(sequenceSet);
-
       const purchaseDateBasedAutoMessages =
     await this.autoMessageRepository.getPurchaseDateBasedAutoMessagesByDays({ days: uniqueDays });
 
