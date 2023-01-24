@@ -25,7 +25,6 @@ export interface CreateCustomerUsecaseInterface {
     allergens,
     email,
     unavailableCookingMethods,
-    boxPlan,
   }: CreateCustomerUsecaseArgs): Promise<ReturnValueType<Customer>>;
 }
 
@@ -78,7 +77,6 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
     allergens = [],
     email,
     unavailableCookingMethods = [],
-    boxPlan,
   }: CreateCustomerUsecaseArgs): Promise<ReturnValueType<Customer>> {
     //   Calculate Method: https://www.notion.so/teatis/Discovery-engine-3de1c3b8bce74ec78210f6624b4eaa86
     height = this.outlierValidate('height', height);
@@ -158,7 +156,6 @@ export class CreateCustomerUsecase implements CreateCustomerUsecaseInterface {
         proteinPerMeal,
         fatPerMeal,
         caloriePerMeal,
-        boxPlan,
       });
     if (upsertCustomerError) {
       return [null, upsertCustomerError];
