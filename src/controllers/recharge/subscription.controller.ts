@@ -20,7 +20,7 @@ export class SubscriptionController {
     const [usecase, error] = await this.cancelSubscriptionUsecase.cancelSubscription(
       { subscription: body.subscription });
 
-    if(error.name !== 'NoUuid'){
+    if(error && error.name !== 'NoUuid'){
       return response.status(500).send(error);
     }
     return response.status(201).send(usecase);
