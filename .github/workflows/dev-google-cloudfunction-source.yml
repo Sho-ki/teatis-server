@@ -49,7 +49,7 @@ name: Dev Release (Cloud functions)
 on:
   push:
     branches:
-      - fix/update-order-deploy
+      - feature/monthly-box-lp
 env:
   PROJECT_ID: teatis-discovery-dev
   SERVICE: teatis-server-dev
@@ -182,23 +182,23 @@ jobs:
           workload_identity_provider: '${{ secrets.WIF_PROVIDER_DEV }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}'
 
-      # - name: Deploy to Cloud Function (twilio-auto-message-dev-2)
-      #   id: deploy-twilio-auto-massage
-      #   uses: google-github-actions/deploy-cloud-functions@v1
-      #   with:
-      #     project_id: ${{ env.PROJECT_ID }}
-      #     region: ${{ env.REGION }}
-      #     name: twilio-auto-message-dev-2
-      #     runtime: nodejs16
-      #     # source_dir: ./dist
-      #     timeout: 500
-      #     entry_point: sendAutoMessage
-      #     env_vars: |
-      #       SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}
-      #       ENV=dev
+      - name: Deploy to Cloud Function (twilio-auto-message-dev-2)
+        id: deploy-twilio-auto-massage
+        uses: google-github-actions/deploy-cloud-functions@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          region: ${{ env.REGION }}
+          name: twilio-auto-message-dev-2
+          runtime: nodejs16
+          # source_dir: ./dist
+          timeout: 500
+          entry_point: sendAutoMessage
+          env_vars: |
+            SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}
+            ENV=dev
 
-      #     secret_environment_variables: ${{ env.SECRETS }}
-      #     deploy_timeout: 1000
+          secret_environment_variables: ${{ env.SECRETS }}
+          deploy_timeout: 1000
 
       - name: Deploy to Cloud Function (update-order-dev)
         id: update-order-dev
