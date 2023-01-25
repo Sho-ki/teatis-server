@@ -5,7 +5,12 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "main": "dist/src/worker/*/*.js",
+  "exports": {
+    "./worker/*": {
+      "default": "./dist/src/worker/*/*.js"
+    }
+  },
+  "main": "dist/src/worker/order/updateOrder.js",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
