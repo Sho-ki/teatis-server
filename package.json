@@ -6,8 +6,11 @@
   "private": true,
   "license": "UNLICENSED",
   "exports": {
-    "./worker/*": {
-      "default": "./dist/src/worker/*/*.js"
+    "./worker/order": {
+      "default": "./dist/src/worker/order/updateOrder.js"
+    },
+    "./worker/twilio": {
+      "default": "./dist/src/worker/twilio/sendAutoMessage.js"
     }
   },
   "main": "dist/src/worker/order/updateOrder.js",
