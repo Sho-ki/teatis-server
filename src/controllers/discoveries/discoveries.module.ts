@@ -40,7 +40,6 @@ import { GoogleCalendarRepository } from '@Repositories/googleOAuth2/googleCalen
 import { TemporaryPrePurchaseSurveysModule } from './temporaryPrePurchaseSurvey/temporaryPrePurchaseSurvey.module';
 import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
 import { CreateCheckoutCartUsecase } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
-import { UpdatePractitionerBoxOrderHistoryUsecase } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
 
 @Global()
@@ -87,10 +86,6 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
     {
       provide: 'GetFirstBoxUsecaseInterface',
       useClass: GetFirstBoxUsecase,
-    },
-    {
-      provide: 'UpdatePractitionerBoxOrderHistoryUsecaseInterface',
-      useClass: UpdatePractitionerBoxOrderHistoryUsecase,
     },
     {
       provide: 'PractitionerBoxOrderHistoryRepositoryInterface',

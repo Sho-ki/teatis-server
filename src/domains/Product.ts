@@ -31,20 +31,6 @@ export interface DisplayAnalyzeProduct
     Omit<DisplayProduct, 'vendor'>,
     AnalyzeProduct {}
 
-export interface FullProduct extends Product {
-  expertComment: string;
-  ingredientLabel: string;
-  images: ProductImage[];
-  flavor: ProductFeature;
-  category: ProductFeature;
-  allergens: ProductFeature[];
-  allergenLabel: string;
-  foodTypes: ProductFeature[];
-  ingredients:  ProductFeature[];
-  cookingMethods: ProductFeature[];
-  nutritionFact: NutritionFact;
-}
-
 export interface ProductFeature {
   id?: number;
   name?: string;
