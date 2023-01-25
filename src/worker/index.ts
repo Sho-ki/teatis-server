@@ -24,20 +24,6 @@ module.exports.sendAutoMessage = async(req:Request, res:Response) => {
   res.end();
 };
 
-// const sendAutoMessage = async() => {
-//   console.log('THIS IS POST');
-
-//   const workerApp = await NestFactory.createApplicationContext(WorkerModule);
-
-//   const appService = workerApp.get(SendAutoMessageService);
-//   appService.sendAutoMessage();
-//   await workerApp.close();
-//   console.log('SUCCESS');
-//   console.log('END');
-// };
-
-// sendAutoMessage();
-
 module.exports.updateOrder = async(req:Request, res:Response) => {
   if (req.method === 'POST'){
     console.log('THIS IS POST UPDATE ORDER');
@@ -52,15 +38,23 @@ module.exports.updateOrder = async(req:Request, res:Response) => {
   res.end();
 };
 
-// const updateOrder = async() => {
-//   console.log('THIS IS POST');
+const executeFunction = async() => {
+  const workName = process.argv[2];
+  const workerApp = await NestFactory.createApplicationContext(WorkerModule);
+  let appService: { checkAndUpdateOrder: () => unknown, sendAutoMessage: () => unknown };
+  switch(workName){
+    case 'order':
+      appService = workerApp.get(UpdateOrderService);
+      await appService.checkAndUpdateOrder();
+      break;
+    case 'twilio':
+      appService = workerApp.get(SendAutoMessageService);
+      await appService.sendAutoMessage();
+      break;
+  }
+  await workerApp.close();
 
-//   const workerApp = await NestFactory.createApplicationContext(WorkerModule);
+  console.log('SUCCESS');
+};
 
-//   const appService = workerApp.get(UpdateOrderService);
-//   appService.checkAndUpdateOrder();
-//   await workerApp.close();
-//   console.log('SUCCESS');
-// };
-
-// updateOrder();
+executeFunction();
