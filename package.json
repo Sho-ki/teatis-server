@@ -5,15 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "exports": {
-    "./worker/order": {
-      "default": "./dist/src/worker/order/updateOrder.js"
-    },
-    "./worker/twilio": {
-      "default": "./dist/src/worker/twilio/sendAutoMessage.js"
-    }
-  },
-  "main": "dist/src/worker/order/updateOrder.js",
+  "main": "dist/src/worker/index.js",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
