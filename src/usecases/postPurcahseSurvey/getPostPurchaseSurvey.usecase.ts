@@ -56,7 +56,6 @@ implements GetPostPurchaseSurveyUsecaseInterface
     const [customerOrder, getOrderError] = orderNumber
       ? await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber })
       : await this.shipheroRepository.getLastCustomerOrder({ email: customer.email, uuid });
-
     if (getOrderError) {
       return [undefined, getOrderError];
     }
@@ -129,8 +128,9 @@ implements GetPostPurchaseSurveyUsecaseInterface
         title: undefined,
         content: undefined,
         glucoseImpact: undefined,
-        answerType: undefined,
+        answerType: 'text',
       };
+
       if (question.label.includes('${PRODUCT_NAME}')) {
         for (const product of detailedProductList) {
           if (!product) continue;
@@ -148,6 +148,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
               });
             }
           }
+
           personalizedQuestion.responseId = uuidv4();
           const deepCopy = JSON.parse(JSON.stringify(personalizedQuestion));
           personalizedPostPurchaseSurveyQuestions.surveyQuestions.push({
@@ -161,6 +162,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
               vendor: product.vendor,
               images,
             },
+            answerType: 'numeric',
           });
         }
       } else {
@@ -172,6 +174,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
         }
       }
     });
+
     for (const question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
       for (const customerAns of customerAnswer.customerAnswers) {
         if (question?.name === 'productLineUp') continue;
