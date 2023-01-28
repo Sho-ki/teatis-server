@@ -678,16 +678,16 @@ model SurveyQuestion {
   id                          Int                          @id @default(autoincrement())
   name                        String                       @unique
   label                       String
-  questionCategoryId          Int
+  questionCategoryId          Int?
   mustBeAnswered              Boolean
   instruction                 String?
   placeholder                 String?
-  surveyQuestionAnswerTypeId  Int
+  surveyQuestionAnswerTypeId  Int?
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
   activeStatus                ActiveStatus                 @default(active)
-  questionCategory            QuestionCategory             @relation(fields: [questionCategoryId], references: [id])
-  surveyQuestionAnswerType    SurveyQuestionAnswerType     @relation(fields: [surveyQuestionAnswerTypeId], references: [id])
+  questionCategory            QuestionCategory?             @relation(fields: [questionCategoryId], references: [id])
+  surveyQuestionAnswerType    SurveyQuestionAnswerType?     @relation(fields: [surveyQuestionAnswerTypeId], references: [id])
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
   surveyQuestionAnswer        SurveyQuestionAnswer[]
   surveyQuestionOptions       SurveyQuestionOption[]
