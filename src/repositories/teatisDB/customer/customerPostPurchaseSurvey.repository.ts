@@ -128,8 +128,8 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
             answerText: true,
             answerNumeric: true,
             answerBool: true,
-            intermediateSurveyQuestionAnswerProduct:
-            { select: { surveyQuestionOption: { select: { label: true, id: true, name: true } } } },
+            // intermediateSurveyQuestionAnswerProduct:
+            // { select: { surveyQuestionOption: { select: { label: true, id: true, name: true } } } },
             responseId: true,
             reason: true,
             title: true,
@@ -151,14 +151,14 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
           text: customerAnswer.answerText,
           numeric: customerAnswer.answerNumeric,
           singleOptionId: customerAnswer.surveyQuestionId,
-          multipleOptionIds:
-            customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
-              ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
-                (option) => {
-                  return option.surveyQuestionOption.id;
-                },
-              )
-              : [],
+          // multipleOptionIds:
+          //   customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
+          //     ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
+          //       (option) => {
+          //         return option.surveyQuestionOption.id;
+          //       },
+          //     )
+          //     : [],
           bool: customerAnswer.answerBool,
         },
         responseId: customerAnswer.responseId,
@@ -234,33 +234,35 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
     if (answer.singleOption) {
       prismaQuery = {
         ...prismaQuery,
-        create: { ...productSatisfactionCreateQuery, answerOption: { connect: { id: answer.singleOption.id } } },
-        update: { ...productSatisfactionUpdateQuery, answerOption: { connect: { id: answer.singleOption.id } } },
+        create: { ...productSatisfactionCreateQuery, surveyQuestion: { connect: { id: answer.singleOption.id } } },
+        update: { ...productSatisfactionUpdateQuery, surveyQuestion: { connect: { id: answer.singleOption.id } } },
       };
-    } else if (answer.multipleOptions) {
-      prismaQuery = {
-        ...prismaQuery,
-        create: {
-          ...productSatisfactionCreateQuery,
-          intermediateSurveyQuestionAnswerProduct: {
-            create: answer.multipleOptions.map((option) => {
-              return { surveyQuestionOptionId: option.id };
-            }),
-          },
-        },
-        update: {
-          ...productSatisfactionUpdateQuery,
-          product: { connect: { id: productId } },
-          // intermediateSurveyQuestionAnswerProduct: {
-          //   // needs to be updated
-          //   deleteMany: {},
-          //   connectOrCreate: answerOptions.map((option) => {
-          //     return { surveyQuestionOptionId: option.id, };
-          //   }),
-          // },
-        },
-      };
-    } else {
+    }
+    // else if (answer.multipleOptions) {
+    //   prismaQuery = {
+    //     ...prismaQuery,
+    //     create: {
+    //       ...productSatisfactionCreateQuery,
+    //       intermediateSurveyQuestionAnswerProduct: {
+    //         create: answer.multipleOptions.map((option) => {
+    //           return { surveyQuestionOptionId: option.id };
+    //         }),
+    //       },
+    //     },
+    //     update: {
+    //       ...productSatisfactionUpdateQuery,
+    //       product: { connect: { id: productId } },
+    //       // intermediateSurveyQuestionAnswerProduct: {
+    //       //   // needs to be updated
+    //       //   deleteMany: {},
+    //       //   connectOrCreate: answerOptions.map((option) => {
+    //       //     return { surveyQuestionOptionId: option.id, };
+    //       //   }),
+    //       // },
+    //     },
+    //   };
+    // }
+    else {
       prismaQuery = {
         ...prismaQuery,
         create: {
