@@ -5,6 +5,6 @@ export interface Question {
   mustBeAnswered: boolean;
   instruction?: string;
   placeholder?: string;
-  answerType: string;
+  // answerType: string;
   options?: { id: number, name: string, label: string }[];
 }
