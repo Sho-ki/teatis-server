@@ -129,6 +129,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
         title: undefined,
         content: undefined,
         glucoseImpact: undefined,
+        answerType: undefined,
       };
       if (question.label.includes('${PRODUCT_NAME}')) {
         for (const product of detailedProductList) {

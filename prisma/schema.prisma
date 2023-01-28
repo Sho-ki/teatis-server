@@ -667,7 +667,8 @@ model IntermediateSurveyQuestion {
   surveyQuestionId Int
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @default(now()) @updatedAt
-  displayOrder     Int?
+  displayOrder     Int
+  activeStatus                ActiveStatus @default(active)
   survey           Survey         @relation(fields: [surveyId], references: [id])
   surveyQuestion   SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
 
@@ -678,37 +679,25 @@ model SurveyQuestion {
   id                          Int                          @id @default(autoincrement())
   name                        String                       @unique
   label                       String
-  questionCategoryId          Int
   mustBeAnswered              Boolean
-  instruction                 String?
+  title                 String?
+  hint String?
   placeholder                 String?
-  surveyQuestionAnswerTypeId  Int
+  type QuestionType @default(single)
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
-  activeStatus                ActiveStatus                 @default(active)
-  questionCategory            QuestionCategory             @relation(fields: [questionCategoryId], references: [id])
-  surveyQuestionAnswerType    SurveyQuestionAnswerType     @relation(fields: [surveyQuestionAnswerTypeId], references: [id])
+  activeStatus                ActiveStatus?
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
   surveyQuestionAnswer        SurveyQuestionAnswer[]
   surveyQuestionOptions       SurveyQuestionOption[]
 }
 
-model QuestionCategory {
-  id              Int              @id @default(autoincrement())
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  label           String
-  name            String           @unique
-  surveyQuestions SurveyQuestion[]
-}
-
-model SurveyQuestionAnswerType {
-  id              Int              @id @default(autoincrement())
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  name            String           @unique
-  label           String
-  surveyQuestions SurveyQuestion[]
+enum QuestionType {
+  multiple
+  single
+  numeric
+  text
+  infomation
 }
 
 model SurveyQuestionOption {
@@ -719,7 +708,6 @@ model SurveyQuestionOption {
   updatedAt                               DateTime                                  @default(now()) @updatedAt
   name                                    String
   surveyQuestion                          SurveyQuestion                            @relation(fields: [surveyQuestionId], references: [id])
-  intermediateSurveyQuestionAnswerProduct IntermediateSurveyQuestionAnswerProduct[]
   surveyQuestionAnswer                    SurveyQuestionAnswer[]
 
   @@unique([name, surveyQuestionId], name: "QuestionOptionIdentifier")
@@ -729,13 +717,11 @@ model SurveyQuestionAnswer {
   id                                      Int                                       @id @default(autoincrement())
   customerId                              Int
   surveyQuestionId                        Int
-  answerSingleOptionId                    Int?
+  answerOptionId                    Int?
   answerNumeric                           Int?
   answerText                              String?
   answerBool                              Boolean?
   reason                                  String?
-  title                                   String?
-  content                                 String?
   answerCount                             Int?
   productId                               Int?
   orderNumber                             String?
@@ -743,23 +729,12 @@ model SurveyQuestionAnswer {
   createdAt                               DateTime                                  @default(now())
   updatedAt                               DateTime                                  @default(now()) @updatedAt
   responseId                              String?                                   @unique
-  answerOption                            SurveyQuestionOption?                     @relation(fields: [answerSingleOptionId], references: [id])
+  answerOption                            SurveyQuestionOption?                     @relation(fields: [answerOptionId], references: [id])
   customer                                Customers                                 @relation(fields: [customerId], references: [id])
   product                                 Product?                                  @relation(fields: [productId], references: [id])
   surveyQuestion                          SurveyQuestion                            @relation(fields: [surveyQuestionId], references: [id])
-  intermediateSurveyQuestionAnswerProduct IntermediateSurveyQuestionAnswerProduct[]
 }
 
-model IntermediateSurveyQuestionAnswerProduct {
-  surveyQuestionOptionId Int
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @default(now()) @updatedAt
-  surveyQuestionAnswerId Int
-  surveyQuestionAnswer   SurveyQuestionAnswer @relation(fields: [surveyQuestionAnswerId], references: [id])
-  surveyQuestionOption   SurveyQuestionOption @relation(fields: [surveyQuestionOptionId], references: [id])
-
-  @@id([surveyQuestionAnswerId, surveyQuestionOptionId])
-}
 
 model CustomerProductDistance {
   id         Int       @id @default(autoincrement())
