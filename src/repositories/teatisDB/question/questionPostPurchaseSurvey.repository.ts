@@ -54,7 +54,7 @@ implements QuestionPostPurchaseSurveyRepositoryInterface
         mustBeAnswered: question.surveyQuestion.mustBeAnswered,
         instruction: question.surveyQuestion.instruction || '',
         placeholder: question.surveyQuestion.placeholder || '',
-        answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
+        // answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
         options: question.surveyQuestion.surveyQuestionOptions,
       };
       surveyQuestions.push(surveyQuestion);
