@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { Answer } from '@Domains/Answer';
-import { CustomerAnswer } from '@Domains/CustomerAnswer';
+import {  CustomerSurveyAnswer, AnswerKeys } from '@Domains/CustomerSurveyAnswer';
 
 import { PrismaService } from '../../../prisma.service';
 import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
@@ -54,7 +53,7 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
   getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<ReturnValueType<CustomerAnswer>>;
+  }: GetCustomerAnswersArgs): Promise<ReturnValueType<CustomerSurveyAnswer<AnswerKeys>>>;
 
   postPostPurchaseSurveyCustomerAnswer({
     id,
@@ -112,75 +111,64 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
   async getCustomerAnswers({
     email,
     orderNumber,
-  }: GetCustomerAnswersArgs): Promise<ReturnValueType<CustomerAnswer>> {
-    const getCustomerRes = await this.prisma.customers.findUnique({
+  }: GetCustomerAnswersArgs): Promise<ReturnValueType<CustomerSurveyAnswer<AnswerKeys>>> {
+    const response = await this.prisma.customers.findUnique({
       where: { email },
-      select: {
-        id: true,
-        email: true,
-        uuid: true,
-        surveyQuestionAnswer: {
-          where: { orderNumber },
-          select: {
-            id: true,
-            customerId: true,
-            surveyQuestionId: true,
-            answerText: true,
-            answerNumeric: true,
-            answerBool: true,
-            intermediateSurveyQuestionAnswerProduct:
-            { select: { surveyQuestionOption: { select: { label: true, id: true, name: true } } } },
-            responseId: true,
-            reason: true,
-            title: true,
-            content: true,
-            answerCount: true,
-            productId: true,
-            orderNumber: true,
-            glucoseImpact: true,
-          },
-        },
-      },
+      include: { surveyQuestionAnswer: { where: { orderNumber } } },
     });
-    const customerAnswers: Answer[] = [];
-    for (const customerAnswer of getCustomerRes.surveyQuestionAnswer) {
-      const answer: Answer = {
-        id: customerAnswer.id,
-        surveyQuestionId: customerAnswer.surveyQuestionId,
-        answer: {
-          text: customerAnswer.answerText,
-          numeric: customerAnswer.answerNumeric,
-          singleOptionId: customerAnswer.surveyQuestionId,
-          multipleOptionIds:
-            customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
-              ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
-                (option) => {
-                  return option.surveyQuestionOption.id;
-                },
-              )
-              : [],
-          bool: customerAnswer.answerBool,
-        },
-        responseId: customerAnswer.responseId,
-        reason: customerAnswer.reason,
-        title: customerAnswer.title,
-        content: customerAnswer.content,
-        answerCount: customerAnswer.answerCount,
-        productId: customerAnswer?.productId,
-        orderNumber: customerAnswer.orderNumber,
-        glucoseImpact: customerAnswer.glucoseImpact,
-      };
-      customerAnswers.push(answer);
-    }
-
     return [
       {
-        id: getCustomerRes.id,
-        email: getCustomerRes.email,
-        uuid: getCustomerRes.uuid,
-        customerAnswers,
+        ...response,
+        keys: [
+          'answerCount',
+          'answerNumeric',
+          'glucoseImpact',
+          'reason',
+          'productId',
+          'orderNumber',
+        ],
+
       },
     ];
+    // const customerAnswers: Answer[] = [];
+    // for (const customerAnswer of response.surveyQuestionAnswer) {
+    //   const answer: Answer = {
+    //     id: customerAnswer.id,
+    //     surveyQuestionId: customerAnswer.surveyQuestionId,
+    //     answer: {
+    //       text: customerAnswer.answerText,
+    //       numeric: customerAnswer.answerNumeric,
+    //       singleOptionId: customerAnswer.surveyQuestionId,
+    //       multipleOptionIds:
+    //         customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
+    //           ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
+    //             (option) => {
+    //               return option.surveyQuestionOption.id;
+    //             },
+    //           )
+    //           : [],
+    //       bool: customerAnswer.answerBool,
+    //     },
+    //     responseId: customerAnswer.responseId,
+    //     reason: customerAnswer.reason,
+    //     title: customerAnswer.title,
+    //     content: customerAnswer.content,
+    //     answerCount: customerAnswer.answerCount,
+    //     productId: customerAnswer?.productId,
+    //     orderNumber: customerAnswer.orderNumber,
+    //     glucoseImpact: customerAnswer.glucoseImpact,
+    //   };
+    //   customerAnswers.push(answer);
+    // }
+
+    // return [
+    //   {
+    //     id: getCustomerRes.id,
+    //     email: getCustomerRes.email,
+    //     uuid: getCustomerRes.uuid,
+    //     customerAnswers,
+    //   },
+    // ];
   }
 
   async postPostPurchaseSurveyCustomerAnswer({
@@ -240,14 +228,7 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
     } else if (answer.multipleOptions) {
       prismaQuery = {
         ...prismaQuery,
-        create: {
-          ...productSatisfactionCreateQuery,
-          intermediateSurveyQuestionAnswerProduct: {
-            create: answer.multipleOptions.map((option) => {
-              return { surveyQuestionOptionId: option.id };
-            }),
-          },
-        },
+        create: { ...productSatisfactionCreateQuery },
         update: {
           ...productSatisfactionUpdateQuery,
           product: { connect: { id: productId } },

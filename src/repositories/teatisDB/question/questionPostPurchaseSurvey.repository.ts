@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Question } from '@Domains/Question';
-import { SurveyQuestion } from '@Domains/SurveyQuestion';
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
+import {  SurveyWithActiveQuestions } from '../../../domains/Survey';
+import { ActiveQuestion } from '../../../domains/SurveyQuestion';
 
-interface GetSurveyQuestionsArgs {
+interface GetSurveyWithActiveQuestionsArgs {
   surveyName: string;
 }
 
 export interface QuestionPostPurchaseSurveyRepositoryInterface {
-  getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>>;
+  getSurveyWithActiveQuestions({ surveyName }: GetSurveyWithActiveQuestionsArgs):
+  Promise<ReturnValueType<SurveyWithActiveQuestions>>;
 }
 
 @Injectable()
@@ -18,61 +19,27 @@ implements QuestionPostPurchaseSurveyRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<ReturnValueType<SurveyQuestion>> {
+  async getSurveyWithActiveQuestions({ surveyName }: GetSurveyWithActiveQuestionsArgs):
+  Promise<ReturnValueType<SurveyWithActiveQuestions>> {
     const response = await this.prisma.survey.findUnique({
       where: { name: surveyName },
-      select: {
-        id: true,
-        name: true,
-        label: true,
+      include: {
         intermediateSurveyQuestions: {
-          where: { surveyQuestion: { activeStatus: 'active' } },
-          select: {
-            surveyQuestion: {
-              select: {
-                id: true,
-                name: true,
-                label: true,
-                questionCategory: { select: { name: true } },
-                mustBeAnswered: true,
-                instruction: true,
-                placeholder: true,
-                surveyQuestionAnswerType: { select: { name: true } },
-                surveyQuestionOptions: { select: { label: true, id: true, name: true } },
-              },
-            },
-          },
+          where: { activeStatus: 'active' },
+          include: { surveyQuestion: { include: { surveyQuestionOptions: true } } },
+          orderBy: { displayOrder: 'asc' },
         },
       },
     });
-    const surveyQuestions: Question[] = [];
-    for (const question of response?.intermediateSurveyQuestions || []) {
-      const surveyQuestion: Question = {
-        id: question.surveyQuestion.id,
-        name: question.surveyQuestion.name,
-        label: question.surveyQuestion.label,
-        mustBeAnswered: question.surveyQuestion.mustBeAnswered,
-        instruction: question.surveyQuestion.instruction || '',
-        placeholder: question.surveyQuestion.placeholder || '',
-        answerType: question.surveyQuestion.surveyQuestionAnswerType.name,
-        options: question.surveyQuestion.surveyQuestionOptions,
-      };
-      surveyQuestions.push(surveyQuestion);
+
+    if(!response.intermediateSurveyQuestions.length){
+      return [undefined, { name: 'NoQuestion', message: 'No questions were found' }];
     }
+    const surveyQuestions: ActiveQuestion[] =
+      response.intermediateSurveyQuestions.map(({ surveyQuestion }):ActiveQuestion => {
+        return { ...surveyQuestion, options: surveyQuestion.surveyQuestionOptions }; });
 
-    const { id, name, label } = response as {
-      id: number;
-      name: string;
-      label: string;
-    };
-
-    return [
-      {
-        id,
-        name,
-        label,
-        surveyQuestions,
-      },
-    ];
+    delete response.intermediateSurveyQuestions;
+    return [{ ...response, surveyQuestions }];
   }
 }

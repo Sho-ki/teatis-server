@@ -91,10 +91,10 @@ implements GetPostPurchaseSurveyUsecaseInterface
       return detailedProduct;
     });
 
-    const [surveyQuestion, getPostPurchaseQuestionsError] =
-      await this.questionPostPurchaseSurveyRepository.getSurveyQuestions({ surveyName: 'post-purchase' });
-    if (getPostPurchaseQuestionsError) {
-      return [undefined, getPostPurchaseQuestionsError];
+    const [surveyWithActiveQuestion, getSurveyWithActiveQuestionsError] =
+      await this.questionPostPurchaseSurveyRepository.getSurveyWithActiveQuestions({ surveyName: 'post-purchase' });
+    if (getSurveyWithActiveQuestionsError) {
+      return [undefined, getSurveyWithActiveQuestionsError];
     }
 
     const [customerAnswer, getCustomerAnswersError] =
@@ -106,14 +106,14 @@ implements GetPostPurchaseSurveyUsecaseInterface
       return [undefined, getCustomerAnswersError];
     }
 
-    const personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
+    const personalizedPostPurchaseSurveyQuestions = {
       orderNumber: customerOrder.orderNumber,
       customerId: customerAnswer.id,
       surveyQuestions: [],
       redirectEndpoint: '/teatis-meal-box',
     };
-    surveyQuestion.surveyQuestions.map((question) => {
-      const personalizedQuestion:SurveyQuestions = {
+    surveyWithActiveQuestion.surveyQuestions.map((question) => {
+      const personalizedQuestion = {
         ...question,
         answer: {
           text: undefined,
@@ -171,8 +171,11 @@ implements GetPostPurchaseSurveyUsecaseInterface
         }
       }
     });
+
+    console.log(personalizedPostPurchaseSurveyQuestions);
+    return;
     for (const question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
-      for (const customerAns of customerAnswer.customerAnswers) {
+      for (const customerAns of customerAnswer.surveyQuestionAnswer) {
         if (question?.name === 'productLineUp') continue;
         if (customerAns.productId === question?.product?.id) {
           question.reason = customerAns?.reason
@@ -185,33 +188,33 @@ implements GetPostPurchaseSurveyUsecaseInterface
           if (customerAns.surveyQuestionId === question.id) {
             switch (question.answerType) {
               case 'boolean':
-                question.answer.bool = customerAns.answer.bool;
+                question.answer.bool = customerAns.answerBool;
                 break;
               case 'numeric':
-                question.answer.numeric = customerAns.answer.numeric;
+                question.answer.numeric = customerAns.answerNumeric;
                 break;
               case 'text':
-                question.answer.text = customerAns.answer.text;
+                question.answer.text = customerAns.answerText;
                 break;
-              case 'singleAnswer':
-                question.answer.singleOption = {
-                  id: customerAns.answer.singleOptionId,
-                  name: question.options.find((option) => {
-                    return option.id === customerAns.answer.singleOptionId;
-                  }).name,
-                  label: question.options.find((option) => {
-                    return option.id === customerAns.answer.singleOptionId;
-                  }).label,
-                };
-                break;
-              case 'multipleAnswer':
-                question.answer.multipleOptions =
-                  question.answer.multipleOptions.filter((option) => {
-                    return customerAns.answer.multipleOptionIds.includes(
-                      option.id,
-                    );
-                  });
-                break;
+              // case 'singleAnswer':
+              //   question.answer.singleOption = {
+              //     id: customerAns.answer.singleOptionId,
+              //     name: question.options.find((option) => {
+              //       return option.id === customerAns.answer.singleOptionId;
+              //     }).name,
+              //     label: question.options.find((option) => {
+              //       return option.id === customerAns.answer.singleOptionId;
+              //     }).label,
+              //   };
+              //   break;
+              // case 'multipleAnswer':
+              //   question.answer.multipleOptions =
+              //     question.answer.multipleOptions.filter((option) => {
+              //       return customerAns.answer.multipleOptionIds.includes(
+              //         option.id,
+              //       );
+              //     });
+              //   break;
               default:
                 break;
             }
