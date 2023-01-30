@@ -73,7 +73,7 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
 
   // shiphero can store only uo to 32 characters
   private createShorterUuid(uuid:string):string{
-    return uuid.split('-').join();
+    return uuid.split('-').join('');
   }
 
   private getLastSentProducts({ items }):Pick<Product, 'sku'>[]{
