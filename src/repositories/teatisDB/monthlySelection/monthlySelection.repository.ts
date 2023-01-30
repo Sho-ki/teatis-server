@@ -14,7 +14,7 @@ interface GetMonthlySelectionArgs {
 }
 
 export interface MonthlySelectionRepositoryInterface extends Transactionable{
-  getMonthlySelection({ date }: GetMonthlySelectionArgs):
+  getMonthlySelection({ date, boxPlan }: GetMonthlySelectionArgs):
   Promise<ReturnValueType<MonthlyBoxSelectionProduct>>;
 
 }
