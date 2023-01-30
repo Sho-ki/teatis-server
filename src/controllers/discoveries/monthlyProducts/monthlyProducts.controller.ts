@@ -7,6 +7,7 @@ import {
 import { Response } from 'express';
 import { GetMonthlyProductsUsecaseInterface } from '@Usecases/monthlyProducts/getMonthlyProducts.usecase';
 import { MonthlyBoxSelectionProduct } from '../../../domains/MonthlyBoxSelectionProduct';
+import { removeTimestamp } from '../../utils/removeTimestamp';
 
 @Controller('api/discovery')
 export class MonthlyProductsController {
@@ -25,6 +26,6 @@ export class MonthlyProductsController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(usecaseResponse);
+    return response.status(200).send(removeTimestamp(usecaseResponse));
   }
 }
