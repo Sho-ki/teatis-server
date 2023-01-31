@@ -1,6 +1,5 @@
-import { Question } from './Question';
-import { Survey } from './Survey';
+import { SurveyQuestion, SurveyQuestionOption } from '@prisma/client';
 
-export interface SurveyQuestion extends Survey {
-  surveyQuestions: Question[];
+export interface ActiveQuestion extends SurveyQuestion {
+    options: SurveyQuestionOption[];
 }

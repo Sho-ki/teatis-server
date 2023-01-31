@@ -712,6 +712,7 @@ model SurveyQuestionOption {
   surveyQuestionId     Int
   isArchived            Boolean @default(false)
   createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @default(now()) @updatedAt
   surveyQuestionAnswer SurveyQuestionAnswer[]
   surveyQuestion       SurveyQuestion         @relation(fields: [surveyQuestionId], references: [id])
 

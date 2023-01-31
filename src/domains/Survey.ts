@@ -1,5 +1,7 @@
-export interface Survey {
-  id: number;
-  name: string;
-  label: string;
-}
+import { Survey } from '@prisma/client';
+import { ActiveQuestion } from './SurveyQuestion';
+
+export type ActiveSurvey = Survey & {
+  surveyQuestions: ActiveQuestion[];
+};
+

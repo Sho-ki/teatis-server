@@ -3,9 +3,9 @@ import { DiscoveriesController } from './discoveries.controller';
 import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
 import { PrismaService } from 'src/prisma.service';
 import { CustomerPrePurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
-import { GetPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { QuestionPostPurchaseSurveyRepository } from '@Repositories/teatisDB/question/questionPostPurchaseSurvey.repository';
-import { CustomerPostPurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
+// import { GetPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+// import { QuestionPostPurchaseSurveyRepository } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
+import { CustomerPostPurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { PostPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
@@ -153,10 +153,10 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       useClass: ProductGeneralRepository,
     },
 
-    {
-      provide: 'QuestionPostPurchaseSurveyRepositoryInterface',
-      useClass: QuestionPostPurchaseSurveyRepository,
-    },
+    // {
+    //   provide: 'QuestionPostPurchaseSurveyRepositoryInterface',
+    //   useClass: QuestionPostPurchaseSurveyRepository,
+    // },
     {
       provide: 'ShopifyRepositoryInterface',
       useClass: ShopifyRepository,
@@ -166,10 +166,10 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       useClass: GetPrePurchaseOptionsUsecase,
     },
 
-    {
-      provide: 'GetPostPurchaseSurveyUsecaseInterface',
-      useClass: GetPostPurchaseSurveyUsecase,
-    },
+    // {
+    //   provide: 'GetPostPurchaseSurveyUsecaseInterface',
+    //   useClass: GetPostPurchaseSurveyUsecase,
+    // },
     {
       provide: 'PostPostPurchaseSurveyUsecaseInterface',
       useClass: PostPostPurchaseSurveyUsecase,

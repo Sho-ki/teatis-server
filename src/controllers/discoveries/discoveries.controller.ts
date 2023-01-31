@@ -11,9 +11,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
+// import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
 import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
-import { GetPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
+// import { GetPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 
 import { UpdateCustomerBoxDto } from './dtos/updateCustomerBox';
@@ -35,7 +35,7 @@ import { GetFirstBoxRes, GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { Status } from '@Domains/Status';
 import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
-import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
+// import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
 import { ProductOptions } from '@Domains/ProductOptions';
 import { CustomerBoxType } from '@Domains/CustomerBoxType';
 import { NutritionNeed } from '@Domains/NutritionNeed';
@@ -47,8 +47,8 @@ import { CreateCheckoutCartUsecaseInterface } from '../../usecases/checkoutCart/
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    @Inject('GetPostPurchaseSurveyUsecaseInterface')
-    private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecaseInterface,
+    // @Inject('GetPostPurchaseSurveyUsecaseInterface')
+    // private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecaseInterface,
     @Inject('PostPostPurchaseSurveyUsecaseInterface')
     private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecaseInterface,
     @Inject('GetPrePurchaseOptionsUsecaseInterface')
@@ -105,25 +105,25 @@ export class DiscoveriesController {
   }
 
   // GET: api/discovery/post-purchase-survey
-  @Get('post-purchase-survey')
-  async getPostPurchaseSurvey(
-    @Query() body: GetPostPurchaseSurveyInfoDto,
-    @Res() response: Response<PostPurchaseSurvey | Error>,
-  ) {
-    const uuid = body.uuid;
-    const orderNumber = body.orderNumber;
+  // @Get('post-purchase-survey')
+  // async getPostPurchaseSurvey(
+  //   @Query() body: GetPostPurchaseSurveyInfoDto,
+  //   @Res() response: Response<PostPurchaseSurvey | Error>,
+  // ) {
+  //   const uuid = body.uuid;
+  //   const orderNumber = body.orderNumber;
 
-    const [usecaseResponse, error] =
-      await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
-        uuid,
-        orderNumber,
-      });
+  //   const [usecaseResponse, error] =
+  //     await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
+  //       uuid,
+  //       orderNumber,
+  //     });
 
-    if (error) {
-      return response.status(500).send(error);
-    }
-    return response.status(200).send(usecaseResponse);
-  }
+  //   if (error) {
+  //     return response.status(500).send(error);
+  //   }
+  //   return response.status(200).send(usecaseResponse);
+  // }
 
   // GET: api/discovery/next-box-survey
   @Get('next-box-survey')
