@@ -645,7 +645,7 @@ model SurveyQuestion {
   id                          Int                          @id @default(autoincrement())
   name                        String?
   label                       String
-  required              Boolean @default(false)
+  isRequired              Boolean @default(false)
   hint                 String?
   placeholder                 String?
   answerType  AnswerType @default(number)
@@ -916,24 +916,6 @@ model Coach {
   customerCoachHistory CustomerCoachHistory[]
   customer             Customers[]
 }
-
-// model QuestionCategory {
-//   id             Int              @id @default(autoincrement())
-//   createdAt      DateTime         @default(now())
-//   updatedAt      DateTime         @default(now())
-//   label          String
-//   name           String           @unique
-//   surveyQuestion SurveyQuestion[]
-// }
-
-// model SurveyQuestionAnswerType {
-//   id             Int              @id @default(autoincrement())
-//   createdAt      DateTime         @default(now())
-//   updatedAt      DateTime         @default(now())
-//   name           String           @unique
-//   label          String
-//   surveyQuestion SurveyQuestion[]
-// }
 
 enum ValidStatus {
   valid
