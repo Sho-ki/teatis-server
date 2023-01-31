@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { ActiveSurvey } from '@Domains/Survey';
-import { ActiveQuestion } from '@Domains/SurveyQuestion';
 import { SURVEY_NAME } from '@Usecases/utils/surveyName';
+import { ActiveQuestion  } from '../../../domains/SurveyQuestion';
 
 interface GetSurveyQuestionsArgs {
   surveyName: SURVEY_NAME;
@@ -40,13 +40,22 @@ implements SurveyQuestionsRepositoryInterface
 
     const surveyQuestions: ActiveQuestion[] = [];
 
-    for (const question of response.intermediateSurveyQuestions) {
-      const surveyQuestion: ActiveQuestion = {
-        ...question.surveyQuestion,
-        options: question.surveyQuestion.surveyQuestionOptions,
-      };
-      delete question.surveyQuestion.surveyQuestionOptions;
-      surveyQuestions.push(surveyQuestion);
+    const questions = response.intermediateSurveyQuestions;
+    for (const question of questions) {
+      if(question.surveyQuestion.responseType === 'multiple' || question.surveyQuestion.responseType === 'single'){
+        const options = question.surveyQuestion.surveyQuestionOptions;
+        delete question.surveyQuestion.surveyQuestionOptions;
+        const surveyQuestion: ActiveQuestion = {
+          ...question.surveyQuestion,
+          options,
+        };
+        surveyQuestions.push(surveyQuestion);
+      }else{
+        delete question.surveyQuestion.surveyQuestionOptions;
+        const surveyQuestion: ActiveQuestion = { ...question.surveyQuestion };
+
+        surveyQuestions.push(surveyQuestion);
+      }
     }
 
     delete response.intermediateSurveyQuestions;
