@@ -640,16 +640,16 @@ model IntermediateSurveyQuestion {
   @@id([surveyId, surveyQuestionId])
 }
 
-// Delete name
 model SurveyQuestion {
   id                          Int                          @id @default(autoincrement())
-  name                        String?
+  name                        String  @unique
   label                       String
   isRequired              Boolean @default(false)
   hint                 String?
   placeholder                 String?
-  answerType  AnswerType @default(number)
+  responseType  ResponseType @default(number)
   parentSurveyQuestionId Int?
+  image SurveyQuestionImage[]
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
@@ -660,11 +660,22 @@ model SurveyQuestion {
   surveyQuestionResponse SurveyQuestionResponse[]
 }
 
-enum AnswerType {
+enum ResponseType {
   number
   text
   single
   multiple
+  noResponse
+}
+
+model SurveyQuestionImage {
+  id               Int      @id @default(autoincrement())
+  src              String
+  position         Int?
+  surveyQuestionId Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  surveyQuestion          SurveyQuestion  @relation(fields: [surveyQuestionId], references: [id])
 }
 
 model CustomerSurveyHistory {
