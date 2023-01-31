@@ -69,6 +69,7 @@ model Customers {
   queuedShopifyOrder                                  QueuedShopifyOrder[]
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
+  customerSurveyHistory CustomerSurveyHistory[]
 }
 
 model CustomerEventLog {
@@ -371,6 +372,7 @@ model Product {
   productImages                          ProductImage[]
   productNutritionFact                   ProductNutritionFact?
   surveyQuestionAnswer                   SurveyQuestionAnswer[]
+  customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
 }
 
 model MonthlyBoxSelection {
@@ -622,6 +624,7 @@ model Survey {
   updatedAt                   DateTime                     @default(now()) @updatedAt
   label                       String
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
+  customerSurveyHistory CustomerSurveyHistory[]
 }
 
 model IntermediateSurveyQuestion {
@@ -637,6 +640,7 @@ model IntermediateSurveyQuestion {
   @@id([surveyId, surveyQuestionId])
 }
 
+// Delete name
 model SurveyQuestion {
   id                          Int                          @id @default(autoincrement())
   name                        String?
@@ -644,7 +648,7 @@ model SurveyQuestion {
   required              Boolean @default(false)
   hint                 String?
   placeholder                 String?
-  answerType  answerType @default(number)
+  answerType  AnswerType @default(number)
   parentSurveyQuestionId Int?
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
@@ -656,24 +660,50 @@ model SurveyQuestion {
   surveyQuestionOptions       SurveyQuestionOption[]
 }
 
-enum answerType {
+enum AnswerType {
   number
   text
   single
   multiple
 }
 
+model CustomerSurveyHistory {
+  id                          Int            @id     @default(autoincrement())
+  orderNumber String?
+  surveyId Int
+  customerId Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime             @default(now()) @updatedAt
+
+  survey   Survey @relation(fields: [surveyId], references: [id])
+  customer           Customers         @relation(fields: [customerId], references: [id])
+  customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
+
+  @@unique([surveyId, customerId], name: "CustomerSurveyHistoryIndentifier")
+}
+
+model CustomerSurveyHistoryProduct {
+  customerSurveyHistoryId Int
+  productId Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime             @default(now()) @updatedAt
+  
+  customerSurveyHistory   CustomerSurveyHistory @relation(fields: [customerSurveyHistoryId], references: [id])
+  product          Product         @relation(fields: [productId], references: [id])
+
+  @@id([customerSurveyHistoryId, productId])
+}
+
 model SurveyQuestionOption {
   id                   Int                    @id @default(autoincrement())
   label                String
   surveyQuestionId     Int
+  isArchived            Boolean @default(false)
   createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @default(now()) @updatedAt
-  name                 String
   surveyQuestionAnswer SurveyQuestionAnswer[]
   surveyQuestion       SurveyQuestion         @relation(fields: [surveyQuestionId], references: [id])
 
-  @@unique([name, surveyQuestionId], name: "QuestionOptionIdentifier")
+  @@unique([label, surveyQuestionId], name: "QuestionOptionIdentifier")
 }
 
 model SurveyQuestionAnswer {
