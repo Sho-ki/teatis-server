@@ -639,21 +639,28 @@ model IntermediateSurveyQuestion {
 
 model SurveyQuestion {
   id                          Int                          @id @default(autoincrement())
-  name                        String                       @unique
+  name                        String?
   label                       String
-  questionCategoryId          Int?
-  mustBeAnswered              Boolean
-  instruction                 String?
+  required              Boolean @default(false)
+  hint                 String?
   placeholder                 String?
-  surveyQuestionAnswerTypeId  Int?
+  answerType  answerType @default(number)
+  parentSurveyQuestionId Int?
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
   activeStatus                ActiveStatus?
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
-  questionCategory            QuestionCategory?            @relation(fields: [questionCategoryId], references: [id])
-  surveyQuestionAnswerType    SurveyQuestionAnswerType?    @relation(fields: [surveyQuestionAnswerTypeId], references: [id])
+  parentQuestion            SurveyQuestion[]            @relation("ParentSurveyQuestion")
+  childQuestion            SurveyQuestion?            @relation("ParentSurveyQuestion", fields: [parentSurveyQuestionId], references: [id])
   surveyQuestionAnswer        SurveyQuestionAnswer[]
   surveyQuestionOptions       SurveyQuestionOption[]
+}
+
+enum answerType {
+  number
+  text
+  single
+  multiple
 }
 
 model SurveyQuestionOption {
@@ -867,23 +874,23 @@ model Coach {
   customer             Customers[]
 }
 
-model QuestionCategory {
-  id             Int              @id @default(autoincrement())
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now())
-  label          String
-  name           String           @unique
-  surveyQuestion SurveyQuestion[]
-}
+// model QuestionCategory {
+//   id             Int              @id @default(autoincrement())
+//   createdAt      DateTime         @default(now())
+//   updatedAt      DateTime         @default(now())
+//   label          String
+//   name           String           @unique
+//   surveyQuestion SurveyQuestion[]
+// }
 
-model SurveyQuestionAnswerType {
-  id             Int              @id @default(autoincrement())
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now())
-  name           String           @unique
-  label          String
-  surveyQuestion SurveyQuestion[]
-}
+// model SurveyQuestionAnswerType {
+//   id             Int              @id @default(autoincrement())
+//   createdAt      DateTime         @default(now())
+//   updatedAt      DateTime         @default(now())
+//   name           String           @unique
+//   label          String
+//   surveyQuestion SurveyQuestion[]
+// }
 
 enum ValidStatus {
   valid
