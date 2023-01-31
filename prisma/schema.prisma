@@ -680,7 +680,7 @@ model SurveyQuestionImage {
 
 model CustomerSurveyHistory {
   id                          Int            @id     @default(autoincrement())
-  orderNumber String?
+  orderNumber String? 
   surveyId Int
   customerId Int
   createdAt            DateTime               @default(now())
@@ -692,6 +692,7 @@ model CustomerSurveyHistory {
   surveyQuestionResponse SurveyQuestionResponse[]
 
   @@unique([surveyId, customerId], name: "CustomerSurveyHistoryIndentifier")
+  @@unique([surveyId, customerId, orderNumber], name: "CustomerOrderSurveyHistoryIdentifier")
 }
 
 model CustomerSurveyHistoryProduct {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PostPostPurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPostPurchaseSurvey';
@@ -41,6 +42,7 @@ implements PostPostPurchaseSurveyUsecaseInterface
     reason,
     glucoseImpact,
   }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>> {
+    return;
     const [answerCount, answerCountError] =
       await this.customerPostPurchaseSurveyRepository.getAnswerCount({ customerId });
     if (answerCountError) {
@@ -62,25 +64,25 @@ implements PostPostPurchaseSurveyUsecaseInterface
       }
     }
 
-    const [postProductFeedbackRes, postProductFeedbackError] =
-      await this.customerPostPurchaseSurveyRepository.postPostPurchaseSurveyCustomerAnswer(
-        {
-          id,
-          customerId,
-          orderNumber,
-          responseId,
-          productId,
-          answer,
-          title,
-          content,
-          reason,
-          glucoseImpact,
-          currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
-        },
-      );
-    if(postProductFeedbackError){
-      return [undefined, postProductFeedbackError];
-    }
-    return [{ id: postProductFeedbackRes.id }, null];
+    // const [postProductFeedbackRes, postProductFeedbackError] =
+    //   await this.customerPostPurchaseSurveyRepository.postPostPurchaseSurveyCustomerAnswer(
+    //     {
+    //       id,
+    //       customerId,
+    //       orderNumber,
+    //       responseId,
+    //       productId,
+    //       answer,
+    //       title,
+    //       content,
+    //       reason,
+    //       glucoseImpact,
+    //       currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
+    //     },
+    //   );
+    // if(postProductFeedbackError){
+    //   return [undefined, postProductFeedbackError];
+    // }
+    // return [{ id: postProductFeedbackRes.id }, null];
   }
 }

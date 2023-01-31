@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+// import { Prisma, ResponseType } from '@prisma/client';
 
 import { PrismaService } from '../../../prisma.service';
-import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
-import { ReturnValueType } from '@Filters/customError';
-import { ProductHasGlucoseImpact } from '@Domains/PostPurchaseSurvey';
+// import { ReturnValueType } from '@Filters/customError';
 // import { SURVEY_NAME } from '../../../usecases/utils/surveyName';
 
 // interface GetCustomerLatestSurveyArgs {
@@ -17,26 +15,6 @@ interface GetAnswerCountArgs {
 }
 
 interface GetAnswerCountRes {
-  currentMaxAnswerCount: number;
-}
-
-interface PostPostPurchaseSurveyCustomerAnswerArgs {
-  id: number;
-  customerId: number;
-  orderNumber: string;
-  productId: number;
-  responseId: string;
-  answer: {
-    text?: string;
-    numeric?: number;
-    singleOption?: { id: number, label: string, name: string };
-    multipleOptions?: { id: number, label: string, name: string }[];
-    bool?: boolean;
-  };
-  title?: string;
-  content?: string;
-  reason?: string;
-  glucoseImpact?: ProductHasGlucoseImpact;
   currentMaxAnswerCount: number;
 }
 
@@ -55,21 +33,14 @@ export interface CustomerPostPurchaseSurveyRepositoryInterface {
   //   surveyName,
   // }: GetCustomerLatestSurveyArgs): Promise<ReturnValueType<CustomerAnswer>>;
 
-  postPostPurchaseSurveyCustomerAnswer({
-    id,
-    customerId,
-    orderNumber,
-    responseId,
-    productId,
-    answer,
-    title,
-    content,
-    reason,
-    glucoseImpact,
-    currentMaxAnswerCount,
-  }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    ReturnValueType<PostPurchaseSurveyAnswer>
-  >;
+  // postCustomerResponseWithProduct({
+  //   customerId,
+  //   orderNumber,
+  //   surveyId,
+  //   responses,
+  // }: PostCustomerResponseWithProductsArgs): Promise<
+  //   ReturnValueType<PostPurchaseSurveyAnswer>
+  // >;
 
   getAnswerCount({ customerId }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]>;
 
@@ -180,105 +151,20 @@ implements CustomerPostPurchaseSurveyRepositoryInterface
   //   ];
   // }
 
-  async postPostPurchaseSurveyCustomerAnswer({
-    id,
-    customerId,
-    orderNumber,
-    responseId,
-    productId,
-    answer,
-    title,
-    content,
-    reason,
-    glucoseImpact,
-    currentMaxAnswerCount,
-  }: PostPostPurchaseSurveyCustomerAnswerArgs): Promise<
-    ReturnValueType<PostPurchaseSurveyAnswer>
-  > {
-    let prismaQuery: Prisma.SurveyQuestionAnswerUpsertArgs = {
-      where: { responseId },
-      create: undefined,
-      update: undefined,
-    };
-    const productSatisfactionCreateQuery = {
-      customer: { connect: { id: customerId } },
-      surveyQuestion: { connect: { id } },
-      product: productId
-        ? { connect: { id: productId } }
-        : {},
-      responseId,
-      title,
-      content,
-      reason,
-      orderNumber,
-      glucoseImpact,
-      answerCount: currentMaxAnswerCount,
-    };
-    const productSatisfactionUpdateQuery = {
-      customer: { connect: { id: customerId } },
-      surveyQuestion: { connect: { id } },
-      product: productId
-        ? { connect: { id: productId } }
-        : {},
-      responseId,
-      title,
-      content,
-      reason,
-      orderNumber,
-      glucoseImpact,
-      answerCount: currentMaxAnswerCount,
-    };
-    if (answer.singleOption) {
-      prismaQuery = {
-        ...prismaQuery,
-        create: { ...productSatisfactionCreateQuery, surveyQuestion: { connect: { id: answer.singleOption.id } } },
-        update: { ...productSatisfactionUpdateQuery, surveyQuestion: { connect: { id: answer.singleOption.id } } },
-      };
-    }
-    // else if (answer.multipleOptions) {
-    //   prismaQuery = {
-    //     ...prismaQuery,
-    //     create: {
-    //       ...productSatisfactionCreateQuery,
-    //       intermediateSurveyQuestionAnswerProduct: {
-    //         create: answer.multipleOptions.map((option) => {
-    //           return { surveyQuestionOptionId: option.id };
-    //         }),
-    //       },
-    //     },
-    //     update: {
-    //       ...productSatisfactionUpdateQuery,
-    //       product: { connect: { id: productId } },
-    //       // intermediateSurveyQuestionAnswerProduct: {
-    //       //   // needs to be updated
-    //       //   deleteMany: {},
-    //       //   connectOrCreate: answerOptions.map((option) => {
-    //       //     return { surveyQuestionOptionId: option.id, };
-    //       //   }),
-    //       // },
-    //     },
-    //   };
-    // }
-    else {
-      prismaQuery = {
-        ...prismaQuery,
-        create: {
-          ...productSatisfactionCreateQuery,
-          answerBool: answer.bool,
-          answerNumeric: answer.numeric,
-          answerText: answer.text,
-        },
-        update: {
-          ...productSatisfactionUpdateQuery,
-          answerBool: answer.bool,
-          answerNumeric: answer.numeric,
-          answerText: answer.text,
-        },
-      };
-    }
+  // async postCustomerResponseWithProduct({
+  //   customerId,
+  //   orderNumber,
+  //   surveyId,
+  //   responses,
+  // }: PostCustomerResponseWithProductsArgs): Promise<
+  //   ReturnValueType<PostPurchaseSurveyAnswer>
+  // > {
+  //   const response = await this.prisma.customerSurveyHistory.upsert(
+  //     {
+  //       where: { CustomerOrderSurveyHistoryIdentifier: { customerId, surveyId, orderNumber } },
+  //       create: { customerId, surveyId, orderNumber },
+  //       update: { customerId, surveyId, orderNumber },
+  //     });
 
-    const res = await this.prisma.surveyQuestionAnswer.upsert(prismaQuery);
-
-    return [{ id: res.id }];
-  }
+  // }
 }
