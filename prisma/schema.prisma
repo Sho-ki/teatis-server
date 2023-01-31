@@ -633,7 +633,7 @@ model IntermediateSurveyQuestion {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @default(now()) @updatedAt
   displayOrder     Int
-  activeStatus     ActiveStatus   @default(active)
+  isArchived     Boolean   @default(false)
   survey           Survey         @relation(fields: [surveyId], references: [id])
   surveyQuestion   SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
 
@@ -652,12 +652,12 @@ model SurveyQuestion {
   parentSurveyQuestionId Int?
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
-  activeStatus                ActiveStatus?
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
   parentQuestion            SurveyQuestion[]            @relation("ParentSurveyQuestion")
   childQuestion            SurveyQuestion?            @relation("ParentSurveyQuestion", fields: [parentSurveyQuestionId], references: [id])
   surveyQuestionAnswer        SurveyQuestionAnswer[]
   surveyQuestionOptions       SurveyQuestionOption[]
+  surveyQuestionResponse SurveyQuestionResponse[]
 }
 
 enum AnswerType {
@@ -678,6 +678,7 @@ model CustomerSurveyHistory {
   survey   Survey @relation(fields: [surveyId], references: [id])
   customer           Customers         @relation(fields: [customerId], references: [id])
   customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
+  surveyQuestionResponse SurveyQuestionResponse[]
 
   @@unique([surveyId, customerId], name: "CustomerSurveyHistoryIndentifier")
 }
@@ -728,6 +729,18 @@ model SurveyQuestionAnswer {
   customer             Customers             @relation(fields: [customerId], references: [id])
   product              Product?              @relation(fields: [productId], references: [id])
   surveyQuestion       SurveyQuestion        @relation(fields: [surveyQuestionId], references: [id])
+}
+
+model SurveyQuestionResponse {
+  id                   Int                   @id @default(autoincrement())
+  surveyQuestionId     Int
+  customerSurveyHistoryId  Int
+  response          Json?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @default(now()) @updatedAt
+  surveyQuestion       SurveyQuestion        @relation(fields: [surveyQuestionId], references: [id])
+  customerSurveyHistory       CustomerSurveyHistory        @relation(fields: [customerSurveyHistoryId], references: [id])
+  
 }
 
 model CustomerProductDistance {
