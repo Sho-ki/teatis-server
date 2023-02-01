@@ -3,7 +3,7 @@ import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { ActiveSurvey } from '@Domains/Survey';
 import { SURVEY_NAME } from '@Usecases/utils/surveyName';
-import { ActiveQuestion  } from '../../../domains/SurveyQuestion';
+import {  ActiveQuestionWithOptions, ActiveQuestionWithoutOptions  } from '../../../domains/SurveyQuestion';
 
 interface GetSurveyQuestionsArgs {
   surveyName: SURVEY_NAME;
@@ -38,28 +38,29 @@ implements SurveyQuestionsRepositoryInterface
       return [undefined, { name: 'NoQuestions', message: 'No questions were found.' }];
     }
 
-    const surveyQuestions: ActiveQuestion[] = [];
+    const questionsWithOptions: ActiveQuestionWithOptions[]= [];
+    const questionsWithoutOptions:ActiveQuestionWithoutOptions[] = [];
 
     const questions = response.intermediateSurveyQuestions;
     for (const question of questions) {
       if(question.surveyQuestion.responseType === 'multiple' || question.surveyQuestion.responseType === 'single'){
         const options = question.surveyQuestion.surveyQuestionOptions;
         delete question.surveyQuestion.surveyQuestionOptions;
-        const surveyQuestion: ActiveQuestion = {
+        const surveyQuestion: ActiveQuestionWithOptions = {
           ...question.surveyQuestion,
           options,
         };
-        surveyQuestions.push(surveyQuestion);
+        questionsWithOptions.push(surveyQuestion);
       }else{
         delete question.surveyQuestion.surveyQuestionOptions;
-        const surveyQuestion: ActiveQuestion = { ...question.surveyQuestion };
+        const surveyQuestion: ActiveQuestionWithoutOptions = { ...question.surveyQuestion, options: undefined };
 
-        surveyQuestions.push(surveyQuestion);
+        questionsWithoutOptions.push(surveyQuestion);
       }
     }
 
     delete response.intermediateSurveyQuestions;
 
-    return [{ surveyQuestions, ...response }];
+    return [{ surveyQuestions: { ...questionsWithoutOptions, ...questionsWithOptions }, ...response }];
   }
 }

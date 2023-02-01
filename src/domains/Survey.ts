@@ -1,7 +1,7 @@
 import { Survey } from '@prisma/client';
-import { ActiveQuestion } from './SurveyQuestion';
+import { ActiveQuestionWithOptions, ActiveQuestionWithoutOptions } from './SurveyQuestion';
 
 export type ActiveSurvey = Survey & {
-  surveyQuestions: ActiveQuestion[];
+  surveyQuestions: ActiveQuestionWithOptions[]|ActiveQuestionWithoutOptions[];
 };
 
