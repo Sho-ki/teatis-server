@@ -42,6 +42,7 @@ import { CoachRepository } from '../../repositories/teatisDB/coach/coach.reposit
 import { CreateCheckoutCartUsecase } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
+import { PrePurchaseSurveyModule } from './pre-purchase/prePurchaseSurvey.module';
 
 @Global()
 @Module({
@@ -203,6 +204,7 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
     PractitionerBoxModule,
     EmailModule,
     TemporaryPrePurchaseSurveysModule,
+    PrePurchaseSurveyModule,
   ],
   exports: [DiscoveriesController],
 })
