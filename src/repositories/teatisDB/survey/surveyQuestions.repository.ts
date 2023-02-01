@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
-import { ActiveSurvey } from '@Domains/Survey';
+import { ActiveQuestionWithOptions, ActiveQuestionWithoutOptions, ActiveSurvey } from '@Domains/Survey';
 import { SURVEY_NAME } from '@Usecases/utils/surveyName';
-import {  ActiveQuestionWithOptions, ActiveQuestionWithoutOptions  } from '../../../domains/SurveyQuestion';
 
 interface GetSurveyQuestionsArgs {
   surveyName: SURVEY_NAME;
