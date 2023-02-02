@@ -6,7 +6,7 @@ import { PostPrePurchaseSurvey2Dto } from '@Controllers/discoveries/dtos/postPre
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerPrePurchaseSurveyHistoryRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 
-export interface postPrePurchaseSurveyUsecase2Interface {
+export interface PostPrePurchaseSurveyUsecase2Interface {
   postPrePurchaseSurvey({ surveyId, customerUuid, surveyResponses }: PostPrePurchaseSurvey2Dto): Promise<
     ReturnValueType<CustomerBoxType>
   >;
@@ -14,7 +14,7 @@ export interface postPrePurchaseSurveyUsecase2Interface {
 
 @Injectable()
 export class PostPrePurchaseSurveyUsecase2
-implements postPrePurchaseSurveyUsecase2Interface
+implements PostPrePurchaseSurveyUsecase2Interface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')

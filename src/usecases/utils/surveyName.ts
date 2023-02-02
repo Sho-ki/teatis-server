@@ -1,2 +1,4 @@
-export type SURVEY_NAME =
-    'postPurchase'|'prePurchase';
+export enum SurveyName {
+    PostPurchase = 'postPurchase',
+    PrePurchase = 'prePurchase'
+}
