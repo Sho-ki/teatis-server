@@ -8,10 +8,10 @@ export class PostPrePurchaseSurvey2Dto {
     customerUuid: string;
 
   @IsArray()
-    surveyResponse: TTemp[];
+    surveyResponses: TTemp[];
 }
 
 type TTemp = {
-    questionId: number;
-    responseIds: number[];
+  surveyQuestionId: number;
+  responseIds: number[];
 };

@@ -4,10 +4,10 @@ import { CustomerBoxType } from '../../domains/CustomerBoxType';
 import { ReturnValueType } from '@Filters/customError';
 import { PostPrePurchaseSurvey2Dto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey2';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
-import { CustomerPostPurchaseSurveyHistoryRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
+import { CustomerPrePurchaseSurveyHistoryRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 
 export interface postPrePurchaseSurveyUsecase2Interface {
-  postPrePurchaseSurvey({ surveyId, customerUuid, surveyResponse }: PostPrePurchaseSurvey2Dto): Promise<
+  postPrePurchaseSurvey({ surveyId, customerUuid, surveyResponses }: PostPrePurchaseSurvey2Dto): Promise<
     ReturnValueType<CustomerBoxType>
   >;
 }
@@ -19,10 +19,10 @@ implements postPrePurchaseSurveyUsecase2Interface
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
     private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
-    @Inject('CustomerPostPurchaseSurveyHistoryRepositoryInterface')
-    private readonly customerPostPurchaseSurveyHistoryRepository: CustomerPostPurchaseSurveyHistoryRepositoryInterface,
+    @Inject('CustomerPrePurchaseSurveyHistoryRepositoryInterface')
+    private readonly customerPrePurchaseSurveyHistoryRepository: CustomerPrePurchaseSurveyHistoryRepositoryInterface,
   ) {}
-  async postPrePurchaseSurvey({ surveyId, customerUuid }: PostPrePurchaseSurvey2Dto): Promise<
+  async postPrePurchaseSurvey({ surveyId, customerUuid, surveyResponses }: PostPrePurchaseSurvey2Dto): Promise<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ReturnValueType<any>
   > {
@@ -32,11 +32,15 @@ implements postPrePurchaseSurveyUsecase2Interface
       return [undefined, getCustomerError];
     }
     const { id } = getCustomer;
-    const updateHistory =
-        await this.customerPostPurchaseSurveyHistoryRepository.upsertCustomerSurveyResponseHistory({
+    const [updateHistoryAndResponse, updateHistoryAndResponseError] =
+        await this.customerPrePurchaseSurveyHistoryRepository.upsertCustomerSurveyResponseHistory({
           surveyId,
           customerId: id,
+          surveyResponses,
         });
-    return [updateHistory];
+    if(getCustomerError){
+      return [undefined, updateHistoryAndResponseError];
+    }
+    return [updateHistoryAndResponse];
   }
 }

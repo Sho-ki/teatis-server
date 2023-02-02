@@ -1,35 +1,60 @@
 import { Injectable } from '@nestjs/common';
-// import { Prisma, ResponseType } from '@prisma/client';
+import { CustomerSurveyHistory, Prisma, SurveyQuestionResponse } from '@prisma/client';
 
 import { PrismaService } from '../../../prisma.service';
 
 interface UpsertCustomerSurveyResponseHistoryArgs {
   surveyId: number;
   customerId: number;
+  surveyResponses: TTemp[];
 }
 
-export interface CustomerPostPurchaseSurveyHistoryRepositoryInterface {
+type TTemp = {
+    surveyQuestionId: number;
+    responseIds: number[];
+};
+
+export interface CustomerPrePurchaseSurveyHistoryRepositoryInterface {
   upsertCustomerSurveyResponseHistory({
     surveyId,
     customerId,
-  }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[unknown, Error?]>;
+    surveyResponses,
+  }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[CustomerSurveyHistory & {
+    surveyQuestionResponse: SurveyQuestionResponse[];
+}, Error?]>;
 }
 
 @Injectable()
-export class CustomerPostPurchaseSurveyHistoryRepository
-implements CustomerPostPurchaseSurveyHistoryRepositoryInterface
+export class CustomerPrePurchaseSurveyHistoryRepository
+implements CustomerPrePurchaseSurveyHistoryRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
   async upsertCustomerSurveyResponseHistory({
     surveyId,
     customerId,
-  }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[unknown, Error?]> {
-    const data = { surveyId, customerId };
+    surveyResponses,
+  }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[CustomerSurveyHistory & {
+    surveyQuestionResponse: SurveyQuestionResponse[];
+}, Error?]> {
+    const CustomerSurveyHistoryIndentifier = { surveyId, customerId };
+    const create = surveyResponses.map(surveyResponse => {
+      return {
+        surveyQuestionId: surveyResponse.surveyQuestionId,
+        response: surveyResponse.responseIds as Prisma.JsonArray,
+      };
+    });
     const res = await this.prisma.customerSurveyHistory.upsert(
       {
-        where: { CustomerSurveyHistoryIndentifier: data },
-        create: data,
-        update: data,
+        where: { CustomerSurveyHistoryIndentifier },
+        create: {
+          ...CustomerSurveyHistoryIndentifier,
+          surveyQuestionResponse: { create },
+        },
+        update: {
+          ...CustomerSurveyHistoryIndentifier,
+          surveyQuestionResponse: { create },
+        },
+        include: { surveyQuestionResponse: true },
       }
     );
     return [res, null];
