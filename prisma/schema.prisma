@@ -364,6 +364,7 @@ model Product {
   intermediateProductCookingMethods      IntermediateProductCookingMethod[]
   intermediateProductFoodTypes           IntermediateProductFoodType[]
   intermediateProductIngredients         IntermediateProductIngredient[]
+  intermediateProductSurveyQuestionResponse IntermediateProductSurveyQuestionResponse[]
   mainProductImage                       ProductImage?                            @relation("mainProductImage", fields: [mainProductImageId], references: [id])
   productCategory                        ProductCategory?                         @relation(fields: [productCategoryId], references: [id])
   productFlavor                          ProductFlavor?                           @relation(fields: [productFlavorId], references: [id])
@@ -372,7 +373,6 @@ model Product {
   productImages                          ProductImage[]
   productNutritionFact                   ProductNutritionFact?
   surveyQuestionAnswer                   SurveyQuestionAnswer[]
-  customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
 }
 
 model MonthlyBoxSelection {
@@ -688,24 +688,13 @@ model CustomerSurveyHistory {
 
   survey   Survey @relation(fields: [surveyId], references: [id])
   customer           Customers         @relation(fields: [customerId], references: [id])
-  customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
+  // customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
   surveyQuestionResponse SurveyQuestionResponse[]
 
-  @@unique([surveyId, customerId], name: "CustomerSurveyHistoryIndentifier")
+  @@unique([surveyId, customerId], name: "CustomerSurveyHistoryIdentifier")
   @@unique([surveyId, customerId, orderNumber], name: "CustomerOrderSurveyHistoryIdentifier")
 }
 
-model CustomerSurveyHistoryProduct {
-  customerSurveyHistoryId Int
-  productId Int
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime             @default(now()) @updatedAt
-  
-  customerSurveyHistory   CustomerSurveyHistory @relation(fields: [customerSurveyHistoryId], references: [id])
-  product          Product         @relation(fields: [productId], references: [id])
-
-  @@id([customerSurveyHistoryId, productId])
-}
 
 model SurveyQuestionOption {
   id                   Int                    @id @default(autoincrement())
@@ -753,8 +742,20 @@ model SurveyQuestionResponse {
   updatedAt            DateTime              @default(now()) @updatedAt
   surveyQuestion       SurveyQuestion        @relation(fields: [surveyQuestionId], references: [id])
   customerSurveyHistory       CustomerSurveyHistory        @relation(fields: [customerSurveyHistoryId], references: [id])
-  
+  intermediateProductSurveyQuestionResponse IntermediateProductSurveyQuestionResponse[]
 }
+
+model IntermediateProductSurveyQuestionResponse {
+  surveyQuestionResponseId     Int
+  productId  Int
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @default(now()) @updatedAt
+  surveyQuestionResponse       SurveyQuestionResponse        @relation(fields: [surveyQuestionResponseId], references: [id])
+  product       Product        @relation(fields: [productId], references: [id])
+
+  @@id([surveyQuestionResponseId, productId])
+}
+
 
 model CustomerProductDistance {
   id         Int       @id @default(autoincrement())
