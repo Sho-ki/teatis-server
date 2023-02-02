@@ -36,7 +36,7 @@ implements CustomerPrePurchaseSurveyHistoryRepositoryInterface
   }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[CustomerSurveyHistory & {
     surveyQuestionResponse: SurveyQuestionResponse[];
 }, Error?]> {
-    const CustomerSurveyHistoryIndentifier = { surveyId, customerId };
+    const CustomerSurveyHistoryIdentifier = { surveyId, customerId };
     const create = surveyResponses.map(surveyResponse => {
       return {
         surveyQuestionId: surveyResponse.surveyQuestionId,
@@ -45,13 +45,13 @@ implements CustomerPrePurchaseSurveyHistoryRepositoryInterface
     });
     const res = await this.prisma.customerSurveyHistory.upsert(
       {
-        where: { CustomerSurveyHistoryIndentifier },
+        where: { CustomerSurveyHistoryIdentifier },
         create: {
-          ...CustomerSurveyHistoryIndentifier,
+          ...CustomerSurveyHistoryIdentifier,
           surveyQuestionResponse: { create },
         },
         update: {
-          ...CustomerSurveyHistoryIndentifier,
+          ...CustomerSurveyHistoryIdentifier,
           surveyQuestionResponse: { create },
         },
         include: { surveyQuestionResponse: true },
