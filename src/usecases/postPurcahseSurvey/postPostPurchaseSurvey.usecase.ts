@@ -1,9 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PostPostPurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPostPurchaseSurvey';
-import { CustomerPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
-import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
 import { ReturnValueType } from '@Filters/customError';
 
 export interface PostPostPurchaseSurveyUsecaseInterface {
@@ -17,18 +14,17 @@ export interface PostPostPurchaseSurveyUsecaseInterface {
     title,
     content,
     reason,
-    glucoseImpact,
-  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>>;
+  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<any>>;
 }
 
 @Injectable()
 export class PostPostPurchaseSurveyUsecase
 implements PostPostPurchaseSurveyUsecaseInterface
 {
-  constructor(
-    @Inject('CustomerPostPurchaseSurveyRepositoryInterface')
-    private customerPostPurchaseSurveyRepository: CustomerPostPurchaseSurveyRepositoryInterface,
-  ) {}
+  // constructor(
+  //   @Inject('CustomerPostPurchaseSurveyRepositoryInterface')
+  //   private customerPostPurchaseSurveyRepository: any,
+  // ) {}
 
   async postPostPurchaseSurvey({
     id,
@@ -40,29 +36,28 @@ implements PostPostPurchaseSurveyUsecaseInterface
     title,
     content,
     reason,
-    glucoseImpact,
-  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>> {
+  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<any>> {
     return;
-    const [answerCount, answerCountError] =
-      await this.customerPostPurchaseSurveyRepository.getAnswerCount({ customerId });
-    if (answerCountError) {
-      return [null, answerCountError];
-    }
-    if (!answerCount.currentMaxAnswerCount) {
-      answerCount.currentMaxAnswerCount = 1;
-    } else {
-      const [checkIsNewSurveyAnswer, checkIsNewSurveyAnswerError] =
-        await this.customerPostPurchaseSurveyRepository.checkIsNewSurveyAnswer({
-          orderNumber,
-          currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
-        });
-      if(checkIsNewSurveyAnswerError){
-        return [undefined, checkIsNewSurveyAnswerError];
-      }
-      if (checkIsNewSurveyAnswer.isNewSurveyAnswer) {
-        answerCount.currentMaxAnswerCount += 1;
-      }
-    }
+    // const [answerCount, answerCountError] =
+    //   await this.customerPostPurchaseSurveyRepository.getAnswerCount({ customerId });
+    // if (answerCountError) {
+    //   return [null, answerCountError];
+    // }
+    // if (!answerCount.currentMaxAnswerCount) {
+    //   answerCount.currentMaxAnswerCount = 1;
+    // } else {
+    //   const [checkIsNewSurveyAnswer, checkIsNewSurveyAnswerError] =
+    //     await this.customerPostPurchaseSurveyRepository.checkIsNewSurveyAnswer({
+    //       orderNumber,
+    //       currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
+    //     });
+    //   if(checkIsNewSurveyAnswerError){
+    //     return [undefined, checkIsNewSurveyAnswerError];
+    //   }
+    //   if (checkIsNewSurveyAnswer.isNewSurveyAnswer) {
+    //     answerCount.currentMaxAnswerCount += 1;
+    //   }
+    // }
 
     // const [postProductFeedbackRes, postProductFeedbackError] =
     //   await this.customerPostPurchaseSurveyRepository.postPostPurchaseSurveyCustomerAnswer(
@@ -76,7 +71,6 @@ implements PostPostPurchaseSurveyUsecaseInterface
     //       title,
     //       content,
     //       reason,
-    //       glucoseImpact,
     //       currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
     //     },
     //   );

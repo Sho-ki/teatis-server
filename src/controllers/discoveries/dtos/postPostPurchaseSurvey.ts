@@ -1,4 +1,4 @@
-import { ProductHasGlucoseImpact } from '@Domains/PostPurchaseSurvey';
+// import { ProductHasGlucoseImpact } from '@Domains/PostPurchaseSurvey';
 import {
   IsNumber,
   IsObject,
@@ -44,7 +44,7 @@ export class PostPostPurchaseSurveyDto {
   @IsString()
     reason?: string;
 
-  @IsOptional()
-  @IsNumber()
-    glucoseImpact?: ProductHasGlucoseImpact;
+  // @IsOptional()
+  // @IsNumber()
+  //   glucoseImpact?: ProductHasGlucoseImpact;
 }
