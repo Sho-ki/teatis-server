@@ -699,6 +699,7 @@ model CustomerSurveyHistory {
 model SurveyQuestionOption {
   id                   Int                    @id @default(autoincrement())
   label                String
+  value Int?
   surveyQuestionId     Int
   isArchived            Boolean @default(false)
   createdAt            DateTime               @default(now())
