@@ -1,14 +1,33 @@
 import { Survey, SurveyQuestion, SurveyQuestionOption } from '@prisma/client';
-import { ProductFeature } from './Product';
+import { DisplayProduct, ProductFeature } from './Product';
 
-export type ActiveSurvey = Survey & {
-  surveyQuestions: ActiveQuestionWithOptions[]|ActiveQuestionWithoutOptions[];
-};
-
-export interface ActiveQuestionWithOptions extends SurveyQuestion {
-    options: SurveyQuestionOption[] | ProductFeature[];
+export interface ActiveSurvey extends Survey {
+  surveyQuestions: ParentSurveyQuestion[];
 }
 
-export interface ActiveQuestionWithoutOptions extends SurveyQuestion {
-    options: undefined;
+export type ParentSurveyQuestion = ParentSurveyQuestionWithOption | ParentSurveyQuestionWithoutOption;
+export type ChildSurveyQuestion = ChildSurveyQuestionWithOption | ChildSurveyQuestionWithoutOption;
+
+export interface ParentSurveyQuestionWithOption extends SurveyQuestion {
+  options: SurveyQuestionOption[] | ProductFeature[];
+  product?: DisplayProduct;
+  customerResponse? : unknown | null;
+  children?: ChildSurveyQuestion[];
+}
+
+export interface ParentSurveyQuestionWithoutOption extends SurveyQuestion {
+  options: undefined;
+  product?: DisplayProduct;
+  customerResponse? : unknown | null;
+  children?: ChildSurveyQuestion[];
+}
+
+export interface ChildSurveyQuestionWithOption extends Omit<SurveyQuestion, 'product'> {
+  options: SurveyQuestionOption[] | ProductFeature[];
+  customerResponse? : unknown | null;
+}
+
+export interface ChildSurveyQuestionWithoutOption extends Omit<SurveyQuestion, 'product'> {
+  options: undefined;
+  customerResponse? : unknown | null;
 }

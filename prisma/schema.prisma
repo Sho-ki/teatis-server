@@ -691,7 +691,6 @@ model CustomerSurveyHistory {
   // customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
   surveyQuestionResponse SurveyQuestionResponse[]
 
-  @@unique([surveyId, customerId], name: "CustomerSurveyHistoryIdentifier")
   @@unique([surveyId, customerId, orderNumber], name: "CustomerOrderSurveyHistoryIdentifier")
 }
 
@@ -699,6 +698,7 @@ model CustomerSurveyHistory {
 model SurveyQuestionOption {
   id                   Int                    @id @default(autoincrement())
   label                String
+  value Int?
   surveyQuestionId     Int
   isArchived            Boolean @default(false)
   createdAt            DateTime               @default(now())
