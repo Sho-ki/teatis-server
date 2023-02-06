@@ -1,4 +1,4 @@
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PostPrePurchaseSurvey2Dto {
   @IsNumber()
@@ -8,10 +8,10 @@ export class PostPrePurchaseSurvey2Dto {
     customerUuid: string;
 
   @IsArray()
-    surveyResponses: TTemp[];
+  @IsOptional()
+    customerResponses?: {
+       surveyQuestionId: number;
+        responseIds: number[];
+    }[];
 }
 
-type TTemp = {
-  surveyQuestionId: number;
-  responseIds: number[];
-};

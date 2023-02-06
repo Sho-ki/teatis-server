@@ -6,7 +6,7 @@ import { PrismaService } from '../../../prisma.service';
 interface UpsertCustomerSurveyResponseHistoryArgs {
   surveyId: number;
   customerId: number;
-  surveyResponses: TTemp[];
+  customerResponses: TTemp[];
 }
 
 type TTemp = {
@@ -18,7 +18,7 @@ export interface CustomerPrePurchaseSurveyHistoryRepositoryInterface {
   upsertCustomerSurveyResponseHistory({
     surveyId,
     customerId,
-    surveyResponses,
+    customerResponses,
   }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[CustomerSurveyHistory & {
     surveyQuestionResponse: SurveyQuestionResponse[];
 }, Error?]>;
@@ -32,11 +32,11 @@ implements CustomerPrePurchaseSurveyHistoryRepositoryInterface
   async upsertCustomerSurveyResponseHistory({
     surveyId,
     customerId,
-    surveyResponses,
+    customerResponses,
   }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[CustomerSurveyHistory & {
     surveyQuestionResponse: SurveyQuestionResponse[];
 }, Error?]> {
-    const create = surveyResponses.map(surveyResponse => {
+    const create = customerResponses.map(surveyResponse => {
       return {
         surveyQuestionId: surveyResponse.surveyQuestionId,
         response: surveyResponse.responseIds as Prisma.JsonArray,

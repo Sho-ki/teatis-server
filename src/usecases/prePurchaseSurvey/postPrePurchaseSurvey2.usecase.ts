@@ -7,7 +7,7 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CustomerPrePurchaseSurveyHistoryRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 
 export interface PostPrePurchaseSurveyUsecase2Interface {
-  postPrePurchaseSurvey({ surveyId, customerUuid, surveyResponses }: PostPrePurchaseSurvey2Dto): Promise<
+  postPrePurchaseSurvey({ surveyId, customerUuid, customerResponses }: PostPrePurchaseSurvey2Dto): Promise<
     ReturnValueType<CustomerBoxType>
   >;
 }
@@ -22,7 +22,7 @@ implements PostPrePurchaseSurveyUsecase2Interface
     @Inject('CustomerPrePurchaseSurveyHistoryRepositoryInterface')
     private readonly customerPrePurchaseSurveyHistoryRepository: CustomerPrePurchaseSurveyHistoryRepositoryInterface,
   ) {}
-  async postPrePurchaseSurvey({ surveyId, customerUuid, surveyResponses }: PostPrePurchaseSurvey2Dto): Promise<
+  async postPrePurchaseSurvey({ surveyId, customerUuid, customerResponses }: PostPrePurchaseSurvey2Dto): Promise<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ReturnValueType<any>
   > {
@@ -36,7 +36,7 @@ implements PostPrePurchaseSurveyUsecase2Interface
         await this.customerPrePurchaseSurveyHistoryRepository.upsertCustomerSurveyResponseHistory({
           surveyId,
           customerId: id,
-          surveyResponses,
+          customerResponses,
         });
     if(getCustomerError){
       return [undefined, updateHistoryAndResponseError];

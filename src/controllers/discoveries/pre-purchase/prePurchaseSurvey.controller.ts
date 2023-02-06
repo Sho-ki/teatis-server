@@ -7,10 +7,11 @@ import {
   // Query,
   Res,
 } from '@nestjs/common';
-import { response, Response } from 'express';
+import { Response } from 'express';
 import { PostPrePurchaseSurveyUsecase2Interface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey2.usecase';
 import { PostPrePurchaseSurvey2Dto } from '../dtos/postPrePurchaseSurvey2';
 import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
+import { ActiveSurvey } from '../../../domains/Survey';
 
 @Controller('api/discovery')
 export class PrePurchaseSurveyController {
@@ -22,8 +23,7 @@ export class PrePurchaseSurveyController {
   ) {}
   // Get: api/discovery/pre-purchase
   @Get('pre-purchase')
-  async getPrePurchaseSurveyQuestions(
-  ) {
+  async getPrePurchaseSurveyQuestions(@Res() response: Response<ActiveSurvey | Error>) {
     const [usecaseResponse, error] =
       await this.getPrePurchaseSurveyUsecase.getPrePurchaseSurveyQuestions();
     if (error) {
