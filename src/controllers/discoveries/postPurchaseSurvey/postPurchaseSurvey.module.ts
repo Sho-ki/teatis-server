@@ -8,6 +8,7 @@ import { CustomerGeneralRepository } from '@Repositories/teatisDB/customer/custo
 import { PostPurchaseSurveyController } from './postPurchaseSurvey.controller';
 import { GetPostPurchaseSurveyUsecase } from '../../../usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { SurveyQuestionsRepository } from '../../../repositories/teatisDB/survey/surveyQuestions.repository';
+import { CustomerSurveyHistoryRepository } from '../../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 
 @Global()
 @Module({
@@ -41,6 +42,10 @@ import { SurveyQuestionsRepository } from '../../../repositories/teatisDB/survey
     {
       provide: 'CustomerSurveyResponseRepositoryInterface',
       useClass: CustomerSurveyResponseRepository,
+    },
+    {
+      provide: 'CustomerSurveyHistoryRepositoryInterface',
+      useClass: CustomerSurveyHistoryRepository,
     },
 
     PostPurchaseSurveyController,

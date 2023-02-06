@@ -1,61 +1,71 @@
+
 import { Injectable } from '@nestjs/common';
-import { CustomerSurveyHistory, Prisma, SurveyQuestionResponse } from '@prisma/client';
+import { CustomerSurveyHistory } from '@prisma/client';
+
+import { ReturnValueType } from '../../../filter/customError';
 
 import { PrismaService } from '../../../prisma.service';
+import { SurveyName } from '../../../usecases/utils/surveyName';
 
-interface UpsertCustomerSurveyResponseHistoryArgs {
-  surveyId: number;
+interface GetCustomerSurveyHistoryByOrderNumberArgs {
   customerId: number;
-  customerResponses: TTemp[];
+  surveyName: SurveyName;
+  orderNumber:string;
 }
 
-type TTemp = {
-    surveyQuestionId: number;
-    responseIds: number[];
-};
+interface CreateCustomerSurveyHistoryArgs {
+  customerId: number;
+  surveyName: SurveyName;
+  orderNumber?:string;
+}
 
-export interface CustomerPrePurchaseSurveyHistoryRepositoryInterface {
-  upsertCustomerSurveyResponseHistory({
-    surveyId,
+export interface CustomerSurveyHistoryRepositoryInterface {
+  getCustomerSurveyHistoryByOrderNumber({
     customerId,
-    customerResponses,
-  }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[CustomerSurveyHistory & {
-    surveyQuestionResponse: SurveyQuestionResponse[];
-}, Error?]>;
+    surveyName,
+    orderNumber,
+  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>>;
+
+  createCustomerSurveyHistory({
+    customerId,
+    surveyName,
+    orderNumber,
+  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistory>;
+
 }
 
 @Injectable()
-export class CustomerPrePurchaseSurveyHistoryRepository
-implements CustomerPrePurchaseSurveyHistoryRepositoryInterface
+export class CustomerSurveyHistoryRepository
+implements CustomerSurveyHistoryRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
-  async upsertCustomerSurveyResponseHistory({
-    surveyId,
+
+  async createCustomerSurveyHistory({
     customerId,
-    customerResponses,
-  }: UpsertCustomerSurveyResponseHistoryArgs): Promise<[CustomerSurveyHistory & {
-    surveyQuestionResponse: SurveyQuestionResponse[];
-}, Error?]> {
-    const create = customerResponses.map(surveyResponse => {
-      return {
-        surveyQuestionId: surveyResponse.surveyQuestionId,
-        response: surveyResponse.responseIds as Prisma.JsonArray,
-      };
-    });
-    const res = await this.prisma.customerSurveyHistory.upsert(
-      {
-        where: { CustomerOrderSurveyHistoryIdentifier: { surveyId, customerId, orderNumber: undefined } },
-        create: {
-          surveyId, customerId,
-          surveyQuestionResponse: { create },
-        },
-        update: {
-          surveyId, customerId,
-          surveyQuestionResponse: { create },
-        },
-        include: { surveyQuestionResponse: true },
-      }
-    );
-    return [res, null];
+    surveyName,
+    orderNumber,
+  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistory>{
+    const response = await this.prisma.customerSurveyHistory.create(
+      { data: { customer: { connect: { id: customerId } }, survey: { connect: { name: surveyName } }, orderNumber } });
+
+    return response;
   }
+
+  async getCustomerSurveyHistoryByOrderNumber({
+    customerId,
+    surveyName,
+    orderNumber,
+  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>> {
+    const response = await this.prisma.customerSurveyHistory.findFirst({
+      where: { survey: { name: surveyName }, customerId, orderNumber },
+      orderBy: { createdAt: 'desc' }, take: 1,
+    });
+
+    if(!response){
+      return [undefined, { name: 'NoSurveyHistory', message: 'The customer has no responses on this survey' }];
+    }
+    return [response];
+
+  }
+
 }

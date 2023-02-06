@@ -2,13 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
-import {  CustomerSurveyResponseRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ReturnValueType } from '@Filters/customError';
-import { SurveyQuestionsRepositoryInterface } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
-import {  ParentSurveyQuestion } from '../../domains/Survey';
-import { PostPurchaseSurveyWithResponse } from '../../domains/PostPurchaseSurvey';
+import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
+import {  ParentSurveyQuestion } from '@Domains/Survey';
+import { PostPurchaseSurveyWithResponse } from '@Domains/PostPurchaseSurvey';
 import { SurveyName } from '../utils/surveyName';
+import { CustomerSurveyResponseRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
+import { CustomerSurveyHistoryRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   uuid: string;
@@ -34,6 +35,8 @@ implements GetPostPurchaseSurveyUsecaseInterface
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('CustomerSurveyResponseRepositoryInterface')
     private customerSurveyResponseRepository: CustomerSurveyResponseRepositoryInterface,
+    @Inject('CustomerSurveyHistoryRepositoryInterface')
+    private customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
 
   ) {}
 
@@ -97,13 +100,13 @@ implements GetPostPurchaseSurveyUsecaseInterface
     });
     // eslint-disable-next-line prefer-const
     let [customerSurveyHistory, noCustomerSurveyHistory] =
-      await this.customerSurveyResponseRepository.getCustomerSurveyHistoryByOrderNumber({
+      await this.customerSurveyHistoryRepository.getCustomerSurveyHistoryByOrderNumber({
         customerId: customer.id,
         surveyName: SurveyName.PostPurchase,
         orderNumber: customerOrder.orderNumber,
       });
     if (noCustomerSurveyHistory) {
-      customerSurveyHistory = await this.customerSurveyResponseRepository.createCustomerSurveyHistory(
+      customerSurveyHistory = await this.customerSurveyHistoryRepository.createCustomerSurveyHistory(
         { customerId: customer.id, surveyName: SurveyName.PostPurchase, orderNumber: customerOrder.orderNumber });
     }
 

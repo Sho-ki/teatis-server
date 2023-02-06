@@ -2,18 +2,18 @@ import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 
 import { PrePurchaseSurveyController } from './prePurchaseSurvey.controller';
-import { CustomerPrePurchaseSurveyHistoryRepository } from '@Repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 import { PostPrePurchaseSurveyUsecase2 } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey2.usecase';
 import { CustomerGeneralRepository } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
 import { SurveyQuestionsRepository } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
+import { CustomerSurveyResponseRepository } from '../../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 
 @Module({
   controllers: [PrePurchaseSurveyController],
   providers: [
     {
-      provide: 'CustomerPrePurchaseSurveyHistoryRepositoryInterface',
-      useClass: CustomerPrePurchaseSurveyHistoryRepository,
+      provide: 'CustomerSurveyResponseRepositoryInterface',
+      useClass: CustomerSurveyResponseRepository,
     },
     {
       provide: 'PostPrePurchaseSurveyUsecase2Interface',
