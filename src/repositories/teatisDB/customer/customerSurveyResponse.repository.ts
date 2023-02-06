@@ -5,17 +5,17 @@ import { ProductSurveyQuestionResponse } from '../../../domains/ProductSurveyQue
 import { ReturnValueType } from '../../../filter/customError';
 
 import { PrismaService } from '../../../prisma.service';
-import { SURVEY_NAME } from '../../../usecases/utils/surveyName';
+import { SurveyName } from '../../../usecases/utils/surveyName';
 
 interface GetCustomerSurveyHistoryByOrderNumberArgs {
   customerId: number;
-  surveyName: SURVEY_NAME;
+  surveyName: SurveyName;
   orderNumber:string;
 }
 
 interface CreateCustomerSurveyHistoryArgs {
   customerId: number;
-  surveyName: SURVEY_NAME;
+  surveyName: SurveyName;
   orderNumber?:string;
 }
 

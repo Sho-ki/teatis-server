@@ -8,6 +8,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { SurveyQuestionsRepositoryInterface } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
 import {  ParentSurveyQuestion } from '../../domains/Survey';
 import { PostPurchaseSurveyWithResponse } from '../../domains/PostPurchaseSurvey';
+import { SurveyName } from '../utils/surveyName';
 
 interface GetPostPurchaseSurveyUsecaseArgs {
   uuid: string;
@@ -60,7 +61,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
       return customerOrder.products.findIndex(({ sku }) => { return sku === product.sku; }) > -1;
     });
     const [survey, getSurveyError] =
-      await this.surveyQuestionsRepository.getSurveyQuestions({ surveyName: 'postPurchase' });
+      await this.surveyQuestionsRepository.getSurveyQuestions({ surveyName: SurveyName.PostPurchase });
 
     if (getSurveyError) {
       return [undefined, getSurveyError];
@@ -98,11 +99,12 @@ implements GetPostPurchaseSurveyUsecaseInterface
     let [customerSurveyHistory, noCustomerSurveyHistory] =
       await this.customerSurveyResponseRepository.getCustomerSurveyHistoryByOrderNumber({
         customerId: customer.id,
-        surveyName: 'postPurchase',
+        surveyName: SurveyName.PostPurchase,
         orderNumber: customerOrder.orderNumber,
       });
     if (noCustomerSurveyHistory) {
-      customerSurveyHistory = await this.customerSurveyResponseRepository.createCustomerSurveyHistory({ customerId: customer.id, surveyName: 'postPurchase', orderNumber: customerOrder.orderNumber });
+      customerSurveyHistory = await this.customerSurveyResponseRepository.createCustomerSurveyHistory(
+        { customerId: customer.id, surveyName: SurveyName.PostPurchase, orderNumber: customerOrder.orderNumber });
     }
 
     const customerResponses =
