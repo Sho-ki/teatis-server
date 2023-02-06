@@ -1,24 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PostPostPurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPostPurchaseSurvey';
-import { CustomerPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
-import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
 import { ReturnValueType } from '@Filters/customError';
+import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
+import { SurveyQuestionResponse } from '@prisma/client';
 
 export interface PostPostPurchaseSurveyUsecaseInterface {
   postPostPurchaseSurvey({
-    id,
-    customerId,
-    orderNumber,
-    productId,
-    responseId,
-    answer,
-    title,
-    content,
-    reason,
-    glucoseImpact,
-  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>>;
+    historyId,
+    customerResponses,
+  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<SurveyQuestionResponse[]>>;
 }
 
 @Injectable()
@@ -26,63 +17,33 @@ export class PostPostPurchaseSurveyUsecase
 implements PostPostPurchaseSurveyUsecaseInterface
 {
   constructor(
-    @Inject('CustomerPostPurchaseSurveyRepositoryInterface')
-    private customerPostPurchaseSurveyRepository: CustomerPostPurchaseSurveyRepositoryInterface,
+    @Inject('CustomerSurveyResponseRepositoryInterface')
+    private customerSurveyResponseRepository: CustomerSurveyResponseRepositoryInterface,
   ) {}
 
   async postPostPurchaseSurvey({
-    id,
-    customerId,
-    orderNumber,
-    productId,
-    answer,
-    responseId,
-    title,
-    content,
-    reason,
-    glucoseImpact,
-  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<PostPurchaseSurveyAnswer>> {
-    return;
-    const [answerCount, answerCountError] =
-      await this.customerPostPurchaseSurveyRepository.getAnswerCount({ customerId });
-    if (answerCountError) {
-      return [null, answerCountError];
+    historyId,
+    customerResponses,
+  }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<SurveyQuestionResponse[]>> {
+    let productId:number;
+    if(customerResponses.length){
+      productId = customerResponses[0].productId;
     }
-    if (!answerCount.currentMaxAnswerCount) {
-      answerCount.currentMaxAnswerCount = 1;
-    } else {
-      const [checkIsNewSurveyAnswer, checkIsNewSurveyAnswerError] =
-        await this.customerPostPurchaseSurveyRepository.checkIsNewSurveyAnswer({
-          orderNumber,
-          currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
-        });
-      if(checkIsNewSurveyAnswerError){
-        return [undefined, checkIsNewSurveyAnswerError];
-      }
-      if (checkIsNewSurveyAnswer.isNewSurveyAnswer) {
-        answerCount.currentMaxAnswerCount += 1;
-      }
-    }
+    const response = await this.customerSurveyResponseRepository
+      .getCustomerSurveyOneProductResponses({ surveyHistoryId: historyId, productId });
+    const surveyQuestionResponses = await Promise.all(customerResponses.map((customerResponse) => {
+      return this.customerSurveyResponseRepository.upsertCustomerResponseWithProduct(
+        {
+          surveyHistoryId: historyId,
+          surveyQuestionResponseId: response.find(({ surveyQuestionId }) =>
+          { return surveyQuestionId === customerResponse.surveyQuestionId; })?.id,
 
-    // const [postProductFeedbackRes, postProductFeedbackError] =
-    //   await this.customerPostPurchaseSurveyRepository.postPostPurchaseSurveyCustomerAnswer(
-    //     {
-    //       id,
-    //       customerId,
-    //       orderNumber,
-    //       responseId,
-    //       productId,
-    //       answer,
-    //       title,
-    //       content,
-    //       reason,
-    //       glucoseImpact,
-    //       currentMaxAnswerCount: answerCount.currentMaxAnswerCount,
-    //     },
-    //   );
-    // if(postProductFeedbackError){
-    //   return [undefined, postProductFeedbackError];
-    // }
-    // return [{ id: postProductFeedbackRes.id }, null];
+          customerResponse: customerResponse.response,
+          productId,
+          surveyQuestionId: customerResponse.surveyQuestionId,
+        }); }));
+
+    return [surveyQuestionResponses];
+
   }
 }

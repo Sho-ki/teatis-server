@@ -1,225 +1,134 @@
-// import { Inject, Injectable } from '@nestjs/common';
-// import { v4 as uuidv4 } from 'uuid';
+import { Inject, Injectable } from '@nestjs/common';
 
-// import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
-// import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
-// import { CustomerPostPurchaseSurveyRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
-// import {
-//   PostPurchaseSurvey,
-//   SurveyQuestions,
-// } from 'src/domains/PostPurchaseSurvey';
-// import { DisplayProduct } from '@Domains/Product';
-// import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
-// import { ReturnValueType } from '@Filters/customError';
+import { ShipheroRepositoryInterface } from '@Repositories/shiphero/shiphero.repository';
+import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
+import {  CustomerSurveyResponseRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { ReturnValueType } from '@Filters/customError';
+import { SurveyQuestionsRepositoryInterface } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
+import {  ParentSurveyQuestion } from '../../domains/Survey';
+import { PostPurchaseSurveyWithResponse } from '../../domains/PostPurchaseSurvey';
 
-// interface GetPostPurchaseSurveyUsecaseArgs {
-//   uuid: string;
-//   orderNumber?: string;
-// }
+interface GetPostPurchaseSurveyUsecaseArgs {
+  uuid: string;
+}
 
-// export interface GetPostPurchaseSurveyUsecaseInterface {
-//   getPostPurchaseSurvey({
-//     uuid,
-//     orderNumber,
-//   }: GetPostPurchaseSurveyUsecaseArgs): Promise<ReturnValueType<PostPurchaseSurvey>>;
-// }
+export interface GetPostPurchaseSurveyUsecaseInterface {
+  getPostPurchaseSurvey({ uuid }: GetPostPurchaseSurveyUsecaseArgs):
+  Promise<ReturnValueType<PostPurchaseSurveyWithResponse>>;
+}
 
-// @Injectable()
-// export class GetPostPurchaseSurveyUsecase
-// implements GetPostPurchaseSurveyUsecaseInterface
-// {
-//   constructor(
-//     @Inject('ShipheroRepositoryInterface')
-//     private shipheroRepository: ShipheroRepositoryInterface,
-//     @Inject('CustomerPostPurchaseSurveyRepositoryInterface')
-//     private customerPostPurchaseSurveyRepository: CustomerPostPurchaseSurveyRepositoryInterface,
-//     @Inject('ProductGeneralRepositoryInterface')
-//     private productGeneralRepository: ProductGeneralRepositoryInterface,
-//      @Inject('CustomerGeneralRepositoryInterface')
-//     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
-//   ) {}
+@Injectable()
+export class GetPostPurchaseSurveyUsecase
+implements GetPostPurchaseSurveyUsecaseInterface
+{
+  constructor(
+    @Inject('ShipheroRepositoryInterface')
+    private shipheroRepository: ShipheroRepositoryInterface,
+    @Inject('SurveyQuestionsRepositoryInterface')
+    private surveyQuestionsRepository: SurveyQuestionsRepositoryInterface,
+    @Inject('ProductGeneralRepositoryInterface')
+    private productGeneralRepository: ProductGeneralRepositoryInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('CustomerSurveyResponseRepositoryInterface')
+    private customerSurveyResponseRepository: CustomerSurveyResponseRepositoryInterface,
 
-//   async getPostPurchaseSurvey({
-//     uuid,
-//     orderNumber,
-//   }: GetPostPurchaseSurveyUsecaseArgs): Promise<ReturnValueType<PostPurchaseSurvey>> {
-//     // Get last order products from shiphero
-//     const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
+  ) {}
 
-//     if(getCustomerError){
-//       return [undefined, getCustomerError];
-//     }
+  async getPostPurchaseSurvey({ uuid }:
+    GetPostPurchaseSurveyUsecaseArgs): Promise<ReturnValueType<PostPurchaseSurveyWithResponse>> {
+    // Get last order products from shiphero
+    const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
-//     const [customerOrder, getOrderError] = orderNumber
-//       ? await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber })
-//       : await this.shipheroRepository.getLastCustomerOrder({ email: customer.email, uuid });
-//     if (getOrderError) {
-//       return [undefined, getOrderError];
-//     }
-//     const [displayProducts, getProductDetailError] =
-//       await this.productGeneralRepository.getProductsBySku({ products: customerOrder.products });
+    if(getCustomerError){
+      return [undefined, getCustomerError];
+    }
 
-//     if (getProductDetailError) {
-//       return [undefined, getProductDetailError];
-//     }
-//     const detailedProductList: Pick<
-//       DisplayProduct,
-//       'id' | 'sku' | 'label' | 'images' | 'vendor'
-//     >[] = customerOrder.products.map((orderProduct) => {
-//       let detailedProduct: Pick<
-//         DisplayProduct,
-//         'id' | 'sku' | 'label' | 'images' | 'vendor'
-//       >;
-//       displayProducts.map((product) => {
-//         if (!product.vendor) {
-//           product.vendor.label = 'Teatis Meal';
-//         }
-//         if (orderProduct.sku === product.sku) {
-//           detailedProduct = {
-//             id: product.id,
-//             sku: product.sku,
-//             label: product.label,
-//             images: product.images,
-//             vendor: product.vendor,
-//           };
-//         }
-//       });
-//       return detailedProduct;
-//     });
+    const [customerOrder, getOrderError] =
+    await this.shipheroRepository.getLastCustomerOrder({ email: customer.email, uuid });
+    if (getOrderError) {
+      return [undefined, getOrderError];
+    }
 
-//     const [surveyQuestion, getPostPurchaseQuestionsError] =
-//       await this.questionPostPurchaseSurveyRepository.getSurveyQuestions({ surveyName: 'post-purchase' });
-//     if (getPostPurchaseQuestionsError) {
-//       return [undefined, getPostPurchaseQuestionsError];
-//     }
+    const [dbProducts, getDdbProductsError] =
+      await this.productGeneralRepository.getProductsBySku({ products: customerOrder.products });
+    if (getDdbProductsError) {
+      return [undefined, getDdbProductsError];
+    }
+    const orderProducts = dbProducts.filter((product) => {
+      return customerOrder.products.findIndex(({ sku }) => { return sku === product.sku; }) > -1;
+    });
+    const [survey, getSurveyError] =
+      await this.surveyQuestionsRepository.getSurveyQuestions({ surveyName: 'postPurchase' });
 
-//     const [customerAnswer, getCustomerAnswersError] =
-//       await this.customerPostPurchaseSurveyRepository.getCustomerAnswers({
-//         email: customer.email,
-//         orderNumber: customerOrder.orderNumber,
-//       });
-//     if (getCustomerAnswersError) {
-//       return [undefined, getCustomerAnswersError];
-//     }
+    if (getSurveyError) {
+      return [undefined, getSurveyError];
+    }
 
-//     const personalizedPostPurchaseSurveyQuestions: PostPurchaseSurvey = {
-//       orderNumber: customerOrder.orderNumber,
-//       customerId: customerAnswer.id,
-//       surveyQuestions: [],
-//       redirectEndpoint: '/teatis-meal-box',
-//     };
-//     surveyQuestion.surveyQuestions.map((question) => {
-//       const personalizedQuestion:SurveyQuestions = {
-//         ...question,
-//         answer: {
-//           text: undefined,
-//           numeric: undefined,
-//           singleOption: undefined,
-//           multipleOptions: undefined,
-//           bool: undefined,
-//         },
-//         responseId: undefined,
-//         instruction: undefined,
-//         placeholder: undefined,
-//         reason: undefined,
-//         title: undefined,
-//         content: undefined,
-//         glucoseImpact: undefined,
-//         answerType: 'text',
-//       };
+    const filledSurveyQuestions: ParentSurveyQuestion[] = [];
 
-//       if (question.label.includes('${PRODUCT_NAME}')) {
-//         for (const product of detailedProductList) {
-//           if (!product) continue;
-//           const replacedLabel = question.label.replace(
-//             '${PRODUCT_NAME}',
-//             product.label,
-//           );
-//           const images = [];
-//           if (product.images.length > 0) {
-//             for (const image of product.images) {
-//               images.push({
-//                 src: image.src,
-//                 position: image.position,
-//                 alt: product.label,
-//               });
-//             }
-//           }
+    survey.surveyQuestions.forEach(parentQuestion => {
+      const containsProduct = parentQuestion.label.includes('${PRODUCT_NAME}');
+      if (containsProduct) {
+        for (let i = 0; i < orderProducts.length; i++) {
+          const newParentQuestion:ParentSurveyQuestion = JSON.parse(JSON.stringify(parentQuestion));
+          newParentQuestion.label = newParentQuestion.label.replace(
+            '${PRODUCT_NAME}',
+            orderProducts[i].label,
+          );
+          newParentQuestion.product= orderProducts[i];
 
-//           personalizedQuestion.responseId = uuidv4();
-//           const deepCopy = JSON.parse(JSON.stringify(personalizedQuestion));
-//           personalizedPostPurchaseSurveyQuestions.surveyQuestions.push({
-//             ...deepCopy,
+          const childQuestions = newParentQuestion.children;
+          for(const childQuestion of childQuestions){
+            childQuestion.label = childQuestion.label.replace(
+              '${PRODUCT_NAME}',
+              orderProducts[i].label,
+            );
 
-//             label: replacedLabel,
-//             product: {
-//               id: product.id,
-//               sku: product.sku,
-//               label: product.label,
-//               vendor: product.vendor,
-//               images,
-//             },
-//             answerType: 'numeric',
-//           });
-//         }
-//       } else {
-//         if (personalizedQuestion.name !== 'productLineUp') {
-//           personalizedQuestion.responseId = uuidv4();
-//           personalizedPostPurchaseSurveyQuestions.surveyQuestions.push(
-//             personalizedQuestion,
-//           );
-//         }
-//       }
-//     });
+          }
+          filledSurveyQuestions.push(newParentQuestion);
+        }
+      } else {
+        filledSurveyQuestions.push(parentQuestion);
 
-//     for (const question of personalizedPostPurchaseSurveyQuestions.surveyQuestions) {
-//       for (const customerAns of customerAnswer.customerAnswers) {
-//         if (question?.name === 'productLineUp') continue;
-//         if (customerAns.productId === question?.product?.id) {
-//           question.reason = customerAns?.reason
-//             ? customerAns.reason
-//             : undefined;
+      }
+    });
+    // eslint-disable-next-line prefer-const
+    let [customerSurveyHistory, noCustomerSurveyHistory] =
+      await this.customerSurveyResponseRepository.getCustomerSurveyHistoryByOrderNumber({
+        customerId: customer.id,
+        surveyName: 'postPurchase',
+        orderNumber: customerOrder.orderNumber,
+      });
+    if (noCustomerSurveyHistory) {
+      customerSurveyHistory = await this.customerSurveyResponseRepository.createCustomerSurveyHistory({ customerId: customer.id, surveyName: 'postPurchase', orderNumber: customerOrder.orderNumber });
+    }
 
-//           question.responseId = customerAns.responseId;
-//           question.glucoseImpact = customerAns.glucoseImpact;
+    const customerResponses =
+    await this.customerSurveyResponseRepository.getCustomerSurveyAllProductsResponses(
+      { surveyHistoryId: customerSurveyHistory.id });
 
-//           if (customerAns.surveyQuestionId === question.id) {
-//             switch (question.answerType) {
-//               case 'boolean':
-//                 question.answer.bool = customerAns.answer.bool;
-//                 break;
-//               case 'numeric':
-//                 question.answer.numeric = customerAns.answer.numeric;
-//                 break;
-//               case 'text':
-//                 question.answer.text = customerAns.answer.text;
-//                 break;
-//               case 'singleAnswer':
-//                 question.answer.singleOption = {
-//                   id: customerAns.answer.singleOptionId,
-//                   name: question.options.find((option) => {
-//                     return option.id === customerAns.answer.singleOptionId;
-//                   }).name,
-//                   label: question.options.find((option) => {
-//                     return option.id === customerAns.answer.singleOptionId;
-//                   }).label,
-//                 };
-//                 break;
-//               case 'multipleAnswer':
-//                 question.answer.multipleOptions =
-//                   question.answer.multipleOptions.filter((option) => {
-//                     return customerAns.answer.multipleOptionIds.includes(
-//                       option.id,
-//                     );
-//                   });
-//                 break;
-//               default:
-//                 break;
-//             }
-//           }
-//         }
-//       }
-//     }
-//     return [personalizedPostPurchaseSurveyQuestions, undefined];
-//   }
-// }
+    for(const questions of filledSurveyQuestions){
+      for(const customerResponse of customerResponses){
+        const hasResponse = questions.id ===customerResponse.surveyQuestionId
+              && questions.product.id === customerResponse.product.id;
+        if(hasResponse){
+          questions.customerResponse = customerResponse.response;
+        }
+
+        for(const childQuestion of questions.children){
+          const hasResponse = childQuestion.id === customerResponse.surveyQuestionId
+              && questions.product.id === customerResponse.product.id;
+          if(hasResponse){
+            childQuestion.customerResponse = customerResponse.response;
+          }
+        }
+      }
+    }
+    survey.surveyQuestions = filledSurveyQuestions;
+    return [{ ...survey, redirectEndpoint: '/teatis-meal-box', historyId: customerSurveyHistory.id }];
+
+  }
+}
+

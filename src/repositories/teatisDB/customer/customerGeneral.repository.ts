@@ -256,7 +256,7 @@ implements CustomerGeneralRepositoryInterface
   async getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({ where: { uuid } });
     if (!response?.email || !response?.id || !response.uuid) {
-      return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
+      return [undefined, { name: 'NoCustomerUuid', message: 'uuid is invalid' }];
     }
     return [response];
   }

@@ -1,170 +1,168 @@
 import { Injectable } from '@nestjs/common';
-// import { Prisma, ResponseType } from '@prisma/client';
+import { CustomerSurveyHistory, Prisma, SurveyQuestionResponse } from '@prisma/client';
+import { ProductSurveyQuestionResponse } from '../../../domains/ProductSurveyQuestionResponse';
+
+import { ReturnValueType } from '../../../filter/customError';
 
 import { PrismaService } from '../../../prisma.service';
-// import { ReturnValueType } from '@Filters/customError';
-// import { SURVEY_NAME } from '../../../usecases/utils/surveyName';
+import { SURVEY_NAME } from '../../../usecases/utils/surveyName';
 
-// interface GetCustomerLatestSurveyArgs {
-//   customerId: number;
-//   surveyName: SURVEY_NAME;
-// }
-
-interface GetAnswerCountArgs {
+interface GetCustomerSurveyHistoryByOrderNumberArgs {
   customerId: number;
+  surveyName: SURVEY_NAME;
+  orderNumber:string;
 }
 
-interface GetAnswerCountRes {
-  currentMaxAnswerCount: number;
+interface CreateCustomerSurveyHistoryArgs {
+  customerId: number;
+  surveyName: SURVEY_NAME;
+  orderNumber?:string;
 }
 
-interface CheckIsNewSurveyAnswerArgs {
-  orderNumber: string;
-  currentMaxAnswerCount: number;
+interface GetCustomerSurveyOneProductResponsesArgs {
+  surveyHistoryId:number;
+  productId:number;
 }
 
-interface CheckIsNewSurveyAnswerRes {
-  isNewSurveyAnswer: boolean;
+interface GetCustomerProductSurveyResponseArgs {
+  surveyHistoryId: number;
 }
 
-export interface CustomerPostPurchaseSurveyRepositoryInterface {
-  // getCustomerLatestSurvey({
-  //   customerId,
-  //   surveyName,
-  // }: GetCustomerLatestSurveyArgs): Promise<ReturnValueType<CustomerAnswer>>;
+interface UpsertCustomerResponseWithProductsArgs{
+ surveyQuestionResponseId:number;
+ surveyQuestionId:number;
+ productId:number;
+ customerResponse: unknown;
+ surveyHistoryId:number;
+}
 
-  // postCustomerResponseWithProduct({
-  //   customerId,
-  //   orderNumber,
-  //   surveyId,
-  //   responses,
-  // }: PostCustomerResponseWithProductsArgs): Promise<
-  //   ReturnValueType<PostPurchaseSurveyAnswer>
-  // >;
-
-  getAnswerCount({ customerId }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]>;
-
-  checkIsNewSurveyAnswer({
+export interface CustomerSurveyResponseRepositoryInterface {
+  getCustomerSurveyHistoryByOrderNumber({
+    customerId,
+    surveyName,
     orderNumber,
-    currentMaxAnswerCount,
-  }: CheckIsNewSurveyAnswerArgs): Promise<[CheckIsNewSurveyAnswerRes?, Error?]>;
+  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>>;
+
+  createCustomerSurveyHistory({
+    customerId,
+    surveyName,
+    orderNumber,
+  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistory>;
+
+  getCustomerSurveyAllProductsResponses({ surveyHistoryId }:GetCustomerProductSurveyResponseArgs):
+  Promise<ProductSurveyQuestionResponse[]>;
+
+  upsertCustomerResponseWithProduct({
+    surveyQuestionResponseId,
+    productId,
+    customerResponse,
+    surveyHistoryId,
+    surveyQuestionId,
+  }: UpsertCustomerResponseWithProductsArgs): Promise<SurveyQuestionResponse>;
+
+  getCustomerSurveyOneProductResponses(
+    { surveyHistoryId, productId }: GetCustomerSurveyOneProductResponsesArgs):
+    Promise<ProductSurveyQuestionResponse[]>;
 }
 
 @Injectable()
-export class CustomerPostPurchaseSurveyRepository
-implements CustomerPostPurchaseSurveyRepositoryInterface
+export class CustomerSurveyResponseRepository
+implements CustomerSurveyResponseRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
 
-  async checkIsNewSurveyAnswer({
+  async getCustomerSurveyAllProductsResponses({ surveyHistoryId }:GetCustomerProductSurveyResponseArgs):
+  Promise<ProductSurveyQuestionResponse[]>{
+    const response = await this.prisma.surveyQuestionResponse.findMany(
+      {
+        where: { customerSurveyHistoryId: surveyHistoryId },
+        include: {
+          intermediateProductSurveyQuestionResponse:
+          { include: { product: true } },
+        },
+      });
+
+    const surveyQuestionResponses:ProductSurveyQuestionResponse[] = response?.map((res) => {
+      const matched = res.intermediateProductSurveyQuestionResponse.find((responseProductSet) =>
+      { return responseProductSet.surveyQuestionResponseId === res.id; });
+
+      const { id, externalSku, label, name } = matched.product;
+      return { ...res, product: { id, label, name, sku: externalSku } };
+    }) || [];
+    return surveyQuestionResponses;
+
+  }
+
+  async createCustomerSurveyHistory({
+    customerId,
+    surveyName,
     orderNumber,
-    currentMaxAnswerCount,
-  }: CheckIsNewSurveyAnswerArgs): Promise<
-    [CheckIsNewSurveyAnswerRes?, Error?]
-  > {
-    const count = await this.prisma.surveyQuestionAnswer.aggregate({
-      where: { orderNumber, answerCount: currentMaxAnswerCount },
-      _max: { answerCount: true },
-    });
-    return [{ isNewSurveyAnswer: count._max.answerCount !== currentMaxAnswerCount }];
+  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistory>{
+    const response = await this.prisma.customerSurveyHistory.create(
+      { data: { customer: { connect: { id: customerId } }, survey: { connect: { name: surveyName } }, orderNumber } });
+
+    return response;
   }
 
-  async getAnswerCount({ customerId }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]> {
-    const res = await this.prisma.surveyQuestionAnswer.aggregate({
-      where: { customerId },
-      _max: { answerCount: true },
+  async getCustomerSurveyOneProductResponses({ surveyHistoryId, productId }: GetCustomerSurveyOneProductResponsesArgs):
+   Promise<ProductSurveyQuestionResponse[]> {
+    const response = await this.prisma.intermediateProductSurveyQuestionResponse.findMany({
+      where: { surveyQuestionResponse: { customerSurveyHistoryId: surveyHistoryId }, productId },
+      include: { surveyQuestionResponse: true, product: true },
     });
-    const currentMaxAnswerCount = res?._max?.answerCount;
 
-    return [{ currentMaxAnswerCount }];
+    if(!response.length){
+      return [];
+    }
+    const surveyQuestionResponses:ProductSurveyQuestionResponse[] = response.map((val) => {
+
+      const { id, externalSku, label, name } = val.product;
+      return { ...val.surveyQuestionResponse, product: { id, label, name, sku: externalSku } };
+    });
+    return surveyQuestionResponses;
   }
 
-  // async getCustomerLatestSurvey({
-  //   customerId,
-  //   surveyName,
-  // }: GetCustomerLatestSurveyArgs): Promise<ReturnValueType<CustomerAnswer>> {
-  //   const getCustomerRes = await this.prisma.customerSurveyHistory.findMany({
-  //     where: { survey: { name: surveyName } },
-  //     orderBy: { createdAt: 'desc' }, take: 1,
-  //     include: {
-  //       survey: {
-  //         where: { orderNumber },
-  //         select: {
-  //           id: true,
-  //           customerId: true,
-  //           surveyQuestionId: true,
-  //           answerText: true,
-  //           answerNumeric: true,
-  //           answerBool: true,
-  //           // intermediateSurveyQuestionAnswerProduct:
-  //           // { select: { surveyQuestionOption: { select: { label: true, id: true, name: true } } } },
-  //           responseId: true,
-  //           reason: true,
-  //           title: true,
-  //           content: true,
-  //           answerCount: true,
-  //           productId: true,
-  //           orderNumber: true,
-  //           glucoseImpact: true,
-  //         },
-  //       },
-  //     },
-  //   });
-  //   const customerAnswers: Answer[] = [];
-  //   for (const customerAnswer of getCustomerRes.surveyQuestionAnswer) {
-  //     const answer: Answer = {
-  //       id: customerAnswer.id,
-  //       surveyQuestionId: customerAnswer.surveyQuestionId,
-  //       answer: {
-  //         text: customerAnswer.answerText,
-  //         numeric: customerAnswer.answerNumeric,
-  //         singleOptionId: customerAnswer.surveyQuestionId,
-  //         // multipleOptionIds:
-  //         //   customerAnswer.intermediateSurveyQuestionAnswerProduct.length > 0
-  //         //     ? customerAnswer.intermediateSurveyQuestionAnswerProduct.map(
-  //         //       (option) => {
-  //         //         return option.surveyQuestionOption.id;
-  //         //       },
-  //         //     )
-  //         //     : [],
-  //         bool: customerAnswer.answerBool,
-  //       },
-  //       responseId: customerAnswer.responseId,
-  //       reason: customerAnswer.reason,
-  //       title: customerAnswer.title,
-  //       content: customerAnswer.content,
-  //       answerCount: customerAnswer.answerCount,
-  //       productId: customerAnswer?.productId,
-  //       orderNumber: customerAnswer.orderNumber,
-  //       glucoseImpact: customerAnswer.glucoseImpact,
-  //     };
-  //     customerAnswers.push(answer);
-  //   }
+  async getCustomerSurveyHistoryByOrderNumber({
+    customerId,
+    surveyName,
+    orderNumber,
+  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>> {
+    const response = await this.prisma.customerSurveyHistory.findFirst({
+      where: { survey: { name: surveyName }, customerId, orderNumber },
+      orderBy: { createdAt: 'desc' }, take: 1,
+    });
 
-  //   return [
-  //     {
-  //       id: getCustomerRes.id,
-  //       email: getCustomerRes.email,
-  //       uuid: getCustomerRes.uuid,
-  //       customerAnswers,
-  //     },
-  //   ];
-  // }
+    if(!response){
+      return [undefined, { name: 'NoSurveyHistory', message: 'The customer has no responses on this survey' }];
+    }
+    return [response];
 
-  // async postCustomerResponseWithProduct({
-  //   customerId,
-  //   orderNumber,
-  //   surveyId,
-  //   responses,
-  // }: PostCustomerResponseWithProductsArgs): Promise<
-  //   ReturnValueType<PostPurchaseSurveyAnswer>
-  // > {
-  //   const response = await this.prisma.customerSurveyHistory.upsert(
-  //     {
-  //       where: { CustomerOrderSurveyHistoryIdentifier: { customerId, surveyId, orderNumber } },
-  //       create: { customerId, surveyId, orderNumber },
-  //       update: { customerId, surveyId, orderNumber },
-  //     });
+  }
 
-  // }
+  async upsertCustomerResponseWithProduct({
+    surveyQuestionResponseId,
+    productId,
+    customerResponse,
+    surveyHistoryId,
+    surveyQuestionId,
+  }: UpsertCustomerResponseWithProductsArgs): Promise<SurveyQuestionResponse> {
+    if(!surveyQuestionResponseId){
+      return await this.prisma.surveyQuestionResponse.create(
+        {
+          data:
+         {
+           response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull,
+           surveyQuestion: { connect: { id: surveyQuestionId } },
+           customerSurveyHistory: { connect: { id: surveyHistoryId } },
+           intermediateProductSurveyQuestionResponse: { create: { productId } },
+         },
+        });
+    }
+    return  await this.prisma.surveyQuestionResponse.update(
+      {
+        where: { id: surveyQuestionResponseId },
+        data: { response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull },
+      });
+
+  }
 }

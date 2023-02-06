@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 
 // import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
-import { PostPostPurchaseSurveyDto } from './dtos/postPostPurchaseSurvey';
 // import { GetPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 
@@ -34,7 +33,6 @@ import { GetFirstBoxDto } from './dtos/getFirstBox';
 import { GetFirstBoxRes, GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { Status } from '@Domains/Status';
-import { PostPurchaseSurveyAnswer } from '@Domains/PostPurchaseSurveyAnswer';
 // import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
 import { ProductOptions } from '@Domains/ProductOptions';
 import { CustomerBoxType } from '@Domains/CustomerBoxType';
@@ -155,20 +153,6 @@ export class DiscoveriesController {
       return response.status(500).send(error);
     }
     return response.status(200).send(usecaseResponse);
-  }
-
-  // POST: api/discovery/post-purchase-survey
-  @Post('post-purchase-survey')
-  async postPostPurchaseSurvey(
-    @Body() body: PostPostPurchaseSurveyDto,
-    @Res() response: Response<PostPurchaseSurveyAnswer | Error>,
-  ) {
-    const [usecaseResponse, error] =
-      await this.postPostPurchaseSurveyUsecase.postPostPurchaseSurvey(body);
-    if (error) {
-      return response.status(500).send(error);
-    }
-    return response.status(201).send(usecaseResponse);
   }
 
   // POST: api/discovery/delete-customer-box-webhook

@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 import { CustomerPrePurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
 // import { GetPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
 // import { QuestionPostPurchaseSurveyRepository } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
-import { CustomerPostPurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
+import { CustomerSurveyResponseRepository } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { PostPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
@@ -133,8 +133,8 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       useClass: CustomerPrePurchaseSurveyRepository,
     },
     {
-      provide: 'CustomerPostPurchaseSurveyRepositoryInterface',
-      useClass: CustomerPostPurchaseSurveyRepository,
+      provide: 'CustomerSurveyResponseRepositoryInterface',
+      useClass: CustomerSurveyResponseRepository,
     },
     {
       provide: 'CustomerGeneralRepositoryInterface',
