@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { GetPostPurchaseSurveyDto } from './dtos/getPostPurchaseSurvey.dto';
 import { PostPostPurchaseSurveyDto } from '../dtos/postPostPurchaseSurvey';
 import { PostPurchaseSurveyWithResponse } from '../../../domains/PostPurchaseSurvey';
+import { SurveyQuestionResponse } from '@prisma/client';
 
 // api/discovery
 @Controller('api/discovery')
@@ -48,7 +49,7 @@ export class PostPurchaseSurveyController {
   @Post('post-purchase-survey')
   async postPostPurchaseSurvey(
     @Body() body: PostPostPurchaseSurveyDto,
-    @Res() response: Response<any | Error>,
+    @Res() response: Response<SurveyQuestionResponse[] | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.postPostPurchaseSurveyUsecase.postPostPurchaseSurvey(body);

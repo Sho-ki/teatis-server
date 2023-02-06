@@ -94,10 +94,9 @@ implements GetPostPurchaseSurveyUsecaseInterface
 
       }
     });
-    customerOrder.orderNumber = '1111';
     // eslint-disable-next-line prefer-const
     let [customerSurveyHistory, noCustomerSurveyHistory] =
-      await this.customerSurveyResponseRepository.getCustomerLatestSurveyHistory({
+      await this.customerSurveyResponseRepository.getCustomerSurveyHistoryByOrderNumber({
         customerId: customer.id,
         surveyName: 'postPurchase',
         orderNumber: customerOrder.orderNumber,

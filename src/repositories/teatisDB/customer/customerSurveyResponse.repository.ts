@@ -7,7 +7,7 @@ import { ReturnValueType } from '../../../filter/customError';
 import { PrismaService } from '../../../prisma.service';
 import { SURVEY_NAME } from '../../../usecases/utils/surveyName';
 
-interface GetCustomerLatestSurveyHistoryArgs {
+interface GetCustomerSurveyHistoryByOrderNumberArgs {
   customerId: number;
   surveyName: SURVEY_NAME;
   orderNumber:string;
@@ -17,14 +17,6 @@ interface CreateCustomerSurveyHistoryArgs {
   customerId: number;
   surveyName: SURVEY_NAME;
   orderNumber?:string;
-}
-
-interface GetAnswerCountArgs {
-  customerId: number;
-}
-
-interface GetAnswerCountRes {
-  currentMaxAnswerCount: number;
 }
 
 interface GetCustomerSurveyOneProductResponsesArgs {
@@ -45,11 +37,11 @@ interface UpsertCustomerResponseWithProductsArgs{
 }
 
 export interface CustomerSurveyResponseRepositoryInterface {
-  getCustomerLatestSurveyHistory({
+  getCustomerSurveyHistoryByOrderNumber({
     customerId,
     surveyName,
     orderNumber,
-  }: GetCustomerLatestSurveyHistoryArgs): Promise<ReturnValueType<CustomerSurveyHistory>>;
+  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>>;
 
   createCustomerSurveyHistory({
     customerId,
@@ -67,8 +59,6 @@ export interface CustomerSurveyResponseRepositoryInterface {
     surveyHistoryId,
     surveyQuestionId,
   }: UpsertCustomerResponseWithProductsArgs): Promise<SurveyQuestionResponse>;
-
-  getAnswerCount({ customerId }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]>;
 
   getCustomerSurveyOneProductResponses(
     { surveyHistoryId, productId }: GetCustomerSurveyOneProductResponsesArgs):
@@ -92,12 +82,12 @@ implements CustomerSurveyResponseRepositoryInterface
         },
       });
 
-    const surveyQuestionResponses:ProductSurveyQuestionResponse[] = response?.map((val) => {
-      const matched = val.intermediateProductSurveyQuestionResponse.find((res) =>
-      { return res.surveyQuestionResponseId === val.id; });
+    const surveyQuestionResponses:ProductSurveyQuestionResponse[] = response?.map((res) => {
+      const matched = res.intermediateProductSurveyQuestionResponse.find((responseProductSet) =>
+      { return responseProductSet.surveyQuestionResponseId === res.id; });
 
       const { id, externalSku, label, name } = matched.product;
-      return { ...val, product: { id, label, name, sku: externalSku } };
+      return { ...res, product: { id, label, name, sku: externalSku } };
     }) || [];
     return surveyQuestionResponses;
 
@@ -132,21 +122,11 @@ implements CustomerSurveyResponseRepositoryInterface
     return surveyQuestionResponses;
   }
 
-  async getAnswerCount({ customerId }: GetAnswerCountArgs): Promise<[GetAnswerCountRes?, Error?]> {
-    const res = await this.prisma.surveyQuestionAnswer.aggregate({
-      where: { customerId },
-      _max: { answerCount: true },
-    });
-    const currentMaxAnswerCount = res?._max?.answerCount;
-
-    return [{ currentMaxAnswerCount }];
-  }
-
-  async getCustomerLatestSurveyHistory({
+  async getCustomerSurveyHistoryByOrderNumber({
     customerId,
     surveyName,
     orderNumber,
-  }: GetCustomerLatestSurveyHistoryArgs): Promise<ReturnValueType<CustomerSurveyHistory>> {
+  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>> {
     const response = await this.prisma.customerSurveyHistory.findFirst({
       where: { survey: { name: surveyName }, customerId, orderNumber },
       orderBy: { createdAt: 'desc' }, take: 1,
