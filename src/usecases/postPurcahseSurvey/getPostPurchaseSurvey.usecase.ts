@@ -94,19 +94,20 @@ implements GetPostPurchaseSurveyUsecaseInterface
 
       }
     });
-
+    customerOrder.orderNumber = '1111';
     // eslint-disable-next-line prefer-const
     let [customerSurveyHistory, noCustomerSurveyHistory] =
       await this.customerSurveyResponseRepository.getCustomerLatestSurveyHistory({
         customerId: customer.id,
         surveyName: 'postPurchase',
+        orderNumber: customerOrder.orderNumber,
       });
     if (noCustomerSurveyHistory) {
       customerSurveyHistory = await this.customerSurveyResponseRepository.createCustomerSurveyHistory({ customerId: customer.id, surveyName: 'postPurchase', orderNumber: customerOrder.orderNumber });
     }
 
     const customerResponses =
-    await this.customerSurveyResponseRepository.getCustomerProductSurveyResponse(
+    await this.customerSurveyResponseRepository.getCustomerSurveyAllProductsResponses(
       { surveyHistoryId: customerSurveyHistory.id });
 
     for(const questions of filledSurveyQuestions){

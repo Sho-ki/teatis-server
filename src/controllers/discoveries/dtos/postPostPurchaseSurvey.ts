@@ -1,50 +1,19 @@
 // import { ProductHasGlucoseImpact } from '@Domains/PostPurchaseSurvey';
 import {
+  IsArray,
   IsNumber,
-  IsObject,
   IsOptional,
-  IsString,
 } from 'class-validator';
 
 export class PostPostPurchaseSurveyDto {
   @IsNumber()
-    id: number;
-
-  @IsNumber()
-    customerId: number;
-
-  @IsString()
-    orderNumber: string;
-
-  @IsString()
-    responseId: string;
-
-  @IsObject()
-    answer: {
-    text?: string;
-    numeric?: number;
-    singleOption?: { id: number, label: string, name: string };
-    multipleOptions?: { id: number, label: string, name: string }[];
-    bool?: boolean;
-  };
+    historyId: number;
 
   @IsOptional()
-  @IsString()
-    title?: string;
-
-  @IsOptional()
-  @IsString()
-    content?: string;
-
-  @IsOptional()
-  @IsNumber()
-    productId?: number;
-
-  @IsOptional()
-  @IsString()
-    reason?: string;
-
-  // @IsOptional()
-  // @IsNumber()
-  //   glucoseImpact?: ProductHasGlucoseImpact;
+  @IsArray()
+    customerResponses?:{
+      surveyQuestionId:number;
+      response:unknown;
+      productId:number;
+  }[];
 }
