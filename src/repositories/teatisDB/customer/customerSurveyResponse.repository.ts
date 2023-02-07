@@ -1,22 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { CustomerSurveyHistory, Prisma, SurveyQuestionResponse  } from '@prisma/client';
+import {  Prisma, SurveyQuestionResponse  } from '@prisma/client';
 import { ProductSurveyQuestionResponse } from '@Domains/ProductSurveyQuestionResponse';
 
 import { PrismaService } from '../../../prisma.service';
 
 interface UpsertCustomerResponseArgs {
-  surveyId: number;
-  customerId: number;
-  customerResponses: TTemp[];
+  surveyHistoryId:number;
+  surveyQuestionId: number;
+  customerResponse: unknown;
+  surveyQuestionResponseId?:number;
 }
 
-type TTemp = {
-    surveyQuestionId: number;
-    responseIds: number[];
-};
-
 interface UpsertCustomerResponseWithProductsArgs{
- surveyQuestionResponseId:number;
+ surveyQuestionResponseId?:number;
  surveyQuestionId:number;
  productId:number;
  customerResponse: unknown;
@@ -34,12 +30,11 @@ interface GetCustomerProductSurveyResponseArgs {
 
 export interface CustomerSurveyResponseRepositoryInterface {
   upsertCustomerResponse({
-    surveyId,
-    customerId,
-    customerResponses,
-  }: UpsertCustomerResponseArgs): Promise<[CustomerSurveyHistory & {
-    surveyQuestionResponse: SurveyQuestionResponse[];
-}, Error?]>;
+    surveyHistoryId,
+    surveyQuestionId,
+    customerResponse,
+    surveyQuestionResponseId,
+  }: UpsertCustomerResponseArgs): Promise<SurveyQuestionResponse>;
 
   upsertCustomerResponseWithProduct({
     surveyQuestionResponseId,
@@ -63,33 +58,28 @@ implements CustomerSurveyResponseRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
   async upsertCustomerResponse({
-    surveyId,
-    customerId,
-    customerResponses,
-  }: UpsertCustomerResponseArgs): Promise<[CustomerSurveyHistory & {
-    surveyQuestionResponse: SurveyQuestionResponse[];
-}, Error?]> {
-    const create = customerResponses.map(surveyResponse => {
-      return {
-        surveyQuestionId: surveyResponse.surveyQuestionId,
-        response: surveyResponse.responseIds as Prisma.JsonArray,
-      };
-    });
-    const res = await this.prisma.customerSurveyHistory.upsert(
+    surveyHistoryId,
+    surveyQuestionId,
+    customerResponse,
+    surveyQuestionResponseId,
+  }: UpsertCustomerResponseArgs): Promise<SurveyQuestionResponse> {
+
+    if(!surveyQuestionResponseId){
+      return await this.prisma.surveyQuestionResponse.create(
+        {
+          data:
+         {
+           response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull,
+           surveyQuestion: { connect: { id: surveyQuestionId } },
+           customerSurveyHistory: { connect: { id: surveyHistoryId } },
+         },
+        });
+    }
+    return await this.prisma.surveyQuestionResponse.update(
       {
-        where: { CustomerOrderSurveyHistoryIdentifier: { surveyId, customerId, orderNumber: undefined } },
-        create: {
-          surveyId, customerId,
-          surveyQuestionResponse: { create },
-        },
-        update: {
-          surveyId, customerId,
-          surveyQuestionResponse: { create },
-        },
-        include: { surveyQuestionResponse: true },
-      }
-    );
-    return [res, null];
+        where: { id: surveyQuestionResponseId },
+        data: { response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull },
+      });
   }
 
   async upsertCustomerResponseWithProduct({

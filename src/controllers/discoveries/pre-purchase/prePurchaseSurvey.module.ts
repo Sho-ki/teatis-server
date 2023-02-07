@@ -7,10 +7,15 @@ import { CustomerGeneralRepository } from '@Repositories/teatisDB/customer/custo
 import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
 import { SurveyQuestionsRepository } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
 import { CustomerSurveyResponseRepository } from '../../../repositories/teatisDB/customer/customerSurveyResponse.repository';
+import { CustomerSurveyHistoryRepository } from '../../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 
 @Module({
   controllers: [PrePurchaseSurveyController],
   providers: [
+    {
+      provide: 'CustomerSurveyHistoryRepositoryInterface',
+      useClass: CustomerSurveyHistoryRepository,
+    },
     {
       provide: 'CustomerSurveyResponseRepositoryInterface',
       useClass: CustomerSurveyResponseRepository,

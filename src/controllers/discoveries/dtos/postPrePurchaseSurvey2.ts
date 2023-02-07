@@ -1,9 +1,6 @@
-import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class PostPrePurchaseSurvey2Dto {
-  @IsNumber()
-    surveyId: number;
-
   @IsString()
     customerUuid: string;
 

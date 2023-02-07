@@ -100,7 +100,7 @@ implements GetPostPurchaseSurveyUsecaseInterface
     });
     // eslint-disable-next-line prefer-const
     let [customerSurveyHistory, noCustomerSurveyHistory] =
-      await this.customerSurveyHistoryRepository.getCustomerSurveyHistoryByOrderNumber({
+      await this.customerSurveyHistoryRepository.getCustomerSurveyHistory({
         customerId: customer.id,
         surveyName: SurveyName.PostPurchase,
         orderNumber: customerOrder.orderNumber,

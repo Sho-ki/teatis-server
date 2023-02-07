@@ -21,8 +21,8 @@ export class PrePurchaseSurveyController {
     @Inject('GetPrePurchaseSurveyUsecaseInterface')
     private getPrePurchaseSurveyUsecase: GetPrePurchaseSurveyUsecase,
   ) {}
-  // Get: api/discovery/pre-purchase
-  @Get('pre-purchase')
+  // Get: api/discovery/pre-purchase-survey
+  @Get('pre-purchase-survey')
   async getPrePurchaseSurveyQuestions(@Res() response: Response<ActiveSurvey | Error>) {
     const [usecaseResponse, error] =
       await this.getPrePurchaseSurveyUsecase.getPrePurchaseSurveyQuestions();
@@ -31,8 +31,8 @@ export class PrePurchaseSurveyController {
     }
     return response.status(200).send(usecaseResponse);
   }
-  // Post: api/discovery/pre-purchase
-  @Post('pre-purchase')
+  // Post: api/discovery/pre-purchase-survey/non-setting
+  @Post('pre-purchase-survey/non-setting')
   async postPrePurchaseSurveyQuestions(
     @Body() body: PostPrePurchaseSurvey2Dto,
     @Res() response: Response<unknown | Error>,

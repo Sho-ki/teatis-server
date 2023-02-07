@@ -1,16 +1,16 @@
 
 import { Injectable } from '@nestjs/common';
-import { CustomerSurveyHistory } from '@prisma/client';
+import { CustomerSurveyHistoryAndResponses } from '../../../domains/CustomerSurveyHistoryAndResponses';
 
 import { ReturnValueType } from '../../../filter/customError';
 
 import { PrismaService } from '../../../prisma.service';
 import { SurveyName } from '../../../usecases/utils/surveyName';
 
-interface GetCustomerSurveyHistoryByOrderNumberArgs {
+interface GetCustomerSurveyHistoryArgs {
   customerId: number;
   surveyName: SurveyName;
-  orderNumber:string;
+  orderNumber?:string;
 }
 
 interface CreateCustomerSurveyHistoryArgs {
@@ -20,17 +20,17 @@ interface CreateCustomerSurveyHistoryArgs {
 }
 
 export interface CustomerSurveyHistoryRepositoryInterface {
-  getCustomerSurveyHistoryByOrderNumber({
+  getCustomerSurveyHistory({
     customerId,
     surveyName,
     orderNumber,
-  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>>;
+  }: GetCustomerSurveyHistoryArgs): Promise<ReturnValueType<CustomerSurveyHistoryAndResponses>>;
 
   createCustomerSurveyHistory({
     customerId,
     surveyName,
     orderNumber,
-  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistory>;
+  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistoryAndResponses>;
 
 }
 
@@ -44,21 +44,28 @@ implements CustomerSurveyHistoryRepositoryInterface
     customerId,
     surveyName,
     orderNumber,
-  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistory>{
+  }: CreateCustomerSurveyHistoryArgs): Promise<CustomerSurveyHistoryAndResponses>{
     const response = await this.prisma.customerSurveyHistory.create(
-      { data: { customer: { connect: { id: customerId } }, survey: { connect: { name: surveyName } }, orderNumber } });
+      {
+        data: {
+          customer: { connect: { id: customerId } },
+          survey: { connect: { name: surveyName } }, orderNumber,
+        },
+        include: { surveyQuestionResponse: true },
+      },);
 
     return response;
   }
 
-  async getCustomerSurveyHistoryByOrderNumber({
+  async getCustomerSurveyHistory({
     customerId,
     surveyName,
-    orderNumber,
-  }: GetCustomerSurveyHistoryByOrderNumberArgs): Promise<ReturnValueType<CustomerSurveyHistory>> {
+    orderNumber = undefined,
+  }: GetCustomerSurveyHistoryArgs): Promise<ReturnValueType<CustomerSurveyHistoryAndResponses>> {
     const response = await this.prisma.customerSurveyHistory.findFirst({
       where: { survey: { name: surveyName }, customerId, orderNumber },
       orderBy: { createdAt: 'desc' }, take: 1,
+      include: { surveyQuestionResponse: true },
     });
 
     if(!response){
