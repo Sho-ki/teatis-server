@@ -26,7 +26,14 @@ implements SurveyQuestionsRepositoryInterface
         intermediateSurveyQuestions: {
           where: { isArchived: false },
           orderBy: { displayOrder: 'asc' },
-          include: { surveyQuestion: { include: { surveyQuestionOptions: { where: { isArchived: false } } } } },
+          include: {
+            surveyQuestion: {
+              include: {
+                surveyQuestionOptions: { where: { isArchived: false } },
+                image: true,
+              },
+            },
+          },
         },
       },
     });
@@ -41,7 +48,10 @@ implements SurveyQuestionsRepositoryInterface
     const allQuestions: ParentSurveyQuestion[]= [];
 
     const questions = response.intermediateSurveyQuestions;
+
     for (const question of questions) {
+      const images = question.surveyQuestion.image;
+      delete question.surveyQuestion.image;
       if(question.surveyQuestion.responseType === 'multiple' || question.surveyQuestion.responseType === 'single'){
         const options = question.surveyQuestion.surveyQuestionOptions;
         delete question.surveyQuestion.surveyQuestionOptions;
@@ -49,12 +59,17 @@ implements SurveyQuestionsRepositoryInterface
           ...question.surveyQuestion,
           customerResponse: null,
           options,
+          images,
         };
         allQuestions.push(surveyQuestion);
       }else{
         delete question.surveyQuestion.surveyQuestionOptions;
         const surveyQuestion: ParentSurveyQuestionWithoutOption =
-         { ...question.surveyQuestion, options: undefined, customerResponse: null };
+         {
+           ...question.surveyQuestion,
+           options: undefined, customerResponse: null,
+           images,
+         };
 
         allQuestions.push(surveyQuestion);
       }
