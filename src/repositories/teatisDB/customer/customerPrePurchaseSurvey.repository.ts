@@ -15,7 +15,6 @@ interface UpsertCustomerArgs {
   A1c: string;
   mealsPerDay: number;
   categoryPreferences: { name: string, label?: string }[];
-  coachingPreferences: { name: string, label?: string }[];
   flavorDislikes: { name: string, label?: string }[];
   ingredientDislikes: { name: string, label?: string }[];
   allergens: { name: string, label?: string }[];
@@ -44,7 +43,6 @@ export interface CustomerPrePurchaseSurveyRepositoryInterface {
     A1c,
     mealsPerDay,
     categoryPreferences,
-    coachingPreferences,
     flavorDislikes,
     ingredientDislikes,
     allergens,
@@ -79,7 +77,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
     A1c,
     mealsPerDay,
     categoryPreferences,
-    coachingPreferences,
     flavorDislikes,
     ingredientDislikes,
     allergens,
@@ -118,7 +115,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
     if (checkIfExists) {
       await Promise.all([
         this.prisma.intermediateCustomerCategoryPreference.deleteMany({ where: { customerId: checkIfExists.id } }),
-        this.prisma.intermediateCustomerCoachingPreference.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerIngredientDislike.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerAllergen.deleteMany({ where: { customerId: checkIfExists.id } }),
         this.prisma.intermediateCustomerFlavorDislike.deleteMany({ where: { customerId: checkIfExists.id } }),
@@ -151,14 +147,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
                 }),
               }
               : {},
-        intermediateCustomerCoachingPreferences:
-        coachingPreferences.length > 0
-          ? {
-            create: coachingPreferences.map((coachingPreference) => {
-              return { coachingPreference: { connect: { name: coachingPreference.name } } };
-            }),
-          }
-          : {},
         intermediateCustomerIngredientDislikes:
             ingredientDislikes.length > 0
               ? {
@@ -244,14 +232,6 @@ implements CustomerPrePurchaseSurveyRepositoryInterface
               ? {
                 create: categoryPreferences.map((categoryPreference) => {
                   return { productCategory: { connect: { name: categoryPreference.name } } };
-                }),
-              }
-              : {},
-        intermediateCustomerCoachingPreferences:
-            coachingPreferences.length > 0
-              ? {
-                create: coachingPreferences.map((coachingPreference) => {
-                  return { coachingPreference: { connect: { name: coachingPreference.name } } };
                 }),
               }
               : {},

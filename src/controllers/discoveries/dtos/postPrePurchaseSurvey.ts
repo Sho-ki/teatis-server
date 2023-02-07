@@ -43,10 +43,6 @@ export class PostPrePurchaseSurveyDto {
 
   @IsArray()
   @IsOptional()
-    coachingPreferences?: { name: string, label?: string }[];
-
-  @IsArray()
-  @IsOptional()
     flavorDislikes?: { name: string, label?: string }[];
 
   @IsArray()
