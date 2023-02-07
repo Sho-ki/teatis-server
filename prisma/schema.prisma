@@ -645,6 +645,7 @@ model SurveyQuestion {
   name                        String  @unique
   label                       String
   isRequired              Boolean @default(false)
+  isCustomerFeature Boolean @default(false)
   hint                 String?
   placeholder                 String?
   responseType  ResponseType @default(number)
