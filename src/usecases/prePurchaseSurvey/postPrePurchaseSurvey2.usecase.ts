@@ -38,12 +38,11 @@ implements PostPrePurchaseSurveyUsecase2Interface
 
     const { id } = customer;
 
-    // eslint-disable-next-line prefer-const
-    let [customerSurveyHistory, noCustomerSurveyHistory] =
+    let [customerSurveyHistory] =
     await this.customerSurveyHistoryRepository.getCustomerSurveyHistory(
       { customerId: id, surveyName: SurveyName.PrePurchase });
 
-    if (noCustomerSurveyHistory) {
+    if (!customerSurveyHistory) {
       customerSurveyHistory = await this.customerSurveyHistoryRepository.createCustomerSurveyHistory(
         { customerId: customer.id, surveyName: SurveyName.PrePurchase  });
     }

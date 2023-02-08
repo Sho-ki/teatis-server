@@ -67,12 +67,7 @@ implements CustomerSurveyHistoryRepositoryInterface
       orderBy: { createdAt: 'desc' }, take: 1,
       include: { surveyQuestionResponse: true },
     });
-
-    if(!response){
-      return [undefined, { name: 'NoSurveyHistory', message: 'The customer has no responses on this survey' }];
-    }
     return [response];
-
   }
 
 }

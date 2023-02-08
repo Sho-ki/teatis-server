@@ -12,7 +12,7 @@ export interface ParentSurveyQuestionWithOption extends SurveyQuestion {
   images: SurveyQuestionImage[];
   options: SurveyQuestionOption[] | ProductFeature[];
   product?: DisplayProduct;
-  customerResponse? : unknown | null;
+  customerResponse? : number[] | number | string | null;
   children?: ChildSurveyQuestion[];
 }
 
@@ -20,18 +20,18 @@ export interface ParentSurveyQuestionWithoutOption extends SurveyQuestion {
   images: SurveyQuestionImage[];
   options: undefined;
   product?: DisplayProduct;
-  customerResponse? : unknown | null;
+  customerResponse? :  number[] | number | string | null;
   children?: ChildSurveyQuestion[];
 }
 
 export interface ChildSurveyQuestionWithOption extends Omit<SurveyQuestion, 'product'> {
   images: SurveyQuestionImage[];
   options: SurveyQuestionOption[] | ProductFeature[];
-  customerResponse? : unknown | null;
+  customerResponse? :  number[] | number | string | null;
 }
 
 export interface ChildSurveyQuestionWithoutOption extends Omit<SurveyQuestion, 'product'> {
   images: SurveyQuestionImage[];
   options: undefined;
-  customerResponse? : unknown | null;
+  customerResponse? :  number[] | number | string | null;
 }

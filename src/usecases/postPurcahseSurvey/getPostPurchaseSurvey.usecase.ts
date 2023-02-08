@@ -98,14 +98,13 @@ implements GetPostPurchaseSurveyUsecaseInterface
 
       }
     });
-    // eslint-disable-next-line prefer-const
-    let [customerSurveyHistory, noCustomerSurveyHistory] =
+    let [customerSurveyHistory] =
       await this.customerSurveyHistoryRepository.getCustomerSurveyHistory({
         customerId: customer.id,
         surveyName: SurveyName.PostPurchase,
         orderNumber: customerOrder.orderNumber,
       });
-    if (noCustomerSurveyHistory) {
+    if (!customerSurveyHistory) {
       customerSurveyHistory = await this.customerSurveyHistoryRepository.createCustomerSurveyHistory(
         { customerId: customer.id, surveyName: SurveyName.PostPurchase, orderNumber: customerOrder.orderNumber });
     }
@@ -119,14 +118,14 @@ implements GetPostPurchaseSurveyUsecaseInterface
         const hasResponse = questions.id ===customerResponse.surveyQuestionId
               && questions.product.id === customerResponse.product.id;
         if(hasResponse){
-          questions.customerResponse = customerResponse.response;
+          questions.customerResponse = customerResponse.response as string | number | number[];
         }
 
         for(const childQuestion of questions.children){
           const hasResponse = childQuestion.id === customerResponse.surveyQuestionId
               && questions.product.id === customerResponse.product.id;
           if(hasResponse){
-            childQuestion.customerResponse = customerResponse.response;
+            childQuestion.customerResponse = customerResponse.response as string | number | number[];
           }
         }
       }
