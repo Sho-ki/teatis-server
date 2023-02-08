@@ -321,6 +321,7 @@ const upsertSurvey = async() => {
         name: questionName, label: questionLabel, responseType, isCustomerFeature, images, isRequired,
         displayOrder, options, placeholder, hint, children,
       } = question;
+
       const findQuestion = await prisma.surveyQuestion.findUnique({ where: { name: questionName } });
       if(!findQuestion){
         const questionResponse = await prisma.surveyQuestion.create({
@@ -341,12 +342,13 @@ const upsertSurvey = async() => {
         });
 
         if(children){
+          let i = 1;
           for(const child of children){
             const {
               name: childQuestionName, label: childQuestionLabel, responseType, isCustomerFeature, images, isRequired,
               options, placeholder, hint,
             } = child;
-            await prisma.surveyQuestion.create({
+            const childResponse = await prisma.surveyQuestion.create({
               data: {
                 name: childQuestionName,
                 label: childQuestionLabel,
@@ -363,6 +365,15 @@ const upsertSurvey = async() => {
                 }:{},
               },
             });
+
+            await prisma.intermediateSurveyQuestion.create({
+              data: {
+                surveyId: surveyResponse.id,
+                surveyQuestionId: childResponse.id,
+                displayOrder: i,
+              },
+            });
+            i++;
           }
         }
         await prisma.intermediateSurveyQuestion.create({

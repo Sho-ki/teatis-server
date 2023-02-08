@@ -7,6 +7,33 @@ import { ActiveSurvey } from '../../domains/Survey';
 import { ProductFeature } from '../../domains/Product';
 import { ProductGeneralRepositoryInterface } from '../../repositories/teatisDB/product/productGeneral.repository';
 
+const TOP_DISLIKE_INGREDIENTS = [
+  'Apple',
+  'Banana',
+  'Bean',
+  'Beef',
+  'Berry',
+  'Chicken',
+  'Beef',
+  'Butter',
+  'Carrot',
+  'Honey',
+  'Kale',
+  'Peach',
+  'Potatoe',
+  'Pumpkin',
+  'Rhubarb',
+  'Flour',
+  'Rosemary',
+  'Pepper',
+  'Rice',
+  'Soluble Corn Fiber',
+  'Sugar',
+  'Cherry',
+  'Pecans',
+  'Mushroom',
+];
+
 export interface GetPrePurchaseSurveyUsecaseInterface {
   getPrePurchaseSurveyQuestions(): Promise<ReturnValueType<ActiveSurvey>>;
 }
@@ -49,11 +76,14 @@ implements GetPrePurchaseSurveyUsecaseInterface
 
     for(const question of getSurveyQuestions.surveyQuestions){
       switch(question.name){
-        case 'dislikeFlavors':
+        case 'flavorDislikes':
           question.options = flavors;
           break;
-        case 'dislikeIngredients':
-          question.options = ingredients;
+        case 'ingredientDislikes':
+          question.options = ingredients.filter(ingredient => TOP_DISLIKE_INGREDIENTS.includes(ingredient.label));
+          break;
+        case 'ingredientDislikesOthers':
+          question.options = ingredients.filter(ingredient => !TOP_DISLIKE_INGREDIENTS.includes(ingredient.label));
           break;
         case 'allergens':
           question.options = allergens;
@@ -65,3 +95,4 @@ implements GetPrePurchaseSurveyUsecaseInterface
     return [getSurveyQuestions];
   }
 }
+
