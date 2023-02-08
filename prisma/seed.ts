@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import * as coachingPreferences from '../defaultData/coachingPreferences.json';
+import { seedSurvey } from '../defaultData/survey';
 // import * as fs from 'fs';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  await upsertSurvey(); // currently only create
+
   // const customerNutritionItems = [
   //   {
   //     name: 'BMR',
@@ -299,19 +301,81 @@ async function main() {
   //     update: { name: medicalCondition.name, label: medicalCondition.label },
   //   });
   // }
-  await prisma.coachingPreference.deleteMany({});
-  // Insert data into the CoachingPreference table
-  for (const coachingPreference of coachingPreferences) {
-    await prisma.coachingPreference.upsert({
-      where: { name: coachingPreference.name },
-      create: {
-        name: coachingPreference.name,
-        label: coachingPreference.label,
-      },
-      update: { label: coachingPreference.label },
-    });
-  }
+
 }
+
+const upsertSurvey = async() => {
+  for(const survey of seedSurvey){
+    const { name, label, questions } = survey;
+    const surveyResponse = await prisma.survey.upsert({
+      where: { name: survey.name },
+      create: {
+        name,
+        label,
+      },
+      update: { label },
+    });
+
+    for(const question of questions){
+      const {
+        name: questionName, label: questionLabel, responseType, isCustomerFeature, images, isRequired,
+        displayOrder, options, placeholder, hint, children,
+      } = question;
+      const findQuestion = await prisma.surveyQuestion.findUnique({ where: { name: questionName } });
+      if(!findQuestion){
+        const questionResponse = await prisma.surveyQuestion.create({
+          data: {
+            name: questionName,
+            label: questionLabel,
+            responseType, isCustomerFeature, isRequired,
+            placeholder, hint,
+            image: images && images.length?{
+              createMany:
+               { data: images?.map(({ position, src }) => { return { position, src }; } ) },
+            }:{},
+            surveyQuestionOptions: options && options.length? {
+              createMany:
+               { data: options?.map(({ label, value }) => { return { label, value }; } ) },
+            }:{},
+          },
+        });
+
+        if(children){
+          for(const child of children){
+            const {
+              name: childQuestionName, label: childQuestionLabel, responseType, isCustomerFeature, images, isRequired,
+              options, placeholder, hint,
+            } = child;
+            await prisma.surveyQuestion.create({
+              data: {
+                name: childQuestionName,
+                label: childQuestionLabel,
+                responseType, isCustomerFeature, isRequired,
+                placeholder, hint,
+                parentSurveyQuestionId: questionResponse.id,
+                image: images && images.length?{
+                  createMany:
+               { data: images?.map(({ position, src }) => { return { position, src }; } ) },
+                }:{},
+                surveyQuestionOptions: options && options.length?{
+                  createMany:
+               { data: options?.map(({ label, value }) => { return { label, value }; } ) },
+                }:{},
+              },
+            });
+          }
+        }
+        await prisma.intermediateSurveyQuestion.create({
+          data: {
+            surveyId: surveyResponse.id,
+            surveyQuestionId: questionResponse.id,
+            displayOrder,
+          },
+        });
+      }
+    }
+  }
+};
 
 main()
   .catch((e) => {
