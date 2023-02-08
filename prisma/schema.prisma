@@ -671,7 +671,7 @@ enum ResponseType {
 
 model SurveyQuestionImage {
   id               Int      @id @default(autoincrement())
-  src              String @unique
+  src              String
   position         Int?
   surveyQuestionId Int
   createdAt        DateTime @default(now())
