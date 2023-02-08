@@ -1,4 +1,4 @@
 export enum SurveyName {
-    PostPurchase = 'postPurchase',
-    PrePurchase = 'prePurchase'
+    PostPurchase = 'postPurchaseSurvey',
+    PrePurchase = 'prePurchaseSurvey'
 }
