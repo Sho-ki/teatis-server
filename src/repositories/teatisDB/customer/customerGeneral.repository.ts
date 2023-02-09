@@ -6,10 +6,20 @@ import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
+import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 
 export interface GetCustomerArgs {
+  email: string;
+}
+
+interface UpsertCustomerArgs {
+  uuid: string;
+  gender: GenderIdentify;
+  flavorDislikeIds: number[];
+  ingredientDislikeIds: number[];
+  allergenIds: number[];
   email: string;
 }
 
@@ -86,6 +96,15 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
 
   activateCustomerSubscription({ uuid, eventDate, type }:
      activateCustomerSubscriptionArgs): Promise<Customer>;
+
+  upsertCustomer({
+    uuid,
+    gender,
+    flavorDislikeIds,
+    ingredientDislikeIds,
+    allergenIds,
+    email,
+  }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>>;
 }
 
 @Injectable()
@@ -387,13 +406,8 @@ implements CustomerGeneralRepositoryInterface
   async getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({ where: { email } });
     if (!response) {
-      return [{ id: undefined, email: undefined, uuid: undefined }];
+      return [response];
     }
-
-    if (!response?.email || !response?.id || !response?.uuid) {
-      return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
-    }
-
     return [
       {
         id: response.id, email: response.email, uuid: response.uuid,
@@ -402,5 +416,140 @@ implements CustomerGeneralRepositoryInterface
         lastName: response.lastName,
       },
     ];
+  }
+
+  async upsertCustomer({
+    uuid,
+    gender,
+    flavorDislikeIds,
+    ingredientDislikeIds,
+    allergenIds,
+    email,
+  }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>> {
+    const existingCustomer = await this.prisma.customers.findUnique({ where: { email } });
+
+    if (existingCustomer) {
+      const [existingIngredients, existingAllergens, existingFlavors]=
+      await Promise.all(
+        [
+          this.prisma.intermediateCustomerIngredientDislike.findMany(
+            { where: { customerId: existingCustomer.id } }),
+          this.prisma.intermediateCustomerAllergen.findMany(
+            { where: { customerId: existingCustomer.id } }),
+          this.prisma.intermediateCustomerFlavorDislike.findMany(
+            { where: { customerId: existingCustomer.id } }),
+        ]);
+
+      const [ingredientsAdd, ingredientsDelete] =
+      calculateAddedAndDeletedIds(existingIngredients.map(val => val.productIngredientId), ingredientDislikeIds);
+      const [allergensAdd, allergensDelete] =
+      calculateAddedAndDeletedIds(existingAllergens.map(val => val.productAllergenId), allergenIds);
+      const [flavorsAdd, flavorsDelete] =
+      calculateAddedAndDeletedIds(existingFlavors.map(val => val.productFlavorId), flavorDislikeIds);
+
+      await Promise.all(
+        [
+          this.prisma.intermediateCustomerIngredientDislike.deleteMany(
+            { where: { customerId: existingCustomer.id, productIngredientId: { in: ingredientsDelete } } }),
+          this.prisma.intermediateCustomerAllergen.deleteMany(
+            { where: { customerId: existingCustomer.id, productAllergenId: { in: allergensDelete } } }),
+          this.prisma.intermediateCustomerFlavorDislike.deleteMany(
+            { where: { customerId: existingCustomer.id, productFlavorId: { in: flavorsDelete } } }),
+        ]);
+
+      ingredientDislikeIds = ingredientsAdd;
+      allergenIds = allergensAdd;
+      flavorDislikeIds = flavorsAdd;
+    }
+
+    const customer = await this.prisma.customers.upsert({
+      where: { email },
+      create: {
+        uuid,
+        email,
+        genderIdentify: gender,
+        intermediateCustomerIngredientDislikes:
+            ingredientDislikeIds.length
+              ? {
+                createMany: {
+                  data:
+                ingredientDislikeIds.map((id) => {
+                  return { productIngredientId: id };
+                }),
+                  skipDuplicates: true,
+                },
+              }
+              : {},
+
+        intermediateCustomerAllergens:
+            allergenIds.length
+              ? {
+                createMany: {
+                  data:
+                allergenIds.map((id) => {
+                  return { productAllergenId: id };
+                }),
+                  skipDuplicates: true,
+                },
+              }
+              : {},
+        intermediateCustomerFlavorDislikes:
+            flavorDislikeIds.length
+              ? {
+                createMany: {
+                  data:
+                flavorDislikeIds.map((id) => {
+                  return { productFlavorId: id };
+                }),
+                  skipDuplicates: true,
+                },
+              }
+              : {},
+
+      },
+      update: {
+        email,
+        genderIdentify: gender,
+        intermediateCustomerIngredientDislikes:
+            ingredientDislikeIds.length
+              ? {
+                createMany: {
+                  data:
+                ingredientDislikeIds.map((id) => {
+                  return { productIngredientId: id };
+                }),
+                  skipDuplicates: true,
+                },
+              }
+              : {},
+
+        intermediateCustomerAllergens:
+            allergenIds.length
+              ? {
+                createMany: {
+                  data:
+                allergenIds.map((id) => {
+                  return { productAllergenId: id };
+                }),
+                  skipDuplicates: true,
+                },
+              }
+              : {},
+        intermediateCustomerFlavorDislikes:
+            flavorDislikeIds.length
+              ? {
+                createMany: {
+                  data:
+                flavorDislikeIds.map((id) => {
+                  return { productFlavorId: id };
+                }),
+                  skipDuplicates: true,
+                },
+              }
+              : {},
+
+      },
+    });
+    return [{ id: customer.id, uuid: customer.uuid, email }];
   }
 }

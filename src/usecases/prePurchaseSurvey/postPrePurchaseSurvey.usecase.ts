@@ -1,30 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
-import { CreateCustomerUsecaseInterface } from '../utils/createCustomer';
-import { Customer } from '@Domains/Customer';
-import { BoxType } from '@Domains/BoxType';
 import { CustomerBoxType } from '../../domains/CustomerBoxType';
 import { ReturnValueType } from '@Filters/customError';
+import { v4 as uuidv4 } from 'uuid';
+import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
+import { SurveyQuestionsRepositoryInterface } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
+import { GenderIdentify } from '@prisma/client';
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
-    diabetes,
     gender,
-    height, // in cm
-    weight, // in kg
-    age,
-    medicalConditions,
-    activeLevel,
-    A1c,
-    mealsPerDay,
-    categoryPreferences,
-    flavorDislikes,
-    ingredientDislikes,
-    allergens,
+    flavorDislikeIds,
+    ingredientDislikeIds,
+    allergenIds,
     email,
-    unavailableCookingMethods,
-    boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
     ReturnValueType<CustomerBoxType>
   >;
@@ -35,77 +25,63 @@ export class PostPrePurchaseSurveyUsecase
 implements PostPrePurchaseSurveyUsecaseInterface
 {
   constructor(
-    @Inject('CreateCustomerUsecaseInterface')
-    private readonly createCustomerUsecaseUtil: CreateCustomerUsecaseInterface,
+    @Inject('CustomerGeneralRepositoryInterface')
+    private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
+    @Inject('SurveyQuestionsRepositoryInterface')
+    private readonly surveyQuestionsRepository: SurveyQuestionsRepositoryInterface,
+
   ) {}
 
-  private getCustomerBoxType(medicalConditions: string[]): BoxType {
-    if (medicalConditions.length <= 0) {
-      const type: BoxType = 'HC';
-      return type; // Healthy Carb
-    }
-
-    if (medicalConditions.includes('highBloodPressure')) {
-      const type: BoxType = 'HCLS';
-      return type; // Healthy Carb & Low Sodium
-    }
-    return 'HC';
-  }
   async postPrePurchaseSurvey({
-    diabetes,
     gender,
-    height,
-    weight,
-    age,
-    activeLevel,
-    A1c,
-    mealsPerDay,
-    medicalConditions,
-    categoryPreferences,
-    flavorDislikes,
-    ingredientDislikes,
-    allergens,
+    flavorDislikeIds,
+    ingredientDislikeIds,
+    allergenIds,
     email,
-    unavailableCookingMethods,
-    boxPlan,
   }: PostPrePurchaseSurveyDto): Promise<
     ReturnValueType<CustomerBoxType>
   > {
-    const recommendBoxType: BoxType = medicalConditions
-      ? this.getCustomerBoxType(
-        medicalConditions.map((condition) => {
-          return condition.name;
-        }),
-      )
-      : 'HC';
 
-    const [customer, createCustomerError]: ReturnValueType<Customer> =
-      await this.createCustomerUsecaseUtil.createCustomer({
-        diabetes,
-        gender,
-        height,
-        weight,
-        age,
-        activeLevel,
-        A1c,
-        mealsPerDay,
-        medicalConditions,
-        categoryPreferences,
-        flavorDislikes,
-        ingredientDislikes,
-        allergens,
-        email,
-        unavailableCookingMethods,
-        boxPlan,
-      });
-    if (createCustomerError) {
-      return [undefined, createCustomerError];
+    let genderLabel = 'Prefer not to say';
+    if(gender){
+      const [option] = await this.surveyQuestionsRepository.getOptionByOptionId({ id: gender });
+      genderLabel =  option.label;
     }
+
+    let customerGender:GenderIdentify;
+    switch(genderLabel){
+      case 'Female':
+        customerGender = 'female';
+        break;
+      case 'Male':
+        customerGender = 'male';
+        break;
+      case 'Non-Binary':
+        customerGender = 'nonBinary';
+        break;
+      case 'Prefer not to say':
+        customerGender = 'preferNotToSay';
+        break;
+      case 'other':
+        customerGender = 'other';
+        break;
+    }
+
+    const uuid = uuidv4();
+    const [customer] =
+      await this.customerGeneralRepository.upsertCustomer({
+        uuid,
+        gender: customerGender,
+        flavorDislikeIds,
+        ingredientDislikeIds,
+        allergenIds,
+        email,
+      });
+
     return [
       {
         customerId: customer.id,
         customerUuid: customer.uuid,
-        recommendBoxType,
       },
       undefined,
     ];

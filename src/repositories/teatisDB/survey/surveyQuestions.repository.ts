@@ -4,13 +4,20 @@ import { ReturnValueType } from '@Filters/customError';
 
 import { SurveyName } from '@Usecases/utils/surveyName';
 import { ActiveSurvey, ChildSurveyQuestion, ParentSurveyQuestion, ParentSurveyQuestionWithoutOption } from '../../../domains/Survey';
+import { SurveyQuestionOption } from '@prisma/client';
 
 interface GetSurveyQuestionsArgs {
   surveyName: SurveyName;
 }
 
+interface GetOptionByOptionIdArgs {
+  id: number;
+}
+
 export interface SurveyQuestionsRepositoryInterface {
   getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<ReturnValueType<ActiveSurvey>>;
+
+  getOptionByOptionId({ id }: GetOptionByOptionIdArgs): Promise<ReturnValueType<SurveyQuestionOption>>;
 }
 
 @Injectable()
@@ -18,6 +25,12 @@ export class SurveyQuestionsRepository
 implements SurveyQuestionsRepositoryInterface
 {
   constructor(private prisma: PrismaService) {}
+  async getOptionByOptionId({ id }: GetOptionByOptionIdArgs): Promise<ReturnValueType<SurveyQuestionOption>> {
+    const response = await this.prisma.surveyQuestionOption.findUnique(
+      { where: { id } }
+    );
+    return [response];
+  }
 
   async getSurveyQuestions({ surveyName }: GetSurveyQuestionsArgs): Promise<ReturnValueType<ActiveSurvey>> {
     const response = await this.prisma.survey.findUnique({
