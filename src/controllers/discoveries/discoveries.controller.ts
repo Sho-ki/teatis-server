@@ -11,10 +11,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-// import { GetPostPurchaseSurveyInfoDto } from './dtos/getPostPurchaseSurvey';
-// import { GetPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
-
 import { UpdateCustomerBoxDto } from './dtos/updateCustomerBox';
 import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
@@ -31,7 +27,6 @@ import { GetFirstBoxDto } from './dtos/getFirstBox';
 import { GetFirstBoxRes, GetFirstBoxUsecaseInterface } from '@Usecases/firstBox/getFirstBox.usecase';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { Status } from '@Domains/Status';
-// import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
 import { ProductOptions } from '@Domains/ProductOptions';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CreateCheckoutCartDto } from './dtos/createCheckoutCartDto';
@@ -42,16 +37,10 @@ import { CreateCheckoutCartUsecaseInterface } from '../../usecases/checkoutCart/
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    // @Inject('GetPostPurchaseSurveyUsecaseInterface')
-    // private getPostPurchaseSurveyUsecase: GetPostPurchaseSurveyUsecaseInterface,
-    @Inject('PostPostPurchaseSurveyUsecaseInterface')
-    private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecaseInterface,
     @Inject('GetPrePurchaseOptionsUsecaseInterface')
     private getPrePurchaseOptionsUsecase: GetPrePurchaseOptionsUsecaseInterface,
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
-    // @Inject('UpdateCustomerOrderOfCustomerBoxUsecaseInterface')
-    // private updateCustomerOrderOfCustomerBoxUsecase: UpdateCustomerOrderOfCustomerBoxUsecaseInterface,
     @Inject('DeleteCustomerBoxUsecaseInterface')
     private deleteCustomerBoxUsecase: DeleteCustomerBoxUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
@@ -81,27 +70,6 @@ export class DiscoveriesController {
 
     return response.status(200).send(usecaseResponse);
   }
-
-  // GET: api/discovery/post-purchase-survey
-  // @Get('post-purchase-survey')
-  // async getPostPurchaseSurvey(
-  //   @Query() body: GetPostPurchaseSurveyInfoDto,
-  //   @Res() response: Response<PostPurchaseSurvey | Error>,
-  // ) {
-  //   const uuid = body.uuid;
-  //   const orderNumber = body.orderNumber;
-
-  //   const [usecaseResponse, error] =
-  //     await this.getPostPurchaseSurveyUsecase.getPostPurchaseSurvey({
-  //       uuid,
-  //       orderNumber,
-  //     });
-
-  //   if (error) {
-  //     return response.status(500).send(error);
-  //   }
-  //   return response.status(200).send(usecaseResponse);
-  // }
 
   // GET: api/discovery/next-box-survey
   @Get('next-box-survey')
@@ -171,31 +139,6 @@ export class DiscoveriesController {
     }
   }
 
-  // POST: api/discovery/order-update-webhook
-  // @Post('order-update-webhook')
-  // async createOrder(
-  //   // @Body() body: UpdateCustomerOrderDto,
-  //   @Res() response:  Response<OrderQueue | Error>,
-  // ) {
-  //   // let noteAttributes = {} as { uuid?: string, practitionerBoxUuid?: string };
-  //   // for (const noteAttribute of body.note_attributes) {
-  //   //   if (noteAttribute.name === 'uuid') {
-  //   //     noteAttributes = Object.assign(noteAttributes, { uuid: noteAttribute.value });
-  //   //   }
-  //   //   if (noteAttribute.name === 'practitionerBoxUuid') {
-  //   //     noteAttributes = Object.assign(noteAttributes, { practitionerBoxUuid: noteAttribute.value });
-  //   //   }
-  //   // }
-  //   // const noteAttributesKeys = Object.keys(noteAttributes);
-  //   const [usecaseResponse, error] =
-  //   await this.updateCustomerOrderUsecase.updateCustomerOrder();
-
-  //   if (error) {
-  //     return response.status(500).send(error);
-  //   }
-  //   return response.status(200).send(usecaseResponse);
-  // }
-
   // POST: api/discovery/update-customer-box
   @Post('update-customer-box')
   async createCustomerBox(
@@ -230,38 +173,6 @@ export class DiscoveriesController {
     return response.status(201).send(usecaseResponse);
 
   }
-
-  // // Post: api/discovery/practitioner-box-cart
-  // @Post('practitioner-box-cart')
-  // async createPractitionerBoxCart(
-  //   @Body() body: CreateCheckoutCartOfPractitionerBoxOldDto,
-  //   @Res() response:  Response<CustomerCheckoutCart | Error>,
-  // ) {
-  //   const [usecaseResponse, error] =
-  //     await this.createCheckoutCartOldUsecase.createCheckoutCartOld(
-  //       body,
-  //     );
-  //   if (error) {
-  //     return response.status(500).send(error);
-  //   }
-  //   return response.status(201).send(usecaseResponse);
-  // }
-
-  // // Post: api/discovery/practitioner-meal-box-cart
-  // @Post('practitioner-meal-box-cart')
-  // async createPractitionerMealBoxCart(
-  //   @Body() body: CreateCheckoutCartOfPractitionerMealBoxDto,
-  //   @Res() response: Response<CustomerCheckoutCart | Error>,
-  // ) {
-  //   const [usecaseResponse, error] =
-  //     await this.createCheckoutCartOfPractitionerMealBoxUsecase.createCheckoutCartOfPractitionerMealBox(
-  //       body,
-  //     );
-  //   if (error) {
-  //     return response.status(500).send(error);
-  //   }
-  //   return response.status(201).send(usecaseResponse);
-  // }
 
   // Get: api/discovery/customer-nutrition
   @Get('customer-nutrition')
