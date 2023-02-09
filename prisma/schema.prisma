@@ -28,6 +28,7 @@ model Customers {
   updatedAt                                           DateTime                                              @default(now()) @updatedAt
   activeLevel                                         String?
   gender                                              String?
+  genderIdentify  GenderIdentify @default(female)
   mealsPerDay                                         Int?
   age                                                 Int?
   heightCm                                            Float?
@@ -70,6 +71,14 @@ model Customers {
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
   customerSurveyHistory CustomerSurveyHistory[]
+}
+
+enum GenderIdentify  {
+  female
+  male
+  nonBinary
+  preferNotToSay
+  other
 }
 
 model CustomerEventLog {
