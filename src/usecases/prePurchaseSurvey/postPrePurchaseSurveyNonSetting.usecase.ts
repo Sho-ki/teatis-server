@@ -1,22 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ReturnValueType } from '@Filters/customError';
-import { PostPrePurchaseSurvey2Dto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey2';
+import { PostPrePurchaseSurveyNonSettingDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurveyNonSetting';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerSurveyHistoryRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 import { SurveyName } from '../utils/surveyName';
 import { SurveyQuestionResponse } from '@prisma/client';
 
-export interface PostPrePurchaseSurveyUsecase2Interface {
-  postPrePurchaseSurvey({ customerUuid, customerResponses }: PostPrePurchaseSurvey2Dto): Promise<
+export interface PostPrePurchaseSurveyNonSettingUsecaseInterface {
+  postPrePurchaseSurvey({ customerUuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
     ReturnValueType<SurveyQuestionResponse[]>
   >;
 }
 
 @Injectable()
-export class PostPrePurchaseSurveyUsecase2
-implements PostPrePurchaseSurveyUsecase2Interface
+export class PostPrePurchaseSurveyNonSettingUsecase
+implements PostPrePurchaseSurveyNonSettingUsecaseInterface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
@@ -26,7 +26,7 @@ implements PostPrePurchaseSurveyUsecase2Interface
     @Inject('CustomerSurveyHistoryRepositoryInterface')
     private customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
   ) {}
-  async postPrePurchaseSurvey({ customerUuid, customerResponses }: PostPrePurchaseSurvey2Dto): Promise<
+  async postPrePurchaseSurvey({ customerUuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ReturnValueType<SurveyQuestionResponse[]>
   > {
@@ -54,19 +54,10 @@ implements PostPrePurchaseSurveyUsecase2Interface
           surveyQuestionResponseId: customerSurveyHistory?.surveyQuestionResponse?.find(({ surveyQuestionId }) =>
           { return surveyQuestionId === customerResponse.surveyQuestionId; })?.id,
 
-          customerResponse: customerResponse.responseIds,
+          customerResponse: customerResponse.responseIds || customerResponse.responseId,
           surveyQuestionId: customerResponse.surveyQuestionId,
         }); }));
 
-    // const [updateHistoryAndResponse, updateHistoryAndResponseError] =
-    //     await this.customerSurveyResponseRepository.upsertCustomerResponse({
-    //       surveyId,
-    //       customerId: id,
-    //       customerResponses,
-    //     });
-    // if(updateHistoryAndResponseError){
-    //   return [undefined, updateHistoryAndResponseError];
-    // }
     return [surveyQuestionResponses];
   }
 }

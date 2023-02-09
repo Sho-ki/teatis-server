@@ -8,8 +8,8 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { PostPrePurchaseSurveyUsecase2Interface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey2.usecase';
-import { PostPrePurchaseSurvey2Dto } from '../dtos/postPrePurchaseSurvey2';
+import { PostPrePurchaseSurveyNonSettingUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurveyNonSetting.usecase';
+import { PostPrePurchaseSurveyNonSettingDto } from '../dtos/postPrePurchaseSurveyNonSetting';
 import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
 import { ActiveSurvey } from '../../../domains/Survey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '../../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
@@ -19,8 +19,8 @@ import { CustomerBoxType } from '../../../domains/CustomerBoxType';
 @Controller('api/discovery')
 export class PrePurchaseSurveyController {
   constructor(
-    @Inject('PostPrePurchaseSurveyUsecase2Interface')
-    private postPrePurchaseSurvey2Usecase: PostPrePurchaseSurveyUsecase2Interface,
+    @Inject('PostPrePurchaseSurveyNonSettingUsecaseInterface')
+    private postPrePurchaseSurveyNonSettingUsecase: PostPrePurchaseSurveyNonSettingUsecaseInterface,
     @Inject('PostPrePurchaseSurveyUsecaseInterface')
     private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
     @Inject('GetPrePurchaseSurveyUsecaseInterface')
@@ -39,11 +39,11 @@ export class PrePurchaseSurveyController {
   // Post: api/discovery/pre-purchase-survey/non-setting
   @Post('pre-purchase-survey/non-setting')
   async postPrePurchaseSurveyQuestions(
-    @Body() body: PostPrePurchaseSurvey2Dto,
+    @Body() body: PostPrePurchaseSurveyNonSettingDto,
     @Res() response: Response<unknown | Error>,
   ) {
     const [usecaseResponse, error] =
-      await this.postPrePurchaseSurvey2Usecase.postPrePurchaseSurvey(body);
+      await this.postPrePurchaseSurveyNonSettingUsecase.postPrePurchaseSurvey(body);
     if (error) {
       return response.status(500).send(error);
     }
