@@ -20,8 +20,6 @@ import { Response } from 'express';
 import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { UpdateCustomerBoxUsecaseInterface } from '@Usecases/customerBox/updateCustomerBox.usecase';
-import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey';
-import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { DeleteCustomerBoxDto } from './dtos/deleteCustomerBox';
 import { DeleteCustomerBoxUsecaseInterface } from '@Usecases/customerBox/deleteCustomerBox.usecase';
 import { GetNextBoxUsecaseInterface, GetNextBoxUsecaseRes } from '@Usecases/nextBox/getNextBox.usecase';
@@ -35,7 +33,6 @@ import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { Status } from '@Domains/Status';
 // import { PostPurchaseSurvey } from '@Domains/PostPurchaseSurvey';
 import { ProductOptions } from '@Domains/ProductOptions';
-import { CustomerBoxType } from '@Domains/CustomerBoxType';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CreateCheckoutCartDto } from './dtos/createCheckoutCartDto';
 import { CreateCheckoutCartUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
@@ -51,8 +48,6 @@ export class DiscoveriesController {
     private postPostPurchaseSurveyUsecase: PostPostPurchaseSurveyUsecaseInterface,
     @Inject('GetPrePurchaseOptionsUsecaseInterface')
     private getPrePurchaseOptionsUsecase: GetPrePurchaseOptionsUsecaseInterface,
-    @Inject('PostPrePurchaseSurveyUsecaseInterface')
-    private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
     @Inject('UpdateCustomerBoxUsecaseInterface')
     private updateCustomerBoxUsecase: UpdateCustomerBoxUsecaseInterface,
     // @Inject('UpdateCustomerOrderOfCustomerBoxUsecaseInterface')
@@ -71,21 +66,6 @@ export class DiscoveriesController {
     private createCheckoutCartUsecase: CreateCheckoutCartUsecaseInterface,
     private teatisJob: TeatisJobs,
   ) {}
-
-  // POST: api/discovery/pre-purchase-survey
-  @Post('pre-purchase-survey')
-  async postPrePurchaseSurvey(
-    @Body() body: PostPrePurchaseSurveyDto,
-    @Res() response: Response<CustomerBoxType | Error>,
-  ) {
-    const [usecaseResponse, error] =
-      await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
-    if (error) {
-      return response.status(500).send(error);
-    }
-
-    return response.status(201).send(usecaseResponse);
-  }
 
   // GET: api/discovery/pre-purchase-options
   @Get('pre-purchase-options')
