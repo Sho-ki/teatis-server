@@ -81,7 +81,7 @@ implements GetPrePurchaseSurveyUsecaseInterface
           question.options = flavors;
           break;
         case 'ingredientDislikes':
-          question.options = ingredients.filter(ingredient => TOP_DISLIKE_INGREDIENTS.includes(ingredient.label));
+          question.options = ingredients.filter(ingredient => ['None', 'Others', ...TOP_DISLIKE_INGREDIENTS].includes(ingredient.label));
           question.children[0].options =
           ingredients.filter(ingredient => !['None', 'Others'].includes(ingredient.label));
           break;
