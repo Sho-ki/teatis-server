@@ -112,7 +112,7 @@ export class TwilioRepository implements TwilioRepositoryInterface {
 
   async sendTextMessage({ customerChannelId, author, body }:sendTextMessageArgs):
   Promise<ReturnValueType<MessageInstance>>{
-    console.log({ customerChannelId, author, body });
+    console.log({ body });
     const response = await this.twilioClient.conversations.v1.conversations(customerChannelId)
       .messages
       .create({ author, body });
