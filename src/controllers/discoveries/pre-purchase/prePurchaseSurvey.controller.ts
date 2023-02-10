@@ -4,17 +4,16 @@ import {
   Get,
   Inject,
   Post,
-  // Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { PostPrePurchaseSurveyNonSettingUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurveyNonSetting.usecase';
 import { PostPrePurchaseSurveyNonSettingDto } from '../dtos/postPrePurchaseSurveyNonSetting';
 import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
-import { ActiveSurvey } from '../../../domains/Survey';
-import { PostPrePurchaseSurveyUsecaseInterface } from '../../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { ActiveSurvey } from '@Domains/Survey';
+import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { PostPrePurchaseSurveyDto } from '../dtos/postPrePurchaseSurvey';
-import { CustomerBoxType } from '../../../domains/CustomerBoxType';
+import { Customer } from '@Domains/Customer';
 
 @Controller('api/discovery')
 export class PrePurchaseSurveyController {
@@ -54,7 +53,7 @@ export class PrePurchaseSurveyController {
   @Post('pre-purchase-survey')
   async postPrePurchaseSurvey(
     @Body() body: PostPrePurchaseSurveyDto,
-    @Res() response: Response<CustomerBoxType | Error>,
+    @Res() response: Response<Customer | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);

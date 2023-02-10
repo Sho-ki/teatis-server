@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
-import { CustomerBoxType } from '../../domains/CustomerBoxType';
 import { ReturnValueType } from '@Filters/customError';
 import { v4 as uuidv4 } from 'uuid';
-import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
-import { SurveyQuestionsRepositoryInterface } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
+import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
+import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
 import { GenderIdentify } from '@prisma/client';
+import { Customer } from '@Domains/Customer';
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
@@ -16,7 +16,7 @@ export interface PostPrePurchaseSurveyUsecaseInterface {
     allergenIds,
     email,
   }: PostPrePurchaseSurveyDto): Promise<
-    ReturnValueType<CustomerBoxType>
+    ReturnValueType<Customer>
   >;
 }
 
@@ -39,7 +39,7 @@ implements PostPrePurchaseSurveyUsecaseInterface
     allergenIds,
     email,
   }: PostPrePurchaseSurveyDto): Promise<
-    ReturnValueType<CustomerBoxType>
+    ReturnValueType<Customer>
   > {
 
     let genderLabel = 'Prefer not to say';
@@ -78,12 +78,6 @@ implements PostPrePurchaseSurveyUsecaseInterface
         email,
       });
 
-    return [
-      {
-        customerId: customer.id,
-        customerUuid: customer.uuid,
-      },
-      undefined,
-    ];
+    return [customer, undefined];
   }
 }
