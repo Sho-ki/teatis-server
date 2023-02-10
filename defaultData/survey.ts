@@ -471,7 +471,7 @@ export const seedSurvey:Survey[] = [
         placeholder: null,
         responseType: 'noResponse',
         parentSurveyQuestionId: null,
-        images: [{ src: 'https://storage.googleapis.com/teatis-images/onboarding/teatis_anime_carrie-min.gif', position: 1 }],
+        images: [{ src: 'https://storage.googleapis.com/teatis-images/onboarding/teatis_anime_charlotte-min.gif', position: 1 }],
         options: [],
       },
       {
