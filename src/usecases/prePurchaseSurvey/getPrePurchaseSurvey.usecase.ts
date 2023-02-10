@@ -51,7 +51,7 @@ implements GetPrePurchaseSurveyUsecaseInterface
 
   private sortOptions(list: ProductFeature[]): ProductFeature[] {
     list.sort((a, b) => {
-      if (a.name > b.name) {
+      if (a.name.toLowerCase() > b.name.toLowerCase()) {
         return 1;
       } else {
         return -1;
@@ -75,15 +75,15 @@ implements GetPrePurchaseSurveyUsecaseInterface
     ingredients= [{ id: 0, name: 'none', label: 'None' }, ...this.sortOptions(ingredients), { id: -1, name: 'others', label: 'Others' }];
 
     for(const question of getSurveyQuestions.surveyQuestions){
+
       switch(question.name){
         case 'flavorDislikes':
           question.options = flavors;
           break;
         case 'ingredientDislikes':
           question.options = ingredients.filter(ingredient => TOP_DISLIKE_INGREDIENTS.includes(ingredient.label));
-          break;
-        case 'ingredientDislikesOthers':
-          question.options = ingredients.filter(ingredient => !TOP_DISLIKE_INGREDIENTS.includes(ingredient.label));
+          question.children[0].options =
+          ingredients.filter(ingredient => !['None', 'Others'].includes(ingredient.label));
           break;
         case 'allergens':
           question.options = allergens;
