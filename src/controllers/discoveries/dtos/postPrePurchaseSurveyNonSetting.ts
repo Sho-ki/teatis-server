@@ -37,7 +37,7 @@ export function EitherResponseIdsOrResponseId(validationOptions?: ValidationOpti
 
 export class PostPrePurchaseSurveyNonSettingDto {
   @IsString()
-    customerUuid: string;
+    uuid: string;
 
   @IsArray()
   @EitherResponseIdsOrResponseId()

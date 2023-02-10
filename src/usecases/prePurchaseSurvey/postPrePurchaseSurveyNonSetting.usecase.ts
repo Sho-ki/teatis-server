@@ -9,7 +9,7 @@ import { SurveyName } from '../utils/surveyName';
 import { SurveyQuestionResponse } from '@prisma/client';
 
 export interface PostPrePurchaseSurveyNonSettingUsecaseInterface {
-  postPrePurchaseSurvey({ customerUuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
+  postPrePurchaseSurvey({ uuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
     ReturnValueType<SurveyQuestionResponse[]>
   >;
 }
@@ -26,12 +26,12 @@ implements PostPrePurchaseSurveyNonSettingUsecaseInterface
     @Inject('CustomerSurveyHistoryRepositoryInterface')
     private customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
   ) {}
-  async postPrePurchaseSurvey({ customerUuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
+  async postPrePurchaseSurvey({ uuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ReturnValueType<SurveyQuestionResponse[]>
   > {
     const [customer, getCustomerError] =
-        await this.customerGeneralRepository.getCustomerByUuid({ uuid: customerUuid });
+        await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if(getCustomerError){
       return [undefined, getCustomerError];
     }
