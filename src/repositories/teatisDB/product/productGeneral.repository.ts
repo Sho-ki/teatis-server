@@ -19,7 +19,7 @@ interface GetProductsBySkuArgs {
 }
 
 interface GetAllProductsArgs {
-  medicalConditions: { highBloodPressure: boolean, highCholesterol: boolean };
+  medicalConditions?: { highBloodPressure: boolean, highCholesterol: boolean };
 }
 
 export interface GetOptionsArgs {
@@ -712,7 +712,7 @@ implements ProductGeneralRepositoryInterface
       where: {
         productCategory: { activeStatus: 'active' },
         activeStatus: 'active',
-        productNutritionFact: medicalConditions.highBloodPressure
+        productNutritionFact: medicalConditions?.highBloodPressure
           ? { sodiumMg: { lt: 500 } }
           : {},
       },
