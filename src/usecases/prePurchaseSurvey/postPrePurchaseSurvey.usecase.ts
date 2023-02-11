@@ -72,9 +72,9 @@ implements PostPrePurchaseSurveyUsecaseInterface
       await this.customerGeneralRepository.upsertCustomer({
         uuid,
         gender: customerGender,
-        flavorDislikeIds,
+        flavorDislikeIds: flavorDislikeIds.filter(id => id > 0), // None = 0, others = -1,
         ingredientDislikeIds: ingredientDislikeIds.filter(id => id > 0), // None = 0, others = -1
-        allergenIds,
+        allergenIds: allergenIds.filter(id => id > 0), // None = 0, others = -1,
         email,
       });
 
