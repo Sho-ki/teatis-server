@@ -73,7 +73,7 @@ implements PostPrePurchaseSurveyUsecaseInterface
         uuid,
         gender: customerGender,
         flavorDislikeIds,
-        ingredientDislikeIds,
+        ingredientDislikeIds: ingredientDislikeIds.filter(id => id > 0), // None = 0, others = -1
         allergenIds,
         email,
       });
