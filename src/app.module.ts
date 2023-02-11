@@ -7,12 +7,13 @@ import { ProductModule } from '@Controllers/ops/product/product.module';
 import { PrismaService } from './prisma.service';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filter/allExceptions.filter';
-import { TerraModule } from '@Controllers/terra/terra.module';
-import { ShipheroKeyModule } from '@Controllers/cloudScheduler/shipheroKey/shipheroKey.module';
-import { OAuth2Module } from '@Controllers/oAuth2/oAuth2.module';
-import { SubscriptionModule } from '@Controllers/recharge/subscription.module';
-import { CoachingModule } from '@Controllers/twilio/coaching/coaching.module';
 import { MonthlyProductsModule } from '@Controllers/discoveries/monthlyProducts/monthlyProducts.module';
+import { TerraModule } from './controllers/terra/terra.module';
+import { ShipheroKeyModule } from './controllers/cloudScheduler/shipheroKey/shipheroKey.module';
+import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
+import { SubscriptionModule } from './controllers/recharge/subscription.module';
+import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
+import { PostPurchaseSurveyModule } from './controllers/discoveries/postPurchaseSurvey/postPurchaseSurvey.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MonthlyProductsModule } from '@Controllers/discoveries/monthlyProducts/
     OAuth2Module,
     CoachingModule,
     MonthlyProductsModule,
+    PostPurchaseSurveyModule,
     ScheduleModule.forRoot(),
   ],
 

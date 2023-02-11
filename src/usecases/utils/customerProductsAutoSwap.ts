@@ -152,14 +152,11 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
       return [undefined, getCustomerUnwantedError];
     }
     const [
-      [customerMedicalCondition, getCustomerMedicalConditionError],
       [noInventoryProducts, getNoInventoryProductsError],
       [customerFlavorDislikes, customerFlavorDislikesError],
       [customerAllergens, customerAllergensError],
-      [customerUnavailableCookingMethods, customerUnavailableCookingMethodsError],
       [customerIngredientDislikes, customerIngredientDislikesError],
     ] = await Promise.all([
-      this.customerGeneralRepository.getCustomerMedicalCondition({ email: customer.email }),
       this.shipheroRepository.getNoInventoryProducts(),
       this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
@@ -169,22 +166,15 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
         email: customer.email,
         type: 'allergens',
       }),
-      this.customerGeneralRepository.getCustomerPreference({
-        email: customer.email,
-        type: 'unavailableCookingMethods',
-      }),
+
       this.customerGeneralRepository.getCustomerPreference({
         email: customer.email,
         type: 'ingredients',
       }),
     ]);
 
-    if (getCustomerMedicalConditionError) {
-      return [undefined, getCustomerMedicalConditionError];
-    }
-
     const [analyzeProducts, getAnalyzeProductsError] =
-      await this.productGeneralRepository.getAllProducts({ medicalConditions: customerMedicalCondition });
+      await this.productGeneralRepository.getAllProducts({});
     if (getAnalyzeProductsError) {
       return [undefined, getAnalyzeProductsError];
     }
@@ -239,18 +229,6 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
       allProducts = this.filterProducts({
         filterType: 'allergens',
         customerFilter: customerAllergens,
-        products: allProducts,
-        nextWantProducts,
-      });
-    }
-
-    if (customerUnavailableCookingMethodsError) {
-      return [undefined, customerUnavailableCookingMethodsError];
-    }
-    if (customerUnavailableCookingMethods.id.length > 0) {
-      allProducts = this.filterProducts({
-        filterType: 'unavailableCookingMethods',
-        customerFilter: customerUnavailableCookingMethods,
         products: allProducts,
         nextWantProducts,
       });

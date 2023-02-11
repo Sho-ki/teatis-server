@@ -151,6 +151,11 @@ implements AutoMessageRepositoryInterface
     const startDate = response?.eventDate || today;
     const elapsedTime = today.getTime() - startDate.getTime();
     const daysSincePurchase = Math.floor(elapsedTime / 86400000);
+
+    // eslint-disable-next-line no-console
+    console.log(
+      { today, startDate, daysSincePurchase }
+    );
     return { daysSincePurchase };
   }
 

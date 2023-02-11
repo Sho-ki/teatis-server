@@ -145,7 +145,14 @@ export class GetSuggestion implements GetSuggestionInterface {
     =
     !isFirstOrder
       ? await Promise.all(
-        [this.customerPreferenceRepository.getAverageScores({ email: customer.email }), this.customerPreferenceRepository.getNextWant({ orderNumber: lastCustomerOrder.orderNumber }), this.customerPreferenceRepository.getNextUnwanted({ email: customer.email })])
+        [
+          this.customerPreferenceRepository.getAverageScores(
+            { email: customer.email }),
+          this.customerPreferenceRepository.getNextWant(
+            { orderNumber: lastCustomerOrder.orderNumber }),
+          this.customerPreferenceRepository.getNextUnwanted(
+            { email: customer.email }),
+        ])
       : [[], [], []];
 
     if (getAverageScoresError) {
