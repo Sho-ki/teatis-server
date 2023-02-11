@@ -8,8 +8,5 @@ export class PostCustomerInformationDto {
     customerUuid: string;
 
   @IsString()
-    recommendBoxType: string;
-
-  @IsString()
     klaviyoListName: KlaviyoListNames;
 }
