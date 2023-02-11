@@ -7,7 +7,7 @@ import { PrismaService } from '../../../prisma.service';
 interface UpsertCustomerResponseArgs {
   surveyHistoryId:number;
   surveyQuestionId: number;
-  customerResponse: unknown;
+  customerResponse: Prisma.JsonValue;
   surveyQuestionResponseId?:number;
 }
 
@@ -15,7 +15,7 @@ interface UpsertCustomerResponseWithProductsArgs{
  surveyQuestionResponseId?:number;
  surveyQuestionId:number;
  productId:number;
- customerResponse: unknown;
+ customerResponse: Prisma.JsonValue;
  surveyHistoryId:number;
 }
 
@@ -69,7 +69,7 @@ implements CustomerSurveyResponseRepositoryInterface
         {
           data:
          {
-           response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull,
+           response: customerResponse? customerResponse:Prisma.DbNull,
            surveyQuestion: { connect: { id: surveyQuestionId } },
            customerSurveyHistory: { connect: { id: surveyHistoryId } },
          },
@@ -78,7 +78,7 @@ implements CustomerSurveyResponseRepositoryInterface
     return await this.prisma.surveyQuestionResponse.update(
       {
         where: { id: surveyQuestionResponseId },
-        data: { response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull },
+        data: { response: customerResponse? customerResponse:Prisma.DbNull },
       });
   }
 
@@ -94,7 +94,7 @@ implements CustomerSurveyResponseRepositoryInterface
         {
           data:
          {
-           response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull,
+           response: customerResponse? customerResponse:Prisma.DbNull,
            surveyQuestion: { connect: { id: surveyQuestionId } },
            customerSurveyHistory: { connect: { id: surveyHistoryId } },
            intermediateProductSurveyQuestionResponse: { create: { productId } },
@@ -104,7 +104,7 @@ implements CustomerSurveyResponseRepositoryInterface
     return  await this.prisma.surveyQuestionResponse.update(
       {
         where: { id: surveyQuestionResponseId },
-        data: { response: customerResponse? JSON.stringify(customerResponse):Prisma.DbNull },
+        data: { response: customerResponse? customerResponse:Prisma.DbNull },
       });
 
   }

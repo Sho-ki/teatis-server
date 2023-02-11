@@ -14,6 +14,7 @@ import { ActiveSurvey } from '@Domains/Survey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { PostPrePurchaseSurveyDto } from '../dtos/postPrePurchaseSurvey';
 import { Customer } from '@Domains/Customer';
+import { SurveyQuestionResponse } from '@prisma/client';
 
 @Controller('api/discovery')
 export class PrePurchaseSurveyController {
@@ -39,7 +40,7 @@ export class PrePurchaseSurveyController {
   @Post('pre-purchase-survey/non-setting')
   async postPrePurchaseSurveyQuestions(
     @Body() body: PostPrePurchaseSurveyNonSettingDto,
-    @Res() response: Response<unknown | Error>,
+    @Res() response: Response<SurveyQuestionResponse[] | Error>,
   ) {
     const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyNonSettingUsecase.postPrePurchaseSurvey(body);

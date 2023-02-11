@@ -13,7 +13,7 @@ export class PostPostPurchaseSurveyDto {
   @IsArray()
     customerResponses?:{
       surveyQuestionId:number;
-      response:unknown;
+      response: number | number[] | string;
       productId:number;
   }[];
 }
