@@ -530,7 +530,7 @@ export const seedSurvey:Survey[] = [
             isRequired: false,
             isCustomerFeature: true,
             hint: null,
-            placeholder: null,
+            placeholder: 'Search and add ingredients',
             responseType: 'multiple',
             parentSurveyQuestionId: null,
             options: [],
