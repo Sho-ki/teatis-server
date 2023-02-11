@@ -28,6 +28,7 @@ model Customers {
   updatedAt                                           DateTime                                              @default(now()) @updatedAt
   activeLevel                                         String?
   gender                                              String?
+  genderIdentify  GenderIdentify @default(female)
   mealsPerDay                                         Int?
   age                                                 Int?
   heightCm                                            Float?
@@ -69,6 +70,15 @@ model Customers {
   queuedShopifyOrder                                  QueuedShopifyOrder[]
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
+  customerSurveyHistory CustomerSurveyHistory[]
+}
+
+enum GenderIdentify  {
+  female
+  male
+  nonBinary
+  preferNotToSay
+  other
 }
 
 model CustomerEventLog {
@@ -363,6 +373,7 @@ model Product {
   intermediateProductCookingMethods      IntermediateProductCookingMethod[]
   intermediateProductFoodTypes           IntermediateProductFoodType[]
   intermediateProductIngredients         IntermediateProductIngredient[]
+  intermediateProductSurveyQuestionResponse IntermediateProductSurveyQuestionResponse[]
   mainProductImage                       ProductImage?                            @relation("mainProductImage", fields: [mainProductImageId], references: [id])
   productCategory                        ProductCategory?                         @relation(fields: [productCategoryId], references: [id])
   productFlavor                          ProductFlavor?                           @relation(fields: [productFlavorId], references: [id])
@@ -622,6 +633,7 @@ model Survey {
   updatedAt                   DateTime                     @default(now()) @updatedAt
   label                       String
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
+  customerSurveyHistory CustomerSurveyHistory[]
 }
 
 model IntermediateSurveyQuestion {
@@ -630,7 +642,7 @@ model IntermediateSurveyQuestion {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @default(now()) @updatedAt
   displayOrder     Int
-  activeStatus     ActiveStatus   @default(active)
+  isArchived     Boolean   @default(false)
   survey           Survey         @relation(fields: [surveyId], references: [id])
   surveyQuestion   SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
 
@@ -639,34 +651,72 @@ model IntermediateSurveyQuestion {
 
 model SurveyQuestion {
   id                          Int                          @id @default(autoincrement())
-  name                        String                       @unique
+  name                        String  @unique
   label                       String
-  questionCategoryId          Int?
-  mustBeAnswered              Boolean
-  instruction                 String?
+  isRequired              Boolean @default(false)
+  isCustomerFeature Boolean @default(false)
+  hint                 String?
   placeholder                 String?
-  surveyQuestionAnswerTypeId  Int?
+  responseType  ResponseType @default(number)
+  parentSurveyQuestionId Int?
+  image SurveyQuestionImage[]
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
-  activeStatus                ActiveStatus?
   intermediateSurveyQuestions IntermediateSurveyQuestion[]
-  questionCategory            QuestionCategory?            @relation(fields: [questionCategoryId], references: [id])
-  surveyQuestionAnswerType    SurveyQuestionAnswerType?    @relation(fields: [surveyQuestionAnswerTypeId], references: [id])
+  parentQuestion            SurveyQuestion[]            @relation("ParentSurveyQuestion")
+  childQuestion            SurveyQuestion?            @relation("ParentSurveyQuestion", fields: [parentSurveyQuestionId], references: [id])
   surveyQuestionAnswer        SurveyQuestionAnswer[]
   surveyQuestionOptions       SurveyQuestionOption[]
+  surveyQuestionResponse SurveyQuestionResponse[]
 }
+
+enum ResponseType {
+  number
+  text
+  single
+  multiple
+  noResponse
+}
+
+model SurveyQuestionImage {
+  id               Int      @id @default(autoincrement())
+  src              String
+  position         Int?
+  surveyQuestionId Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  surveyQuestion          SurveyQuestion  @relation(fields: [surveyQuestionId], references: [id])
+}
+
+model CustomerSurveyHistory {
+  id                          Int            @id     @default(autoincrement())
+  orderNumber String? 
+  surveyId Int
+  customerId Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime             @default(now()) @updatedAt
+
+  survey   Survey @relation(fields: [surveyId], references: [id])
+  customer           Customers         @relation(fields: [customerId], references: [id])
+  // customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
+  surveyQuestionResponse SurveyQuestionResponse[]
+
+  @@unique([surveyId, customerId, orderNumber], name: "CustomerOrderSurveyHistoryIdentifier")
+}
+
 
 model SurveyQuestionOption {
   id                   Int                    @id @default(autoincrement())
   label                String
+  value Int?
   surveyQuestionId     Int
+  isArchived            Boolean @default(false)
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @default(now()) @updatedAt
-  name                 String
   surveyQuestionAnswer SurveyQuestionAnswer[]
   surveyQuestion       SurveyQuestion         @relation(fields: [surveyQuestionId], references: [id])
 
-  @@unique([name, surveyQuestionId], name: "QuestionOptionIdentifier")
+  @@unique([label, surveyQuestionId], name: "QuestionOptionIdentifier")
 }
 
 model SurveyQuestionAnswer {
@@ -692,6 +742,30 @@ model SurveyQuestionAnswer {
   product              Product?              @relation(fields: [productId], references: [id])
   surveyQuestion       SurveyQuestion        @relation(fields: [surveyQuestionId], references: [id])
 }
+
+model SurveyQuestionResponse {
+  id                   Int                   @id @default(autoincrement())
+  surveyQuestionId     Int
+  customerSurveyHistoryId  Int
+  response          Json?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @default(now()) @updatedAt
+  surveyQuestion       SurveyQuestion        @relation(fields: [surveyQuestionId], references: [id])
+  customerSurveyHistory       CustomerSurveyHistory        @relation(fields: [customerSurveyHistoryId], references: [id])
+  intermediateProductSurveyQuestionResponse IntermediateProductSurveyQuestionResponse[]
+}
+
+model IntermediateProductSurveyQuestionResponse {
+  surveyQuestionResponseId     Int
+  productId  Int
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @default(now()) @updatedAt
+  surveyQuestionResponse       SurveyQuestionResponse        @relation(fields: [surveyQuestionResponseId], references: [id])
+  product       Product        @relation(fields: [productId], references: [id])
+
+  @@id([surveyQuestionResponseId, productId])
+}
+
 
 model CustomerProductDistance {
   id         Int       @id @default(autoincrement())
@@ -865,24 +939,6 @@ model Coach {
   phone                String?
   customerCoachHistory CustomerCoachHistory[]
   customer             Customers[]
-}
-
-model QuestionCategory {
-  id             Int              @id @default(autoincrement())
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now())
-  label          String
-  name           String           @unique
-  surveyQuestion SurveyQuestion[]
-}
-
-model SurveyQuestionAnswerType {
-  id             Int              @id @default(autoincrement())
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now())
-  name           String           @unique
-  label          String
-  surveyQuestion SurveyQuestion[]
 }
 
 enum ValidStatus {

@@ -12,6 +12,7 @@ import { ShipheroKeyModule } from './controllers/cloudScheduler/shipheroKey/ship
 import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 import { SubscriptionModule } from './controllers/recharge/subscription.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
+import { PostPurchaseSurveyModule } from './controllers/discoveries/postPurchaseSurvey/postPurchaseSurvey.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
     TerraModule,
     OAuth2Module,
     CoachingModule,
+    PostPurchaseSurveyModule,
     ScheduleModule.forRoot(),
   ],
 

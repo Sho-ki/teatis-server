@@ -2,10 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { DiscoveriesController } from './discoveries.controller';
 import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
 import { PrismaService } from 'src/prisma.service';
-import { CustomerPrePurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPrePurchaseSurvey.repository';
-import { GetPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/getPostPurchaseSurvey.usecase';
-import { QuestionPostPurchaseSurveyRepository } from '@Repositories/teatisDB/question/questionPostPurchaseSurvey.repository';
-import { CustomerPostPurchaseSurveyRepository } from '@Repositories/teatisDB/customer/customerPostPurchaseSurvey.repository';
+import { CustomerSurveyResponseRepository } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { PostPostPurchaseSurveyUsecase } from '@Usecases/postPurcahseSurvey/postPostPurchaseSurvey.usecase';
 import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
@@ -22,7 +19,6 @@ import { CustomerPreferenceRepository } from '@Repositories/teatisDB/customer/cu
 import { AnalyzePreferenceRepository } from '@Repositories/dataAnalyze/dataAnalyze.respository';
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
 import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
-import { CreateCustomerUsecase } from '@Usecases/utils/createCustomer';
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
 import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
@@ -42,12 +38,17 @@ import { CoachRepository } from '../../repositories/teatisDB/coach/coach.reposit
 import { CreateCheckoutCartUsecase } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
 import { UpdatePractitionerBoxOrderHistoryUsecase } from '../../usecases/practitionerBoxOrder/updatePractitionerBoxOrderHistory.usecase';
 import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
+import { PrePurchaseSurveyModule } from './pre-purchase/prePurchaseSurvey.module';
+import { SurveyQuestionsRepository } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
 
 @Global()
 @Module({
   controllers: [DiscoveriesController],
   providers: [
-
+    {
+      provide: 'SurveyQuestionsRepositoryInterface',
+      useClass: SurveyQuestionsRepository,
+    },
     {
       provide: 'CustomerEventLogRepositoryInterface',
       useClass: CustomerEventLogRepository,
@@ -101,10 +102,6 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       useClass: PractitionerBoxRepository,
     },
     {
-      provide: 'CreateCustomerUsecaseInterface',
-      useClass: CreateCustomerUsecase,
-    },
-    {
       provide: 'GetCustomerNutritionUsecaseInterface',
       useClass: GetCustomerNutritionUsecase,
     },
@@ -128,13 +125,10 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       provide: 'OrderQueueRepositoryInterface',
       useClass: OrderQueueRepository,
     },
+
     {
-      provide: 'CustomerPrePurchaseSurveyRepositoryInterface',
-      useClass: CustomerPrePurchaseSurveyRepository,
-    },
-    {
-      provide: 'CustomerPostPurchaseSurveyRepositoryInterface',
-      useClass: CustomerPostPurchaseSurveyRepository,
+      provide: 'CustomerSurveyResponseRepositoryInterface',
+      useClass: CustomerSurveyResponseRepository,
     },
     {
       provide: 'CustomerGeneralRepositoryInterface',
@@ -153,10 +147,10 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       useClass: ProductGeneralRepository,
     },
 
-    {
-      provide: 'QuestionPostPurchaseSurveyRepositoryInterface',
-      useClass: QuestionPostPurchaseSurveyRepository,
-    },
+    // {
+    //   provide: 'QuestionPostPurchaseSurveyRepositoryInterface',
+    //   useClass: QuestionPostPurchaseSurveyRepository,
+    // },
     {
       provide: 'ShopifyRepositoryInterface',
       useClass: ShopifyRepository,
@@ -166,10 +160,10 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       useClass: GetPrePurchaseOptionsUsecase,
     },
 
-    {
-      provide: 'GetPostPurchaseSurveyUsecaseInterface',
-      useClass: GetPostPurchaseSurveyUsecase,
-    },
+    // {
+    //   provide: 'GetPostPurchaseSurveyUsecaseInterface',
+    //   useClass: GetPostPurchaseSurveyUsecase,
+    // },
     {
       provide: 'PostPostPurchaseSurveyUsecaseInterface',
       useClass: PostPostPurchaseSurveyUsecase,
@@ -203,6 +197,7 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
     PractitionerBoxModule,
     EmailModule,
     TemporaryPrePurchaseSurveysModule,
+    PrePurchaseSurveyModule,
   ],
   exports: [DiscoveriesController],
 })

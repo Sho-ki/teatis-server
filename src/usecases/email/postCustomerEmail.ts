@@ -6,11 +6,10 @@ import { ReturnValueType } from '@Filters/customError';
 interface PostCustomerInformationInterface {
   email: string;
   customerUuid: string;
-  recommendBoxType: string;
   serverSideUrl: string;
 }
 export interface PostEmailUsecaseInterface {
-  postCustomerInformation({ email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface):
+  postCustomerInformation({ email, customerUuid, serverSideUrl }: PostCustomerInformationInterface):
   Promise<ReturnValueType<Status>>;
 }
 
@@ -21,10 +20,10 @@ export class PostEmailUsecase implements PostEmailUsecaseInterface {
     private klaviyoRepository: KlaviyoRepositoryInterface
   ){}
   async postCustomerInformation(
-    { email, customerUuid, recommendBoxType, serverSideUrl }: PostCustomerInformationInterface):
+    { email, customerUuid, serverSideUrl }: PostCustomerInformationInterface):
   Promise<ReturnValueType<Status>> {
     const [, error] = await this.klaviyoRepository.postCustomerInformation(
-      { email, customerUuid, recommendBoxType, serverSideUrl });
+      { email, customerUuid, serverSideUrl });
     if(error){
       return [undefined, error];
     }
