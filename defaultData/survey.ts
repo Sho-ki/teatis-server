@@ -54,7 +54,7 @@ export const seedSurvey:Survey[] = [
       {
         displayOrder: 3,
         name: 'mostCravingTime',
-        label: 'When do you most feel craving?',
+        label: 'When do you feel craving the most?',
         isRequired: false,
         isCustomerFeature: false,
         hint: null,
@@ -152,8 +152,8 @@ export const seedSurvey:Survey[] = [
       },
       {
         displayOrder: 5,
-        name: 'cravingStop',
-        label: 'Which snacks are you unable to give up on?',
+        name: 'cravingSnack',
+        label: 'Which snack do you crave the most?',
         isRequired: false,
         isCustomerFeature: false,
         hint: null,
