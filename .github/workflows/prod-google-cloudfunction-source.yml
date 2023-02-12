@@ -183,23 +183,23 @@ jobs:
           workload_identity_provider: '${{ secrets.WIF_PROVIDER_PROD }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_PROD }}'
 
-      # - name: Deploy to Cloud Function (twilio-auto-message)
-      #   id: deploy-twilio-auto-massage
-      #   uses: google-github-actions/deploy-cloud-functions@v1
-      #   with:
-      #     project_id: ${{ env.PROJECT_ID }}
-      #     region: ${{ env.REGION }}
-      #     name: twilio-auto-message
-      #     runtime: nodejs16
-      #     # source_dir: ./dist
-      #     timeout: 500
-      #     entry_point: sendAutoMessage
-      #     env_vars: |
-      #       SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}
-      #       ENV=production
+      - name: Deploy to Cloud Function (twilio-auto-message)
+        id: deploy-twilio-auto-massage
+        uses: google-github-actions/deploy-cloud-functions@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          region: ${{ env.REGION }}
+          name: twilio-auto-message
+          runtime: nodejs16
+          # source_dir: ./dist
+          timeout: 500
+          entry_point: sendAutoMessage
+          env_vars: |
+            SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}
+            ENV=production
 
-      #     secret_environment_variables: ${{ env.SECRETS }}
-      #     deploy_timeout: 1000
+          secret_environment_variables: ${{ env.SECRETS }}
+          deploy_timeout: 1000
 
       - name: Deploy to Cloud Function (update-order)
         id: deploy-update-order
