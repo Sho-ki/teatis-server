@@ -49,7 +49,7 @@ name: Dev Release (Cloud functions)
 on:
   push:
     branches:
-      - fix/worker-files
+      - main
 env:
   PROJECT_ID: teatis-discovery-dev
   SERVICE: teatis-server-dev
