@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { seedSurvey } from '../defaultData/survey';
-import { weeklyCheckin } from '../defaultData/weeklyCheckin';
+import { weeklyCheckIn } from '../defaultData/weeklyCheckIn';
 // import * as fs from 'fs';
 
 const prisma = new PrismaClient();
@@ -391,7 +391,7 @@ const upsertSurvey = async() => {
 };
 
 const upsertWeeklyCheckin = async() => {
-  for(const survey of weeklyCheckin){
+  for(const survey of weeklyCheckIn){
     const { name, label, questions } = survey;
     const surveyResponse = await prisma.survey.upsert({
       where: { name: survey.name },

@@ -13,10 +13,10 @@ interface Question extends Omit<SurveyQuestion, 'id' | 'createdAt' | 'updatedAt'
   options:Omit<SurveyQuestionOption, 'id' | 'createdAt' | 'updatedAt' | 'surveyQuestionId'>[];
 }
 
-export const weeklyCheckin:Survey[] = [
+export const weeklyCheckIn:Survey[] = [
   {
-    name: 'weeklyCheckin',
-    label: 'Weekly Checkin',
+    name: 'weeklyCheckIn',
+    label: 'Weekly Check-in',
     questions: [
       {
         displayOrder: 1,
