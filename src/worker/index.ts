@@ -8,7 +8,6 @@ import { executeSendAutoMessage } from './twilio/sendAutoMessage.worker';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-
 module.exports.sendAutoMessage = async (req: Request, res: Response) => {
   await executeSendAutoMessage(req.method);
   res.end();
