@@ -8,7 +8,8 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ActiveSurvey } from '@Domains/Survey';
-import { GetWeeklyCheckInQuestionsUsecaseInterface } from '@Usecases/weeklyCheckin/getWeeklyCheckinQuestions.usecase';
+import { GetWeeklyCheckInQuestionsUsecaseInterface } from '@Usecases/weeklyCheckIn/getWeeklyCheckInQuestions.usecase';
+import { PostWeeklyCheckInDto } from '../dtos/postWeeklyCheckIn';
 
 @Controller('api/discovery')
 export class WeeklyCheckInController {
@@ -28,12 +29,11 @@ export class WeeklyCheckInController {
   }
   // Post: api/discovery/pre-purchase-survey/non-setting
   @Post('pre-purchase-survey/non-setting')
-  // async postPrePurchaseSurveyQuestions(
-  //   @Body() body: PostPrePurchaseSurveyNonSettingDto,
-  //   @Res() response: Response<SurveyQuestionResponse[] | Error>,
-  // ) {
-  async postPrePurchaseSurveyQuestions(
+  async postWeeklyCheckInQuestions(
+    @Body() body: PostWeeklyCheckInDto,
+    @Res() response: Response<unknown | Error>,
   ) {
-    return;
+
+    return [body, response];
   }
 }

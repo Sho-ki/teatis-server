@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { GetWeeklyCheckInQuestionsUsecase } from '@Usecases/weeklyCheckin/getWeeklyCheckinQuestions.usecase';
+import { GetWeeklyCheckInQuestionsUsecase } from '@Usecases/weeklyCheckIn/getWeeklyCheckInQuestions.usecase';
 import { PrismaService } from 'src/prisma.service';
 import { WeeklyCheckInController } from './weeklyCheckIn.controller';
 
