@@ -7,6 +7,7 @@ import { ProductModule } from '@Controllers/ops/product/product.module';
 import { PrismaService } from './prisma.service';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filter/allExceptions.filter';
+import { MonthlyProductsModule } from '@Controllers/discoveries/monthlyProducts/monthlyProducts.module';
 import { TerraModule } from './controllers/terra/terra.module';
 import { ShipheroKeyModule } from './controllers/cloudScheduler/shipheroKey/shipheroKey.module';
 import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
@@ -23,6 +24,7 @@ import { PostPurchaseSurveyModule } from './controllers/discoveries/postPurchase
     TerraModule,
     OAuth2Module,
     CoachingModule,
+    MonthlyProductsModule,
     PostPurchaseSurveyModule,
     ScheduleModule.forRoot(),
   ],

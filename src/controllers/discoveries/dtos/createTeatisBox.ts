@@ -19,3 +19,4 @@ export class CreateMasterMonthlyBoxDto {
   @IsOptional()
     note?: string;
 }
+
