@@ -1,6 +1,6 @@
 import { MonthlyBoxSelection } from '@prisma/client';
-import { Product } from './Product';
+import { DisplayProduct } from './Product';
 
 export interface MonthlyBoxSelectionProduct extends MonthlyBoxSelection {
-    product:Product[];
+    products:DisplayProduct[];
 }
