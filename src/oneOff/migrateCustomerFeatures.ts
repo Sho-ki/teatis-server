@@ -50,76 +50,109 @@ const migrateCustomerFeatures = async() => {
     65: ageOptions.find(val => val.value === 65).id,
     75: ageOptions.find(val => val.value === 75).id,
   };
-  for(const customer of allCustomers){
-    console.log('_____________________');
+  for(const customer of allCustomers.slice(12500, 13000)){
+    try{
+      console.log('_____________________');
 
-    const { heightCm, weightKg, age, id, createdAt, updatedAt  } = customer;
+      const { heightCm, weightKg, age, id, createdAt, updatedAt  } = customer;
+      console.log('id: ', id);
+      if(id >= 19840) continue;
 
-    let heightOptionId:number;
+      let heightOptionId:number;
 
-    if(heightCm <= 145) heightOptionId = heightIdSet[145];
-    else if(heightCm <= 155) heightOptionId = heightIdSet[155];
-    else if(heightCm <= 165) heightOptionId = heightIdSet[165];
-    else if(heightCm <= 175) heightOptionId = heightIdSet[175];
-    else if(heightCm <= 185) heightOptionId = heightIdSet[185];
-    else if(heightCm <= 195) heightOptionId = heightIdSet[195];
-    else if(heightCm <= 205) heightOptionId = heightIdSet[205];
-    else heightOptionId = heightIdSet[165];
-    console.log('heightOptionId: ', heightOptionId);
-    let weightOptionId:number;
+      if(heightCm <= 145) heightOptionId = heightIdSet[145];
+      else if(heightCm <= 155) heightOptionId = heightIdSet[155];
+      else if(heightCm <= 165) heightOptionId = heightIdSet[165];
+      else if(heightCm <= 175) heightOptionId = heightIdSet[175];
+      else if(heightCm <= 185) heightOptionId = heightIdSet[185];
+      else if(heightCm <= 195) heightOptionId = heightIdSet[195];
+      else if(heightCm <= 205) heightOptionId = heightIdSet[205];
+      else heightOptionId = heightIdSet[165];
+      let weightOptionId:number;
 
-    if(weightKg <= 55) weightOptionId = weightIdSet[55];
-    else if(weightKg <= 65) weightOptionId = weightIdSet[65];
-    else if(weightKg <= 75) weightOptionId = weightIdSet[75];
-    else if(weightKg <= 85) weightOptionId = weightIdSet[85];
-    else if(weightKg <= 95) weightOptionId = weightIdSet[95];
-    else if(weightKg <= 105) weightOptionId = weightIdSet[105];
-    else if(weightKg <= 115) weightOptionId = weightIdSet[115];
-    else if(weightKg <= 125) weightOptionId = weightIdSet[125];
-    else if(weightKg <= 135) weightOptionId = weightIdSet[135];
-    else if(weightKg <= 145) weightOptionId = weightIdSet[145];
-    else if(weightKg <= 155) weightOptionId = weightIdSet[155];
-    else weightOptionId = weightIdSet[95];
-    console.log('weightOptionId: ', weightOptionId);
+      if(weightKg <= 55) weightOptionId = weightIdSet[55];
+      else if(weightKg <= 65) weightOptionId = weightIdSet[65];
+      else if(weightKg <= 75) weightOptionId = weightIdSet[75];
+      else if(weightKg <= 85) weightOptionId = weightIdSet[85];
+      else if(weightKg <= 95) weightOptionId = weightIdSet[95];
+      else if(weightKg <= 105) weightOptionId = weightIdSet[105];
+      else if(weightKg <= 115) weightOptionId = weightIdSet[115];
+      else if(weightKg <= 125) weightOptionId = weightIdSet[125];
+      else if(weightKg <= 135) weightOptionId = weightIdSet[135];
+      else if(weightKg <= 145) weightOptionId = weightIdSet[145];
+      else if(weightKg <= 155) weightOptionId = weightIdSet[155];
+      else weightOptionId = weightIdSet[95];
 
-    let ageOptionId:number;
+      let ageOptionId:number;
 
-    if(age <= 15) ageOptionId = ageIdSet[15];
-    else if(age <= 25) ageOptionId = ageIdSet[25];
-    else if(age <= 35) ageOptionId = ageIdSet[35];
-    else if(age <= 45) ageOptionId = ageIdSet[45];
-    else if(age <= 55) ageOptionId = ageIdSet[55];
-    else if(age <= 65) ageOptionId = ageIdSet[65];
-    else if(age <= 75) ageOptionId = ageIdSet[75];
-    else ageOptionId = ageIdSet[55];
+      if(age <= 15) ageOptionId = ageIdSet[15];
+      else if(age <= 25) ageOptionId = ageIdSet[25];
+      else if(age <= 35) ageOptionId = ageIdSet[35];
+      else if(age <= 45) ageOptionId = ageIdSet[45];
+      else if(age <= 55) ageOptionId = ageIdSet[55];
+      else if(age <= 65) ageOptionId = ageIdSet[65];
+      else if(age <= 75) ageOptionId = ageIdSet[75];
+      else ageOptionId = ageIdSet[55];
 
-    console.log('ageOptionId: ', ageOptionId);
-    const createHistory = await client.customerSurveyHistory.create(
-      { data: { createdAt, updatedAt, customer: { connect: { id } }, survey: { connect: { name: 'prePurchaseSurvey' } } } });
+      const createHistory = await client.customerSurveyHistory.create(
+        {
+          data: {
+            createdAt, updatedAt, customer: { connect: { id } }, survey: { connect: { name: 'prePurchaseSurvey' } },
+            surveyQuestionResponse: {
+              createMany: {
+                data: [
+                  {
+                    surveyQuestionId: heightOptions[0].surveyQuestion.id,
+                    response: heightOptionId,
+                    createdAt, updatedAt,
+                  // customerSurveyHistoryId: createHistory.id,
+                  },
+                  {
+                    surveyQuestionId: weightOptions[0].surveyQuestion.id,
+                    response: weightOptionId,
+                    createdAt, updatedAt,
+                  // customerSurveyHistoryId: createHistory.id,
+                  },
+                  {
+                    surveyQuestionId: ageOptions[0].surveyQuestion.id,
+                    response: ageOptionId,
+                    createdAt, updatedAt,
+                  // customerSurveyHistoryId: createHistory.id,
+                  },
+                ],
+              },
+            },
+          },
+        });
+      console.log('createHistory: ', createHistory.id, createHistory.orderNumber);
 
-    await client.surveyQuestionResponse.createMany({
-      data:
-         [
-           {
-             surveyQuestionId: heightOptions[0].surveyQuestion.id,
-             response: heightOptionId,
-             createdAt, updatedAt,
-             customerSurveyHistoryId: createHistory.id,
-           },
-           {
-             surveyQuestionId: weightOptions[0].surveyQuestion.id,
-             response: weightOptionId,
-             createdAt, updatedAt,
-             customerSurveyHistoryId: createHistory.id,
-           },
-           {
-             surveyQuestionId: ageOptions[0].surveyQuestion.id,
-             response: ageOptionId,
-             createdAt, updatedAt,
-             customerSurveyHistoryId: createHistory.id,
-           },
-         ],
-    });
+      // await client.surveyQuestionResponse.createMany({
+      //   data:
+      //    [
+      //      {
+      //        surveyQuestionId: heightOptions[0].surveyQuestion.id,
+      //        response: heightOptionId,
+      //        createdAt, updatedAt,
+      //        customerSurveyHistoryId: createHistory.id,
+      //      },
+      //      {
+      //        surveyQuestionId: weightOptions[0].surveyQuestion.id,
+      //        response: weightOptionId,
+      //        createdAt, updatedAt,
+      //        customerSurveyHistoryId: createHistory.id,
+      //      },
+      //      {
+      //        surveyQuestionId: ageOptions[0].surveyQuestion.id,
+      //        response: ageOptionId,
+      //        createdAt, updatedAt,
+      //        customerSurveyHistoryId: createHistory.id,
+      //      },
+      //    ],
+      // });
+    }catch(e){
+      console.log(e);
+      continue;
+    }
   }
   return;
 

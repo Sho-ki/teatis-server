@@ -71,6 +71,8 @@ model Customers {
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
   customerSurveyHistory CustomerSurveyHistory[]
+  profile Profile?
+  employee Employee?
 }
 
 enum GenderIdentify  {
@@ -87,6 +89,48 @@ model CustomerEventLog {
   eventDate  DateTime  @default(now())
   type       EventType
   customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model Profile {
+  id     Int  @id @default(autoincrement())
+  customerId Int  @unique
+
+  address1 String
+  address2 String?
+  city String
+  state String
+  zip String
+  country County @default(US)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+enum County {
+  US
+}
+
+model Employer {
+id Int @id @default(autoincrement())
+name String @unique
+label String
+createdAt DateTime @default(now())
+updatedAt DateTime @default(now()) @updatedAt
+email String? @unique
+note String?
+employee Employee[]
+}
+
+model Employee {
+id Int @id @default(autoincrement())
+employerId Int 
+employer Employer @relation(fields: [employerId], references: [id])
+createdAt DateTime @default(now())
+updatedAt DateTime @default(now()) @updatedAt
+customerId Int @unique
+customer Customers @relation(fields: [customerId], references: [id])
+eligibilityStatus String?
+orderInterval Int @default(30)
 }
 
 model PurchaseDateBasedMessage {
