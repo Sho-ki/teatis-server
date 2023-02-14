@@ -9,7 +9,6 @@ export class SendAutoMessageService {
   ) {}
 
   async sendAutoMessage() {
-
     await this.sendAutoMessageUsecase.sendAutoMessage();
   }
 }

@@ -219,8 +219,8 @@ jobs:
           deploy_timeout: 1000
 
       # If required, use the Cloud Run url output in later steps
-      # - name: Show deploy-twilio-auto-massage Output
-      #   run: echo ${{ steps.deploy-twilio-auto-massage.outputs.url }}
+      - name: Show deploy-twilio-auto-massage Output
+        run: echo ${{ steps.deploy-twilio-auto-massage.outputs.url }}
 
       - name: Show update-order-dev Output
         run: echo ${{ steps.update-order-dev.outputs.url }}
