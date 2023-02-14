@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ReturnValueType } from '@Filters/customError';
-import { PostPrePurchaseSurveyNonSettingDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurveyNonSetting';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerSurveyHistoryRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
@@ -9,15 +8,15 @@ import { SurveyName } from '../utils/surveyName';
 import { SurveyQuestionResponse } from '@prisma/client';
 import { PostWeeklyCheckInDto } from '@Controllers/discoveries/dtos/postWeeklyCheckIn';
 
-export interface PostPrePurchaseSurveyNonSettingUsecaseInterface {
-  postPrePurchaseSurvey({ uuid, customerResponses }: PostWeeklyCheckInDto): Promise<
+export interface PostWeeklyCheckInQuestionsUsecaseInterface {
+    postWeeklyCheckInQuestions({ uuid, customerResponses }: PostWeeklyCheckInDto): Promise<
     ReturnValueType<SurveyQuestionResponse[]>
   >;
 }
 
 @Injectable()
-export class PostPrePurchaseSurveyNonSettingUsecase
-implements PostPrePurchaseSurveyNonSettingUsecaseInterface
+export class PostWeeklyCheckInQuestionsUsecase
+implements PostWeeklyCheckInQuestionsUsecaseInterface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
@@ -27,7 +26,7 @@ implements PostPrePurchaseSurveyNonSettingUsecaseInterface
     @Inject('CustomerSurveyHistoryRepositoryInterface')
     private customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
   ) {}
-  async postPrePurchaseSurvey({ uuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
+  async postWeeklyCheckInQuestions({ uuid, customerResponses }: PostWeeklyCheckInDto): Promise<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ReturnValueType<SurveyQuestionResponse[]>
   > {
