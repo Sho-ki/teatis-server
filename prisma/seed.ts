@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { seedSurvey } from '../defaultData/survey';
-import { weeklyCheckIn } from '../defaultData/weeklyCheckIns';
+import { weeklyCheckIn } from '../defaultData/weeklyCheckIn';
 // import * as fs from 'fs';
 
 const prisma = new PrismaClient();
