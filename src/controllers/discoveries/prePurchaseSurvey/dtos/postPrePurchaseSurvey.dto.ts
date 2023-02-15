@@ -1,7 +1,6 @@
 import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PostPrePurchaseSurveyDto {
-
   @IsNumber()
   @IsOptional()
     gender?: number;
@@ -20,5 +19,4 @@ export class PostPrePurchaseSurveyDto {
 
   @IsString()
     email: string;
-
 }

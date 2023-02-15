@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurvey';
+import { PostPrePurchaseSurveyDto } from '@Controllers/discoveries/prePurchaseSurvey/dtos/postPrePurchaseSurvey.dto';
 import { ReturnValueType } from '@Filters/customError';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';

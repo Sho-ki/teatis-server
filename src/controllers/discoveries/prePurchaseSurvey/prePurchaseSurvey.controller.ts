@@ -8,11 +8,11 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { PostPrePurchaseSurveyNonSettingUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurveyNonSetting.usecase';
-import { PostPrePurchaseSurveyNonSettingDto } from '../dtos/postPrePurchaseSurveyNonSetting';
+import { PostPrePurchaseSurveyNonSettingDto } from './dtos/postPrePurchaseSurveyNonSetting.dto';
 import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
 import { ActiveSurvey } from '@Domains/Survey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { PostPrePurchaseSurveyDto } from '../dtos/postPrePurchaseSurvey';
+import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey.dto';
 import { Customer } from '@Domains/Customer';
 import { SurveyQuestionResponse } from '@prisma/client';
 
