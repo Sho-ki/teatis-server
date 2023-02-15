@@ -40,7 +40,7 @@ import { UpdatePractitionerBoxOrderHistoryUsecase } from '../../usecases/practit
 import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
 import { PrePurchaseSurveyModule } from './pre-purchase/prePurchaseSurvey.module';
 import { SurveyQuestionsRepository } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
-import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
+import { WeeklyCheckInModule } from './weeklyCheckIns/weeklyCheckIn.module';
 
 @Global()
 @Module({
