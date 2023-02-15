@@ -116,8 +116,9 @@ name String @unique
 label String
 createdAt DateTime @default(now())
 updatedAt DateTime @default(now()) @updatedAt
-email String? @unique
+// email String? @unique
 note String?
+uuid  String   @unique
 employee Employee[]
 }
 
@@ -129,8 +130,14 @@ createdAt DateTime @default(now())
 updatedAt DateTime @default(now()) @updatedAt
 customerId Int @unique
 customer Customers @relation(fields: [customerId], references: [id])
-eligibilityStatus String?
-orderInterval Int @default(30)
+emailEligibility EligibilityStatus @default(pending)
+monthlyOrderInterval Int @default(1)
+}
+
+enum EligibilityStatus {
+  eligible
+  ineligible
+  pending
 }
 
 model PurchaseDateBasedMessage {
@@ -997,6 +1004,7 @@ enum EventType {
   boxSubscribed
   boxUnsubscribed
   postPurchaseCalendarCreated
+  boxOrdered
 }
 
 enum MediaType {
