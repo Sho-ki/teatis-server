@@ -11,18 +11,19 @@ import { ActiveSurvey } from '@Domains/Survey';
 import { GetWeeklyCheckInQuestionsUsecaseInterface } from '@Usecases/weeklyCheckIn/getWeeklyCheckInQuestions.usecase';
 import { PostWeeklyCheckInDto } from '../dtos/postWeeklyCheckIn';
 import { PostWeeklyCheckInQuestionsUsecaseInterface } from '@Usecases/weeklyCheckIn/postWeeklyCheckInQuestions.usecase';
+import { SurveyQuestionResponse } from '@prisma/client';
 
 @Controller('api/discovery')
 export class WeeklyCheckInController {
   constructor(
     @Inject('GetWeeklyCheckInQuestionsUsecaseInterface')
     private getWeeklyCheckInQuestionsUsecase: GetWeeklyCheckInQuestionsUsecaseInterface,
-    @Inject('GetWeeklyCheckInQuestionsUsecaseInterface')
+    @Inject('PostWeeklyCheckInQuestionsUsecaseInterface')
     private postWeeklyCheckInQuestionsUsecase: PostWeeklyCheckInQuestionsUsecaseInterface
   ) {}
   // Get: api/discovery/weekly-check-in
   @Get('weekly-check-in')
-  async getPrePurchaseSurveyQuestions(@Res() response: Response<ActiveSurvey | Error>) {
+  async getWeeklyCheckInQuestions(@Res() response: Response<ActiveSurvey | Error>) {
     const [usecaseResponse, error] =
       await this.getWeeklyCheckInQuestionsUsecase.getWeeklyCheckInQuestions();
     if (error) {
@@ -34,7 +35,7 @@ export class WeeklyCheckInController {
   @Post('weekly-check-in')
   async postWeeklyCheckInQuestions(
     @Body() body: PostWeeklyCheckInDto,
-    @Res() response: Response<unknown | Error>,
+    @Res() response: Response<SurveyQuestionResponse[] | Error>,
   ) {
     const [usecaseResponse, error] =
     await this.postWeeklyCheckInQuestionsUsecase.postWeeklyCheckInQuestions(body);
