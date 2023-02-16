@@ -1,4 +1,6 @@
-import { IsArray, IsEnum, IsNumber, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { Country } from '@prisma/client';
+import { Transform } from 'class-transformer';
+import { IsArray, IsEnum, IsNumber, IsOptional, IsPhoneNumber, IsString, ValidateIf } from 'class-validator';
 
 enum CustomerType {
   CUSTOMER = 'customer',
@@ -7,7 +9,7 @@ enum CustomerType {
 
 export class PostPrePurchaseSurveyDto {
   @IsEnum(CustomerType)
-    customerType: CustomerType;
+    customerType: CustomerType = CustomerType.CUSTOMER;
 
   @IsNumber()
   @IsOptional()
@@ -17,20 +19,21 @@ export class PostPrePurchaseSurveyDto {
   //   categoryPreferences: number[];
 
   @IsArray()
-    flavorDislikeIds: number[];
+    flavorDislikeIds: number[] = [];
 
   @IsArray()
-    ingredientDislikeIds: number[];
+    ingredientDislikeIds: number[] = [];
 
   @IsArray()
-    allergenIds: number[];
+    allergenIds: number[] = [];
 
   @IsString()
     email: string;
 
   @ValidateIf(o => o.customerType === CustomerType.EMPLOYEE)
-  @IsString()
-    phoneNumber: string;
+  @IsPhoneNumber('US')
+  @Transform(({ value }) => { return value.startsWith('+1')?value:  '+1' + value; })
+    phone: string;
 
   @ValidateIf(o => o.customerType === CustomerType.EMPLOYEE)
   @IsString()
@@ -63,5 +66,9 @@ export class PostPrePurchaseSurveyDto {
 
   @ValidateIf(o => o.customerType === CustomerType.EMPLOYEE)
   @IsString()
-    country: string;
+    country: Country = 'US';
+
+  @ValidateIf(o => o.customerType === CustomerType.EMPLOYEE)
+  @IsString()
+    employerUuid: string;
 }
