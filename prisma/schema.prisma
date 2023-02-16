@@ -71,7 +71,7 @@ model Customers {
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
   customerSurveyHistory CustomerSurveyHistory[]
-  profile Profile?
+  customerAddress CustomerAddress?
   employee Employee?
 }
 
@@ -91,7 +91,7 @@ model CustomerEventLog {
   customer   Customers @relation(fields: [customerId], references: [id])
 }
 
-model Profile {
+model CustomerAddress {
   id     Int  @id @default(autoincrement())
   customerId Int  @unique
 
@@ -100,13 +100,13 @@ model Profile {
   city String
   state String
   zip String
-  country County @default(US)
+  country Country @default(US)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   customer   Customers @relation(fields: [customerId], references: [id])
 }
 
-enum County {
+enum Country {
   US
 }
 
