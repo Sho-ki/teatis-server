@@ -8,12 +8,10 @@ import { ShopifyRepository } from '../repositories/shopify/shopify.repository';
 import { AutoMessageRepository } from '../repositories/teatisDB/autoMessage/autoMessage.repository';
 import { CoachRepository } from '../repositories/teatisDB/coach/coach.repository';
 import { CustomerAuthRepository } from '../repositories/teatisDB/customer/customerAuth.repository';
-import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerPreferenceRepository } from '../repositories/teatisDB/customer/customerPreference.repository';
 import { CustomerSessionRepository } from '../repositories/teatisDB/customer/customerSession.repository';
 import { CustomerEventLogRepository } from '../repositories/teatisDB/customerEventLog/customerEventLog.repository';
 import { MonthlySelectionRepository } from '../repositories/teatisDB/monthlySelection/monthlySelection.repository';
-import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
 import { CronMetaDataRepository } from '../repositories/teatisDB/webhookEvent/cronMetaData.repository';
 import { WebhookEventRepository } from '../repositories/teatisDB/webhookEvent/webhookEvent.repository';
 import { TwilioRepository } from '../repositories/twilio/twilio.repository';
@@ -92,11 +90,6 @@ import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
       useClass: ShipheroRepository,
     },
     {
-      provide: 'ProductGeneralRepositoryInterface',
-      useClass: ProductGeneralRepository,
-    },
-
-    {
       provide: 'ShopifyRepositoryInterface',
       useClass: ShopifyRepository,
     },
@@ -119,10 +112,6 @@ import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
     {
       provide: 'TwilioRepositoryInterface',
       useClass: TwilioRepository,
-    },
-    {
-      provide: 'CustomerGeneralRepositoryInterface',
-      useClass: CustomerGeneralRepository,
     },
 
   ],
