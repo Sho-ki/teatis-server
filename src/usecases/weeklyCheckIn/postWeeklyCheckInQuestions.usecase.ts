@@ -27,7 +27,6 @@ implements PostWeeklyCheckInQuestionsUsecaseInterface
     private customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
   ) {}
   async postWeeklyCheckInQuestions({ uuid, customerResponses }: PostWeeklyCheckInDto): Promise<
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ReturnValueType<SurveyQuestionResponse[]>
   > {
     const [customer, getCustomerError] =
