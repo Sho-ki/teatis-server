@@ -42,6 +42,6 @@ export class WeeklyCheckInController {
     if (error) {
       return response.status(500).send(error);
     }
-    return response.status(200).send(usecaseResponse);
+    return response.status(201).send(usecaseResponse);
   }
 }
