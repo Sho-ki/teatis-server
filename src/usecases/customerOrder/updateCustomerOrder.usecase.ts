@@ -187,14 +187,14 @@ implements UpdateCustomerOrderUsecaseInterface
           let [boxProducts, swapError] =
             await this.customerProductsAutoSwap.customerProductsAutoSwap(
               {
-                products: monthlyBoxSelection.product,
+                products: monthlyBoxSelection.products,
                 customer,
-                count: monthlyBoxSelection.product.length,
+                count: monthlyBoxSelection.products.length,
               }
             );
 
           if (!boxProducts.length || swapError) {
-            boxProducts =  monthlyBoxSelection.product;
+            boxProducts =  monthlyBoxSelection.products;
           }
 
           const [order, orderError] = await this.shipheroRepository.getCustomerOrderByOrderNumber({ orderNumber });

@@ -218,7 +218,7 @@ implements SendAutoMessageUsecaseInterface
       message.delayDaysSincePurchase === customer.daysSincePurchase);
     if(purchaseDateBasedMatchingMessage){
       sendingMessage = purchaseDateBasedMatchingMessage;
-    } else if(customer.daysSincePurchase !== 0){ // The first welcome message will be sent on the 1st day. So do not send a sequent message on the 0th day.
+    } else if(customer.daysSincePurchase > 2){ // The first welcome message will be sent on the 1st day. So do not send a sequent message on the 0th day.
       const today = new Date();
       const timeSinceLastMessage =
           today.getTime() - customer.sequenceBasedAutoMessageData.lastSequentBasedMessageDate.getTime();
