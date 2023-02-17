@@ -1,7 +1,7 @@
 import { Global, Module, ModuleMetadata } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CustomerGeneralRepository } from './repositories/teatisDB/customer/customerGeneral.repository';
-import { EmployerRepository } from './repositories/teatisDB/employer/employer.repository';
+import { EmployeeRepository } from './repositories/teatisDB/employee/employee.repository';
 import { ProductGeneralRepository } from './repositories/teatisDB/product/productGeneral.repository';
 
 const createGlobalModule = (repositories, configurations) => {
@@ -23,5 +23,5 @@ const createGlobalModule = (repositories, configurations) => {
 };
 
 @Global()
-@Module(createGlobalModule([CustomerGeneralRepository, EmployerRepository, ProductGeneralRepository], [PrismaService]))
+@Module(createGlobalModule([CustomerGeneralRepository, EmployeeRepository, ProductGeneralRepository], [PrismaService]))
 export class GlobalModule {}

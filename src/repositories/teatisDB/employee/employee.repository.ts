@@ -9,13 +9,13 @@ export interface ConnectCustomerWithEmployerArgs {
   employerUuid: string;
 }
 
-export interface EmployerRepositoryInterface {
+export interface EmployeeRepositoryInterface {
   connectCustomerWithEmployer({ customerId, employerUuid }: ConnectCustomerWithEmployerArgs):
   Promise<ReturnValueType<EmployeeCustomer>>;
 }
 
 @Injectable()
-export class EmployerRepository implements EmployerRepositoryInterface {
+export class EmployeeRepository implements EmployeeRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
   async connectCustomerWithEmployer({ customerId, employerUuid }: ConnectCustomerWithEmployerArgs):
