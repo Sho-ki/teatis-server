@@ -20,14 +20,20 @@ import { UpdateCustomerOrderUsecase } from '../usecases/customerOrder/updateCust
 import { SendAutoMessageUsecase } from '../usecases/twilio/sendAutoMessage.usecase';
 import { CreateCalendarEvent } from '../usecases/utils/createCalendarEvent';
 import { CustomerProductsAutoSwap } from '../usecases/utils/customerProductsAutoSwap';
-import { UpdateOrderService } from './order/updateOrder.service';
-import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
+import { UpdateOrderService } from './updateOrder/updateOrder.service';
+import { SendAutoMessageService } from './sendAutoMessage/sendAutoMessage.service';
+import { CreateEmployeeOrderService } from './createEmployeeOrder/createEmployeeOrder.service';
+import { CreateEmployeeOrderUsecase } from '../usecases/employeeOrder/createEmployeeOrder.usecase';
+import { EmployeeRepository } from '../repositories/teatisDB/employee/employee.repository';
+import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
+import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
 
 @Module({
   exports: [WorkerModule],
   providers: [
     SendAutoMessageService,
     UpdateOrderService,
+    CreateEmployeeOrderService,
     PrismaService,
     Logger,
     {
@@ -36,6 +42,22 @@ import { SendAutoMessageService } from './twilio/sendAutoMessage.service';
         return new Twilio( process.env.TWILIO_ACCOUNT_SID,
           process.env.TWILIO_AUTH_TOKEN,);
       },
+    },
+    {
+      provide: 'ProductGeneralRepositoryInterface',
+      useClass: ProductGeneralRepository,
+    },
+    {
+      provide: 'CustomerGeneralRepositoryInterface',
+      useClass: CustomerGeneralRepository,
+    },
+    {
+      provide: 'EmployeeRepositoryInterface',
+      useClass: EmployeeRepository,
+    },
+    {
+      provide: 'CreateEmployeeOrderUsecaseInterface',
+      useClass: CreateEmployeeOrderUsecase,
     },
     {
       provide: 'CustomerEventLogRepositoryInterface',

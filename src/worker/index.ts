@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { Request, Response } from 'express';
-import { executeUpdateOrder } from './order/updateOrder.worker';
-import { executeSendAutoMessage } from './twilio/sendAutoMessage.worker';
+import { executeUpdateOrder } from './updateOrder/updateOrder.worker';
+import { executeSendAutoMessage } from './sendAutoMessage/sendAutoMessage.worker';
+import { executeCreateEmployeeOrder } from './createEmployeeOrder/createEmployeeOrder.worker';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -17,14 +18,22 @@ module.exports.updateOrder = async (req: Request, res: Response) => {
   res.end();
 };
 
+module.exports.createOrder = async (req: Request, res: Response) => {
+  await executeCreateEmployeeOrder(req.method);
+  res.end();
+};
+
 const executeFunctionManually = async() => {
   const workName = process.argv[2];
   switch(workName){
-    case 'order':
+    case 'updateOrder':
       await executeUpdateOrder('POST');
       break;
-    case 'twilio':
+    case 'sendAutoMessage':
       await executeSendAutoMessage('POST');
+      break;
+    case 'createEmployeeOrder':
+      await executeCreateEmployeeOrder('POST');
       break;
   }
 };
