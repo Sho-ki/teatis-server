@@ -7,14 +7,26 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
 import { GenderIdentify } from '@prisma/client';
 import { Customer } from '@Domains/Customer';
+import { EmployerRepositoryInterface } from '@Repositories/teatisDB/employer/employer.repository';
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
+    customerType,
     gender,
     flavorDislikeIds,
     ingredientDislikeIds,
     allergenIds,
     email,
+    phone,
+    firstName,
+    lastName,
+    address1,
+    address2,
+    city,
+    state,
+    zip,
+    country,
+    employerUuid,
   }: PostPrePurchaseSurveyDto): Promise<
     ReturnValueType<Customer>
   >;
@@ -29,18 +41,37 @@ implements PostPrePurchaseSurveyUsecaseInterface
     private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('SurveyQuestionsRepositoryInterface')
     private readonly surveyQuestionsRepository: SurveyQuestionsRepositoryInterface,
+    @Inject('EmployerRepositoryInterface')
+    private readonly employerRepository: EmployerRepositoryInterface,
 
   ) {}
 
   async postPrePurchaseSurvey({
+    customerType,
     gender,
     flavorDislikeIds,
     ingredientDislikeIds,
     allergenIds,
     email,
+    phone,
+    firstName,
+    lastName,
+    address1,
+    address2,
+    city,
+    state,
+    zip,
+    country,
+    employerUuid,
   }: PostPrePurchaseSurveyDto): Promise<
     ReturnValueType<Customer>
   > {
+    if(phone){
+      const [existingCustomer] =await this.customerGeneralRepository.getCustomerByPhone({ phone });
+      if(existingCustomer && existingCustomer.email !== email){
+        return [undefined, { name: 'PhoneAlreadyExists', message: 'Phone already exists' }];
+      }
+    }
 
     let genderLabel = 'Prefer not to say';
     if(gender){
@@ -76,7 +107,27 @@ implements PostPrePurchaseSurveyUsecaseInterface
         ingredientDislikeIds: ingredientDislikeIds.filter(id => id > 0), // None = 0, others = -1
         allergenIds: allergenIds.filter(id => id > 0), // None = 0, others = -1,
         email,
+        phone,
+        firstName,
+        lastName,
       });
+
+    if(customerType === 'employee'){
+      await this.customerGeneralRepository.upsertCustomerAddress({
+        customerId: customer.id,
+        address1,
+        address2,
+        city,
+        state,
+        zip,
+        country,
+      });
+      const [, employerNotFound] =
+       await this.employerRepository.connectCustomerWithEmployer({ customerId: customer.id, employerUuid });
+      if(employerNotFound){
+        return [undefined, employerNotFound];
+      }
+    }
 
     return [customer, undefined];
   }
