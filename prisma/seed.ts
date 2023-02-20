@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { seedSurvey } from '../defaultData/survey';
+import { testEmployers } from '../defaultData/testEmployer';
 // import * as fs from 'fs';
 
 const prisma = new PrismaClient();
@@ -7,6 +8,7 @@ const prisma = new PrismaClient();
 async function main() {
   await upsertSurvey(); // currently only create
 
+  await upsertEmployers();
   // const customerNutritionItems = [
   //   {
   //     name: 'BMR',
@@ -304,6 +306,21 @@ async function main() {
 
 }
 
+const upsertEmployers = async() => {
+  for(const employer of testEmployers){
+    const { name, label, uuid } = employer;
+    await prisma.employer.upsert({
+      where: { name },
+      create: {
+        name,
+        label,
+        uuid,
+      },
+      update: { label },
+    });
+  }
+};
+
 const upsertSurvey = async() => {
   for(const survey of seedSurvey){
     const { name, label, questions } = survey;
@@ -323,6 +340,38 @@ const upsertSurvey = async() => {
       } = question;
 
       const findQuestion = await prisma.surveyQuestion.findUnique({ where: { name: questionName } });
+      if(findQuestion){
+        await prisma.intermediateSurveyQuestion.upsert({
+          where: { surveyId_surveyQuestionId: { surveyId: surveyResponse.id, surveyQuestionId: findQuestion.id } },
+          create: {
+            surveyId: surveyResponse.id,
+            surveyQuestionId: findQuestion.id,
+            displayOrder,
+          },
+          update: { displayOrder },
+        });
+        if(children){
+          for(const child of children){
+            const { name: childQuestionName, displayOrder } = child;
+            const childResponse = await prisma.surveyQuestion.findUnique({ where: { name: childQuestionName } });
+            if(childResponse){
+              await prisma.intermediateSurveyQuestion.upsert({
+                where: {
+                  surveyId_surveyQuestionId:
+                  { surveyId: surveyResponse.id, surveyQuestionId: childResponse.id },
+                },
+                create: {
+                  surveyId: surveyResponse.id,
+                  surveyQuestionId: childResponse.id,
+                  displayOrder,
+                },
+                update: { displayOrder },
+              });
+            }
+          }
+        }
+      }
+
       if(!findQuestion){
         const questionResponse = await prisma.surveyQuestion.create({
           data: {
