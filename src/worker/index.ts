@@ -19,7 +19,7 @@ module.exports.updateOrder = async (req: Request, res: Response) => {
   res.end();
 };
 
-module.exports.createOrder = async (req: Request, res: Response) => {
+module.exports.createEmployeeOrder = async (req: Request, res: Response) => {
   await executeCreateEmployeeOrder(req.method);
   res.end();
 };
