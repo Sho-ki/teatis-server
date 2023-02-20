@@ -3,8 +3,8 @@ import {
   Controller,
   Get,
   Inject,
-  Param,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -28,12 +28,12 @@ export class PrePurchaseSurveyController {
     private getPrePurchaseSurveyUsecase: GetPrePurchaseSurveyUsecase,
   ) {}
   // Get: api/discovery/pre-purchase-survey
-  @Get('pre-purchase-survey/:employerUuid?')
-  async getPrePurchaseSurveyQuestions(@Param('employerUuid') employerUuid:string, @Res() response: Response<ActiveSurvey | Error>) {
+  @Get('pre-purchase-survey')
+  async getPrePurchaseSurveyQuestions(@Query('uuid') employerUuid:string, @Res() response: Response<ActiveSurvey | Error>) {
     const [usecaseResponse, error] =
       await this.getPrePurchaseSurveyUsecase.getPrePurchaseSurveyQuestions(employerUuid);
     if (error) {
-      return response.status(500).send(error);
+      return response.status(404).send(error);
     }
     return response.status(200).send(usecaseResponse);
   }
