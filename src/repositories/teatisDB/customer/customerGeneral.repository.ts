@@ -6,7 +6,7 @@ import { Preference } from '@Domains/Preference';
 import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
-import { Country, GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
+import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { CustomerWithAddress } from '../../../domains/CustomerWithAddress';
@@ -29,6 +29,8 @@ interface UpsertCustomerArgs {
   phone?: string;
   firstName?: string;
   lastName?: string;
+  coachingSubscribed?: ActiveStatus;
+  boxSubscribed?: ActiveStatus;
 }
 
 interface UpsertCustomerAddressArgs {
@@ -126,6 +128,8 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     phone,
     firstName,
     lastName,
+    coachingSubscribed,
+    boxSubscribed,
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>>;
 
   upsertCustomerAddress({
@@ -455,6 +459,8 @@ implements CustomerGeneralRepositoryInterface
     phone = undefined,
     firstName = undefined,
     lastName = undefined,
+    coachingSubscribed = 'inactive',
+    boxSubscribed = 'inactive',
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>> {
     const existingCustomer = await this.prisma.customers.findUnique({ where: { email } });
 
@@ -500,6 +506,8 @@ implements CustomerGeneralRepositoryInterface
         lastName,
         uuid,
         email,
+        coachingSubscribed,
+        boxSubscribed,
         genderIdentify: gender,
         intermediateCustomerIngredientDislikes:
             ingredientDislikeIds.length
@@ -545,6 +553,8 @@ implements CustomerGeneralRepositoryInterface
         firstName,
         lastName,
         email,
+        coachingSubscribed,
+        boxSubscribed,
         genderIdentify: gender,
         intermediateCustomerIngredientDislikes:
             ingredientDislikeIds.length

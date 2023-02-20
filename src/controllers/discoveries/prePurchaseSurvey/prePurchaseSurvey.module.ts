@@ -8,11 +8,16 @@ import { SurveyQuestionsRepository } from '@Repositories/teatisDB/survey/surveyQ
 import { CustomerSurveyResponseRepository } from '../../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerSurveyHistoryRepository } from '../../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 import { PostPrePurchaseSurveyUsecase } from '../../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
+import { CoachRepository } from '../../../repositories/teatisDB/coach/coach.repository';
 
 @Module({
   controllers: [PrePurchaseSurveyController],
   providers: [
 
+    {
+      provide: 'CoachRepositoryInterface',
+      useClass: CoachRepository,
+    },
     {
       provide: 'PostPrePurchaseSurveyUsecaseInterface',
       useClass: PostPrePurchaseSurveyUsecase,

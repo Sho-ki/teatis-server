@@ -7,7 +7,8 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
 import { GenderIdentify } from '@prisma/client';
 import { Customer } from '@Domains/Customer';
-import { EmployerRepositoryInterface } from '@Repositories/teatisDB/employer/employer.repository';
+import { EmployeeRepositoryInterface } from '@Repositories/teatisDB/employee/employee.repository';
+import { CoachRepositoryInterface } from '../../repositories/teatisDB/coach/coach.repository';
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
@@ -41,9 +42,10 @@ implements PostPrePurchaseSurveyUsecaseInterface
     private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('SurveyQuestionsRepositoryInterface')
     private readonly surveyQuestionsRepository: SurveyQuestionsRepositoryInterface,
-    @Inject('EmployerRepositoryInterface')
-    private readonly employerRepository: EmployerRepositoryInterface,
-
+    @Inject('EmployeeRepositoryInterface')
+    private readonly employeeRepository: EmployeeRepositoryInterface,
+    @Inject('CoachRepositoryInterface')
+    private readonly coachRepository: CoachRepositoryInterface,
   ) {}
 
   async postPrePurchaseSurvey({
@@ -110,23 +112,31 @@ implements PostPrePurchaseSurveyUsecaseInterface
         phone,
         firstName,
         lastName,
+        coachingSubscribed: customerType === 'employee' ? 'active' : 'inactive',
+        boxSubscribed: customerType === 'employee' ? 'active' : 'inactive',
       });
 
     if(customerType === 'employee'){
-      await this.customerGeneralRepository.upsertCustomerAddress({
-        customerId: customer.id,
-        address1,
-        address2,
-        city,
-        state,
-        zip,
-        country,
-      });
-      const [, employerNotFound] =
-       await this.employerRepository.connectCustomerWithEmployer({ customerId: customer.id, employerUuid });
+      // eslint-disable-next-line no-empty-pattern
+      const [[], , [, employerNotFound]] = await Promise.all([
+        this.customerGeneralRepository.upsertCustomerAddress({
+          customerId: customer.id,
+          address1,
+          address2,
+          city,
+          state,
+          zip,
+          country,
+        }),
+        this.coachRepository.
+          connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id }),
+        this.employeeRepository.connectCustomerWithEmployer({ customerId: customer.id, employerUuid }),
+
+      ]);
       if(employerNotFound){
         return [undefined, employerNotFound];
       }
+
     }
 
     return [customer, undefined];
