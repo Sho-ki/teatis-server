@@ -8,11 +8,10 @@ import {
 } from '@Domains/Product';
 import { PrismaService } from '../../../prisma.service';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { ActiveStatus, Prisma, PrismaClient } from '@prisma/client';
 import { ReturnValueType } from '@Filters/customError';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { nutritionFactField } from '../../utils/nutritionFactField';
-import { Status } from '../../../domains/Status';
 
 interface GetProductsBySkuArgs {
   products: Pick<Product, 'sku'>[];
@@ -111,7 +110,7 @@ interface UpsertProductArgs {
 }
 
 interface UpdateProductsStatusArgs {
-  isActive:boolean;
+  activeStatus:ActiveStatus;
   skus:string[];
 }
 
@@ -166,7 +165,7 @@ export interface ProductGeneralRepositoryInterface extends Transactionable{
     productId,
   }: UpsertProductImageSetArgs): Promise<ReturnValueType<ProductImage[]>>;
 
-  updateProductsStatus({ isActive, skus }:UpdateProductsStatusArgs): Promise<ReturnValueType<Status>>;
+  updateProductsStatus({ activeStatus, skus }:UpdateProductsStatusArgs): Promise<ReturnValueType<Prisma.BatchPayload>>;
 }
 
 @Injectable()
@@ -860,15 +859,13 @@ implements ProductGeneralRepositoryInterface
     return [getOptionsRes];
   }
 
-  async updateProductsStatus({ isActive, skus }:UpdateProductsStatusArgs): Promise<ReturnValueType<Status>>{
+  async updateProductsStatus({ activeStatus, skus }:UpdateProductsStatusArgs):
+  Promise<ReturnValueType<Prisma.BatchPayload>>{
     const response = await this.prisma.product.updateMany({
       where: { externalSku: { in: skus } },
-      data: { activeStatus: isActive?'active':'inactive' },
+      data: { activeStatus },
     });
 
-    if(!response){
-      return [undefined, { name: 'updateProductStatus error', message: 'sku is invalid' }];
-    }
-    return [{ success: true }];
+    return [response];
   }
 }
