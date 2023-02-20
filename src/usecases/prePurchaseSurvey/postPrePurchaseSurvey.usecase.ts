@@ -112,8 +112,8 @@ implements PostPrePurchaseSurveyUsecaseInterface
         phone,
         firstName,
         lastName,
-        coachingSubscribed: customerType === 'employee' ? 'active' : 'inactive',
-        boxSubscribed: customerType === 'employee' ? 'active' : 'inactive',
+        coachingSubscribed: customerType === 'employee' ? 'active' : undefined,
+        boxSubscribed: customerType === 'employee' ? 'active' : undefined,
       });
 
     if(customerType === 'employee'){

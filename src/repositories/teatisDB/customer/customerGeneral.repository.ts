@@ -459,8 +459,8 @@ implements CustomerGeneralRepositoryInterface
     phone = undefined,
     firstName = undefined,
     lastName = undefined,
-    coachingSubscribed = 'inactive',
-    boxSubscribed = 'inactive',
+    coachingSubscribed,
+    boxSubscribed,
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>> {
     const existingCustomer = await this.prisma.customers.findUnique({ where: { email } });
 
