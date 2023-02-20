@@ -43,7 +43,7 @@ export class EmployeeRepository implements EmployeeRepositoryInterface {
       return [response];
     }catch(error){
       if(error.code === 'P2025'){
-        return [undefined, { name: 'EmployerNotFound', message: 'Employer not found' }];
+        return [undefined, { name: 'NotFound', message: 'Employer not found' }];
       }
     }
   }
