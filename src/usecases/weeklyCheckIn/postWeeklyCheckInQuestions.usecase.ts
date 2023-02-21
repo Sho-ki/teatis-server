@@ -35,16 +35,8 @@ implements PostWeeklyCheckInQuestionsUsecaseInterface
       return [undefined, getCustomerError];
     }
 
-    const { id } = customer;
-
-    let [customerSurveyHistory] =
-    await this.customerSurveyHistoryRepository.getCustomerSurveyHistory(
-      { customerId: id, surveyName: SurveyName.WeeklyCheckIn });
-
-    if (!customerSurveyHistory) {
-      customerSurveyHistory = await this.customerSurveyHistoryRepository.createCustomerSurveyHistory(
-        { customerId: customer.id, surveyName: SurveyName.WeeklyCheckIn  });
-    }
+    const customerSurveyHistory = await this.customerSurveyHistoryRepository.createCustomerSurveyHistory(
+      { customerId: customer.id, surveyName: SurveyName.WeeklyCheckIn  });
 
     const surveyQuestionResponses = await Promise.all(customerResponses.map((customerResponse) => {
       return this.customerSurveyResponseRepository.upsertCustomerResponse(
