@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma.service';
 import { CustomerGeneralRepository } from './repositories/teatisDB/customer/customerGeneral.repository';
 import { EmployeeRepository } from './repositories/teatisDB/employee/employee.repository';
 import { ProductGeneralRepository } from './repositories/teatisDB/product/productGeneral.repository';
+import { TerraRepository } from './repositories/terra/terra.repository';
 
 const createGlobalModule = (repositories, configurations) => {
   const globalModule: ModuleMetadata = { providers: [], exports: [] };
@@ -23,5 +24,10 @@ const createGlobalModule = (repositories, configurations) => {
 };
 
 @Global()
-@Module(createGlobalModule([CustomerGeneralRepository, EmployeeRepository, ProductGeneralRepository], [PrismaService]))
+@Module(createGlobalModule([
+  CustomerGeneralRepository,
+  EmployeeRepository,
+  ProductGeneralRepository,
+  TerraRepository,
+], [PrismaService]))
 export class GlobalModule {}
