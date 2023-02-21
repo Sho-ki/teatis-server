@@ -525,6 +525,7 @@ export const seedSurvey:Survey[] = [
         options: [],
         children: [
           {
+            displayOrder: 1,
             name: 'ingredientDislikesOthers',
             label: 'What other ingredients do you dislike?',
             isRequired: false,
@@ -1099,6 +1100,7 @@ export const seedSurvey:Survey[] = [
         options: [],
         children: [
           {
+            displayOrder: 1,
             name: 'ingredientDislikesOthers',
             label: 'What other ingredients do you dislike?',
             isRequired: false,
@@ -1155,6 +1157,7 @@ export const seedSurvey:Survey[] = [
         options: [],
         children: [
           {
+            displayOrder: 1,
             name: 'productSatisfactionReason',
             label: 'Please let us know your thoughts!',
             isRequired: false,

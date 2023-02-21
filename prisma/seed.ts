@@ -351,8 +351,9 @@ const upsertSurvey = async() => {
           update: { displayOrder },
         });
         if(children){
+          let i = 1;
           for(const child of children){
-            const { name: childQuestionName, displayOrder } = child;
+            const { name: childQuestionName } = child;
             const childResponse = await prisma.surveyQuestion.findUnique({ where: { name: childQuestionName } });
             if(childResponse){
               await prisma.intermediateSurveyQuestion.upsert({
@@ -363,11 +364,12 @@ const upsertSurvey = async() => {
                 create: {
                   surveyId: surveyResponse.id,
                   surveyQuestionId: childResponse.id,
-                  displayOrder,
+                  displayOrder: i,
                 },
-                update: { displayOrder },
+                update: { displayOrder: i },
               });
             }
+            i++;
           }
         }
       }
