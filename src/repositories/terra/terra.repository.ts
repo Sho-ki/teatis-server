@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { ReturnValueType } from '../../filter/customError';
@@ -71,41 +72,39 @@ export class TerraRepository implements TerraRepositoryInterface {
 
   async getCustomerGlucoseLogs({ terraCustomerId, date }:
     GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>{
-    const { data, status } = await axios.get<GetCustomerGlucoseLogResponse.RootObject>(
-      `https://api.tryterra.co/v2/body?to_webhook=false&start_date=${date}&user_id=${terraCustomerId}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'dev-id': process.env.TERRA_DEV_ID,
-          'x-api-key': process.env.TERRA_API_KEY,
-        },
-      } ).then((val) => {
-      return { data: val.data, status: val.status };
-    }).catch(() => { return { data: null, status: 401 }; });
-    if(status === 401){
-      return [
+    try{
+      const response  = await axios.get<GetCustomerGlucoseLogResponse.RootObject>(
+        `https://api.tryterra.co/v2/body?to_webhook=false&start_date=${date}&user_id=${terraCustomerId}`,
         {
-          terraCustomerKeyId: null,
-          terraCustomerId: '',
-          data: [],
-        },
-      ];
-    }
-    if(status !== 200) {
-      throw new Error('Something went wrong with terra');
-    }
-    const todaysGlucoseData: GlucoseLog ={
-      terraCustomerId,
-      terraCustomerKeyId: null,
-      data: data.data.map(({ glucose_data }):GlucoseLogData[] =>
-      { return glucose_data.blood_glucose_samples.map(({ timestamp, blood_glucose_mg_per_dL }) =>
-      { return {
-        timestampUtc: new Date(timestamp),
-        timestamp,
-        glucoseValue: Math.round(blood_glucose_mg_per_dL),
-      }; }); }).flatMap(data => data),
-    };
+          headers: {
+            'Content-Type': 'application/json',
+            'dev-id': process.env.TERRA_DEV_ID,
+            'x-api-key': process.env.TERRA_API_KEY,
+          },
+        } );
+      const { data, status } = response;
+      console.log('terraCustomerId:', terraCustomerId, status);
+      if(status === 401 || status === 424 ){
+        throw new Error('Terra logs are not found');
+      }
 
-    return [todaysGlucoseData];
+      const todaysGlucoseData: GlucoseLog ={
+        terraCustomerId,
+        terraCustomerKeyId: null,
+        data: data.data.map(({ glucose_data }):GlucoseLogData[] =>
+        { return glucose_data.blood_glucose_samples.map(({ timestamp, blood_glucose_mg_per_dL }) =>
+        { return {
+          timestampUtc: new Date(timestamp),
+          timestamp,
+          glucoseValue: Math.round(blood_glucose_mg_per_dL),
+        }; }); }).flatMap(data => data),
+      };
+
+      return [todaysGlucoseData];
+    }catch(e){
+      console.log('terraCustomerId:', terraCustomerId);
+
+      return [undefined, { name: 'TerraError', message: terraCustomerId }];
+    }
   }
 }
