@@ -49,7 +49,7 @@ name: Dev Release (Cloud functions)
 on:
   push:
     branches:
-      - main
+      - fix/cloudfunction-prisma
 env:
   PROJECT_ID: teatis-discovery-dev
   SERVICE: teatis-server-dev
