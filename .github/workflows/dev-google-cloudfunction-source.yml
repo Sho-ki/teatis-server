@@ -182,13 +182,13 @@ jobs:
           workload_identity_provider: '${{ secrets.WIF_PROVIDER_DEV }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT_DEV }}'
 
-      - name: Deploy to Cloud Function (twilio-auto-message-dev-2)
+      - name: Deploy to Cloud Function (twilio-auto-message-dev)
         id: deploy-twilio-auto-massage
         uses: google-github-actions/deploy-cloud-functions@v1
         with:
           project_id: ${{ env.PROJECT_ID }}
           region: ${{ env.REGION }}
-          name: twilio-auto-message-dev-2
+          name: twilio-auto-message-dev
           runtime: nodejs16
           # source_dir: ./dist
           timeout: 500
