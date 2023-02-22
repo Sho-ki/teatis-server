@@ -23,7 +23,7 @@ implements UpsertAllCustomersGlucoseUsecaseInterface
   ) {}
 
   async upsertAllCustomersGlucose(): Promise<ReturnValueType<Status>> {
-    const [terraCustomers, getAllCustomersError] = await this.terraCustomerRepository.getActiveTerraCustomers();
+    const [terraCustomers, getAllCustomersError] = await this.terraRepository.getAllCustomers();
     if(getAllCustomersError){
       return [undefined, getAllCustomersError];
     }
