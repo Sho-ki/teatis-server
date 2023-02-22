@@ -49,7 +49,7 @@ name: Dev Release (Cloud functions)
 on:
   push:
     branches:
-      - fix/cloudfunction-prisma
+      - main
 env:
   PROJECT_ID: teatis-discovery-dev
   SERVICE: teatis-server-dev
@@ -203,7 +203,7 @@ jobs:
           secret_environment_variables: ${{ env.SECRETS }}
           deploy_timeout: 1000
 
-      - name: Deploy to Cloud Function (update-order-dev-2)
+      - name: Deploy to Cloud Function (update-order-dev)
         id: update-order-dev
         uses: google-github-actions/deploy-cloud-functions@v1
         with:
