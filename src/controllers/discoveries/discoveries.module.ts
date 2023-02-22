@@ -39,6 +39,7 @@ import { CreateCheckoutCartUsecase } from '../../usecases/checkoutCart/createChe
 import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
 import { PrePurchaseSurveyModule } from './pre-purchase/prePurchaseSurvey.module';
 import { SurveyQuestionsRepository } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
+import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
 
 @Global()
 @Module({
@@ -193,6 +194,7 @@ import { SurveyQuestionsRepository } from '../../repositories/teatisDB/survey/su
     EmailModule,
     TemporaryPrePurchaseSurveysModule,
     PrePurchaseSurveyModule,
+    WeeklyCheckInModule,
   ],
   exports: [DiscoveriesController],
 })

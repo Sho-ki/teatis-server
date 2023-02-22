@@ -1,11 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { seedSurvey } from '../defaultData/survey';
+import { weeklyCheckIn } from '../defaultData/weeklyCheckIn';
 // import * as fs from 'fs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   await upsertSurvey(); // currently only create
+  await upsertWeeklyCheckin(); // currently only create
 
   // const customerNutritionItems = [
   //   {
@@ -376,6 +378,54 @@ const upsertSurvey = async() => {
             i++;
           }
         }
+        await prisma.intermediateSurveyQuestion.create({
+          data: {
+            surveyId: surveyResponse.id,
+            surveyQuestionId: questionResponse.id,
+            displayOrder,
+          },
+        });
+      }
+    }
+  }
+};
+
+const upsertWeeklyCheckin = async() => {
+  for(const survey of weeklyCheckIn){
+    const { name, label, questions } = survey;
+    const surveyResponse = await prisma.survey.upsert({
+      where: { name: survey.name },
+      create: {
+        name,
+        label,
+      },
+      update: { label },
+    });
+
+    for(const question of questions){
+      const {
+        name: questionName, label: questionLabel, responseType, isCustomerFeature, images, isRequired,
+        displayOrder, options, placeholder, hint,
+      } = question;
+
+      const findQuestion = await prisma.surveyQuestion.findUnique({ where: { name: questionName } });
+      if(!findQuestion){
+        const questionResponse = await prisma.surveyQuestion.create({
+          data: {
+            name: questionName,
+            label: questionLabel,
+            responseType, isCustomerFeature, isRequired,
+            placeholder, hint,
+            image: images && images.length?{
+              createMany:
+               { data: images?.map(({ position, src }) => { return { position, src }; } ) },
+            }:{},
+            surveyQuestionOptions: options && options.length? {
+              createMany:
+               { data: options?.map(({ label, value }) => { return { label, value }; } ) },
+            }:{},
+          },
+        });
         await prisma.intermediateSurveyQuestion.create({
           data: {
             surveyId: surveyResponse.id,
