@@ -2,7 +2,7 @@ import {  Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { PostAuthSuccessDto } from '../../controllers/terra/dtos/postAuthSuccessDto';
-import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomer.repository';
+import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomers.repository';
 import { CustomerAndTerraCustomer } from '../../domains/CustomerAndTerraCustomer';
 
 export interface PostTerraAuthSuccessUsecaseInterface {

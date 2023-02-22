@@ -5,7 +5,7 @@ import { GetTerraAuthUrlUsecase } from '@Usecases/terraAuth/getTerraAuthUrl.usec
 import { UpsertAllCustomersGlucoseUsecase } from '../../usecases/terraCustomerGlucose/upsertAllCustomersGlucose.usecase';
 import { PostTerraAuthSuccessUsecase } from '../../usecases/terraAuth/postTerraAuthSuccess.usecase';
 import { TerraController } from './terra.controller';
-import { TerraCustomerRepository } from '../../repositories/teatisDB/terraCustomer/terraCustomer.repository';
+import { TerraCustomerRepository } from '../../repositories/teatisDB/terraCustomer/terraCustomers.repository';
 import { PrismaService } from '../../prisma.service';
 
 @Module({

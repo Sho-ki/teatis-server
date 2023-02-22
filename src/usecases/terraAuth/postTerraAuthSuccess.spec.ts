@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostAuthSuccessDto } from '../../controllers/terra/dtos/postAuthSuccessDto';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
-import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomer.repository';
+import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomers.repository';
 import { PostTerraAuthSuccessUsecase } from './postTerraAuthSuccess.usecase';
 
 describe('PostTerraAuthSuccessUsecase', () => {
