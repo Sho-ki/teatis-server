@@ -4,8 +4,7 @@ import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerAndTerraCustomer } from '../../../domains/CustomerAndTerraCustomer';
 import { GlucoseLog } from '../../../domains/GlucoseLog';
-import { Status } from '../../../domains/Status';
-import { TerraCustomer } from '@prisma/client';
+import { Prisma, TerraCustomer } from '@prisma/client';
 
 export interface GetTerraCustomersArgs {
   terraCustomerIds: string[];
@@ -35,7 +34,7 @@ export interface TerraCustomerRepositoryInterface {
    Promise<ReturnValueType<CustomerAndTerraCustomer>>;
   getCustomerGlucoseLogs({ terraCustomerId }:GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>;
   addCustomerGlucoseLogs({ terraCustomerKeyId,  data }:AddCustomerGlucoseLogsArgs):
-   Promise<ReturnValueType<Status>>;
+   Promise<ReturnValueType<Prisma.BatchPayload>>;
 }
 
 @Injectable()
@@ -86,8 +85,8 @@ export class TerraCustomerRepository implements TerraCustomerRepositoryInterface
   }
 
   async addCustomerGlucoseLogs({ terraCustomerKeyId, data }:AddCustomerGlucoseLogsArgs):
-   Promise<ReturnValueType<Status>>{
-    await this.prisma.terraCustomerLog.createMany(
+   Promise<ReturnValueType<Prisma.BatchPayload>>{
+    const response = await this.prisma.terraCustomerLog.createMany(
       {
         data: data.map(({ glucoseValue, timestamp, timestampUtc }) => {
           return { terraCustomerKeyId, timestamp, glucoseValue, timestampUtc };
@@ -95,6 +94,6 @@ export class TerraCustomerRepository implements TerraCustomerRepositoryInterface
         skipDuplicates: true,
       } );
 
-    return [{ success: true }];
+    return [response];
   }
 }
