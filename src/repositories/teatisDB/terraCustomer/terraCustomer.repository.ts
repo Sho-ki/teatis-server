@@ -5,6 +5,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { CustomerAndTerraCustomer } from '../../../domains/CustomerAndTerraCustomer';
 import { GlucoseLog } from '../../../domains/GlucoseLog';
 import { Status } from '../../../domains/Status';
+import { TerraCustomer } from '@prisma/client';
 
 export interface GetTerraCustomersArgs {
   terraCustomerIds: string[];
@@ -29,7 +30,7 @@ export interface AddCustomerGlucoseLogsArgs {
 }
 
 export interface TerraCustomerRepositoryInterface {
-//   getTerraCustomers({ terraCustomerIds }: GetTerraCustomersArgs): Promise<ReturnValueType<Product[]>>;
+  getActiveTerraCustomers(): Promise<ReturnValueType<TerraCustomer[]>>;
   upsertTerraCustomer({ customerId, terraCustomerId }: UpsertTerraCustomersArgs):
    Promise<ReturnValueType<CustomerAndTerraCustomer>>;
   getCustomerGlucoseLogs({ terraCustomerId }:GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>;
@@ -41,16 +42,11 @@ export interface TerraCustomerRepositoryInterface {
 export class TerraCustomerRepository implements TerraCustomerRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
-  //   async getTerraCustomers({ terraCustomerIds }: GetTerraCustomersArgs): Promise<ReturnValueType<Product[]>> {
-  //     const response = await this.prisma.terraCustomer.findMany(
-  //       {
-  //         where:
-  //             { OR: terraCustomerIds.map((id) => { return { terraCustomerId: id }; }) },
-  //         select: { customer: { select: { id: true, email: true, uuid: true } }, id: true, terraCustomerId: true },
-  //       });
-  //     return;
-  //     // return [productsRes];
-  //   }
+  async getActiveTerraCustomers(): Promise<ReturnValueType<TerraCustomer[]>> {
+    const response = await this.prisma.terraCustomer.findMany(
+      { where: { activeStatus: 'active' } });
+    return [response];
+  }
 
   async upsertTerraCustomer({ customerId, terraCustomerId }: UpsertTerraCustomersArgs):
    Promise<ReturnValueType<CustomerAndTerraCustomer>>{
@@ -77,7 +73,7 @@ export class TerraCustomerRepository implements TerraCustomerRepositoryInterface
   async getCustomerGlucoseLogs({ terraCustomerId }:GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>{
     const response = await this.prisma.terraCustomer.findUnique({
       where: { terraCustomerId },
-      select: { terraCustomerLog: true, id: true },
+      include: { terraCustomerLog: true },
     });
     const glucoseLogs:GlucoseLog ={
       terraCustomerId,
