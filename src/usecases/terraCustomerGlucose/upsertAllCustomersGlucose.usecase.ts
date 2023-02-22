@@ -1,7 +1,7 @@
 import {  Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 import { TerraRepositoryInterface } from '@Repositories/terra/terra.repository';
-import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomers.repository';
+import { TerraCustomerRepositoryInterface } from '../../repositories/teatisDB/terraCustomer/terraCustomer.repository';
 import { Status } from '../../domains/Status';
 import {  GlucoseLogData } from '../../domains/GlucoseLog';
 

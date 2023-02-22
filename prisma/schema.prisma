@@ -214,6 +214,7 @@ model TerraCustomer {
   id               Int                @id @default(autoincrement())
   customerId       Int                @unique
   terraCustomerId  String             @unique
+  activeStatus                           ActiveStatus                            @default(active)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @default(now()) @updatedAt
   customer         Customers          @relation(fields: [customerId], references: [id])
