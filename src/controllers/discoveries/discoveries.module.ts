@@ -14,7 +14,10 @@ import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/custo
 import { TemporaryPrePurchaseSurveysModule } from './temporaryPrePurchaseSurvey/temporaryPrePurchaseSurvey.module';
 import { CreateCheckoutCartUsecase } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
 import { PostPurchaseSurveyModule } from './postPurchaseSurvey/postPurchaseSurvey.module';
-import { PrePurchaseSurveyModule } from './prePurchaseSurvey/prePurchaseSurvey.module';
+import { CustomerEventLogRepository } from '../../repositories/teatisDB/customerEventLog/customerEventLog.repository';
+import { PrePurchaseSurveyModule } from './pre-purchase/prePurchaseSurvey.module';
+import { SurveyQuestionsRepository } from '../../repositories/teatisDB/survey/surveyQuestions.repository';
+import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
 
 @Module({
   controllers: [DiscoveriesController],
@@ -64,6 +67,7 @@ import { PrePurchaseSurveyModule } from './prePurchaseSurvey/prePurchaseSurvey.m
     TemporaryPrePurchaseSurveysModule,
     PostPurchaseSurveyModule,
     PrePurchaseSurveyModule,
+    WeeklyCheckInModule,
   ],
   exports: [DiscoveriesController],
 })

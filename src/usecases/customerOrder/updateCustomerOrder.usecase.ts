@@ -124,9 +124,10 @@ implements UpdateCustomerOrderUsecaseInterface
             continue;
           }
 
-          const uuid = attributes.find(({ name }) => { return name === 'uuid'; }).value;
-
-          const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
+          const { name, value } = attributes.find(({ name }) => name === 'uuid') || {};
+          const [customer] = name ? await this.customerGeneralRepository.getCustomerByUuid({ uuid: value }) :
+            await this.customerGeneralRepository.getCustomer({ email: shopifyCustomer.email }); // This will happen when an order is placed by early customers
+          const uuid = customer.uuid;
 
           let phoneNumber = shopifyCustomer?.phone || shopifyCustomer?.default_address?.phone;
           if (phoneNumber && !phoneNumber.startsWith('+')) {
