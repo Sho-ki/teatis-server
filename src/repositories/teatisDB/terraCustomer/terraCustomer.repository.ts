@@ -4,7 +4,7 @@ import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { CustomerAndTerraCustomer } from '../../../domains/CustomerAndTerraCustomer';
 import { GlucoseLog } from '../../../domains/GlucoseLog';
-import {  ActiveStatus, Prisma, TerraCustomer } from '@prisma/client';
+import {  Prisma } from '@prisma/client';
 
 export interface GetTerraCustomersArgs {
   terraCustomerIds: string[];
@@ -29,7 +29,7 @@ export interface AddCustomerGlucoseLogsArgs {
 }
 
 export interface TerraCustomerRepositoryInterface {
-  getActiveTerraCustomers(): Promise<ReturnValueType<TerraCustomer[]>>;
+  // getActiveTerraCustomers(): Promise<ReturnValueType<TerraCustomer[]>>;
   upsertTerraCustomer({ customerId, terraCustomerId }: UpsertTerraCustomersArgs):
    Promise<ReturnValueType<CustomerAndTerraCustomer>>;
   getCustomerGlucoseLogs({ terraCustomerId }:GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>;
@@ -41,11 +41,11 @@ export interface TerraCustomerRepositoryInterface {
 export class TerraCustomerRepository implements TerraCustomerRepositoryInterface {
   constructor(private prisma: PrismaService) {}
 
-  async getActiveTerraCustomers(): Promise<ReturnValueType<TerraCustomer[]>> {
-    const response = await this.prisma.terraCustomer.findMany(
-      { where: { activeStatus: ActiveStatus.active } });
-    return [response];
-  }
+  // async getActiveTerraCustomers(): Promise<ReturnValueType<TerraCustomer[]>> {
+  //   const response = await this.prisma.terraCustomer.findMany(
+  //     { where: { activeStatus: ActiveStatus.active } });
+  //   return [response];
+  // }
 
   async upsertTerraCustomer({ customerId, terraCustomerId }: UpsertTerraCustomersArgs):
    Promise<ReturnValueType<CustomerAndTerraCustomer>>{
