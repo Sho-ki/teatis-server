@@ -149,9 +149,9 @@ export class GetSuggestion implements GetSuggestionInterface {
           this.customerPreferenceRepository.getAverageScores(
             { email: customer.email }),
           this.customerPreferenceRepository.getNextWant(
-            { orderNumber: lastCustomerOrder.orderNumber }),
+            { uuid: customer.uuid }),
           this.customerPreferenceRepository.getNextUnwanted(
-            { email: customer.email }),
+            { uuid: customer.uuid }),
         ])
       : [[], [], []];
 

@@ -7,34 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Discoveries {
-  id                     Int    @id @default(autoincrement())
-  email                  String
-  typeform_id            String
-  BMR                    Int
-  carbs_macronutrients   Int
-  protein_macronutrients Int
-  fat_macronutrients     Int
-  carbs_per_meal         Int
-  protein_per_meal       Int
-  fat_per_meal           Int
-  calorie_per_meal       Int
-}
 
 model Customers {
   id                                                  Int                                                   @id @default(autoincrement())
   email                                               String                                                @unique
   createdAt                                           DateTime                                              @default(now())
   updatedAt                                           DateTime                                              @default(now()) @updatedAt
-  activeLevel                                         String?
-  gender                                              String?
   genderIdentify  GenderIdentify @default(female)
-  mealsPerDay                                         Int?
-  age                                                 Int?
-  heightCm                                            Float?
-  weightKg                                            Float?
-  uuid                                                String?                                               @unique
-  frozenAvailable                                     Boolean?                                              @default(false)
+  uuid                                                String                                               @unique
   note                                                String?
   phone                                               String?                                               @unique
   coachId                                             Int?
@@ -52,7 +32,6 @@ model Customers {
   customerEventLog                                    CustomerEventLog[]
   customerFoodLog                                     CustomerFoodLog[]
   customerOAuth                                       CustomerOAuth2[]
-  customerProductDistances                            CustomerProductDistance[]
   customerSession                                     CustomerSession[]
   coach                                               Coach?                                                @relation(fields: [coachId], references: [id])
   intermediateCustomerAllergens                       IntermediateCustomerAllergen[]
@@ -67,7 +46,7 @@ model Customers {
   intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
   intermediateCustomerUnavailableCookingMethods       IntermediateCustomerUnavailableCookingMethod[]
   practitionerCustomerOrderHistory                    PractitionerCustomerOrderHistory[]
-  queuedShopifyOrder                                  QueuedShopifyOrder[]
+  // queuedShopifyOrder                                  QueuedShopifyOrder[]
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
   customerSurveyHistory CustomerSurveyHistory[]
@@ -365,7 +344,6 @@ model Product {
   weight                                 Float?
   customerBoxItems                       CustomerBoxItems[]
   customerFoodLog                        CustomerFoodLog[]
-  customerProductDistances               CustomerProductDistance[]
   intermediateMasterMonthlyBoxProduct    IntermediateMasterMonthlyBoxProduct[]
   intermediateMonthlyBoxSelectionProduct IntermediateMonthlyBoxSelectionProduct[]
   intermediatePractitionerBoxProduct     IntermediatePractitionerBoxProduct[]
@@ -698,7 +676,6 @@ model CustomerSurveyHistory {
 
   survey   Survey @relation(fields: [surveyId], references: [id])
   customer           Customers         @relation(fields: [customerId], references: [id])
-  // customerSurveyHistoryProduct CustomerSurveyHistoryProduct[]
   surveyQuestionResponse SurveyQuestionResponse[]
 
 }
@@ -765,19 +742,6 @@ model IntermediateProductSurveyQuestionResponse {
   @@id([surveyQuestionResponseId, productId])
 }
 
-
-model CustomerProductDistance {
-  id         Int       @id @default(autoincrement())
-  distance   Float
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
-  customerId Int
-  productId  Int
-  version    DateTime  @default(now())
-  customer   Customers @relation(fields: [customerId], references: [id])
-  product    Product   @relation(fields: [productId], references: [id])
-}
-
 model CustomerBoxItems {
   id         Int       @id @default(autoincrement())
   productId  Int
@@ -786,17 +750,6 @@ model CustomerBoxItems {
   updatedAt  DateTime  @default(now()) @updatedAt
   customer   Customers @relation(fields: [customerId], references: [id])
   product    Product   @relation(fields: [productId], references: [id])
-}
-
-model QueuedShopifyOrder {
-  id          Int         @id @default(autoincrement())
-  orderName   String      @unique
-  customerId  Int
-  scheduledAt String
-  status      QueueStatus @default(scheduled)
-  fulfilledAt String?
-  orderedAt   String?
-  customer    Customers   @relation(fields: [customerId], references: [id])
 }
 
 model Practitioner {
