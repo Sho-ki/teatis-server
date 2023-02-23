@@ -45,7 +45,7 @@ implements CustomerPreferenceRepositoryInterface
 
   async getNextWant({ uuid }: GetNextWantArgs): Promise<ReturnValueType<Product[]>> {
     const response = await this.prisma.surveyQuestionResponse.findMany({
-      where: { response: { equals: 6 }, customerSurveyHistory: { customer: { uuid } } },
+      where: { response: { equals: 6 }, customerSurveyHistory: { customer: { uuid } }, surveyQuestion: { name: 'productSatisfaction' } },
       orderBy: { createdAt: 'desc' }, take: 1,
       include: { intermediateProductSurveyQuestionResponse: { include: { product: true } } },
     });
@@ -67,7 +67,7 @@ implements CustomerPreferenceRepositoryInterface
   async getNextUnwanted({ uuid }: GetNextUnwantedArgs): Promise<ReturnValueType<Product[]>> {
 
     const response = await this.prisma.surveyQuestionResponse.findMany({
-      where: { response: { equals: 1 }, customerSurveyHistory: { customer: { uuid } } },
+      where: { response: { equals: 1 }, customerSurveyHistory: { customer: { uuid } }, surveyQuestion: { name: 'productSatisfaction' } },
       include: { intermediateProductSurveyQuestionResponse: { include: { product: true } } },
     });
     const nextUnwantedProducts: Product[] = response.length
