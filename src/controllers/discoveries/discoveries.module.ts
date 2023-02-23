@@ -9,16 +9,12 @@ import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
 import { UpdateCustomerBoxUsecase } from '@Usecases/customerBox/updateCustomerBox.usecase';
 import { CustomerGeneralRepository } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerBoxRepository } from '@Repositories/teatisDB/customer/customerBox.repository';
-import { TeatisJobs } from '@Repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { PostPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { DeleteCustomerBoxUsecase } from '@Usecases/customerBox/deleteCustomerBox.usecase';
-import { OrderQueueRepository } from '@Repositories/teatisDB/order/orderQueue.repository';
 import { GetNextBoxUsecase } from '@Usecases/nextBox/getNextBox.usecase';
 import { CustomerPreferenceRepository } from '@Repositories/teatisDB/customer/customerPreference.repository';
 import { AnalyzePreferenceRepository } from '@Repositories/dataAnalyze/dataAnalyze.respository';
 import { GetSuggestion } from '@Usecases/utils/getSuggestion';
-import { GetCustomerNutritionUsecase } from '@Usecases/customerNutrition/getCustomerNutrition.usecase';
 import { PractitionerBoxModule } from './practitioner-box/practitionerBox.module';
 import { PractitionerModule } from './practitioner/practitioner.module';
 import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
@@ -98,10 +94,6 @@ import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
       useClass: PractitionerBoxRepository,
     },
     {
-      provide: 'GetCustomerNutritionUsecaseInterface',
-      useClass: GetCustomerNutritionUsecase,
-    },
-    {
       provide: 'GetSuggestionInterface',
       useClass: GetSuggestion,
     },
@@ -117,11 +109,6 @@ import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
       provide: 'GetNextBoxUsecaseInterface',
       useClass: GetNextBoxUsecase,
     },
-    {
-      provide: 'OrderQueueRepositoryInterface',
-      useClass: OrderQueueRepository,
-    },
-
     {
       provide: 'CustomerSurveyResponseRepositoryInterface',
       useClass: CustomerSurveyResponseRepository,
@@ -142,11 +129,6 @@ import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
       provide: 'ProductGeneralRepositoryInterface',
       useClass: ProductGeneralRepository,
     },
-
-    // {
-    //   provide: 'QuestionPostPurchaseSurveyRepositoryInterface',
-    //   useClass: QuestionPostPurchaseSurveyRepository,
-    // },
     {
       provide: 'ShopifyRepositoryInterface',
       useClass: ShopifyRepository,
@@ -155,11 +137,6 @@ import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
       provide: 'GetPrePurchaseOptionsUsecaseInterface',
       useClass: GetPrePurchaseOptionsUsecase,
     },
-
-    // {
-    //   provide: 'GetPostPurchaseSurveyUsecaseInterface',
-    //   useClass: GetPostPurchaseSurveyUsecase,
-    // },
     {
       provide: 'PostPostPurchaseSurveyUsecaseInterface',
       useClass: PostPostPurchaseSurveyUsecase,
@@ -173,10 +150,6 @@ import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
       useClass: PostPrePurchaseSurveyUsecase,
     },
     {
-      provide: 'DeleteCustomerBoxUsecaseInterface',
-      useClass: DeleteCustomerBoxUsecase,
-    },
-    {
       provide: 'PostEmailUsecaseInterface',
       useClass: PostEmailUsecase,
     },
@@ -184,7 +157,6 @@ import { WeeklyCheckInModule } from './weeklyCheckIn/weeklyCheckIn.module';
       provide: 'KlaviyoRepositoryInterface',
       useClass: KlaviyoRepository,
     },
-    TeatisJobs,
     DiscoveriesController,
     PrismaService,
   ],
