@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 
 import { Response } from 'express';
-import { TeatisJobs } from 'src/repositories/teatisJobs/dbMigrationjob';
 import { GetPrePurchaseOptionsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { GetNextBoxUsecaseInterface, GetNextBoxUsecaseRes } from '@Usecases/nextBox/getNextBox.usecase';
 import { GetNextBoxDto } from './dtos/getNextBox';
@@ -32,7 +31,6 @@ export class DiscoveriesController {
     private getNextBoxUsecase: GetNextBoxUsecaseInterface,
     @Inject('CreateCheckoutCartUsecaseInterface')
     private createCheckoutCartUsecase: CreateCheckoutCartUsecaseInterface,
-    private teatisJob: TeatisJobs,
   ) {}
 
   // GET: api/discovery/pre-purchase-options
@@ -87,14 +85,4 @@ export class DiscoveriesController {
 
   }
 
-  // When you migrate the data (Discoveries -> Customer etc...)
-  // @Post('job')
-  // async dataMigrate() {
-  //   // await this.teatisJob.databaseMigrate();
-  //   // const res = await this.teatisJob.getCustomerBox();
-  //   const res = await this.teatisJob.flavorIntegrate();
-  //   // const res = await this.teatisJob.allergenIntegrate();
-
-  //   return res;
-  // }
 }

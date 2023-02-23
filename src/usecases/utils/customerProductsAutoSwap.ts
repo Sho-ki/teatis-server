@@ -124,26 +124,21 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
 
   async customerProductsAutoSwap({ customer, products, count }: customerProductsAutoSwapArgs):
   Promise<ReturnValueType<Product[]>> {
-    let isFirstOrder = false;
     const [lastCustomerOrder, getLastCustomerOrderError] =
       await this.shipheroRepository.getLastFulfilledOrder({ email: customer.email, uuid: customer.uuid });
     if (getLastCustomerOrderError) {
       return [undefined, getLastCustomerOrderError];
     }
-    if (lastCustomerOrder.products.length === 0) {
-      isFirstOrder = true;
-    }
+
     const [[nextWantProducts, getNextWantError], [nextUnwantedProducts, getCustomerUnwantedError]]
     =
-    !isFirstOrder
-      ? await Promise.all(
+      await Promise.all(
         [
           this.customerPreferenceRepository.getNextWant(
-            { orderNumber: lastCustomerOrder.orderNumber }),
+            { uuid: customer.uuid }),
           this.customerPreferenceRepository.getNextUnwanted(
-            { email: customer.email }),
-        ])
-      : [[], [], []];
+            { uuid: customer.uuid }),
+        ]);
 
     if (getNextWantError) {
       return [undefined, getNextWantError];
