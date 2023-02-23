@@ -7,14 +7,7 @@ import { PrePurchaseSurveyAnswer } from '../../../domains/PrePurchaseSurveyAnswe
 interface PostTemporaryPrePurchaseSurveyArgs {
     answerIdentifier:string;
     diabetes?: string;
-    gender?: string;
-    height?: number;
-    weight?: number;
-    age?: number;
     medicalConditions?: { name: string, label?: string }[];
-    activeLevel?: string;
-    A1c?: string;
-    mealsPerDay?: number;
     categoryPreferences?: { name: string, label?: string }[];
     flavorDislikes?: { name: string, label?: string }[];
     ingredientDislikes?: { name: string, label?: string }[];
@@ -32,13 +25,6 @@ export interface TemporaryPrePurchaseSurveyRepositoryInterface {
   postTemporaryPrePurchaseSurvey({
     answerIdentifier,
     diabetes,
-    gender,
-    height,
-    weight,
-    age,
-    activeLevel,
-    A1c,
-    mealsPerDay,
     medicalConditions,
     categoryPreferences,
     flavorDislikes,
@@ -63,13 +49,6 @@ implements TemporaryPrePurchaseSurveyRepositoryInterface
   async postTemporaryPrePurchaseSurvey({
     answerIdentifier,
     diabetes,
-    gender,
-    height,
-    weight,
-    age,
-    activeLevel,
-    A1c,
-    mealsPerDay,
     medicalConditions,
     categoryPreferences,
     flavorDislikes,
@@ -85,13 +64,6 @@ implements TemporaryPrePurchaseSurveyRepositoryInterface
       create: {
         answerIdentifier,
         diabetes,
-        gender,
-        height,
-        weight,
-        age,
-        activeLevel,
-        A1c,
-        mealsPerDay,
         medicalConditions,
         categoryPreferences,
         flavorDislikes,
@@ -104,13 +76,6 @@ implements TemporaryPrePurchaseSurveyRepositoryInterface
       update: {
         answerIdentifier,
         diabetes,
-        gender,
-        height,
-        weight,
-        age,
-        activeLevel,
-        A1c,
-        mealsPerDay,
         medicalConditions,
         categoryPreferences,
         flavorDislikes,
@@ -139,13 +104,7 @@ implements TemporaryPrePurchaseSurveyRepositoryInterface
         email: response.email,
         diabetes: response.diabetes,
         gender: response.gender,
-        height: Number(response.height),
-        weight: Number(response.weight),
-        age: Number(response.age),
         medicalConditions: response.medicalConditions,
-        activeLevel: response.activeLevel,
-        A1c: response.A1c,
-        mealsPerDay: response.mealsPerDay,
         categoryPreferences: response.categoryPreferences,
         flavorDislikes: response.flavorDislikes,
         ingredientDislikes: response.ingredientDislikes,

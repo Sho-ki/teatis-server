@@ -266,7 +266,6 @@ implements SendAutoMessageUsecaseInterface
       const targetCustomers:CoachedCustomer[] = [];
       const daysSet: Set<number> = new Set();
       const sequenceSet: Set<number> = new Set();
-
       for(const customer of sendableCoachedCustomers){
         try{
           const customerDaysSincePurchase = await this.getCustomerDaysSincePurchase(customer.id);
