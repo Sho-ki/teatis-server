@@ -2,8 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Customer } from '@Domains/Customer';
 
 import { PrismaService } from '../../../prisma.service';
-import { Preference } from '@Domains/Preference';
-import { NutritionNeed } from '@Domains/NutritionNeed';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
 import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
@@ -69,10 +67,6 @@ interface UpdateCustomerByUuidArgs {
   lastName?:string;
 }
 
-interface GetCustomerNutritionArgs {
-  uuid: string;
-}
-
 interface UpdateCustomerTwilioChannelSidArgs {
   customerId: number;
   twilioChannelSid:string;
@@ -97,11 +91,10 @@ export interface activateCustomerSubscriptionArgs {
 export interface CustomerGeneralRepositoryInterface extends Transactionable {
   getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
   getCustomerByPhone({ phone }: GetCustomerByPhoneArgs): Promise<ReturnValueType<Customer>>;
-  getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>>;
+  getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<{id:number[]}>>;
   getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
   >;
-  getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>>;
   getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
 
   updateCustomerByUuid({
@@ -214,67 +207,6 @@ implements CustomerGeneralRepositoryInterface
 
   }
 
-  async getCustomerNutrition({ uuid }: GetCustomerNutritionArgs): Promise<ReturnValueType<NutritionNeed>> {
-    const response = await this.prisma.customers.findUnique({
-      where: { uuid },
-      select: {
-        mealsPerDay: true,
-        intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: { select: { name: true } } } },
-        intermediateCustomerNutritionNeeds: {
-          where: {
-            customerNutritionNeed: {
-              OR: [
-                { name: 'caloriePerMeal' },
-                { name: 'fatPerMeal' },
-                { name: 'proteinPerMeal' },
-                { name: 'carbsPerMeal' },
-              ],
-            },
-          },
-          select: {
-            nutritionValue: true,
-            customerNutritionNeed: { select: { name: true } },
-          },
-        },
-      },
-    });
-
-    if (!response?.intermediateCustomerNutritionNeeds) {
-      return [undefined, { name: 'Internal Server Error', message: 'uuid is invalid' }];
-    }
-    const allConditions = response?.intermediateCustomerMedicalConditions
-      ? response.intermediateCustomerMedicalConditions.map(
-        ({ customerMedicalCondition }) => {
-          return customerMedicalCondition.name;
-        },
-      )
-      : [];
-    const sodiumPerMeal = allConditions.includes('highBloodPressure')
-      ? Math.round(1800 / (response?.mealsPerDay || 4))
-      : Math.round(2100 / (response?.mealsPerDay || 4));
-
-    let nutritions: NutritionNeed = {
-      // Set the default values
-      carbsPerMeal: 50,
-      proteinPerMeal: 30,
-      fatPerMeal: 20,
-      caloriePerMeal: 400,
-      sodiumPerMeal,
-    };
-
-    for (const {
-      customerNutritionNeed,
-      nutritionValue,
-    } of response.intermediateCustomerNutritionNeeds) {
-      nutritions = {
-        ...nutritions,
-        [customerNutritionNeed.name]: nutritionValue,
-      };
-    }
-
-    return [nutritions];
-  }
-
   async updateCustomerByUuid({
     uuid,
     newEmail, phone, firstName, lastName,
@@ -352,7 +284,7 @@ implements CustomerGeneralRepositoryInterface
   async getCustomerPreference({
     email,
     type,
-  }: GetCustomerPreferenceArgs): Promise<ReturnValueType<Preference>> {
+  }: GetCustomerPreferenceArgs): Promise<ReturnValueType<{id:number[]}>> {
     let customerPreference: number[] = [];
     switch (type) {
       case 'flavorDislikes':

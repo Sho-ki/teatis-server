@@ -13,6 +13,7 @@ export interface UpsertAllCustomersGlucoseUsecaseInterface {
 export class UpsertAllCustomersGlucoseUsecase
 implements UpsertAllCustomersGlucoseUsecaseInterface
 {
+  private errorStack:Error[] =[];
   constructor(
     @Inject('TerraRepositoryInterface')
     private readonly terraRepository: TerraRepositoryInterface,
@@ -30,8 +31,9 @@ implements UpsertAllCustomersGlucoseUsecaseInterface
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     const date = yesterday.toISOString().slice(0, 10);
-    for(const { terraCustomerId } of terraCustomers){
-      const [[newGlucoseLogs, getNewGlucoseLogsError], [existingGlucoseLogs, getExistingGlucoseLogsError]]
+    for(const { terraCustomerId  } of terraCustomers){
+      try{
+        const [[newGlucoseLogs, getNewGlucoseLogsError], [existingGlucoseLogs]]
         = await Promise.all([
           this.terraRepository.getCustomerGlucoseLogs(
             { terraCustomerId, date }
@@ -39,34 +41,36 @@ implements UpsertAllCustomersGlucoseUsecaseInterface
           this.terraCustomerRepository.getCustomerGlucoseLogs({ terraCustomerId }),
         ]);
 
-      if(getNewGlucoseLogsError){
-        return [undefined, getNewGlucoseLogsError];
-      }
-      if(!newGlucoseLogs.data.length) continue;
+        if(getNewGlucoseLogsError){
+          this.errorStack.push(getNewGlucoseLogsError);
+          continue;
+        }
+        if(!newGlucoseLogs.data.length) continue;
 
-      if(getExistingGlucoseLogsError){
-        return [undefined, getExistingGlucoseLogsError];
-      }
-      const glucoseLogsToAdd:GlucoseLogData[] =
+        const glucoseLogsToAdd:GlucoseLogData[] =
       existingGlucoseLogs?.data ? newGlucoseLogs.data.filter(({ timestamp }) =>
       { return !existingGlucoseLogs?.data?.find(({ timestamp: existingData }) => existingData === timestamp); })
       :newGlucoseLogs.data;
 
-      const duplicateRemovedLogs = glucoseLogsToAdd.
-        filter((value, index, self) => self.findIndex(value2 => (value2.timestamp===value.timestamp))===index);
+        const duplicateRemovedLogs = glucoseLogsToAdd.
+          filter((value, index, self) => self.findIndex(value2 => (value2.timestamp===value.timestamp))===index);
 
-      const setTimestampToLocalData = duplicateRemovedLogs.map((value) => {
+        const setTimestampToLocalData = duplicateRemovedLogs.map((value) => {
         // "YYYY-MM-DDTHH:MM:SS.000000-04:00"
-        const deepCopy = new Date(value.timestamp);
-        const utcDifference = String(value.timestamp).split('000000')[1].slice(0, 3);
-        deepCopy.setHours(deepCopy.getHours() + Number(utcDifference));
-        return { ...value, timestamp: deepCopy };
-      });
-      await this.terraCustomerRepository.addCustomerGlucoseLogs(
-        { terraCustomerKeyId: existingGlucoseLogs.terraCustomerKeyId, data: setTimestampToLocalData  });
-
+          const deepCopy = new Date(value.timestamp);
+          const utcDifference = String(value.timestamp).split('000000')[1].slice(0, 3);
+          deepCopy.setHours(deepCopy.getHours() + Number(utcDifference));
+          return { ...value, timestamp: deepCopy };
+        });
+        await this.terraCustomerRepository.addCustomerGlucoseLogs(
+          { terraCustomerKeyId: existingGlucoseLogs.terraCustomerKeyId, data: setTimestampToLocalData  });
+      }catch(error){
+        this.errorStack.push(error);
+      }
     }
-
+    if(this.errorStack.length){
+      throw [undefined, { name: 'Error', message: 'Error in upsertAllCustomersGlucose', stack: JSON.stringify(this.errorStack) }];
+    }
     return [{ success: true }];
   }
 }

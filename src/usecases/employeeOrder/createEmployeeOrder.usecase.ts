@@ -39,7 +39,6 @@ export class CreateEmployeeOrderUsecase implements CreateEmployeeOrderUsecaseInt
       getActiveEmployeeCustomersForOrder({ monthlyOrderInterval: 1 });
 
     const [monthlyBoxSelection] = await this.monthlySelectionRepository.getMonthlySelection({ date: new Date(), boxPlan: 'standard' });
-
     for(const employeeCustomer of employeeCustomers) {
       try{
       // eslint-disable-next-line prefer-const

@@ -92,10 +92,10 @@ implements UpdateCustomerOrderUsecaseInterface
       const lastRun = await this.cronMetaDataRepository.getLastRun(
         { name: 'updateOrder' });
       const shopifyWebhooks =
-    await this.shopifyRepository.getShopifyOrdersByFromDate({ fromDate: lastRun.lastRunAt });
+      await this.shopifyRepository.getShopifyOrdersByFromDate({ fromDate: lastRun.lastRunAt });
       console.log('shopifyWebhooks:', shopifyWebhooks);
 
-      // const testWebhooks = [
+      // const shopifyWebhooks = [
       //   {
       //     orderNumber: '12345',
       //     apiId: 'test123',
@@ -194,7 +194,6 @@ implements UpdateCustomerOrderUsecaseInterface
                 count: monthlyBoxSelection.products.length,
               }
             );
-
           if (!boxProducts.length || swapError) {
             boxProducts =  monthlyBoxSelection.products;
           }

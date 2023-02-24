@@ -9,11 +9,11 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 
 interface GetNextWantArgs {
-  orderNumber: string;
+  uuid: string;
 }
 
 interface GetNextUnwantedArgs {
-  email: string;
+  uuid: string;
 }
 
 interface GetAverageScoresArgs {
@@ -21,8 +21,8 @@ interface GetAverageScoresArgs {
 }
 
 export interface CustomerPreferenceRepositoryInterface extends Transactionable{
-  getNextWant({ orderNumber }: GetNextWantArgs): Promise<ReturnValueType<Product[]>>;
-  getNextUnwanted({ email }: GetNextUnwantedArgs): Promise<ReturnValueType<Product[]>>;
+  getNextWant({ uuid }: GetNextWantArgs): Promise<ReturnValueType<Product[]>>;
+  getNextUnwanted({ uuid }: GetNextUnwantedArgs): Promise<ReturnValueType<Product[]>>;
   getAverageScores({ email }: GetAverageScoresArgs): Promise<[AverageScores?, Error?]>;
 }
 
@@ -43,13 +43,15 @@ implements CustomerPreferenceRepositoryInterface
     this.prisma = this.originalPrismaClient;
   }
 
-  async getNextWant({ orderNumber }: GetNextWantArgs): Promise<ReturnValueType<Product[]>> {
-    const response = await this.prisma.surveyQuestionAnswer.findMany({
-      where: { AND: [{ orderNumber }, { answerNumeric: 6 }] },
-      select: { product: { select: { id: true, name: true, label: true, externalSku: true } } },
+  async getNextWant({ uuid }: GetNextWantArgs): Promise<ReturnValueType<Product[]>> {
+    const response = await this.prisma.surveyQuestionResponse.findMany({
+      where: { response: { equals: 6 }, customerSurveyHistory: { customer: { uuid } }, surveyQuestion: { name: 'productSatisfaction' } },
+      orderBy: { createdAt: 'desc' }, take: 1,
+      include: { intermediateProductSurveyQuestionResponse: { include: { product: true } } },
     });
     const nextWantProducts: Product[] = response.length
-      ? response.map(({ product }) => {
+      ? response.map(({ intermediateProductSurveyQuestionResponse }) => {
+        const { product } = intermediateProductSurveyQuestionResponse[0];
         return {
           id: product.id,
           name: product.name,
@@ -62,14 +64,15 @@ implements CustomerPreferenceRepositoryInterface
 
   }
 
-  async getNextUnwanted({ email }: GetNextUnwantedArgs): Promise<ReturnValueType<Product[]>> {
+  async getNextUnwanted({ uuid }: GetNextUnwantedArgs): Promise<ReturnValueType<Product[]>> {
 
-    const response = await this.prisma.surveyQuestionAnswer.findMany({
-      where: { AND: [{ customer: { email } }, { answerNumeric: 1 }] },
-      select: { product: { select: { id: true, label: true, externalSku: true, name: true } } },
+    const response = await this.prisma.surveyQuestionResponse.findMany({
+      where: { response: { equals: 1 }, customerSurveyHistory: { customer: { uuid } }, surveyQuestion: { name: 'productSatisfaction' } },
+      include: { intermediateProductSurveyQuestionResponse: { include: { product: true } } },
     });
     const nextUnwantedProducts: Product[] = response.length
-      ? response.map(({ product }) => {
+      ? response.map(({ intermediateProductSurveyQuestionResponse }) => {
+        const { product } = intermediateProductSurveyQuestionResponse[0];
         return {
           id: product.id,
           name: product.name,

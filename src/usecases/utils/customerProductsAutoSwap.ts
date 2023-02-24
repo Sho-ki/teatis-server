@@ -139,9 +139,9 @@ export class CustomerProductsAutoSwap implements CustomerProductsAutoSwapInterfa
       ? await Promise.all(
         [
           this.customerPreferenceRepository.getNextWant(
-            { orderNumber: lastCustomerOrder.orderNumber }),
+            { uuid: customer.uuid }),
           this.customerPreferenceRepository.getNextUnwanted(
-            { email: customer.email }),
+            { uuid: customer.uuid }),
         ])
       : [[], [], []];
 
