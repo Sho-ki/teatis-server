@@ -59,10 +59,10 @@ export class PrePurchaseSurveyController {
   ) {
     const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
-    if(error.name === 'PhoneAlreadyExists'){
+    if(error && error.name === 'PhoneAlreadyExists'){
       return response.status(409).send(error);
     }
-    if(error.name === 'EmployerNotFound'){
+    if(error && error.name === 'EmployerNotFound'){
       return response.status(404).send(error);
     }
     return response.status(201).send(usecaseResponse);
