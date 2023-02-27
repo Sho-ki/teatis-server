@@ -26,11 +26,7 @@ import { PrismaService } from '../../prisma.service';
       'UpsertAllCustomersGlucoseUsecaseInterface',
       useClass: UpsertAllCustomersGlucoseUsecase,
     },
-    {
-      provide:
-      'CustomerGeneralRepositoryInterface',
-      useClass: CustomerGeneralRepository,
-    },
+
     {
       provide:
       'GetTerraAuthUrlUsecaseInterface',

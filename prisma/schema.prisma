@@ -50,6 +50,8 @@ model Customers {
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
   customerSurveyHistory CustomerSurveyHistory[]
+  customerAddress CustomerAddress?
+  employee Employee?
 }
 
 enum GenderIdentify  {
@@ -66,6 +68,55 @@ model CustomerEventLog {
   eventDate  DateTime  @default(now())
   type       EventType
   customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model CustomerAddress {
+  id     Int  @id @default(autoincrement())
+  customerId Int  @unique
+
+  address1 String
+  address2 String?
+  city String
+  state String
+  zip String
+  country Country @default(US)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+enum Country {
+  US
+}
+
+model Employer {
+id Int @id @default(autoincrement())
+name String @unique
+label String
+createdAt DateTime @default(now())
+updatedAt DateTime @default(now()) @updatedAt
+// email String? @unique
+note String?
+uuid  String   @unique
+employee Employee[]
+}
+
+model Employee {
+id Int @id @default(autoincrement())
+employerId Int 
+employer Employer @relation(fields: [employerId], references: [id])
+createdAt DateTime @default(now())
+updatedAt DateTime @default(now()) @updatedAt
+customerId Int @unique
+customer Customers @relation(fields: [customerId], references: [id])
+emailEligibility EligibilityStatus @default(pending)
+monthlyOrderInterval Int @default(1)
+}
+
+enum EligibilityStatus {
+  eligible
+  ineligible
+  pending
 }
 
 model PurchaseDateBasedMessage {
@@ -905,6 +956,7 @@ enum EventType {
   boxSubscribed
   boxUnsubscribed
   postPurchaseCalendarCreated
+  boxOrdered
 }
 
 enum MediaType {

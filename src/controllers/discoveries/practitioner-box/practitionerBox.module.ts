@@ -8,7 +8,6 @@ import { PractitionerBoxController } from './practitionerBox.controller';
 import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { PractitionerGeneralRepository } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { UpdateRecurringPractitionerBoxesUsecase } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
-import { ProductGeneralRepository } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { UpsertRecurringPractitionerBoxesUsecase } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
 import { CreateMasterMonthlyBoxUsecase } from '@Usecases/masterMonthlyBox/createMasterMonthlyBox.usecase';
 import { MasterMonthlyBoxRepository } from '@Repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
@@ -49,10 +48,6 @@ import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/custo
     {
       provide: 'UpdateRecurringPractitionerBoxesUsecaseInterface',
       useClass: UpdateRecurringPractitionerBoxesUsecase,
-    },
-    {
-      provide: 'ProductGeneralRepositoryInterface',
-      useClass: ProductGeneralRepository,
     },
     {
       provide: 'UpsertRecurringPractitionerBoxesUsecaseInterface',

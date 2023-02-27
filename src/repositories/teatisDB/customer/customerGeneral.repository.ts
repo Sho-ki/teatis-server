@@ -4,12 +4,17 @@ import { Customer } from '@Domains/Customer';
 import { PrismaService } from '../../../prisma.service';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
-import { GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
+import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
+import { CustomerWithAddress } from '../../../domains/CustomerWithAddress';
 
 export interface GetCustomerArgs {
   email: string;
+}
+
+export interface GetCustomerByPhoneArgs {
+  phone: string;
 }
 
 interface UpsertCustomerArgs {
@@ -19,6 +24,21 @@ interface UpsertCustomerArgs {
   ingredientDislikeIds: number[];
   allergenIds: number[];
   email: string;
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
+  coachingSubscribed?: ActiveStatus;
+  boxSubscribed?: ActiveStatus;
+}
+
+interface UpsertCustomerAddressArgs {
+  customerId: number;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: Country;
 }
 
 interface GetCustomerPreferenceArgs {
@@ -70,6 +90,7 @@ export interface activateCustomerSubscriptionArgs {
 
 export interface CustomerGeneralRepositoryInterface extends Transactionable {
   getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
+  getCustomerByPhone({ phone }: GetCustomerByPhoneArgs): Promise<ReturnValueType<Customer>>;
   getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<{id:number[]}>>;
   getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
@@ -97,7 +118,22 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     ingredientDislikeIds,
     allergenIds,
     email,
+    phone,
+    firstName,
+    lastName,
+    coachingSubscribed,
+    boxSubscribed,
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>>;
+
+  upsertCustomerAddress({
+    customerId,
+    address1,
+    address2,
+    city,
+    state,
+    zip,
+    country,
+  }: UpsertCustomerAddressArgs ): Promise<ReturnValueType<Customer>>;
 }
 
 @Injectable()
@@ -337,17 +373,12 @@ implements CustomerGeneralRepositoryInterface
 
   async getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({ where: { email } });
-    if (!response) {
-      return [response];
-    }
-    return [
-      {
-        id: response.id, email: response.email, uuid: response.uuid,
-        createdAt: response.createdAt, updatedAt: response.updatedAt, phone: response.phone,
-        firstName: response.firstName,
-        lastName: response.lastName,
-      },
-    ];
+    return [response];
+  }
+
+  async getCustomerByPhone({ phone }: GetCustomerByPhoneArgs): Promise<ReturnValueType<Customer>> {
+    const response = await this.prisma.customers.findUnique({ where: { phone } });
+    return [response];
   }
 
   async upsertCustomer({
@@ -357,6 +388,11 @@ implements CustomerGeneralRepositoryInterface
     ingredientDislikeIds,
     allergenIds,
     email,
+    phone = undefined,
+    firstName = undefined,
+    lastName = undefined,
+    coachingSubscribed,
+    boxSubscribed,
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>> {
     const existingCustomer = await this.prisma.customers.findUnique({ where: { email } });
 
@@ -397,8 +433,13 @@ implements CustomerGeneralRepositoryInterface
     const customer = await this.prisma.customers.upsert({
       where: { email },
       create: {
+        phone,
+        firstName,
+        lastName,
         uuid,
         email,
+        coachingSubscribed,
+        boxSubscribed,
         genderIdentify: gender,
         intermediateCustomerIngredientDislikes:
             ingredientDislikeIds.length
@@ -440,7 +481,12 @@ implements CustomerGeneralRepositoryInterface
 
       },
       update: {
+        phone,
+        firstName,
+        lastName,
         email,
+        coachingSubscribed,
+        boxSubscribed,
         genderIdentify: gender,
         intermediateCustomerIngredientDislikes:
             ingredientDislikeIds.length
@@ -483,5 +529,44 @@ implements CustomerGeneralRepositoryInterface
       },
     });
     return [{ id: customer.id, uuid: customer.uuid, email }];
+  }
+
+  async upsertCustomerAddress({
+    customerId,
+    address1,
+    address2,
+    city,
+    state,
+    zip,
+    country,
+  }: UpsertCustomerAddressArgs ): Promise<ReturnValueType<CustomerWithAddress>>{
+    const response = await this.prisma.customers.update({
+      where: { id: customerId },
+      data: {
+        customerAddress: {
+          upsert: {
+            create: {
+              address1,
+              address2,
+              city,
+              state,
+              zip,
+              country,
+            },
+            update: {
+              address1,
+              address2,
+              city,
+              state,
+              zip,
+              country,
+            },
+          },
+        },
+      },
+      include: { customerAddress: true },
+    });
+
+    return [response];
   }
 }

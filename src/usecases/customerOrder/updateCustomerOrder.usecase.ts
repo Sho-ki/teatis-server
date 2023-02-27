@@ -18,6 +18,7 @@ import { CustomerOrder } from '../../domains/CustomerOrder';
 import { createGoogleOAuthClient } from '../utils/OAuthClient';
 import { CustomerEventLogRepositoryInterface } from '@Repositories/teatisDB/customerEventLog/customerEventLog.repository';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
+import { getDateTimeString } from '../utils/dates';
 
 export interface UpdateCustomerOrderUsecaseInterface {
   updateCustomerOrder(): Promise<ReturnValueType<CustomerOrder[]>>;
@@ -207,7 +208,8 @@ implements UpdateCustomerOrderUsecaseInterface
           }else {
             note ='Please place stickers on each items: NonProduct: Circle sheet labels (select 1 sticker from 2 sizes)';
           }
-
+          const requiredShipDate = getDateTimeString(48);
+          const holdUntilDate = getDateTimeString(24);
           const [
             productOnHand,
             ,
@@ -219,7 +221,8 @@ implements UpdateCustomerOrderUsecaseInterface
               warehouseCode: 'CLB-DB',
             }),
 
-            this.shipheroRepository.updateOrderInformation({ orderId: order.orderId, note, uuid }),
+            this.shipheroRepository.updateOrderInformation(
+              { orderId: order.orderId, note, uuid, holdUntilDate, requiredShipDate }),
           ]);
 
           const fiveOrLessStocks = productOnHand.filter(val => val.onHand <= 5);
@@ -229,15 +232,13 @@ implements UpdateCustomerOrderUsecaseInterface
             return !sku.includes('mini')||!sku.includes('standard')||!sku.includes('box');
           });
           if(inactivateTarget.length){
-            const [, updateProductStatusError] = await this.productGeneralRepository.updateProductsStatus(
+            await this.productGeneralRepository.updateProductsStatus(
               {
-                isActive: false,
+                activeStatus: 'inactive',
                 skus: inactivateTarget.map(({ sku }) => { return sku; }),
               }
             );
-            if(updateProductStatusError){
-              return [undefined, updateProductStatusError];
-            } }
+          }
 
           await this.checkAndCreateCalendar(
             { uuid: customer.uuid, email: customer.email, customerId: customer.id });

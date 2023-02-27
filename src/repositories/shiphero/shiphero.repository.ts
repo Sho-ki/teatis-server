@@ -11,11 +11,13 @@ import {
   GetProductInventoryQuery,
   getSdk,
   GetOrderByOrderNumberQuery,
+  CreateOrderMutation,
 } from './generated/graphql';
 import { CustomerOrder } from '@Domains/CustomerOrder';
 import { ReturnValueType } from '@Filters/customError';
 import { ProductOnHand } from '../../domains/ProductOnHand';
 import { Order } from '../../domains/Order';
+import { Country } from '@prisma/client';
 
 interface GetLastOrderByUuidArgs {
   email?: string;
@@ -27,9 +29,25 @@ interface GetLastFulfilledOrderArgs {
   uuid:string;
 }
 
-// interface GetCustomerOrdersArgs {
-//   email: string;
-// }
+interface CreateCustomerOrderArgs {
+  firstName: string;
+  lastName:string;
+  email:string;
+  address: {
+    address1: string;
+    address2: string | null;
+    city: string;
+    state: string;
+    zip: string;
+    country: Country;
+  };
+  orderNumber?:string;
+  products: Pick<Product, 'sku'>[];
+  warehouseCode:'CLB-DB';
+  uuid:string;
+  holdUntilDate:string;
+  requiredShipDate:string;
+}
 
 interface UpdateCustomerOrderArgs {
   orderId: string;
@@ -42,6 +60,8 @@ interface UpdateOrderInformationArgs {
   orderId: string;
   note?: string;
   uuid:string;
+  holdUntilDate:string;
+  requiredShipDate:string;
 }
 
 export interface GetOrderByOrderNumberArgs {
@@ -51,7 +71,8 @@ export interface GetOrderByOrderNumberArgs {
 const endpoint = 'https://public-api.shiphero.com/graphql';
 
 export interface ShipheroRepositoryInterface {
-  updateOrderInformation({ orderId, note, uuid }: UpdateOrderInformationArgs): Promise<Order>;
+  updateOrderInformation({ orderId, note, uuid, holdUntilDate, requiredShipDate }:
+    UpdateOrderInformationArgs): Promise<Order>;
   getLastCustomerOrder({ email, uuid }: GetLastOrderByUuidArgs): Promise<ReturnValueType<CustomerOrder>>;
   getLastFulfilledOrder({ email, uuid }: GetLastFulfilledOrderArgs): Promise<ReturnValueType<CustomerOrder>>;
 
@@ -64,6 +85,12 @@ export interface ShipheroRepositoryInterface {
     orderNumber,
     warehouseCode,
   }: UpdateCustomerOrderArgs): Promise<ProductOnHand[]>;
+
+  createCustomerOrder(
+    {
+      firstName, lastName, email,  address, orderNumber, products, warehouseCode, uuid,
+      holdUntilDate, requiredShipDate,
+    }:CreateCustomerOrderArgs):Promise<ReturnValueType<ProductOnHand[]>>;
 
   // getCustomerOrders({ email }: GetCustomerOrdersArgs): Promise<ReturnValueType<CustomerOrder[]>>;
 }
@@ -90,6 +117,82 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
 
     return lastSentProducts;
   }
+
+  async createCustomerOrder(
+    {
+      firstName, lastName, email, address, orderNumber, products, warehouseCode, uuid,
+      holdUntilDate, requiredShipDate,
+    }:CreateCustomerOrderArgs):Promise<ReturnValueType<ProductOnHand[]>>{
+    const client = new GraphQLClient(endpoint,
+      { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
+    const sdk = getSdk(client);
+
+    const response: CreateOrderMutation = await sdk.createOrder({
+      input: {
+        order_number: orderNumber || undefined,
+        shop_name: 'Manual Order',
+        fulfillment_status: 'pending',
+        total_tax: '0',
+        subtotal: '0',
+        total_discounts: '0',
+        total_price: '0',
+        shipping_lines: {
+          title: 'Free shipping',
+          price: '0.00',
+          carrier: 'Cheapest',
+          method: 'Ever',
+        },
+        shipping_address: {
+          first_name: firstName,
+          last_name: lastName,
+          address1: address.address1,
+          address2: address.address2,
+          city: address.city,
+          state: address.city,
+          state_code: address.state,
+          zip: address.zip,
+          country: address.country,
+          country_code: 'US',
+          email,
+        },
+        billing_address: {
+          first_name: firstName,
+          last_name: lastName,
+          address1: address.address1,
+          address2: address.address2,
+          city: address.city,
+          state: address.city,
+          state_code: address.state,
+          zip: address.zip,
+          country: address.country,
+          country_code: 'US',
+          email,
+        },
+        line_items: products.map((product, i) => { return {
+          sku: product.sku,
+          partner_line_item_id: `${product.sku}_${orderNumber}_${i}`,
+          quantity: 1,
+          price: '0',
+        }; }),
+        partner_order_id: this.createShorterUuid(uuid),
+        hold_until_date: holdUntilDate,
+        required_ship_date: requiredShipDate,
+      },
+    });
+
+    const itemsOnHand:ProductOnHand[] = response.order_create.order.line_items.edges.map(({ node }) => {
+      return {
+        sku: node.sku,
+        onHand: node.product.warehouse_products.find(({ warehouse }) => {
+          return warehouse.identifier === warehouseCode;
+        }).on_hand,
+      };
+    });
+
+    return [itemsOnHand];
+
+  }
+
   async getNoInventoryProducts(): Promise<ReturnValueType<Pick<Product, 'sku'>[]>> {
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
@@ -282,17 +385,16 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
   //   return [customerOrders];
   // }
 
-  async updateOrderInformation({ orderId, note, uuid }:UpdateOrderInformationArgs):
+  async updateOrderInformation({ orderId, note, uuid, holdUntilDate, requiredShipDate }:UpdateOrderInformationArgs):
   Promise<Order>{
     const client = new GraphQLClient(endpoint,
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
     uuid = this.createShorterUuid(uuid);
-    const holdUntilDate = new Date();
-    holdUntilDate.setHours(holdUntilDate.getHours() + 24);
     const response = await sdk.UpdateOrder({
       input: {
-        hold_until_date: holdUntilDate.toISOString().replace(/T/, ' ').replace(/\..+/, ''),
+        required_ship_date: requiredShipDate,
+        hold_until_date: holdUntilDate,
         order_id: orderId,
         packing_note: note ||'',
         partner_order_id: uuid,
