@@ -6,6 +6,7 @@ import { SurveyName } from '@Usecases/utils/surveyName';
 import { ActiveSurvey } from '../../domains/Survey';
 import { ProductFeature } from '../../domains/Product';
 import { ProductGeneralRepositoryInterface } from '../../repositories/teatisDB/product/productGeneral.repository';
+import { EmployerRepositoryInterface } from '../../repositories/teatisDB/employer/employer.repository';
 
 const TOP_DISLIKE_INGREDIENTS = [
   'Apple',
@@ -35,7 +36,7 @@ const TOP_DISLIKE_INGREDIENTS = [
 ];
 
 export interface GetPrePurchaseSurveyUsecaseInterface {
-  getPrePurchaseSurveyQuestions(): Promise<ReturnValueType<ActiveSurvey>>;
+  getPrePurchaseSurveyQuestions(employerUuid?:string): Promise<ReturnValueType<ActiveSurvey>>;
 }
 
 @Injectable()
@@ -47,6 +48,9 @@ implements GetPrePurchaseSurveyUsecaseInterface
     private readonly surveyQuestionsRepository: SurveyQuestionsRepositoryInterface,
     @Inject('ProductGeneralRepositoryInterface')
     private readonly productGeneralRepository: ProductGeneralRepositoryInterface,
+    @Inject('EmployerRepositoryInterface')
+    private readonly employerRepository: EmployerRepositoryInterface,
+
   ) {}
 
   private sortOptions(list: ProductFeature[]): ProductFeature[] {
@@ -60,9 +64,15 @@ implements GetPrePurchaseSurveyUsecaseInterface
     return list;
   }
 
-  async getPrePurchaseSurveyQuestions(): Promise<ReturnValueType<ActiveSurvey>> {
+  async getPrePurchaseSurveyQuestions(employerUuid?:string): Promise<ReturnValueType<ActiveSurvey>> {
+    if(employerUuid){
+      const [employer, employerNotFound] = await this.employerRepository.getEmployerByUuid({ uuid: employerUuid });
+      if(!employer) return [undefined, employerNotFound];
+
+    }
     const [getSurveyQuestions, getSurveyQuestionsError] =
-        await this.surveyQuestionsRepository.getSurveyQuestions({ surveyName: SurveyName.PrePurchase });
+        await this.surveyQuestionsRepository.getSurveyQuestions(
+          { surveyName: employerUuid ? SurveyName.EmployeePrePurchase: SurveyName.PrePurchase });
     if (getSurveyQuestionsError) {
       return [undefined, getSurveyQuestionsError];
     }

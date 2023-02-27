@@ -63,10 +63,6 @@ import { CustomerEventLogRepository } from '../../repositories/teatisDB/customer
       provide: 'CustomerAuthRepositoryInterface',
       useClass: CustomerAuthRepository,
     },
-    {
-      provide: 'CustomerGeneralRepositoryInterface',
-      useClass: CustomerGeneralRepository,
-    },
 
     OAuth2Controller,
     PrismaService,

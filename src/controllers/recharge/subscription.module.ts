@@ -13,10 +13,7 @@ import { SubscriptionController } from './subscription.controller';
       provide: 'CancelSubscriptionUsecaseInterface',
       useClass: CancelSubscriptionUsecase,
     },
-    {
-      provide: 'CustomerGeneralRepositoryInterface',
-      useClass: CustomerGeneralRepository,
-    },
+
     {
       provide: 'ShopifyRepositoryInterface',
       useClass: ShopifyRepository,

@@ -4,15 +4,16 @@ import {
   Get,
   Inject,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { PostPrePurchaseSurveyNonSettingUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurveyNonSetting.usecase';
-import { PostPrePurchaseSurveyNonSettingDto } from '../dtos/postPrePurchaseSurveyNonSetting';
+import { PostPrePurchaseSurveyNonSettingDto } from './dtos/postPrePurchaseSurveyNonSetting.dto';
 import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
 import { ActiveSurvey } from '@Domains/Survey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
-import { PostPrePurchaseSurveyDto } from '../dtos/postPrePurchaseSurvey';
+import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey.dto';
 import { Customer } from '@Domains/Customer';
 import { SurveyQuestionResponse } from '@prisma/client';
 
@@ -28,11 +29,11 @@ export class PrePurchaseSurveyController {
   ) {}
   // Get: api/discovery/pre-purchase-survey
   @Get('pre-purchase-survey')
-  async getPrePurchaseSurveyQuestions(@Res() response: Response<ActiveSurvey | Error>) {
+  async getPrePurchaseSurveyQuestions(@Query('uuid') employerUuid:string, @Res() response: Response<ActiveSurvey | Error>) {
     const [usecaseResponse, error] =
-      await this.getPrePurchaseSurveyUsecase.getPrePurchaseSurveyQuestions();
+      await this.getPrePurchaseSurveyUsecase.getPrePurchaseSurveyQuestions(employerUuid);
     if (error) {
-      return response.status(500).send(error);
+      return response.status(404).send(error);
     }
     return response.status(200).send(usecaseResponse);
   }
@@ -58,10 +59,12 @@ export class PrePurchaseSurveyController {
   ) {
     const [usecaseResponse, error] =
       await this.postPrePurchaseSurveyUsecase.postPrePurchaseSurvey(body);
-    if (error) {
-      return response.status(500).send(error);
+    if(error && error.name === 'PhoneAlreadyExists'){
+      return response.status(409).send(error);
     }
-
+    if(error && error.name === 'EmployerNotFound'){
+      return response.status(404).send(error);
+    }
     return response.status(201).send(usecaseResponse);
   }
 }

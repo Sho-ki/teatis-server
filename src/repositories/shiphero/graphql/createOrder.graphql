@@ -1,0 +1,26 @@
+mutation createOrder ($input: CreateOrderInput!) {
+  order_create (data: $input)
+  {
+    request_id
+    complexity
+    order {
+		line_items {
+			edges{
+				node{
+					sku
+					product{
+						warehouse_products{
+							warehouse{
+								identifier
+							}
+							on_hand
+						}
+					}
+				}
+			}
+		}
+   }
+  }
+  }
+	
+	

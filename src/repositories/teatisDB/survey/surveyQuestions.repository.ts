@@ -52,10 +52,10 @@ implements SurveyQuestionsRepositoryInterface
     });
 
     if(!response){
-      return [undefined, { name: 'InvalidSurveyName', message: 'Survey name is invalid' }];
+      return [undefined, { name: 'NotFound', message: 'Survey name is invalid' }];
     }
     if(!response.intermediateSurveyQuestions.length){
-      return [undefined, { name: 'NoQuestions', message: 'No questions were found.' }];
+      return [undefined, { name: 'NotFound', message: 'No questions were found.' }];
     }
 
     const allQuestions: ParentSurveyQuestion[]= [];

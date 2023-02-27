@@ -1581,27 +1581,28 @@ export type LineItem = {
   warehouse_id?: Maybe<Scalars['String']>;
 };
 
-export type LineItemConnection = {
-  __typename?: 'LineItemConnection';
-  /** Contains the nodes in this connection. */
-  edges: Array<Maybe<LineItemEdge>>;
-  /** Pagination data for this connection. */
-  pageInfo: PageInfo;
-};
-
-/** A Relay edge containing a `LineItem` and its cursor. */
-export type LineItemEdge = {
-  __typename?: 'LineItemEdge';
-  /** A cursor for use in pagination */
-  cursor: Scalars['String'];
-  /** The item at the end of the edge */
-  node?: Maybe<LineItem>;
-};
-
 export type LineItemInput = {
   product_name: Scalars['String'];
   quantity: Scalars['Int'];
   sku: Scalars['String'];
+};
+
+export type LineItemQuerySpecConnection = {
+  __typename?: 'LineItemQuerySpecConnection';
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<LineItemQuerySpecEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  total_count?: Maybe<Scalars['Int']>;
+};
+
+/** A Relay edge containing a `LineItemQuerySpec` and its cursor. */
+export type LineItemQuerySpecEdge = {
+  __typename?: 'LineItemQuerySpecEdge';
+  /** A cursor for use in pagination */
+  cursor: Scalars['String'];
+  /** The item at the end of the edge */
+  node?: Maybe<LineItem>;
 };
 
 export type LineItemSerialNumber = {
@@ -2203,7 +2204,7 @@ export type Order = {
   insurance?: Maybe<Scalars['Boolean']>;
   insurance_amount?: Maybe<Scalars['String']>;
   legacy_id?: Maybe<Scalars['Int']>;
-  line_items?: Maybe<LineItemConnection>;
+  line_items?: Maybe<LineItemQuerySpecConnection>;
   merged_orders?: Maybe<Array<Maybe<MergedOrder>>>;
   order_date?: Maybe<Scalars['ISODateTime']>;
   order_history?: Maybe<Array<Maybe<OrderHistory>>>;
@@ -2244,6 +2245,7 @@ export type OrderLine_ItemsArgs = {
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
+  search?: InputMaybe<Scalars['GenericScalar']>;
   sort?: InputMaybe<Scalars['String']>;
 };
 
@@ -4621,7 +4623,14 @@ export type AddOrderLineItemsMutationVariables = Exact<{
 }>;
 
 
-export type AddOrderLineItemsMutation = { __typename?: 'Mutation', order_add_line_items?: { __typename?: 'OrderMutationOutput', request_id?: string | null, order?: { __typename?: 'Order', line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', sku?: string | null, product?: { __typename?: 'Product', warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null, warehouse?: { __typename?: 'Warehouse', identifier?: string | null } | null } | null> | null } | null } | null } | null> } | null } | null } | null };
+export type AddOrderLineItemsMutation = { __typename?: 'Mutation', order_add_line_items?: { __typename?: 'OrderMutationOutput', request_id?: string | null, order?: { __typename?: 'Order', line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', sku?: string | null, product?: { __typename?: 'Product', warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null, warehouse?: { __typename?: 'Warehouse', identifier?: string | null } | null } | null> | null } | null } | null } | null> } | null } | null } | null };
+
+export type CreateOrderMutationVariables = Exact<{
+  input: CreateOrderInput;
+}>;
+
+
+export type CreateOrderMutation = { __typename?: 'Mutation', order_create?: { __typename?: 'OrderMutationOutput', request_id?: string | null, complexity?: number | null, order?: { __typename?: 'Order', line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', sku?: string | null, product?: { __typename?: 'Product', warehouse_products?: Array<{ __typename?: 'WarehouseProduct', on_hand?: number | null, warehouse?: { __typename?: 'Warehouse', identifier?: string | null } | null } | null> | null } | null } | null } | null> } | null } | null } | null };
 
 export type GetProductInventoryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4633,42 +4642,42 @@ export type GetCustomerOrderByEmailQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetCustomerOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, product?: { __typename?: 'Product', kit?: boolean | null, kit_components?: Array<{ __typename?: 'KitComponent', sku?: string | null } | null> | null } | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetLastFulfilledOrderByEmailQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
 
 
-export type GetLastFulfilledOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastFulfilledOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetLastFulfilledOrderByUuidQueryVariables = Exact<{
   uuid: Scalars['String'];
 }>;
 
 
-export type GetLastFulfilledOrderByUuidQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastFulfilledOrderByUuidQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetLastOrderByEmailQueryVariables = Exact<{
   email: Scalars['String'];
 }>;
 
 
-export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastOrderByEmailQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetLastOrderByUuidQueryVariables = Exact<{
   uuid: Scalars['String'];
 }>;
 
 
-export type GetLastOrderByUuidQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, partner_order_id?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetLastOrderByUuidQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, partner_order_id?: string | null, line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type GetOrderByOrderNumberQueryVariables = Exact<{
   orderNumber: Scalars['String'];
 }>;
 
 
-export type GetOrderByOrderNumberQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemConnection', edges: Array<{ __typename?: 'LineItemEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null } | null } | null> } | null } | null } | null> } | null } | null };
+export type GetOrderByOrderNumberQuery = { __typename?: 'Query', orders?: { __typename?: 'OrdersQueryResult', data?: { __typename?: 'OrderConnection', edges: Array<{ __typename?: 'OrderEdge', node?: { __typename?: 'Order', id?: string | null, order_number?: string | null, shop_name?: string | null, fulfillment_status?: string | null, order_date?: any | null, email?: string | null, packing_note?: string | null, line_items?: { __typename?: 'LineItemQuerySpecConnection', edges: Array<{ __typename?: 'LineItemQuerySpecEdge', node?: { __typename?: 'LineItem', fulfillment_status?: string | null, product_name?: string | null, sku?: string | null, quantity?: number | null } | null } | null> } | null } | null } | null> } | null } | null };
 
 export type UpdateOrderMutationVariables = Exact<{
   input: UpdateOrderInput;
@@ -4682,6 +4691,31 @@ export const AddOrderLineItemsDocument = gql`
     mutation AddOrderLineItems($data: AddLineItemsInput!) {
   order_add_line_items(data: $data) {
     request_id
+    order {
+      line_items {
+        edges {
+          node {
+            sku
+            product {
+              warehouse_products {
+                warehouse {
+                  identifier
+                }
+                on_hand
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const CreateOrderDocument = gql`
+    mutation createOrder($input: CreateOrderInput!) {
+  order_create(data: $input) {
+    request_id
+    complexity
     order {
       line_items {
         edges {
@@ -4905,6 +4939,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     AddOrderLineItems(variables: AddOrderLineItemsMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddOrderLineItemsMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<AddOrderLineItemsMutation>(AddOrderLineItemsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AddOrderLineItems', 'mutation');
+    },
+    createOrder(variables: CreateOrderMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateOrderMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateOrderMutation>(CreateOrderDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createOrder', 'mutation');
     },
     getProductInventory(variables?: GetProductInventoryQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProductInventoryQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetProductInventoryQuery>(GetProductInventoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProductInventory', 'query');

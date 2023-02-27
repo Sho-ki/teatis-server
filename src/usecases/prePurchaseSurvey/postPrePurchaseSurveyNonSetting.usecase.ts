@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ReturnValueType } from '@Filters/customError';
-import { PostPrePurchaseSurveyNonSettingDto } from '@Controllers/discoveries/dtos/postPrePurchaseSurveyNonSetting';
+import { PostPrePurchaseSurveyNonSettingDto } from '@Controllers/discoveries/prePurchaseSurvey/dtos/postPrePurchaseSurveyNonSetting.dto';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerSurveyHistoryRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
