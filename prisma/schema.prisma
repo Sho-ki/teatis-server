@@ -928,6 +928,7 @@ model CustomerCoachHistory {
   coachId    Int
   startDate  DateTime  @default(now())
   endDate    DateTime?
+  coachingNote String?
   coach      Coach     @relation(fields: [coachId], references: [id])
   customer   Customers @relation(fields: [customerId], references: [id])
 

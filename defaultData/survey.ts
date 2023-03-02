@@ -570,7 +570,7 @@ export const seedSurvey:Survey[] = [
     label: 'Employee Pre Purchase Survey',
     questions: [
       {
-        displayOrder: 1,
+        displayOrder: 19,
         name: 'name',
         label: 'What is your name?',
         isRequired: true,
@@ -582,7 +582,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 2,
+        displayOrder: 20,
         name: 'address',
         label: 'What is your address?',
         isRequired: true,
@@ -594,7 +594,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 3,
+        displayOrder: 1,
         name: 'cravingAmount',
         label: 'How often do you eat snacks?',
         isRequired: false,
@@ -627,7 +627,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 5,
+        displayOrder: 3,
         name: 'mostCravingTime',
         label: 'When do you feel craving the most?',
         isRequired: false,
@@ -670,7 +670,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 4,
+        displayOrder: 2,
         name: 'cravingIncrease',
         label: 'Has the amount of your snacking increase over time?',
         isRequired: false,
@@ -693,7 +693,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 6,
+        displayOrder: 4,
         name: 'cravingReason',
         label: 'What is the main reason of your craving?',
         isRequired: false,
@@ -726,7 +726,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 7,
+        displayOrder: 5,
         name: 'cravingSnack',
         label: 'Which snack do you crave the most?',
         isRequired: false,
@@ -789,7 +789,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 12,
+        displayOrder: 10,
         name: 'weight',
         label: 'How much do you weigh?',
         isRequired: false,
@@ -857,7 +857,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 11,
+        displayOrder: 9,
         name: 'height',
         label: 'How tall are you?',
         isRequired: false,
@@ -905,7 +905,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 8,
+        displayOrder: 6,
         name: 'diabetes',
         label: 'What stage of Diabetes are you in?',
         isRequired: false,
@@ -948,7 +948,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 10,
+        displayOrder: 8,
         name: 'age',
         label: 'How old are you?',
         isRequired: false,
@@ -996,7 +996,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 9,
+        displayOrder: 7,
         name: 'gender',
         label: 'How do you identify?',
         isRequired: false,
@@ -1024,7 +1024,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 13,
+        displayOrder: 11,
         name: 'solutionLowGISnacks',
         label: 'Low Glucose Impact Snacks',
         isRequired: false,
@@ -1037,7 +1037,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 14,
+        displayOrder: 12,
         name: 'solutionMentalCravingControl',
         label: 'Mental Craving Control',
         isRequired: false,
@@ -1050,7 +1050,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 15,
+        displayOrder: 13,
         name: 'solutionCurriculum',
         label: 'Science-based curriculum',
         isRequired: false,
@@ -1063,7 +1063,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 16,
+        displayOrder: 14,
         name: 'solutionBenefits',
         label: 'Benefit',
         isRequired: false,
@@ -1076,7 +1076,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 19,
+        displayOrder: 17,
         name: 'flavorDislikes',
         label: 'Which flavors do you dislike?',
         isRequired: false,
@@ -1088,7 +1088,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 18,
+        displayOrder: 16,
         name: 'ingredientDislikes',
         label: 'Which ingredients do you dislike?',
         isRequired: false,
@@ -1114,7 +1114,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 17,
+        displayOrder: 15,
         name: 'allergens',
         label: 'What kind of allergies do you have?',
         isRequired: false,
@@ -1126,7 +1126,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 20,
+        displayOrder: 18,
         name: 'email',
         label: `You've reached the end of the quiz!`,
         isRequired: true,
