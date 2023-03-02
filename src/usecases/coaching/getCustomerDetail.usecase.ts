@@ -39,7 +39,7 @@ implements GetCustomerDetailUsecaseInterface
             channels: [{ type: 'sms', value: phone }],
             details: {
               title: 'Customer note',
-              content: 'https://teatis.retool.com/apps/2829cca0-b105-11ed-99eb-3bd869f39c7b/Customer%20question%20responses?uuid=' + customerDetail.uuid,
+              content: 'https://teatis.retool.com/embedded/public/de87e7ff-ffc9-4d84-95a9-2c0ab41590d6?uuid=' + customerDetail.uuid,
             },
             worker: coach.email, // assign this customer to a worker
             address: phone,
