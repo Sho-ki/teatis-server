@@ -38,6 +38,22 @@ const exerciseAmount = [
   '150-180',
   '180+',
 ];
+
+// const createWeightArray = (max, min) => {
+//   const weightArray = [`${max} ~ `, `${max-4} ~ ${max-1}`];
+//   for(let i = max; i >= min; i-=4){
+//     if(i <= min) {
+//       weightArray.push(` ~ ${min}`);
+//       break;
+//     }
+//     const currentLength = weightArray.length;
+//     const lastItem = weightArray[currentLength - 1];
+//     const [minW, maxW] = lastItem.split(' ~ ').map(Number);
+//     weightArray.push(`${minW - 4} ~ ${maxW - 4}`);
+//   }
+//   return weightArray;
+// };
+
 const createOptions = (labels: string[]) => {
   const options = labels.map(label => {
     const [min, max] = label.split('-').map(parseFloat);
