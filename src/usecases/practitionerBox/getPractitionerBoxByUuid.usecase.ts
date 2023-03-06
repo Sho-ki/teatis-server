@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { PractitionerBoxRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
 import { PractitionerAndBox } from '@Domains/PractitionerAndBox';
-import { GetPractitionerBoxDto } from '@Controllers/discoveries/dtos/getPractitionerBox';
+import { GetPractitionerBoxDto } from '@Controllers/discoveries/practitionerBox/dtos/getPractitionerBox';
 import { ReturnValueType } from '@Filters/customError';
 import { TEST_PRACTITIONER_BOX_UUIDS } from '../utils/testPractitionerBoxUuids';
 

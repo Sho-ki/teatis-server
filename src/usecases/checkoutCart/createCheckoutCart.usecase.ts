@@ -8,7 +8,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { CustomerSessionRepositoryInterface } from '@Repositories/teatisDB/customer/customerSession.repository';
 import { BOX_PLANS } from '../utils/boxPlans';
-import { CreateCheckoutCartDto } from '../../controllers/discoveries/dtos/createCheckoutCartDto';
+import { CreateCheckoutCartDto } from '../../controllers/discoveries/cart/dtos/createCheckoutCartDto';
 
 export interface CreateCheckoutCartArgs extends CreateCheckoutCartDto {
   sessionId:string;

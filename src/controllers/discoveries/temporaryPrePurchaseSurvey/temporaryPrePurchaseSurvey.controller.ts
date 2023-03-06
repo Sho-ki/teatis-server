@@ -10,10 +10,10 @@ import {
 
 import { Response } from 'express';
 
-import { PostTemporaryPrePurchaseSurveyDto } from '../dtos/postTemporaryPrePurchaseSurvey';
+import { PostTemporaryPrePurchaseSurveyDto } from './dtos/postTemporaryPrePurchaseSurvey';
 import { PostTemporaryPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postTemporaryPrePurchaseSurvey.usecase';
 import { Status } from '@Domains/Status';
-import { GetTemporaryPrePurchaseSurveyDto } from '../dtos/getTemporaryPrePurchaseSurvey';
+import { GetTemporaryPrePurchaseSurveyDto } from './dtos/getTemporaryPrePurchaseSurvey';
 import { GetTemporaryPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/getTemporaryPrePurchaseSurvey.usecase';
 import { PrePurchaseSurveyAnswer } from '@Domains/PrePurchaseSurveyAnswer';
 

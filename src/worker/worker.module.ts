@@ -5,7 +5,6 @@ import { BitlyRepository } from '../repositories/bitly/bitly.repository';
 import { GoogleCalendarRepository } from '../repositories/googleOAuth2/googleCalendar.repository';
 import { ShipheroRepository } from '../repositories/shiphero/shiphero.repository';
 import { ShopifyRepository } from '../repositories/shopify/shopify.repository';
-import { AutoMessageRepository } from '../repositories/teatisDB/autoMessage/autoMessage.repository';
 import { CoachRepository } from '../repositories/teatisDB/coach/coach.repository';
 import { CustomerAuthRepository } from '../repositories/teatisDB/customer/customerAuth.repository';
 import { CustomerPreferenceRepository } from '../repositories/teatisDB/customer/customerPreference.repository';
@@ -27,6 +26,8 @@ import { CreateEmployeeOrderUsecase } from '../usecases/employeeOrder/createEmpl
 import { EmployeeRepository } from '../repositories/teatisDB/employee/employee.repository';
 import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
 import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
+import { PurchaseDateBasedMessageRepository } from '../repositories/teatisDB/autoMessage/purchaseDateBasedMessage.repository';
+import { SequentBasedMessageRepository } from '../repositories/teatisDB/autoMessage/sequesntBasedMessage.repository';
 
 @Module({
   exports: [WorkerModule],
@@ -120,8 +121,12 @@ import { ProductGeneralRepository } from '../repositories/teatisDB/product/produ
       useClass: BitlyRepository,
     },
     {
-      provide: 'AutoMessageRepositoryInterface',
-      useClass: AutoMessageRepository,
+      provide: 'PurchaseDateBasedMessageRepositoryInterface',
+      useClass: PurchaseDateBasedMessageRepository,
+    },
+    {
+      provide: 'SequentBasedMessageRepositoryInterface',
+      useClass: SequentBasedMessageRepository,
     },
     {
       provide: 'SendAutoMessageUsecaseInterface',

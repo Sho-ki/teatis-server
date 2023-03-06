@@ -9,7 +9,7 @@ import {
 import { Response } from 'express';
 import { ActiveSurvey } from '@Domains/Survey';
 import { GetWeeklyCheckInQuestionsUsecaseInterface } from '@Usecases/weeklyCheckIn/getWeeklyCheckInQuestions.usecase';
-import { PostWeeklyCheckInDto } from '../dtos/postWeeklyCheckIn';
+import { PostWeeklyCheckInDto } from './dtos/postWeeklyCheckIn';
 import { PostWeeklyCheckInQuestionsUsecaseInterface } from '@Usecases/weeklyCheckIn/postWeeklyCheckInQuestions.usecase';
 import { SurveyQuestionResponse } from '@prisma/client';
 

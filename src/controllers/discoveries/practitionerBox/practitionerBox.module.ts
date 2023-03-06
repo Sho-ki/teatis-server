@@ -5,29 +5,15 @@ import { CreatePractitionerBoxUsecase } from '@Usecases/practitionerBox/createPr
 import { GetPractitionerBoxByLabelUsecase } from '@Usecases/practitionerBox/getPractitionerBoxByLabel.usecase';
 import { GetPractitionerBoxByUuidUsecase } from '@Usecases/practitionerBox/getPractitionerBoxByUuid.usecase';
 import { PractitionerBoxController } from './practitionerBox.controller';
-import { PractitionerBoxRepository } from '@Repositories/teatisDB/practitioner/practitionerBox.repository';
-import { PractitionerGeneralRepository } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { UpdateRecurringPractitionerBoxesUsecase } from '@Usecases/practitionerBox/updateRecurringPractitionerBoxes.usecase';
-import { UpsertRecurringPractitionerBoxesUsecase } from '@Usecases/practitonerRecurringBox/upsertPractitionerRecurringBox.usecase';
-import { CreateMasterMonthlyBoxUsecase } from '@Usecases/masterMonthlyBox/createMasterMonthlyBox.usecase';
-import { MasterMonthlyBoxRepository } from '@Repositories/teatisDB/masterMonthlyBox/masterMonthlyBox.repository';
 import { TransactionOperator } from '@Repositories/utils/transactionOperator';
-import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/customerSession.repository';
 
 @Module({
   controllers: [PractitionerBoxController],
   providers: [
     {
-      provide: 'CustomerSessionRepositoryInterface',
-      useClass: CustomerSessionRepository,
-    },
-    {
       provide: 'TransactionOperatorInterface',
       useClass: TransactionOperator,
-    },
-    {
-      provide: 'PractitionerGeneralRepositoryInterface',
-      useClass: PractitionerGeneralRepository,
     },
     {
       provide: 'GetPractitionerBoxByLabelUsecaseInterface',
@@ -38,28 +24,12 @@ import { CustomerSessionRepository } from '@Repositories/teatisDB/customer/custo
       useClass: CreatePractitionerBoxUsecase,
     },
     {
-      provide: 'PractitionerBoxRepositoryInterface',
-      useClass: PractitionerBoxRepository,
-    },
-    {
       provide: 'GetPractitionerBoxByUuidUsecaseInterface',
       useClass: GetPractitionerBoxByUuidUsecase,
     },
     {
       provide: 'UpdateRecurringPractitionerBoxesUsecaseInterface',
       useClass: UpdateRecurringPractitionerBoxesUsecase,
-    },
-    {
-      provide: 'UpsertRecurringPractitionerBoxesUsecaseInterface',
-      useClass: UpsertRecurringPractitionerBoxesUsecase,
-    },
-    {
-      provide: 'CreateMasterMonthlyBoxUsecaseInterface',
-      useClass: CreateMasterMonthlyBoxUsecase,
-    },
-    {
-      provide: 'MasterMonthlyBoxRepositoryInterface',
-      useClass: MasterMonthlyBoxRepository,
     },
     PrismaService,
     PractitionerBoxController,

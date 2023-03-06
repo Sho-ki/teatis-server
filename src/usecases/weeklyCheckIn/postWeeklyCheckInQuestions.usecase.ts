@@ -6,7 +6,7 @@ import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/te
 import { CustomerSurveyHistoryRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 import { SurveyName } from '../utils/surveyName';
 import { SurveyQuestionResponse } from '@prisma/client';
-import { PostWeeklyCheckInDto } from '@Controllers/discoveries/dtos/postWeeklyCheckIn';
+import { PostWeeklyCheckInDto } from '@Controllers/discoveries/weeklyCheckIn/dtos/postWeeklyCheckIn';
 
 export interface PostWeeklyCheckInQuestionsUsecaseInterface {
     postWeeklyCheckInQuestions({ uuid, customerResponses }: PostWeeklyCheckInDto): Promise<

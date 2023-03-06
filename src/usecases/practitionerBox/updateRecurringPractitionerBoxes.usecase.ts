@@ -9,7 +9,7 @@ import { Product } from '@Domains/Product';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { ReturnValueType } from '@Filters/customError';
 import { TransactionOperatorInterface } from '@Repositories/utils/transactionOperator';
-import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries/dtos/upsertRecurringPractitionerBox';
+import { UpsertRecurringPractitionerBoxDto } from '../../controllers/discoveries/practitionerBox/dtos/upsertRecurringPractitionerBox';
 import { nextMonth } from '@Usecases/utils/dates';
 
 export interface UpdateRecurringPractitionerBoxesUsecaseInterface {

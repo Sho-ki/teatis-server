@@ -3,13 +3,14 @@ import {  Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 
 import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
-import { AutoMessageRepositoryInterface } from '@Repositories/teatisDB/autoMessage/autoMessage.repository';
 import { CoachedCustomer } from '@Domains/CoachedCustomer';
 import { TwilioRepositoryInterface } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
 import { pstTime } from '../utils/dates';
 import { BitlyRepositoryInterface } from '../../repositories/bitly/bitly.repository';
+import { PurchaseDateBasedMessageRepositoryInterface } from '../../repositories/teatisDB/autoMessage/purchaseDateBasedMessage.repository';
+import { SequentBasedMessageRepository } from '../../repositories/teatisDB/autoMessage/sequesntBasedMessage.repository';
 
 export interface SendAutoMessageUsecaseInterface {
   sendAutoMessage():
@@ -30,8 +31,10 @@ implements SendAutoMessageUsecaseInterface
   private getCustomerDataErrorStack=[];
   constructor(
 
-  @Inject('AutoMessageRepositoryInterface')
-  private readonly autoMessageRepository: AutoMessageRepositoryInterface,
+  @Inject('PurchaseDateBasedMessageRepositoryInterface')
+  private readonly purchaseDateBasedMessageRepository: PurchaseDateBasedMessageRepositoryInterface,
+  @Inject('SequentBasedMessageRepository')
+  private readonly sequentBasedMessageRepository: SequentBasedMessageRepository,
   @Inject('CoachRepositoryInterface')
   private readonly coachRepository: CoachRepositoryInterface,
   @Inject('TwilioRepositoryInterface')
@@ -173,7 +176,7 @@ implements SendAutoMessageUsecaseInterface
 
     // Once we send something, even if media might not be sent, create the history.
     if(messageDetail.type === 'sequenceBased'){
-      await this.autoMessageRepository.createCustomerSequenceBasedAutoMessagesHistory(
+      await this.sequentBasedMessageRepository.createCustomerSequenceBasedAutoMessagesHistory(
         { customerId: customer.id, sequenceBasedAutoMessageId: messageDetail.id });
     }
 
@@ -191,7 +194,7 @@ implements SendAutoMessageUsecaseInterface
   private async getCustomerDaysSincePurchase( customerId :number):Promise<number>{
     // Get customer's days since their purchase
     const { daysSincePurchase } = await
-    this.autoMessageRepository.getCustomerDaysSincePurchase({ customerId });
+    this.purchaseDateBasedMessageRepository.getCustomerDaysSincePurchase({ customerId });
 
     return daysSincePurchase;
   }
@@ -200,7 +203,7 @@ implements SendAutoMessageUsecaseInterface
   Promise<{lastSequentBasedMessageDate:Date, lastSequentBasedMessageSequence:number}>{
     // Get the last sequence based auto message data for the current customer
     const lastSequenceBasedAutoMessageData = await
-    this.autoMessageRepository.getCustomerLastSequenceBasedAutoMessageData({ customerId });
+    this.sequentBasedMessageRepository.getCustomerLastSequenceBasedAutoMessageData({ customerId });
 
     // If customers has no last message, then set default values
     const { lastSequentBasedMessageDate = new Date('2000-01-01'), lastSequentBasedMessageSequence = 0 } = lastSequenceBasedAutoMessageData;
@@ -291,10 +294,10 @@ implements SendAutoMessageUsecaseInterface
       const uniqueDays = Array.from(daysSet);
       const uniqueSequences = Array.from(sequenceSet);
       const purchaseDateBasedAutoMessages =
-    await this.autoMessageRepository.getPurchaseDateBasedAutoMessagesByDays({ days: uniqueDays });
+    await this.purchaseDateBasedMessageRepository.getPurchaseDateBasedAutoMessagesByDays({ days: uniqueDays });
 
       const sequenceBasedAutoMessages =
-    await this.autoMessageRepository.getSequenceBasedAutoMessagesBySequences({ sequences: uniqueSequences });
+    await this.sequentBasedMessageRepository.getSequenceBasedAutoMessagesBySequences({ sequences: uniqueSequences });
 
       for (const customer of targetCustomers) {
         try{

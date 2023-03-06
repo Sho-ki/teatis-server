@@ -8,9 +8,9 @@ import {
   Res,
 } from '@nestjs/common';
 import { CreatePractitionerUsecaseInterface } from '@Usecases/practitioner/createPractitioner.usecase';
-import { CreatePractitionerDto } from '../dtos/createPractitioner';
+import { CreatePractitionerDto } from './dtos/createPractitioner';
 import { Response } from 'express';
-import { GetPractitionerDto } from '../dtos/getPractitioner';
+import { GetPractitionerDto } from './dtos/getPractitioner';
 import { GetPractitionerUsecaseInterface } from '@Usecases/practitioner/getPractitioner.usecase';
 import { Practitioner } from '@Domains/Practitioner';
 

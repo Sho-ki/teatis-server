@@ -3,7 +3,6 @@ import { PrismaService } from '../../../prisma.service';
 
 import { GetCoachedCustomersUsecase } from '@Usecases/coaching/getCoachedCustomers.usecase';
 import { CoachingController } from './coaching.controller';
-import { CoachRepository } from '@Repositories/teatisDB/coach/coach.repository';
 import { GetCustomerDetailUsecase } from '@Usecases/coaching/getCustomerDetail.usecase';
 
 @Module({
@@ -18,10 +17,6 @@ import { GetCustomerDetailUsecase } from '@Usecases/coaching/getCustomerDetail.u
     {
       provide: 'GetCoachedCustomersUsecaseInterface',
       useClass: GetCoachedCustomersUsecase,
-    },
-    {
-      provide: 'CoachRepositoryInterface',
-      useClass: CoachRepository,
     },
     CoachingController,
     PrismaService,

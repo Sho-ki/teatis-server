@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { GetPractitionerDto } from '@Controllers/discoveries/dtos/getPractitioner';
+import { GetPractitionerDto } from '@Controllers/discoveries/practitioner/dtos/getPractitioner';
 import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { Practitioner } from '@Domains/Practitioner';
 import { ReturnValueType } from '@Filters/customError';

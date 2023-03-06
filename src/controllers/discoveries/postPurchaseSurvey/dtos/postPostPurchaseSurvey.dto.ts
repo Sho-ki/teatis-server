@@ -1,8 +1,19 @@
-import {  IsNumber, IsOptional } from 'class-validator';
+// import { ProductHasGlucoseImpact } from '@Domains/PostPurchaseSurvey';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 
-export class CreateCheckoutCartDto {
+export class PostPostPurchaseSurveyDto {
   @IsNumber()
-  @IsOptional()
-    deliveryInterval?: 1 | 3 | 6 | 12;
-}
+    historyId: number;
 
+  @IsOptional()
+  @IsArray()
+    customerResponses?:{
+      surveyQuestionId:number;
+      response: number | number[] | string;
+      productId:number;
+  }[];
+}

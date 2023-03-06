@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CreatePractitionerDto } from '@Controllers/discoveries/dtos/createPractitioner';
+import { CreatePractitionerDto } from '@Controllers/discoveries/practitioner/dtos/createPractitioner';
 import { v4 as uuidv4 } from 'uuid';
 import { PractitionerGeneralRepositoryInterface } from '@Repositories/teatisDB/practitioner/practitionerGeneral.repository';
 import { Practitioner } from '@Domains/Practitioner';

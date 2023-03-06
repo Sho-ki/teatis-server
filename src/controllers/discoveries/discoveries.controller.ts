@@ -1,12 +1,9 @@
 import {
-  Body,
   Controller,
   Get,
   Inject,
-  Post,
   Query,
   Res,
-  Session,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -15,10 +12,7 @@ import { Response } from 'express';
 import { GetPrePurchaseOptionsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { GetNextBoxUsecaseInterface, GetNextBoxUsecaseRes } from '@Usecases/nextBox/getNextBox.usecase';
 import { GetNextBoxDto } from './dtos/getNextBox';
-import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
 import { ProductOptions } from '@Domains/ProductOptions';
-import { CreateCheckoutCartDto } from './dtos/createCheckoutCartDto';
-import { CreateCheckoutCartUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
 
 // api/discovery
 @Controller('api/discovery')
@@ -29,8 +23,6 @@ export class DiscoveriesController {
     private getPrePurchaseOptionsUsecase: GetPrePurchaseOptionsUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxUsecase: GetNextBoxUsecaseInterface,
-    @Inject('CreateCheckoutCartUsecaseInterface')
-    private createCheckoutCartUsecase: CreateCheckoutCartUsecaseInterface,
   ) {}
 
   // GET: api/discovery/pre-purchase-options
@@ -62,27 +54,6 @@ export class DiscoveriesController {
       return response.status(500).send(error);
     }
     return response.status(200).send(usecaseResponse);
-  }
-
-  // Post: api/discovery/box-cart
-  @Post('box-cart')
-  async createCheckoutCartOfCustomerBox(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Session() session: Record<string, any>,
-    @Body() body: CreateCheckoutCartDto,
-    @Res() response: Response<CustomerCheckoutCart | Error>,
-  ) {
-    session['sessionId'] = session['sessionId'] || session.id;
-
-    const [usecaseResponse, error] =
-      await this.createCheckoutCartUsecase.createCheckoutCart(
-        { ...body, sessionId: session['sessionId'] }
-      );
-    if (error) {
-      return response.status(500).send(error);
-    }
-    return response.status(201).send(usecaseResponse);
-
   }
 
 }

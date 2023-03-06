@@ -6,9 +6,9 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
-import { DeleteCustomerInformationDto } from '../dtos/deleteCustomerInformation';
+import { DeleteCustomerInformationDto } from './dtos/deleteCustomerInformation';
 import { DeleteEmailUsecaseInterface } from '@Usecases/email/deleteEmail';
-import { PostCustomerInformationDto } from '../dtos/postCustomerInformation';
+import { PostCustomerInformationDto } from './dtos/postCustomerInformation';
 import { PostEmailUsecaseInterface } from '@Usecases/email/postCustomerEmail';
 import { Response } from 'express';
 import { Status } from '@Domains/Status';

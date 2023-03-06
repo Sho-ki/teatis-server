@@ -1,6 +1,5 @@
 import { DeleteEmailUsecase } from '@Usecases/email/deleteEmail';
 import { EmailController } from './email.controller';
-import { KlaviyoRepository } from '@Repositories/klaviyo/klaviyo.repository';
 import { Module } from '@nestjs/common';
 import { PostEmailUsecase } from '@Usecases/email/postCustomerEmail';
 import { PrismaService } from 'src/prisma.service';
@@ -15,10 +14,6 @@ import { PrismaService } from 'src/prisma.service';
     {
       provide: 'DeleteEmailUsecaseInterface',
       useClass: DeleteEmailUsecase,
-    },
-    {
-      provide: 'KlaviyoRepositoryInterface',
-      useClass: KlaviyoRepository,
     },
     EmailController,
     PrismaService,

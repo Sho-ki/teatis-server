@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { ReturnValueType } from '@Filters/customError';
-import { PostTemporaryPrePurchaseSurveyDto } from '../../controllers/discoveries/dtos/postTemporaryPrePurchaseSurvey';
+import { PostTemporaryPrePurchaseSurveyDto } from '../../controllers/discoveries/temporaryPrePurchaseSurvey/dtos/postTemporaryPrePurchaseSurvey';
 import { TemporaryPrePurchaseSurveyRepositoryInterface } from '../../repositories/teatisDB/temporaryPrePurchaseSurvey/temporaryPrePurchaseSurvey.repository';
 import { Status } from '../../domains/Status';
 
