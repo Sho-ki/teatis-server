@@ -7,6 +7,6 @@ export class PostWeeklyCheckInDto {
     @IsArray()
       customerResponses: {
       surveyQuestionId: number;
-      responseId?: number;
+      response?: number;
     }[];
 }
