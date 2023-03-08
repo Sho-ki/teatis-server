@@ -352,6 +352,11 @@ const upsertSurvey = async() => {
           },
           update: { displayOrder },
         });
+        await prisma.surveyQuestion.update({
+          where: { id: findQuestion.id },
+          data: { isCustomerFeature, isRequired, placeholder, hint, responseType },
+        });
+
         if(children){
           let i = 1;
           for(const child of children){
