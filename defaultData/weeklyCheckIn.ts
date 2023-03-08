@@ -115,6 +115,18 @@ export const weeklyCheckIn:Survey[] = [
         parentSurveyQuestionId: null,
         options: createOptions(exerciseAmount),
       },
+      {
+        displayOrder: 5,
+        name: 'weeklyWeight',
+        label: 'How much did you weigh this week?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: 'Weight in lbs',
+        responseType: 'number',
+        parentSurveyQuestionId: null,
+        options: null,
+      },
     ],
   },
 ];
