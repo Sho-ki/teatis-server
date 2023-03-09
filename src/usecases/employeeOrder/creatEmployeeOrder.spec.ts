@@ -152,6 +152,15 @@ describe('CreateEmployeeOrder', () => {
             type: 'boxOrdered',
           }
         ),
+      getCustomerEventLog: () =>
+        Promise.resolve<CustomerEventLog>(
+          {
+            id: 1,
+            customerId: 2,
+            eventDate: new Date(),
+            type: 'boxSubscribed',
+          }
+        ),
 
     };
 
