@@ -49,8 +49,6 @@ implements CustomerEventLogRepositoryInterface
 
   async getCustomerEventLog({ customerId, event }: GetCustomerEventLogArgs):
   Promise<CustomerEventLog>{
-    // eslint-disable-next-line no-console
-    console.log('TEST1: ', customerId, event);
     const response = await this.prisma.customerEventLog.findFirst(
       { where: { customerId, type: event }, orderBy: { eventDate: 'desc' } }
     );

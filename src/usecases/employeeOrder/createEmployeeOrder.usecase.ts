@@ -86,7 +86,11 @@ export class CreateEmployeeOrderUsecase implements CreateEmployeeOrderUsecaseInt
           );
 
         }
-
+        const hasCoachingSubscribedLog = await this.customerEventLogRepository.getCustomerEventLog({ customerId: employeeCustomer.id, event: 'coachingSubscribed' });
+        if(!hasCoachingSubscribedLog){
+          await this.customerEventLogRepository.createCustomerEventLog({ customerId: employeeCustomer.id, event: 'coachingSubscribed' });
+          await this.customerEventLogRepository.createCustomerEventLog({ customerId: employeeCustomer.id, event: 'boxSubscribed' });
+        }
         await this.customerEventLogRepository.createCustomerEventLog({ customerId: employeeCustomer.id, event: 'boxOrdered' });
       }catch(e){
         this.createEmployeeOrderErrors.push({
