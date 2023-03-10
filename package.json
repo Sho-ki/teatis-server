@@ -58,6 +58,7 @@
     "luxon": "^3.2.1",
     "moment": "^2.29.4",
     "newrelic": "^9.2.0",
+    "openai": "^3.2.1",
     "pg": "^8.7.1",
     "prisma-field-encryption": "^1.4.0",
     "reflect-metadata": "^0.1.13",

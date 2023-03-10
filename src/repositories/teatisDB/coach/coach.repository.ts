@@ -91,11 +91,11 @@ export class CoachRepository implements CoachRepositoryInterface {
 
     const {
       email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
-      boxSubscribed, coachingSubscribed,
+      boxSubscribed, coachingSubscribed, twilioChannelSid,
     } = response;
     const customerDetails: CoachedCustomer =  {
       id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-      coachingSubscribed, boxSubscribed,
+      coachingSubscribed, boxSubscribed, twilioChannelSid,
       coach: { id: coach.id, email: coach.email, phone: coach.phone },
     };
 

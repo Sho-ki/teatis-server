@@ -46,6 +46,9 @@ export interface TwilioRepositoryInterface {
 
   addParticipant({ channelSid, toPhone, fromPhone }: AddParticipantsArgs):
   Promise<ReturnValueType<ParticipantInstance>>;
+
+  getConversationHistory({ customerChannelId }: { customerChannelId:string })
+  :Promise<ReturnValueType<unknown[]>>;
 }
 
 @Injectable()
@@ -117,6 +120,30 @@ export class TwilioRepository implements TwilioRepositoryInterface {
       .messages
       .create({ author, body });
     return [response];
+  }
+
+  async getConversationHistory({ customerChannelId }: { customerChannelId:string }) :
+  Promise<ReturnValueType<unknown[]>>{
+    const serviceSid = process.env.TWILIO_SERVICE_SID;
+
+    const storeData = [];
+    await this.twilioClient.chat.v2
+      .services(serviceSid)
+      .channels(customerChannelId)
+      .messages.list()
+      .then((res) => {
+        const data = [];
+        for (const d of res) {
+          data.push({
+            sentAt: d.dateCreated,
+            from: d.from,
+            body: d.body,
+          });
+        }
+        storeData.push(data);
+      })
+      .catch((e) => console.log(e));
+    return storeData[0];
   }
 
 }
