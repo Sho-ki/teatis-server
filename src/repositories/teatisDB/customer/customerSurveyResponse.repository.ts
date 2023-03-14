@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import {  Prisma, SurveyQuestionResponse  } from '@prisma/client';
+import { Inject, Injectable } from '@nestjs/common';
+import {  Prisma, PrismaClient, SurveyQuestionResponse  } from '@prisma/client';
 import { ProductSurveyQuestionResponse } from '@Domains/ProductSurveyQuestionResponse';
 
 import { PrismaService } from '../../../prisma.service';
+import { Transactionable } from '../../utils/transactionable.interface';
 
 interface UpsertCustomerResponseArgs {
   surveyHistoryId:number;
@@ -28,7 +29,7 @@ interface GetCustomerProductSurveyResponseArgs {
   surveyHistoryId: number;
 }
 
-export interface CustomerSurveyResponseRepositoryInterface {
+export interface CustomerSurveyResponseRepositoryInterface extends Transactionable {
   upsertCustomerResponse({
     surveyHistoryId,
     surveyQuestionId,
@@ -56,7 +57,17 @@ export interface CustomerSurveyResponseRepositoryInterface {
 export class CustomerSurveyResponseRepository
 implements CustomerSurveyResponseRepositoryInterface
 {
-  constructor(private prisma: PrismaService) {}
+  private originalPrismaClient : PrismaClient;
+  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
+  setPrismaClient(prisma: Prisma.TransactionClient): CustomerSurveyResponseRepositoryInterface {
+    this.originalPrismaClient = this.prisma as PrismaClient;
+    this.prisma = prisma;
+    return this;
+  }
+
+  setDefaultPrismaClient() {
+    this.prisma = this.originalPrismaClient;
+  }
   async upsertCustomerResponse({
     surveyHistoryId,
     surveyQuestionId,

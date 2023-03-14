@@ -6,6 +6,8 @@ import { ProductGeneralRepository } from './repositories/teatisDB/product/produc
 import { OneTimeCodeRepository } from './repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
 
 import { TerraRepository } from './repositories/terra/terra.repository';
+import { TransactionOperator } from './repositories/utils/transactionOperator';
+import { CustomerPointLogRepository } from './repositories/teatisDB/customerPointLog/customerPointLog.repository';
 
 const createGlobalModule = (repositories, configurations) => {
   const globalModule: ModuleMetadata = { providers: [], exports: [] };
@@ -32,5 +34,7 @@ const createGlobalModule = (repositories, configurations) => {
   ProductGeneralRepository,
   TerraRepository,
   OneTimeCodeRepository,
+  TransactionOperator,
+  CustomerPointLogRepository,
 ], [PrismaService]))
 export class GlobalModule {}

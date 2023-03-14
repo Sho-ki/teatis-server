@@ -1,11 +1,15 @@
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class PostWeeklyCheckInDto {
-    @IsString()
-      uuid: string;
+  @IsString()
+    uuid: string;
 
-    @IsArray()
-      customerResponses: {
+  @IsString()
+  @IsOptional()
+    pointToken?: string;
+
+  @IsArray()
+    customerResponses: {
       surveyQuestionId: number;
       response?: number;
     }[];
