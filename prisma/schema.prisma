@@ -30,6 +30,8 @@ model Customers {
   customerBoxItems                                    CustomerBoxItems[]
   customerCoachHistory                                CustomerCoachHistory[]
   customerEventLog                                    CustomerEventLog[]
+  customerPointLog                                    CustomerPointLog[]
+  pointExchangeHistory                                PointExchangeHistory[]
   customerFoodLog                                     CustomerFoodLog[]
   customerOAuth                                       CustomerOAuth2[]
   customerSession                                     CustomerSession[]
@@ -68,6 +70,42 @@ model CustomerEventLog {
   eventDate  DateTime  @default(now())
   type       EventType
   customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model CustomerPointLog {
+  id         Int       @id @default(autoincrement())
+  customerId Int
+  eventDate  DateTime  @default(now())
+  type       RewardEventType
+  points     Int
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model PointExchangeHistory {
+  id         Int       @id @default(autoincrement())
+  customerId Int
+  eventDate  DateTime  @default(now())
+  points     Int
+  exchangedProduct  ExchangedProduct[]
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model ExchangedProduct {
+  pointExchangeHistoryId Int
+  productId Int
+  pointExchangeHistory   PointExchangeHistory @relation(fields: [pointExchangeHistoryId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([pointExchangeHistoryId, productId])
+}
+
+model OneTimeCode {
+  id Int @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+  status ActiveStatus @default(active)
+  validUntil DateTime  @default(dbgenerated("(now() + '7 days'::interval)"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model CustomerAddress {
@@ -393,6 +431,7 @@ model Product {
   preservationStyle                      PreservationStyle?                       @default(normal)
   glucoseValues                          Json?
   weight                                 Float?
+  points                                 Int?                                    @default(100)
   customerBoxItems                       CustomerBoxItems[]
   customerFoodLog                        CustomerFoodLog[]
   intermediateMasterMonthlyBoxProduct    IntermediateMasterMonthlyBoxProduct[]
@@ -411,6 +450,8 @@ model Product {
   productImages                          ProductImage[]
   productNutritionFact                   ProductNutritionFact?
   surveyQuestionAnswer                   SurveyQuestionAnswer[]
+  exchangedProduct  ExchangedProduct[]
+  
 }
 
 model MonthlyBoxSelection {
@@ -958,6 +999,14 @@ enum EventType {
   boxUnsubscribed
   postPurchaseCalendarCreated
   boxOrdered
+}
+
+enum RewardEventType {
+  sendMessage
+  completeWeeklyCheckIn
+  achieveWeeklyGoal
+  exchangePoints
+  customPoints
 }
 
 enum MediaType {
