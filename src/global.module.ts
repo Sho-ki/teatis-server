@@ -3,6 +3,8 @@ import { PrismaService } from 'src/prisma.service';
 import { CustomerGeneralRepository } from './repositories/teatisDB/customer/customerGeneral.repository';
 import { EmployeeRepository } from './repositories/teatisDB/employee/employee.repository';
 import { ProductGeneralRepository } from './repositories/teatisDB/product/productGeneral.repository';
+import { OneTimeCodeRepository } from './repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
+
 import { TerraRepository } from './repositories/terra/terra.repository';
 
 const createGlobalModule = (repositories, configurations) => {
@@ -29,5 +31,6 @@ const createGlobalModule = (repositories, configurations) => {
   EmployeeRepository,
   ProductGeneralRepository,
   TerraRepository,
+  OneTimeCodeRepository,
 ], [PrismaService]))
 export class GlobalModule {}

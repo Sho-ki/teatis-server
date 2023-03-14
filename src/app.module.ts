@@ -14,6 +14,7 @@ import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 import { SubscriptionModule } from './controllers/recharge/subscription.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
 import { GlobalModule } from './global.module';
+import { TeatisPointModule } from './controllers/teatisPoint/teatisPoint.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { GlobalModule } from './global.module';
     CoachingModule,
     GlobalModule,
     MonthlyProductsModule,
+    TeatisPointModule,
     ScheduleModule.forRoot(),
   ],
 

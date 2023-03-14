@@ -8,6 +8,8 @@ export interface OneTimeCodeRepositoryInterface {
   createOneTimeCode():
   Promise<ReturnValueType<OneTimeCode>>;
 
+  getOneTimeCode(pointToken:string): Promise<ReturnValueType<OneTimeCode>>;
+
 }
 
 @Injectable()
@@ -19,6 +21,14 @@ implements OneTimeCodeRepositoryInterface
   async createOneTimeCode():
   Promise<ReturnValueType<OneTimeCode>> {
     const response = await this.prisma.oneTimeCode.create({ data: {} });
+    return [response];
+  }
+
+  async getOneTimeCode(pointToken:string): Promise<ReturnValueType<OneTimeCode>>{
+    const response = await this.prisma.oneTimeCode.findUnique({ where: { pointToken } });
+    if (!response) {
+      return [undefined, { name: 'NotFound', message: 'PointToken not found' }];
+    }
     return [response];
   }
 

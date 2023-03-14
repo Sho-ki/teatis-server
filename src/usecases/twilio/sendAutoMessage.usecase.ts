@@ -163,7 +163,7 @@ implements SendAutoMessageUsecaseInterface
       } else {
         link += '?';
       }
-      link += 'point_token=' + oneTimeCode.uuid;
+      link += 'point_token=' + oneTimeCode.pointToken;
       console.log('link: ', link);
       if (link.length > 40) {
         const shortUrl = await this.getShorterUrl(link);

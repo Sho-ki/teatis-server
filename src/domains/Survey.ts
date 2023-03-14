@@ -3,6 +3,7 @@ import { DisplayProduct, ProductFeature } from './Product';
 
 export interface ActiveSurvey extends Survey {
   surveyQuestions: ParentSurveyQuestion[];
+  pointToken?: string;
 }
 
 export type ParentSurveyQuestion = ParentSurveyQuestionWithOption | ParentSurveyQuestionWithoutOption;

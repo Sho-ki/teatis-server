@@ -4,6 +4,7 @@ import {
   Get,
   Inject,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -23,9 +24,9 @@ export class WeeklyCheckInController {
   ) {}
   // Get: api/discovery/weekly-check-in
   @Get('weekly-check-in')
-  async getWeeklyCheckInQuestions(@Res() response: Response<ActiveSurvey | Error>) {
+  async getWeeklyCheckInQuestions(@Query('pointToken') pointToken:string, @Res() response: Response<ActiveSurvey | Error>) {
     const [usecaseResponse, error] =
-      await this.getWeeklyCheckInQuestionsUsecase.getWeeklyCheckInQuestions();
+      await this.getWeeklyCheckInQuestionsUsecase.getWeeklyCheckInQuestions(pointToken);
     if (error) {
       return response.status(500).send(error);
     }
