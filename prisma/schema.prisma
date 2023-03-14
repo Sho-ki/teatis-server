@@ -101,7 +101,7 @@ model ExchangedProduct {
 
 model OneTimeCode {
   id Int @id @default(autoincrement())
-  uuid String @unique @default(uuid())
+  pointToken String @unique @default(uuid())
   status ActiveStatus @default(active)
   validUntil DateTime  @default(dbgenerated("(now() + '7 days'::interval)"))
   createdAt DateTime @default(now())
