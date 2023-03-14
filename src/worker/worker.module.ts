@@ -27,6 +27,7 @@ import { CreateEmployeeOrderUsecase } from '../usecases/employeeOrder/createEmpl
 import { EmployeeRepository } from '../repositories/teatisDB/employee/employee.repository';
 import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
 import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
+import { OneTimeCodeRepository } from '../repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
 
 @Module({
   exports: [WorkerModule],
@@ -42,6 +43,10 @@ import { ProductGeneralRepository } from '../repositories/teatisDB/product/produ
         return new Twilio( process.env.TWILIO_ACCOUNT_SID,
           process.env.TWILIO_AUTH_TOKEN,);
       },
+    },
+    {
+      provide: 'OneTimeCodeRepositoryInterface',
+      useClass: OneTimeCodeRepository,
     },
     {
       provide: 'ProductGeneralRepositoryInterface',

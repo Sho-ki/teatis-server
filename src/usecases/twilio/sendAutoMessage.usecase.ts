@@ -10,6 +10,7 @@ import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/
 import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
 import { pstTime } from '../utils/dates';
 import { BitlyRepositoryInterface } from '../../repositories/bitly/bitly.repository';
+import { OneTimeCodeRepositoryInterface } from '../../repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
 
 export interface SendAutoMessageUsecaseInterface {
   sendAutoMessage():
@@ -40,6 +41,8 @@ implements SendAutoMessageUsecaseInterface
   private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
   @Inject('BitlyRepositoryInterface')
   private readonly bitlyRepository: BitlyRepositoryInterface,
+  @Inject('OneTimeCodeRepositoryInterface')
+  private readonly oneTimeCodeRepository: OneTimeCodeRepositoryInterface,
 
   ) {}
 
@@ -151,11 +154,17 @@ implements SendAutoMessageUsecaseInterface
     body = this.replaceTemplateVariableWithValue(body, customer);
     body += webPageUrls.length ? '\n\n' + webPageUrls.join('\n\n') : '';
     const links = this.findLinks(body);
-    console.log('links1: ', links);
 
     // If there are long (> 40) links in body, make them shorter
-    for (const link of links) {
-
+    for (let link of links) {
+      const [oneTimeCode] = await this.oneTimeCodeRepository.createOneTimeCode();
+      if (link.includes('?')) {
+        link += '&';
+      } else {
+        link += '?';
+      }
+      link += 'point_token=' + oneTimeCode.uuid;
+      console.log('link: ', link);
       if (link.length > 40) {
         const shortUrl = await this.getShorterUrl(link);
         console.log('shortUrl: ', shortUrl);
@@ -164,6 +173,7 @@ implements SendAutoMessageUsecaseInterface
         console.log('body: ', body);
       }
     }
+
     // Send the text message
     const [, sendTextMessageError] = await this.twilioRepository.sendTextMessage({ customerChannelId, author: 'AUTO MESSAGE', body });
     if (sendTextMessageError) {
