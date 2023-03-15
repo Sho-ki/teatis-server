@@ -51,15 +51,17 @@ implements GetCustomerDetailUsecaseInterface
       if(responseOption) question.response = responseOption.label;
     }
 
+    const getResponse = (name) => customerSurveyResponses.find(({ surveyQuestion }) => surveyQuestion.name === name)?.response || 'N/A';
+
     const coachingNote = `
-    Age: ${customerSurveyResponses.find(({ surveyQuestion }) => surveyQuestion.name === 'age')?.response || 'N/A'} \n
-    Weight: ${customerSurveyResponses.find(({ surveyQuestion }) => surveyQuestion.name === 'weight')?.response || 'N/A'} \n
-    Height: ${customerSurveyResponses.find(({ surveyQuestion }) => surveyQuestion.name === 'height')?.response || 'N/A'} \n
-    Gender: ${customerSurveyResponses.find(({ surveyQuestion }) => surveyQuestion.name === 'gender')?.response || 'N/A'} \n
-    Diabetes level: ${customerSurveyResponses.find(({ surveyQuestion }) => surveyQuestion.name === 'diabetes')?.response || 'N/A'} \n
+      Age: ${getResponse('age')}\n
+      Weight: ${getResponse('weight')}\n
+      Height: ${getResponse('height')}\n
+      Gender: ${getResponse('gender')}\n
+      Diabetes level: ${getResponse('diabetes')}\n
     `;
     const conversationHistory =
-    await this.twilioRepository.getConversationHistory({ customerChannelId: twilioChannelSid });
+      await this.twilioRepository.getConversationHistory({ customerChannelId: twilioChannelSid });
     const configuration = new Configuration({ apiKey: process.env.CHATGPT_API_KEY });
     const openai = new OpenAIApi(configuration);
 
@@ -71,9 +73,10 @@ implements GetCustomerDetailUsecaseInterface
     const gptReply = completion.data.choices[0].message.content;
 
     const fullInformation = `
-    For full information, please visit https://teatis.retool.com/embedded/public/de87e7ff-ffc9-4d84-95a9-2c0ab41590d6?uuid=${customerDetail.uuid} \n
-    ${coachingNote} 
-    ${gptReply}`;
+      For full information, please visit https://teatis.retool.com/embedded/public/de87e7ff-ffc9-4d84-95a9-2c0ab41590d6?uuid=${customerDetail.uuid} \n
+      ${coachingNote} 
+      ${gptReply}
+    `;
     const twilioCustomers:TwilioCustomerDetail =
       {
         objects: {

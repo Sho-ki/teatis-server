@@ -54,10 +54,10 @@ export interface TwilioRepositoryInterface {
 @Injectable()
 export class TwilioRepository implements TwilioRepositoryInterface {
   constructor(@Inject('TwilioClient')
-  private readonly twilioClient: Twilio,
+    private readonly twilioClient: Twilio,
   ) {}
-  async createConversationOnFrontline({ coachEmail, channelSid }: CreateConversationOnFrontlineArgs)
-  :Promise<ParticipantInstance> {
+  async createConversationOnFrontline({ coachEmail, channelSid }: CreateConversationOnFrontlineArgs):
+  Promise<ParticipantInstance> {
     return await this.twilioClient.conversations.v1.conversations(channelSid)
       .participants
       .create({ identity: coachEmail } );
