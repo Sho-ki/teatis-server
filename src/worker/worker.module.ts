@@ -27,6 +27,7 @@ import { CreateEmployeeOrderUsecase } from '../usecases/employeeOrder/createEmpl
 import { EmployeeRepository } from '../repositories/teatisDB/employee/employee.repository';
 import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
 import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
+import { CreateCustomerConversationSummary } from './createCustomerConversationSummary/createCustomerConversationSummary.service';
 
 @Module({
   exports: [WorkerModule],
@@ -35,6 +36,7 @@ import { ProductGeneralRepository } from '../repositories/teatisDB/product/produ
     UpdateOrderService,
     CreateEmployeeOrderService,
     PrismaService,
+    CreateCustomerConversationSummary,
     Logger,
     {
       provide: 'TwilioClient',

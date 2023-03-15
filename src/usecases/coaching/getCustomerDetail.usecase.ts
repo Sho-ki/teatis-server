@@ -60,7 +60,7 @@ implements GetCustomerDetailUsecaseInterface
     `;
     const conversationHistory =
     await this.twilioRepository.getConversationHistory({ customerChannelId: twilioChannelSid });
-    const configuration = new Configuration({ apiKey: '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'    });
+    const configuration = new Configuration({ apiKey: process.env.CHATGPT_API_KEY });
     const openai = new OpenAIApi(configuration);
 
     const completion = await openai.createChatCompletion({
