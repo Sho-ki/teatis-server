@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
 import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from '../worker.module';
-import { CreateCustomerConversationSummary } from './createCustomerConversationSummary.service';
+import { CreateCustomerConversationSummaryService } from './createCustomerConversationSummary.service';
 
-export const executeCreateCustomerConversationHistory= async (method:string) => {
+export const executeCreateCustomerConversationSummary = async (method:string) => {
   if (method === 'POST') {
-    console.log(`THIS IS POST`);
+    console.log(`executeCreateCustomerConversationSummary`);
 
     const workerApp = await NestFactory.createApplicationContext(WorkerModule);
 
-    const service = workerApp.get(CreateCustomerConversationSummary);
-    await service.createEmployeeOrder();
+    const service = workerApp.get(CreateCustomerConversationSummaryService);
+    await service.createCustomerConversationSummary();
     await workerApp.close();
   }
   console.log('END');

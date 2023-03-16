@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import { executeUpdateOrder } from './updateOrder/updateOrder.worker';
 import { executeSendAutoMessage } from './sendAutoMessage/sendAutoMessage.worker';
 import { executeCreateEmployeeOrder } from './createEmployeeOrder/createEmployeeOrder.worker';
-import { executeCreateCustomerConversationHistory } from './createCustomerConversationSummary/createCustomerConversationSummary.worker';
+import { executeCreateCustomerConversationSummary } from './createCustomerConversationSummary/createCustomerConversationSummary.worker';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -26,7 +26,7 @@ module.exports.createEmployeeOrder = async (req: Request, res: Response) => {
 };
 
 module.exports.createCustomerConversationSummary = async (req: Request, res: Response) => {
-  await executeCreateCustomerConversationHistory(req.method);
+  await executeCreateCustomerConversationSummary(req.method);
   res.end();
 };
 
@@ -43,7 +43,7 @@ const executeFunctionManually = async() => {
       await executeCreateEmployeeOrder('POST');
       break;
     case 'createCustomerConversationSummary':
-      await executeCreateCustomerConversationHistory('POST');
+      await executeCreateCustomerConversationSummary('POST');
       break;
   }
 };

@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CreateCustomerConversationSummaryUsecaseInterface } from '../../usecases/chatGPT/createCustomerConversationSummary.usecase';
 
 @Injectable()
-export class CreateCustomerConversationSummary {
+export class CreateCustomerConversationSummaryService {
   constructor(
+    @Inject('CreateCustomerConversationSummaryUsecaseInterface')
+    private createCustomerConversationSummaryUsecase: CreateCustomerConversationSummaryUsecaseInterface
   ) {}
 
-  async createEmployeeOrder() {
-    return;
+  async createCustomerConversationSummary() {
+    await this.createCustomerConversationSummaryUsecase.createCustomerConversationSummary();
   }
 }
