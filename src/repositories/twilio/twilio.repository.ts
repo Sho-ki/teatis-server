@@ -49,6 +49,7 @@ export interface TwilioRepositoryInterface {
 
   getConversationHistory({ customerChannelId }: { customerChannelId:string })
   :Promise<ReturnValueType<unknown[]>>;
+  getAllConversations(): Promise<ReturnValueType<unknown>>;
 }
 
 @Injectable()
@@ -144,6 +145,13 @@ export class TwilioRepository implements TwilioRepositoryInterface {
       })
       .catch((e) => console.log(e));
     return storeData[0];
+  }
+
+  async getAllConversations(): Promise<ReturnValueType<unknown>> {
+    const response = await this.twilioClient.messages
+      .list({ limit: 5 })
+      .then(messages => messages.map((m) => m));
+    return [response];
   }
 
 }
