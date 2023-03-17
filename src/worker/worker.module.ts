@@ -27,7 +27,8 @@ import { CreateEmployeeOrderUsecase } from '../usecases/employeeOrder/createEmpl
 import { EmployeeRepository } from '../repositories/teatisDB/employee/employee.repository';
 import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
 import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
-import { OneTimeCodeRepository } from '../repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
+import { CustomerRewardTokenRepository } from '../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
+import { CreateRewardOrderUsecase } from '../usecases/rewardOrder/createRewardOrder.usecase';
 
 @Module({
   exports: [WorkerModule],
@@ -45,8 +46,12 @@ import { OneTimeCodeRepository } from '../repositories/teatisDB/oneTimeCode/oneT
       },
     },
     {
-      provide: 'OneTimeCodeRepositoryInterface',
-      useClass: OneTimeCodeRepository,
+      provide: 'CreateRewardOrderUsecaseInterface',
+      useClass: CreateRewardOrderUsecase,
+    },
+    {
+      provide: 'CustomerRewardTokenRepositoryInterface',
+      useClass: CustomerRewardTokenRepository,
     },
     {
       provide: 'ProductGeneralRepositoryInterface',

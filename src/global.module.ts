@@ -3,11 +3,12 @@ import { PrismaService } from 'src/prisma.service';
 import { CustomerGeneralRepository } from './repositories/teatisDB/customer/customerGeneral.repository';
 import { EmployeeRepository } from './repositories/teatisDB/employee/employee.repository';
 import { ProductGeneralRepository } from './repositories/teatisDB/product/productGeneral.repository';
-import { OneTimeCodeRepository } from './repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
+import { CustomerRewardTokenRepository } from './repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 
 import { TerraRepository } from './repositories/terra/terra.repository';
 import { TransactionOperator } from './repositories/utils/transactionOperator';
 import { CustomerPointLogRepository } from './repositories/teatisDB/customerPointLog/customerPointLog.repository';
+import { CustomerTwilioMessageRepository } from './repositories/teatisDB/customerTwilioMessage/customerTwilioMessage.repository';
 
 const createGlobalModule = (repositories, configurations) => {
   const globalModule: ModuleMetadata = { providers: [], exports: [] };
@@ -33,8 +34,9 @@ const createGlobalModule = (repositories, configurations) => {
   EmployeeRepository,
   ProductGeneralRepository,
   TerraRepository,
-  OneTimeCodeRepository,
+  CustomerRewardTokenRepository,
   TransactionOperator,
   CustomerPointLogRepository,
+  CustomerTwilioMessageRepository,
 ], [PrismaService]))
 export class GlobalModule {}

@@ -4,7 +4,7 @@ import { Customer } from '@Domains/Customer';
 import { PrismaService } from '../../../prisma.service';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
-import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
+import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient, RewardEventType } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { CustomerWithAddress } from '../../../domains/CustomerWithAddress';
@@ -55,6 +55,10 @@ interface GetCustomerByUuidArgs {
   uuid: string;
 }
 
+interface GetCustomerByTwilioChannelSidArgs {
+  twilioChannelSid: string;
+}
+
 interface GetCustomerMedicalConditionArgs {
   email: string;
 }
@@ -80,6 +84,20 @@ export interface deactivateCustomerSubscriptionArgs {
   eventDate?:Date;
 }
 
+export interface FindCustomersWithPointsOverThresholdArgs {
+  pointsThreshold: number;
+}
+
+export interface FindCustomersWithPointsOverThresholdArgs {
+  pointsThreshold: number;
+}
+
+export interface UpdateTotalPointsArgs {
+  customerId: number;
+  points: number;
+  type: RewardEventType;
+}
+
 type SubscribeEventType = 'boxSubscribed'|'coachingSubscribed';
 
 export interface activateCustomerSubscriptionArgs {
@@ -96,6 +114,8 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     [CustomerMedicalCondition?, Error?]
   >;
   getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
+  getCustomerByTwilioChannelSid({ twilioChannelSid }: GetCustomerByTwilioChannelSidArgs):
+  Promise<ReturnValueType<Customer>>;
 
   updateCustomerByUuid({
     uuid,
@@ -134,6 +154,9 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     zip,
     country,
   }: UpsertCustomerAddressArgs ): Promise<ReturnValueType<Customer>>;
+  findCustomersWithPointsOverThreshold({ pointsThreshold }: FindCustomersWithPointsOverThresholdArgs):
+  Promise<ReturnValueType<Customer[]>>;
+  updateTotalPoints({ customerId, points, type }:UpdateTotalPointsArgs): Promise<ReturnValueType<Customer>>;
 }
 
 @Injectable()
@@ -569,4 +592,27 @@ implements CustomerGeneralRepositoryInterface
 
     return [response];
   }
+
+  async findCustomersWithPointsOverThreshold({ pointsThreshold }: FindCustomersWithPointsOverThresholdArgs):
+  Promise<ReturnValueType<Customer[]>> {
+    const customers = await this.prisma.customers.findMany({ where: { totalPoints: { gte: pointsThreshold } } });
+    return [customers];
+  }
+
+  async updateTotalPoints({ customerId, points, type }:UpdateTotalPointsArgs): Promise<ReturnValueType<Customer>> {
+    const response = await this.prisma.customers.update({
+      where: { id: customerId },
+      data: { totalPoints: { increment: points } },
+    });
+    await this.prisma.customerPointLog.create(
+      { data: { customerId, type, points  } });
+    return [response];
+  }
+
+  async getCustomerByTwilioChannelSid({ twilioChannelSid }: GetCustomerByTwilioChannelSidArgs):
+  Promise<ReturnValueType<Customer>>{
+    const response = await this.prisma.customers.findUnique({ where: { twilioChannelSid } });
+    return [response];
+  }
+
 }

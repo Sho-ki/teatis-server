@@ -1,8 +1,8 @@
 import { RewardEventType } from '@prisma/client';
 
 const teatisPointSet:Record<RewardEventType, number> = {
-  sendMessage: 10,
-  completeWeeklyCheckIn: 100,
+  sendMessage: 20,
+  completeWeeklyCheckIn: 200,
   achieveWeeklyGoal: 200,
   exchangePoints: -900,
   customPoints: 0,

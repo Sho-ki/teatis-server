@@ -10,7 +10,7 @@ import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/
 import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
 import { pstTime } from '../utils/dates';
 import { BitlyRepositoryInterface } from '../../repositories/bitly/bitly.repository';
-import { OneTimeCodeRepositoryInterface } from '../../repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
+import { CustomerRewardTokenRepositoryInterface } from '../../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 
 export interface SendAutoMessageUsecaseInterface {
   sendAutoMessage():
@@ -41,8 +41,8 @@ implements SendAutoMessageUsecaseInterface
   private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
   @Inject('BitlyRepositoryInterface')
   private readonly bitlyRepository: BitlyRepositoryInterface,
-  @Inject('OneTimeCodeRepositoryInterface')
-  private readonly oneTimeCodeRepository: OneTimeCodeRepositoryInterface,
+  @Inject('CustomerRewardTokenRepositoryInterface')
+  private readonly customerRewardTokenRepository: CustomerRewardTokenRepositoryInterface,
 
   ) {}
 
@@ -155,23 +155,24 @@ implements SendAutoMessageUsecaseInterface
     body += webPageUrls.length ? '\n\n' + webPageUrls.join('\n\n') : '';
     const links = this.findLinks(body);
 
-    // If there are long (> 40) links in body, make them shorter
-    for (let link of links) {
-      const [oneTimeCode] = await this.oneTimeCodeRepository.createOneTimeCode();
-      if (link.includes('?')) {
-        link += '&';
-      } else {
-        link += '?';
+    for (const link of links) {
+      let processedLink = link;
+
+      if (link.includes('weekly-check-in')) {
+        const [customerRewardToken] = await this.customerRewardTokenRepository.createCustomerRewardToken(
+          { customerId: customer.id });
+        const separator = link.includes('?') ? '&' : '?';
+        processedLink += `${separator}point_token=${customerRewardToken.pointToken}`;
       }
-      link += 'point_token=' + oneTimeCode.pointToken;
-      console.log('link: ', link);
-      if (link.length > 40) {
-        const shortUrl = await this.getShorterUrl(link);
-        console.log('shortUrl: ', shortUrl);
-        if(!shortUrl) break;
-        body = body.replace(link, shortUrl);
-        console.log('body: ', body);
-      }
+
+      console.log('link: ', processedLink);
+      const shortUrl = await this.getShorterUrl(processedLink);
+      console.log('shortUrl: ', shortUrl);
+
+      if (!shortUrl) break;
+
+      body = body.replace(link, shortUrl);
+      console.log('body: ', body);
     }
 
     // Send the text message
@@ -324,6 +325,7 @@ implements SendAutoMessageUsecaseInterface
           continue;
         }
       }
+      console.log('this.sendMessageErrorStack', this.sendMessageErrorStack);
 
       if (this.getCustomerDataErrorStack.length || this.sendMessageErrorStack.length) {
         const message = this.getCustomerDataErrorStack.length && this.sendMessageErrorStack.length ? 'Both getCustomerDataErrorStack and sendMessageErrorStack error' :
@@ -341,7 +343,7 @@ implements SendAutoMessageUsecaseInterface
       return ['OK'];
     } catch(e){
       // eslint-disable-next-line no-console
-      console.log(e);
+      console.log(e.message);
       throw new Error(e);
     }
   }
