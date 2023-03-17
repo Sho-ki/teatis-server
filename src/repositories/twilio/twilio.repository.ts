@@ -151,7 +151,7 @@ export class TwilioRepository implements TwilioRepositoryInterface {
   async getInboundConversations(): Promise<ReturnValueType<AccountMessageInstance[]>> {
     const now = new Date();
     const dateSentBefore = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-    const dateSentAfter = new Date(dateSentBefore.getTime() - (24 * 60 * 60 * 1000 * 3)); // 24 hours in milliseconds// set the time to 8am UTC (which is midnight PST)
+    const dateSentAfter = new Date(dateSentBefore.getTime() - (24 * 60 * 60 * 1000)); // 24 hours in milliseconds// set the time to 8am UTC (which is midnight PST)
     const response = await this.twilioClient.messages
       .list({
         dateSentAfter,

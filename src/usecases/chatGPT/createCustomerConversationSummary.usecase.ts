@@ -22,11 +22,12 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     private coachRepository: CoachRepository,
   ){}
   async createCustomerConversationSummary(): Promise<ReturnValueType<unknown>> {
-    const [res, error] = await this.twilioRepository.getInboundConversations();
-    if(error){
-      return [undefined, error];
+    const [getInboundConversationsRes, getInboundConversationsError] =
+      await this.twilioRepository.getInboundConversations();
+    if(getInboundConversationsError){
+      return [undefined, getInboundConversationsError];
     }
-    const uniquePhoneNumbers = new Set(res.map(r => r.from));
+    const uniquePhoneNumbers = new Set(getInboundConversationsRes.map(r => r.from));
     const [getCustomersRes, getCustomersError] =
       await this.customerGeneralRepository.getCustomersByPhone({ phoneNumbers: [...uniquePhoneNumbers] });
     if (getCustomersError) {
