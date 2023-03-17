@@ -160,5 +160,4 @@ export class TwilioRepository implements TwilioRepositoryInterface {
       .then(messages => messages.filter(m => m.direction === 'inbound'));
     return [response];
   }
-
 }
