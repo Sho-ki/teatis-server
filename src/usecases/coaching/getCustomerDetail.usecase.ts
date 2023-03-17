@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ReturnValueType } from '@Filters/customError';
 import { TwilioCustomerDetail } from '@Domains/TwilioCustomerDetail';
 import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
-import { TwilioRepository } from '../../repositories/twilio/twilio.repository';
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { SurveyName } from '../utils/surveyName';
 
@@ -18,8 +17,6 @@ implements GetCustomerDetailUsecaseInterface
   constructor(
     @Inject('CoachRepositoryInterface')
     private coachedCustomerRepository: CoachRepositoryInterface,
-    @Inject('TwilioRepositoryInterface')
-    private twilioRepository: TwilioRepository,
     @Inject('CustomerSurveyResponseRepositoryInterface')
     private customerSurveyResponseRepository: CustomerSurveyResponseRepositoryInterface,
 
