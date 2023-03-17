@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { Configuration, OpenAIApi } from 'openai';
 import { ReturnValueType } from '@Filters/customError';
 import { TwilioRepository } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepository } from '../../repositories/teatisDB/customer/customerGeneral.repository';
+import { coachingNotePrompt } from '../utils/coachingNote';
+import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
 
 export interface CreateCustomerConversationSummaryUsecaseInterface {
     createCustomerConversationSummary(): Promise<ReturnValueType<unknown>>;
@@ -15,6 +18,8 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     private twilioRepository: TwilioRepository,
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepository,
+    @Inject('CoachRepositoryInterface')
+    private coachRepository: CoachRepository,
   ){}
   async createCustomerConversationSummary(): Promise<ReturnValueType<unknown>> {
     const [res, error] = await this.twilioRepository.getInboundConversations();
@@ -27,7 +32,36 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     if (getCustomersError) {
       return [undefined, getCustomersError];
     }
-    const customersChannelSids = getCustomersRes.map(customer => customer.twilioChannelSid);
-    return [{}];
+    const updateCustomersList = getCustomersRes.map(customer => (
+      {
+        customerId: customer.id,
+        coachId: customer.coachId,
+        customerChannelId: customer.twilioChannelSid,
+        conversationSummary: '',
+      }
+    ));
+    const configuration = new Configuration({ apiKey: process.env.CHATGPT_API_KEY });
+    const openai = new OpenAIApi(configuration);
+    for (const updateCustomer of updateCustomersList) {
+      const conversationHistory =
+        await this.twilioRepository.getConversationHistory({ customerChannelId: updateCustomer.customerChannelId });
+
+      const completion = await openai.createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: `${coachingNotePrompt} ${JSON.stringify(conversationHistory.slice(conversationHistory.length-20))}` }],
+      });
+
+      const gptReply = completion.data.choices[0].message.content;
+      updateCustomer.conversationSummary = gptReply;
+    }
+    const bulkInsertCustomerConversationSummaryArray = updateCustomersList
+      .map(({ customerId, coachId, conversationSummary }) => ({
+        customerId,
+        coachId,
+        conversationSummary,
+      }));
+    const bulkInsertCustomerConversationSummaryRes =
+      await this.coachRepository.bulkInsertCustomerConversationSummary(bulkInsertCustomerConversationSummaryArray);
+    return [bulkInsertCustomerConversationSummaryRes];
   }
 }

@@ -25,6 +25,12 @@ export interface GetCustomerDetailArgs {
   id:number;
 }
 
+export interface BulkInsertCustomerConversationSummaryArgs {
+  customerId: string;
+  coachId: string;
+  conversationSummary: string;
+}
+
 interface GetActiveCoachedCustomersBySendAtArgs {
  sendAt: 'at0'| 'at3'| 'at6'| 'at9'| 'at12'| 'at15'| 'at18'| 'at21';
 }
@@ -38,6 +44,9 @@ export interface CoachRepositoryInterface extends Transactionable{
 
   getActiveCoachedCustomersBySendAt(
     { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]>;
+  bulkInsertCustomerConversationSummary(
+    args: Prisma.Enumerable<Prisma.CustomerCoachHistoryCreateManyInput>
+  ): Promise<Prisma.BatchPayload>;
 
   // findCustomerCoach({ customerId }:FindCustomerCoachArgs):Promise<Coach> ;
 }
@@ -162,5 +171,13 @@ export class CoachRepository implements CoachRepositoryInterface {
       }):[];
 
     return [coachedCustomers];
+  }
+  async bulkInsertCustomerConversationSummary(
+    args: Prisma.Enumerable<Prisma.CustomerCoachHistoryCreateManyInput>
+  ): Promise<Prisma.BatchPayload> {
+    const response = await this.prisma.customerCoachHistory.createMany(
+      { data: { ...args } }
+    );
+    return { count: response.count };
   }
 }
