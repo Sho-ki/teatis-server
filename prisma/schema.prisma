@@ -25,7 +25,7 @@ model Customers {
   coachingSubscribed                                  ActiveStatus                                          @default(inactive)
   messageTimePreference                               MessageTimePreference                                 @default(at9)
   sequenceBasedAutoMessageInterval                    Int                                                   @default(7)
-  twilioChannelSid                                    String?
+  twilioChannelSid                                    String? @unique
   phoneStatus                                         ValidStatus?                                          @default(pending)
   customerBoxItems                                    CustomerBoxItems[]
   customerCoachHistory                                CustomerCoachHistory[]
@@ -48,12 +48,15 @@ model Customers {
   intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
   intermediateCustomerUnavailableCookingMethods       IntermediateCustomerUnavailableCookingMethod[]
   practitionerCustomerOrderHistory                    PractitionerCustomerOrderHistory[]
+  customerTwilioMessage CustomerTwilioMessage[]
+  customerRewardToken CustomerRewardToken[]
   // queuedShopifyOrder                                  QueuedShopifyOrder[]
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
   customerSurveyHistory CustomerSurveyHistory[]
   customerAddress CustomerAddress?
   employee Employee?
+  totalPoints Int @default(0)
 }
 
 enum GenderIdentify  {
@@ -86,26 +89,50 @@ model PointExchangeHistory {
   customerId Int
   eventDate  DateTime  @default(now())
   points     Int
-  exchangedProduct  ExchangedProduct[]
+  pointExchangeHistoryItem  PointExchangeHistoryItem[]
   customer   Customers @relation(fields: [customerId], references: [id])
 }
 
-model ExchangedProduct {
+model PointExchangeHistoryItem {
   pointExchangeHistoryId Int
-  productId Int
+  rewardItemId Int
   pointExchangeHistory   PointExchangeHistory @relation(fields: [pointExchangeHistoryId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  rewardItem   RewardItem @relation(fields: [rewardItemId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  @@id([pointExchangeHistoryId, productId])
+  @@id([pointExchangeHistoryId, rewardItemId])
 }
 
-model OneTimeCode {
+model RewardItem {
+  id Int @id @default(autoincrement())
+  label String? @unique
+  pointValue Int
+  productId Int?  @unique
+  pointExchangeHistoryItem PointExchangeHistoryItem[]
+  product            Product?  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model CustomerRewardToken {
   id Int @id @default(autoincrement())
   pointToken String @unique @default(uuid())
+  customerId Int
   status ActiveStatus @default(active)
   validUntil DateTime  @default(dbgenerated("(now() + '7 days'::interval)"))
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model CustomerTwilioMessage {
+  id Int @id @default(autoincrement())
+  customerId Int
+  messageId String @unique
+  sentAt DateTime @default(now())
+  customer   Customers @relation(fields: [customerId], references: [id])
 }
 
 model CustomerAddress {
@@ -449,9 +476,8 @@ model Product {
   productVendor                          ProductVendor?                           @relation(fields: [productVendorId], references: [id])
   productImages                          ProductImage[]
   productNutritionFact                   ProductNutritionFact?
-  surveyQuestionAnswer                   SurveyQuestionAnswer[]
-  exchangedProduct  ExchangedProduct[]
-  
+  surveyQuestionAnswer                   SurveyQuestionAnswer[]  
+  rewardItem                             RewardItem?
 }
 
 model MonthlyBoxSelection {
