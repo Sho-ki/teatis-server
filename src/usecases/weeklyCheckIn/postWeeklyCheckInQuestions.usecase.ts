@@ -7,7 +7,7 @@ import { CustomerSurveyHistoryRepositoryInterface } from '../../repositories/tea
 import { SurveyName } from '../utils/surveyName';
 import { SurveyQuestionResponse } from '@prisma/client';
 import { PostWeeklyCheckInDto } from '@Controllers/discoveries/weeklyCheckIn/dtos/postWeeklyCheckIn';
-import { OneTimeCodeRepositoryInterface } from '../../repositories/teatisDB/oneTimeCode/oneTimeCode.repository';
+import { CustomerRewardTokenRepositoryInterface } from '../../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 import { TransactionOperatorInterface } from '../../repositories/utils/transactionOperator';
 import { CustomerPointLogRepositoryInterface } from '../../repositories/teatisDB/customerPointLog/customerPointLog.repository';
 import { getRewardEventPoint } from '../utils/teatisPointSet';
@@ -29,8 +29,8 @@ implements PostWeeklyCheckInQuestionsUsecaseInterface
     private readonly customerSurveyResponseRepository: CustomerSurveyResponseRepositoryInterface,
     @Inject('CustomerSurveyHistoryRepositoryInterface')
     private readonly customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
-    @Inject('OneTimeCodeRepositoryInterface')
-    private readonly oneTimeCodeRepository: OneTimeCodeRepositoryInterface,
+    @Inject('CustomerRewardTokenRepositoryInterface')
+    private readonly customerRewardTokenRepository: CustomerRewardTokenRepositoryInterface,
     @Inject('CustomerPointLogRepositoryInterface')
     private readonly customerPointLogRepository: CustomerPointLogRepositoryInterface,
 
@@ -46,7 +46,7 @@ implements PostWeeklyCheckInQuestionsUsecaseInterface
           this.customerGeneralRepository,
           this.customerSurveyResponseRepository,
           this.customerSurveyHistoryRepository,
-          this.oneTimeCodeRepository,
+          this.customerRewardTokenRepository,
           this.customerPointLogRepository,
         ],
         async (): Promise<ReturnValueType<SurveyQuestionResponse[]>> => {
@@ -74,16 +74,16 @@ implements PostWeeklyCheckInQuestionsUsecaseInterface
           }
 
           if(pointToken){
-            const [oneTimeCode, getOneTimeCodeError] = await this.oneTimeCodeRepository.getOneTimeCode(pointToken);
-            if (getOneTimeCodeError) return [surveyQuestionResponses];
-            const isActive = oneTimeCode.status === 'active';
-            const isValidDuration = oneTimeCode.validUntil > new Date();
+            const [customerRewardToken, getCustomerRewardTokenError] =
+              await this.customerRewardTokenRepository.getCustomerRewardToken(pointToken);
+            if (getCustomerRewardTokenError) return [surveyQuestionResponses];
+            const isActive = customerRewardToken.status === 'active';
+            const isValidDuration = customerRewardToken.validUntil > new Date();
             if(!isActive || !isValidDuration) return [surveyQuestionResponses];
 
             const [type, points] = getRewardEventPoint('completeWeeklyCheckIn');
-            await this.customerPointLogRepository.createCustomerPointLog({ customerId: customer.id, points, type });
-
-            await this.oneTimeCodeRepository.deactivateOneTimeCode(pointToken);
+            await this.customerGeneralRepository.updateTotalPoints({ customerId: customer.id, points, type });
+            await this.customerRewardTokenRepository.deactivateCustomerRewardToken(pointToken);
           }
           return [surveyQuestionResponses];
         });
