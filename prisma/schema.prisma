@@ -81,6 +81,7 @@ model CustomerPointLog {
   eventDate  DateTime  @default(now())
   type       RewardEventType
   points     Int
+  comment    String?
   customer   Customers @relation(fields: [customerId], references: [id])
 }
 
