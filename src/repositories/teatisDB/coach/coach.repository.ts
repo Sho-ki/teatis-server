@@ -46,7 +46,7 @@ export interface CoachRepositoryInterface extends Transactionable{
     { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]>;
   bulkInsertCustomerConversationSummary(
     args: Prisma.Enumerable<Prisma.CustomerCoachHistoryCreateManyInput>
-  ): Promise<Prisma.BatchPayload>;
+  ): Promise<ReturnValueType<Prisma.BatchPayload>>;
 
   // findCustomerCoach({ customerId }:FindCustomerCoachArgs):Promise<Coach> ;
 }
