@@ -28,7 +28,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
       return [undefined, getInboundConversationsError];
     }
     const uniquePhoneNumbers = new Set(getInboundConversationsRes.map(r => r.from));
-    const [getCustomersRes, getCustomersError] =
+    const [customers, getCustomersError] =
       await this.customerGeneralRepository.getCustomersByPhone({ phoneNumbers: [...uniquePhoneNumbers] });
     if (getCustomersError) {
       return [undefined, getCustomersError];
