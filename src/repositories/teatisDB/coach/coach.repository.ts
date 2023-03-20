@@ -25,6 +25,12 @@ export interface GetCustomerDetailArgs {
   id:number;
 }
 
+export interface BulkInsertCustomerConversationSummaryArgs {
+  customerId: number;
+  coachId: number;
+  conversationSummary: string;
+}
+
 interface GetActiveCoachedCustomersBySendAtArgs {
  sendAt: 'at0'| 'at3'| 'at6'| 'at9'| 'at12'| 'at15'| 'at18'| 'at21';
 }
@@ -38,6 +44,9 @@ export interface CoachRepositoryInterface extends Transactionable{
 
   getActiveCoachedCustomersBySendAt(
     { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]>;
+  bulkInsertCustomerConversationSummary(
+    args: BulkInsertCustomerConversationSummaryArgs[]
+  ): Promise<ReturnValueType<Prisma.BatchPayload>>;
 
   // findCustomerCoach({ customerId }:FindCustomerCoachArgs):Promise<Coach> ;
 }
@@ -59,7 +68,7 @@ export class CoachRepository implements CoachRepositoryInterface {
   async getActiveCoachedCustomersBySendAt(
     { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]> {
     const response = await this.prisma.customers.findMany(
-      { where: { coachingSubscribed: 'active', messageTimePreference: sendAt, coachId: { not: null } }, include: { coach: true } });
+      { where: { coachingSubscribed: 'active', messageTimePreference: sendAt, coachId: { not: null } }, include: { coach: true, customerCoachHistory: true } });
 
     // eslint-disable-next-line no-console
     console.log(response);
@@ -68,12 +77,14 @@ export class CoachRepository implements CoachRepositoryInterface {
         {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
           coachingSubscribed, boxSubscribed, sequenceBasedAutoMessageInterval, twilioChannelSid,
+          customerCoachHistory,
         }) => {
         return {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
           coachingSubscribed, boxSubscribed, sequenceBasedAutoMessageInterval,
           twilioChannelSid,
           coach: { id: coach.id, email: coach.email, phone: coach.phone },
+          customerCoachHistory,
         };
       })
       :[];
@@ -83,7 +94,7 @@ export class CoachRepository implements CoachRepositoryInterface {
   async getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>> {
     const response = await this.prisma.customers.findUnique({
       where: { id },
-      include: { coach: true },
+      include: { coach: true, customerCoachHistory: true },
     });
     if (!response) {
       return [undefined, { name: 'Internal Server Error', message: 'id is invalid' }];
@@ -92,11 +103,13 @@ export class CoachRepository implements CoachRepositoryInterface {
     const {
       email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
       boxSubscribed, coachingSubscribed, twilioChannelSid,
+      customerCoachHistory,
     } = response;
     const customerDetails: CoachedCustomer =  {
       id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
       coachingSubscribed, boxSubscribed, twilioChannelSid,
       coach: { id: coach.id, email: coach.email, phone: coach.phone },
+      customerCoachHistory,
     };
 
     return [customerDetails];
@@ -141,7 +154,7 @@ export class CoachRepository implements CoachRepositoryInterface {
       where: { coach: { email } },
       take: 30, skip: skipCount, cursor,
       orderBy: { id: 'asc' },
-      include: { coach: true },
+      include: { coach: true, customerCoachHistory: true },
     });
     if (!response) {
       return [undefined, { name: 'Internal Server Error', message: 'email is invalid' }];
@@ -152,15 +165,24 @@ export class CoachRepository implements CoachRepositoryInterface {
       response.map((
         {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
-          coachingSubscribed, boxSubscribed,
+          coachingSubscribed, boxSubscribed, customerCoachHistory,
         }) => {
         return {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
           coachingSubscribed, boxSubscribed,
           coach: { id: coach.id, email: coach.email, phone: coach.phone },
+          customerCoachHistory,
         };
       }):[];
 
     return [coachedCustomers];
+  }
+  async bulkInsertCustomerConversationSummary(
+    args: BulkInsertCustomerConversationSummaryArgs[]
+  ): Promise<ReturnValueType<Prisma.BatchPayload>> {
+    const response = await this.prisma.customerCoachHistory.createMany(
+      { data: { ...args } }
+    );
+    return [{ count: response.count }];
   }
 }
