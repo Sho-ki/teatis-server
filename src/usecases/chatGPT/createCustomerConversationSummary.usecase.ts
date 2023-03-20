@@ -5,6 +5,7 @@ import { TwilioRepository } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepository } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { coachingNotePrompt } from '../utils/coachingNote';
 import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
+import { yyyyLLLddss } from '@Usecases/utils/dates';
 
 export interface CreateCustomerConversationSummaryUsecaseInterface {
     createCustomerConversationSummary(): Promise<ReturnValueType<unknown>>;
@@ -48,7 +49,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
         const customerDetailsWithSummary = {
           customerId: customer.id,
           coachId: customer.coachId,
-          conversationSummary: gptReply,
+          conversationSummary: `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`,
         };
         updateCustomersList.push(customerDetailsWithSummary);
       } catch(e) {

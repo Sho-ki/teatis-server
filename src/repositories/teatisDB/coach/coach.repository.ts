@@ -29,7 +29,6 @@ export interface BulkInsertCustomerConversationSummaryArgs {
   customerId: number;
   coachId: number;
   conversationSummary: string;
-  updatedAt: Date;
 }
 
 interface GetActiveCoachedCustomersBySendAtArgs {
