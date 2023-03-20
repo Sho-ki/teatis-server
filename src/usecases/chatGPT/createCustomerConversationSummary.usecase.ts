@@ -21,6 +21,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     @Inject('CoachRepositoryInterface')
     private coachRepository: CoachRepository,
   ){}
+  private errorStack: Error[] = [];
   async createCustomerConversationSummary(): Promise<ReturnValueType<unknown>> {
     const [inboundConversations] =
       await this.twilioRepository.getInboundConversations();
@@ -31,36 +32,34 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     if (getCustomersError) {
       return [undefined, getCustomersError];
     }
-    const updateCustomersList = customers.map(customer => (
-      {
-        customerId: customer.id,
-        coachId: customer.coachId,
-        customerChannelId: customer.twilioChannelSid,
-        conversationSummary: '',
-      }
-    ));
+    const updateCustomersList = [];
     const configuration = new Configuration({ apiKey: process.env.CHATGPT_API_KEY });
     const openai = new OpenAIApi(configuration);
-    for (const updateCustomer of updateCustomersList) {
-      const conversationHistory =
-        await this.twilioRepository.getConversationHistory({ customerChannelId: updateCustomer.customerChannelId });
+    for (const customer of customers) {
+      try {
+        const conversationHistory =
+          await this.twilioRepository.getConversationHistory({ customerChannelId: customer.twilioChannelSid });
+        const completion = await openai.createChatCompletion({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: `${coachingNotePrompt} ${JSON.stringify(conversationHistory.slice(conversationHistory.length-20))}` }],
+        });
 
-      const completion = await openai.createChatCompletion({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: `${coachingNotePrompt} ${JSON.stringify(conversationHistory.slice(conversationHistory.length-20))}` }],
-      });
-
-      const gptReply = completion.data.choices[0].message.content;
-      updateCustomer.conversationSummary = gptReply;
+        const gptReply = completion.data.choices[0].message.content;
+        const customerDetailsWithSummary = {
+          customerId: customer.id,
+          coachId: customer.coachId,
+          conversationSummary: gptReply,
+        };
+        updateCustomersList.push(customerDetailsWithSummary);
+      } catch(e) {
+        this.errorStack.push(e);
+      }
     }
-    const bulkInsertCustomerConversationSummaryArray = updateCustomersList
-      .map(({ customerId, coachId, conversationSummary }) => ({
-        customerId,
-        coachId,
-        conversationSummary,
-      }));
-    const bulkInsertCustomerConversationSummaryRes =
-      await this.coachRepository.bulkInsertCustomerConversationSummary(bulkInsertCustomerConversationSummaryArray);
-    return [bulkInsertCustomerConversationSummaryRes];
+    const [bulkInsertCustomerConversationSummary] =
+      await this.coachRepository.bulkInsertCustomerConversationSummary(updateCustomersList);
+    if (!this.errorStack.length) {
+      throw Error(JSON.stringify(this.errorStack));
+    }
+    return [bulkInsertCustomerConversationSummary];
   }
 }
