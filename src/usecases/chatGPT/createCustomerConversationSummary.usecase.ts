@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Configuration, OpenAIApi } from 'openai';
-import { ReturnValueType } from '@Filters/customError';
+import { ReturnValueType } from '../../filter/customError';
 import { TwilioRepository } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepository } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { coachingNotePrompt } from '../utils/coachingNote';
 import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
-import { yyyyLLLddss } from '@Usecases/utils/dates';
+import { yyyyLLLddss } from '../../usecases/utils/dates';
 
 export interface CreateCustomerConversationSummaryUsecaseInterface {
     createCustomerConversationSummary(): Promise<ReturnValueType<unknown>>;
