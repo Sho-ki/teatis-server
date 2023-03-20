@@ -68,7 +68,6 @@ implements GetPrePurchaseSurveyUsecaseInterface
     if(employerUuid){
       const [employer, employerNotFound] = await this.employerRepository.getEmployerByUuid({ uuid: employerUuid });
       if(!employer) return [undefined, employerNotFound];
-
     }
     const [getSurveyQuestions, getSurveyQuestionsError] =
         await this.surveyQuestionsRepository.getSurveyQuestions(

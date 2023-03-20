@@ -13,6 +13,7 @@
     "worker:updateOrder": "ts-node src/worker/index.ts updateOrder",
     "worker:sendAutoMessage": "ts-node src/worker/index.ts sendAutoMessage",
     "worker:createEmployeeOrder": "ts-node src/worker/index.ts createEmployeeOrder",
+    "worker:createCustomerConversationSummary": "ts-node src/worker/index.ts createCustomerConversationSummary",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -58,11 +59,13 @@
     "luxon": "^3.2.1",
     "moment": "^2.29.4",
     "newrelic": "^9.2.0",
+    "openai": "^3.2.1",
     "pg": "^8.7.1",
     "prisma-field-encryption": "^1.4.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.8.0",
+    "twilio": "^4.8.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
