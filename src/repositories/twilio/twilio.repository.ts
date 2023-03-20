@@ -2,7 +2,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { ConversationInstance } from 'twilio/lib/rest/conversations/v1/conversation';
-import { MessageInstance } from 'twilio/lib/rest/conversations/v1/conversation/message';
+import { MessageInstance as ConversationMessageInstance } from 'twilio/lib/rest/conversations/v1/conversation/message';
+import { MessageInstance as AccountMessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 import { ParticipantInstance } from 'twilio/lib/rest/conversations/v1/conversation/participant';
 import {  TwilioConversationBody } from '../../domains/TwilioChannel';
 import { ReturnValueType } from '../../filter/customError';
@@ -37,7 +38,7 @@ interface CreateConversationOnFrontlineArgs {
 export interface TwilioRepositoryInterface {
   createChannel({ channelName }: CreateChannelArgs): Promise<ReturnValueType<ConversationInstance>>;
   sendTextMessage({ customerChannelId, author, body }:sendTextMessageArgs):
-  Promise<ReturnValueType<MessageInstance>>;
+  Promise<ReturnValueType<ConversationMessageInstance>>;
   sendMedia({ customerPhone, coachPhone, mediaUrls }:sendMediaArgs):
   Promise<ReturnValueType<TwilioConversationBody>>;
 
@@ -49,15 +50,16 @@ export interface TwilioRepositoryInterface {
 
   getConversationHistory({ customerChannelId }: { customerChannelId:string })
   :Promise<ReturnValueType<unknown[]>>;
+  getInboundConversations(): Promise<ReturnValueType<AccountMessageInstance[]>>;
 }
 
 @Injectable()
 export class TwilioRepository implements TwilioRepositoryInterface {
   constructor(@Inject('TwilioClient')
-  private readonly twilioClient: Twilio,
+    private readonly twilioClient: Twilio,
   ) {}
-  async createConversationOnFrontline({ coachEmail, channelSid }: CreateConversationOnFrontlineArgs)
-  :Promise<ParticipantInstance> {
+  async createConversationOnFrontline({ coachEmail, channelSid }: CreateConversationOnFrontlineArgs):
+  Promise<ParticipantInstance> {
     return await this.twilioClient.conversations.v1.conversations(channelSid)
       .participants
       .create({ identity: coachEmail } );
@@ -114,7 +116,7 @@ export class TwilioRepository implements TwilioRepositoryInterface {
   }
 
   async sendTextMessage({ customerChannelId, author, body }:sendTextMessageArgs):
-  Promise<ReturnValueType<MessageInstance>>{
+  Promise<ReturnValueType<ConversationMessageInstance>>{
     console.log({ body });
     const response = await this.twilioClient.conversations.v1.conversations(customerChannelId)
       .messages
@@ -146,4 +148,16 @@ export class TwilioRepository implements TwilioRepositoryInterface {
     return storeData[0];
   }
 
+  async getInboundConversations(): Promise<ReturnValueType<AccountMessageInstance[]>> {
+    const now = new Date();
+    const dateSentBefore = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    const dateSentAfter = new Date(dateSentBefore.getTime() - (24 * 60 * 60 * 1000)); // 24 hours in milliseconds// set the time to 8am UTC (which is midnight PST)
+    const response = await this.twilioClient.messages
+      .list({
+        dateSentAfter,
+        dateSentBefore,
+      })
+      .then(messages => messages.filter(m => m.direction === 'inbound'));
+    return [response];
+  }
 }
