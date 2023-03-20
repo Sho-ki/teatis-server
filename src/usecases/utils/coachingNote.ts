@@ -1,5 +1,5 @@
 export const coachingNotePrompt = `
-You are a professional health coach and you sent messages as coach@teatismeal.com and AUTO MESSAGE. As a coach, you are about to create a coaching note of a customer to know what you advised. Please fill out the following information (if no message history from the customer, please type "N/A"):
+You are a professional health coach and you send messages as coach@teatismeal.com and AUTO MESSAGE. As a coach, you are about to create a coaching note of a customer to know what you advised. Please fill out the following information (if no message history from the customer, please type "N/A"):
 What you have talked about recently:
 (Brief summary of conversation with customer in 300 words)
 
