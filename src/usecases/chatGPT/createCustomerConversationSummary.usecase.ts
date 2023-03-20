@@ -40,16 +40,18 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
       try {
         const conversationHistory =
           await this.twilioRepository.getConversationHistory({ customerChannelId: customer.twilioChannelSid });
+        const conversation = JSON.stringify(conversationHistory.slice(conversationHistory.length-20));
         const completion = await openai.createChatCompletion({
           model: 'gpt-3.5-turbo',
-          messages: [{ role: 'user', content: `${coachingNotePrompt} ${JSON.stringify(conversationHistory.slice(conversationHistory.length-20))}` }],
+          messages: [{ role: 'user', content: `${coachingNotePrompt} ${conversation}` }],
         });
 
         const gptReply = completion.data.choices[0].message.content;
+        const conversationSummary = `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`;
         const customerDetailsWithSummary = {
           customerId: customer.id,
           coachId: customer.coachId,
-          conversationSummary: `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`,
+          conversationSummary,
         };
         updateCustomersList.push(customerDetailsWithSummary);
       } catch(e) {
