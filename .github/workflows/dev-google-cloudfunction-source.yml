@@ -81,6 +81,7 @@ env:
     TWILIO_SERVICE_SID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}/secrets/TWILIO_SERVICE_SID
     BITLY_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}/secrets/BITLY_API_KEY
     BITLY_GROUP_ID=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}/secrets/BITLY_GROUP_ID
+    CHATGPT_API_KEY=projects/${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}/secrets/CHATGPT_API_KEY
 
 jobs:
   build:
@@ -236,6 +237,24 @@ jobs:
             ENV=dev
           secret_environment_variables: ${{ env.SECRETS }}
           deploy_timeout: 1000
+
+      - name: Deploy to Cloud Function (create-conversation-summary)
+        id: deploy-create-conversation-summary
+        uses: google-github-actions/deploy-cloud-functions@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          region: ${{ env.REGION }}
+          name: create-conversation-summary
+          runtime: nodejs16
+          # source_dir: ./dist
+          timeout: 500
+          entry_point: createCustomerConversationSummary
+          env_vars: |
+            SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}
+            ENV=dev
+
+          secret_environment_variables: ${{ env.SECRETS }}
+          deploy_timeout: 1000
           
 
       # If required, use the Cloud Run url output in later steps
@@ -247,3 +266,6 @@ jobs:
 
       - name: Show create-employee-order-dev Output
         run: echo ${{ steps.create-employee-order-dev.outputs.url }}
+
+      - name: Show create-conversation-summary Output
+        run: echo ${{ steps.create-conversation-summary.outputs.url }}

@@ -3,6 +3,9 @@ import {  Prisma, SurveyQuestionResponse  } from '@prisma/client';
 import { ProductSurveyQuestionResponse } from '@Domains/ProductSurveyQuestionResponse';
 
 import { PrismaService } from '../../../prisma.service';
+import { SurveyName } from '../../../usecases/utils/surveyName';
+import { SurveyQuestionResponsesWithSurveyQuestionOptions } from '../../../domains/SurveyQuestionResponse';
+import { ReturnValueType } from '../../../filter/customError';
 
 interface UpsertCustomerResponseArgs {
   surveyHistoryId:number;
@@ -28,6 +31,11 @@ interface GetCustomerProductSurveyResponseArgs {
   surveyHistoryId: number;
 }
 
+interface GetCustomerSurveyResponsesArgs {
+  surveyName: SurveyName;
+  customerId: number;
+}
+
 export interface CustomerSurveyResponseRepositoryInterface {
   upsertCustomerResponse({
     surveyHistoryId,
@@ -50,6 +58,11 @@ export interface CustomerSurveyResponseRepositoryInterface {
   getCustomerSurveyOneProductResponses(
     { surveyHistoryId, productId }: GetCustomerSurveyOneProductResponsesArgs):
     Promise<ProductSurveyQuestionResponse[]>;
+
+  getCustomerSurveyResponsesWithSurveyQuestionOptions(
+    { surveyName, customerId }: GetCustomerSurveyResponsesArgs):
+    Promise<ReturnValueType<SurveyQuestionResponsesWithSurveyQuestionOptions[]>>;
+
 }
 
 @Injectable()
@@ -147,5 +160,15 @@ implements CustomerSurveyResponseRepositoryInterface
       return { ...val.surveyQuestionResponse, product: { id, label, name, sku: externalSku } };
     });
     return surveyQuestionResponses;
+  }
+
+  async getCustomerSurveyResponsesWithSurveyQuestionOptions(
+    { surveyName, customerId  }: GetCustomerSurveyResponsesArgs):
+    Promise<ReturnValueType<SurveyQuestionResponsesWithSurveyQuestionOptions[]>>{
+    const response = await this.prisma.surveyQuestionResponse.findMany({
+      where: { customerSurveyHistory: { survey: { name: surveyName }, customerId } },
+      include: { surveyQuestion: { include: { surveyQuestionOptions: true } } },
+    });
+    return [response];
   }
 }

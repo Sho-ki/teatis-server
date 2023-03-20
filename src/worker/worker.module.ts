@@ -27,6 +27,8 @@ import { CreateEmployeeOrderUsecase } from '../usecases/employeeOrder/createEmpl
 import { EmployeeRepository } from '../repositories/teatisDB/employee/employee.repository';
 import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
 import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
+import { CreateCustomerConversationSummaryService } from './createCustomerConversationSummary/createCustomerConversationSummary.service';
+import { CreateCustomerConversationSummaryUsecase } from '../usecases/chatGPT/createCustomerConversationSummary.usecase';
 
 @Module({
   exports: [WorkerModule],
@@ -35,6 +37,7 @@ import { ProductGeneralRepository } from '../repositories/teatisDB/product/produ
     UpdateOrderService,
     CreateEmployeeOrderService,
     PrismaService,
+    CreateCustomerConversationSummaryService,
     Logger,
     {
       provide: 'TwilioClient',
@@ -134,6 +137,10 @@ import { ProductGeneralRepository } from '../repositories/teatisDB/product/produ
     {
       provide: 'TwilioRepositoryInterface',
       useClass: TwilioRepository,
+    },
+    {
+      provide: 'CreateCustomerConversationSummaryUsecaseInterface',
+      useClass: CreateCustomerConversationSummaryUsecase,
     },
 
   ],
