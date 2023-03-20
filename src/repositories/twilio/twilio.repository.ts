@@ -27,7 +27,7 @@ interface sendTextMessageArgs {
 interface sendMediaArgs {
     customerPhone:string;
     coachPhone:string;
-    mediaUrls:string | string[];
+    mediaUrls: string[];
 }
 
 interface CreateConversationOnFrontlineArgs {
@@ -68,7 +68,7 @@ export class TwilioRepository implements TwilioRepositoryInterface {
   async sendMedia({ customerPhone, coachPhone, mediaUrls }: sendMediaArgs):
   Promise<ReturnValueType<TwilioConversationBody>> {
     try{
-      const response = await this.twilioClient.api.messages
+      const response = await this.twilioClient.api.account.messages
         .create({
           to: customerPhone,
           from: coachPhone,
@@ -102,7 +102,10 @@ export class TwilioRepository implements TwilioRepositoryInterface {
     try{
       const response:ParticipantInstance =  await this.twilioClient.conversations.v1.conversations(channelSid)
         .participants
-        .create({  messagingBinding: { address: toPhone, proxyAddress: fromPhone } } );
+        .create({
+          'messagingBinding.address': toPhone,
+          'messagingBinding.proxyAddress': fromPhone,
+        } );
 
       return [response];
     }catch(e){
