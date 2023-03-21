@@ -459,7 +459,6 @@ model Product {
   preservationStyle                      PreservationStyle?                       @default(normal)
   glucoseValues                          Json?
   weight                                 Float?
-  points                                 Int?                                    @default(100)
   customerBoxItems                       CustomerBoxItems[]
   customerFoodLog                        CustomerFoodLog[]
   intermediateMasterMonthlyBoxProduct    IntermediateMasterMonthlyBoxProduct[]
@@ -1026,6 +1025,7 @@ enum EventType {
   boxUnsubscribed
   postPurchaseCalendarCreated
   boxOrdered
+  rewardBoxOrdered
 }
 
 enum RewardEventType {

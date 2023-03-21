@@ -59,6 +59,10 @@ interface GetCustomerByTwilioChannelSidArgs {
   twilioChannelSid: string;
 }
 
+interface GetCustomersWithAddressArgs {
+  customerIds: number[];
+}
+
 interface GetCustomerMedicalConditionArgs {
   email: string;
 }
@@ -116,6 +120,8 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
   getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
   getCustomerByTwilioChannelSid({ twilioChannelSid }: GetCustomerByTwilioChannelSidArgs):
   Promise<ReturnValueType<Customer>>;
+  getCustomersWithAddress({ customerIds }: GetCustomersWithAddressArgs):
+  Promise<ReturnValueType<CustomerWithAddress[]>>;
 
   updateCustomerByUuid({
     uuid,
@@ -153,7 +159,7 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     state,
     zip,
     country,
-  }: UpsertCustomerAddressArgs ): Promise<ReturnValueType<Customer>>;
+  }: UpsertCustomerAddressArgs ): Promise<ReturnValueType<CustomerWithAddress>>;
   findCustomersWithPointsOverThreshold({ pointsThreshold }: FindCustomersWithPointsOverThresholdArgs):
   Promise<ReturnValueType<Customer[]>>;
   updateTotalPoints({ customerId, points, type }:UpdateTotalPointsArgs): Promise<ReturnValueType<Customer>>;
@@ -173,6 +179,13 @@ implements CustomerGeneralRepositoryInterface
 
   setDefaultPrismaClient() {
     this.prisma = this.originalPrismaClient;
+  }
+
+  async getCustomersWithAddress({ customerIds }: GetCustomersWithAddressArgs):
+  Promise<ReturnValueType<CustomerWithAddress[]>>{
+    const response = await this.prisma.customers.findMany(
+      { where: { id: { in: customerIds } }, include: { customerAddress: true } });
+    return [response];
   }
 
   async deactivateCustomerSubscription({ uuid, eventDate = new Date(), type }:
@@ -602,10 +615,8 @@ implements CustomerGeneralRepositoryInterface
   async updateTotalPoints({ customerId, points, type }:UpdateTotalPointsArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.update({
       where: { id: customerId },
-      data: { totalPoints: { increment: points } },
+      data: { totalPoints: { increment: points }, customerPointLog: { create: { points, type } } },
     });
-    await this.prisma.customerPointLog.create(
-      { data: { customerId, type, points  } });
     return [response];
   }
 

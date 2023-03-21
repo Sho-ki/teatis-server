@@ -4,7 +4,6 @@ import { TwilioEvent } from '../../domains/twilioEvent';
 import { Customer } from '../../domains/Customer';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerTwilioMessageRepositoryInterface } from '../../repositories/teatisDB/customerTwilioMessage/customerTwilioMessage.repository';
-import { CustomerPointLogRepositoryInterface } from '../../repositories/teatisDB/customerPointLog/customerPointLog.repository';
 import { getRewardEventPoint } from '../utils/teatisPointSet';
 import { TransactionOperatorInterface } from '../../repositories/utils/transactionOperator';
 
@@ -21,8 +20,6 @@ implements OnMessageAddedUsecaseInterface
     private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
     @Inject('CustomerTwilioMessageRepositoryInterface')
     private readonly customerTwilioMessageRepository: CustomerTwilioMessageRepositoryInterface,
-    @Inject('CustomerPointLogRepositoryInterface')
-    private readonly customerPointLogRepository: CustomerPointLogRepositoryInterface,
     @Inject('TransactionOperatorInterface')
     private readonly transactionOperator: TransactionOperatorInterface,
   ) {}
@@ -41,14 +38,13 @@ implements OnMessageAddedUsecaseInterface
     // Insert the record in a transaction
     const [customerResponse] = await this.transactionOperator
       .performAtomicOperations(
-        [this.customerGeneralRepository, this.customerTwilioMessageRepository, this.customerPointLogRepository],
+        [this.customerGeneralRepository, this.customerTwilioMessageRepository],
         async (): Promise<ReturnValueType<Customer>> => {
           await this.customerTwilioMessageRepository.createMessage(
             { customerId: customer.id, messageId, sentAt: new Date(body.DateCreated)  });
 
           // Step 2: Add a record in teatisPointLog
           const [type, points] = getRewardEventPoint('sendMessage');
-          await this.customerPointLogRepository.createCustomerPointLog({ customerId: customer.id, points, type });
 
           const [newCustomer] = await
           this.customerGeneralRepository.updateTotalPoints({ customerId: customer.id, points, type });

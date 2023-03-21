@@ -29,6 +29,7 @@ import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/cus
 import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
 import { CustomerRewardTokenRepository } from '../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 import { CreateRewardOrderUsecase } from '../usecases/rewardOrder/createRewardOrder.usecase';
+import { CustomerAddressRepository } from '../repositories/teatisDB/customer/customerAddress.repository';
 
 @Module({
   exports: [WorkerModule],
@@ -44,6 +45,10 @@ import { CreateRewardOrderUsecase } from '../usecases/rewardOrder/createRewardOr
         return new Twilio( process.env.TWILIO_ACCOUNT_SID,
           process.env.TWILIO_AUTH_TOKEN,);
       },
+    },
+    {
+      provide: 'CustomerAddressRepositoryInterface',
+      useClass: CustomerAddressRepository,
     },
     {
       provide: 'CreateRewardOrderUsecaseInterface',

@@ -9,7 +9,6 @@ import { SurveyQuestionResponse } from '@prisma/client';
 import { PostWeeklyCheckInDto } from '@Controllers/discoveries/weeklyCheckIn/dtos/postWeeklyCheckIn';
 import { CustomerRewardTokenRepositoryInterface } from '../../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 import { TransactionOperatorInterface } from '../../repositories/utils/transactionOperator';
-import { CustomerPointLogRepositoryInterface } from '../../repositories/teatisDB/customerPointLog/customerPointLog.repository';
 import { getRewardEventPoint } from '../utils/teatisPointSet';
 
 export interface PostWeeklyCheckInQuestionsUsecaseInterface {
@@ -31,8 +30,6 @@ implements PostWeeklyCheckInQuestionsUsecaseInterface
     private readonly customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
     @Inject('CustomerRewardTokenRepositoryInterface')
     private readonly customerRewardTokenRepository: CustomerRewardTokenRepositoryInterface,
-    @Inject('CustomerPointLogRepositoryInterface')
-    private readonly customerPointLogRepository: CustomerPointLogRepositoryInterface,
 
     @Inject('TransactionOperatorInterface')
     private readonly transactionOperator: TransactionOperatorInterface,
@@ -47,7 +44,6 @@ implements PostWeeklyCheckInQuestionsUsecaseInterface
           this.customerSurveyResponseRepository,
           this.customerSurveyHistoryRepository,
           this.customerRewardTokenRepository,
-          this.customerPointLogRepository,
         ],
         async (): Promise<ReturnValueType<SurveyQuestionResponse[]>> => {
           const [customer, getCustomerError] =
