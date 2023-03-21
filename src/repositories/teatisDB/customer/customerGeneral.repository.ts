@@ -16,6 +16,9 @@ export interface GetCustomerArgs {
 export interface GetCustomerByPhoneArgs {
   phone: string;
 }
+export interface GetCustomersByPhoneArgs {
+  phoneNumbers: string[];
+}
 
 interface UpsertCustomerArgs {
   uuid: string;
@@ -113,6 +116,7 @@ export interface activateCustomerSubscriptionArgs {
 export interface CustomerGeneralRepositoryInterface extends Transactionable {
   getCustomer({ email }: GetCustomerArgs): Promise<ReturnValueType<Customer>>;
   getCustomerByPhone({ phone }: GetCustomerByPhoneArgs): Promise<ReturnValueType<Customer>>;
+  getCustomersByPhone({ phoneNumbers }: GetCustomersByPhoneArgs): Promise<ReturnValueType<Customer[]>>;
   getCustomerPreference({ email }: GetCustomerPreferenceArgs): Promise<ReturnValueType<{id:number[]}>>;
   getCustomerMedicalCondition({ email }: GetCustomerMedicalConditionArgs): Promise<
     [CustomerMedicalCondition?, Error?]
@@ -414,6 +418,11 @@ implements CustomerGeneralRepositoryInterface
 
   async getCustomerByPhone({ phone }: GetCustomerByPhoneArgs): Promise<ReturnValueType<Customer>> {
     const response = await this.prisma.customers.findUnique({ where: { phone } });
+    return [response];
+  }
+  async getCustomersByPhone({ phoneNumbers }: GetCustomersByPhoneArgs): Promise<ReturnValueType<Customer[]>> {
+    const response = await this.prisma.customers
+      .findMany({ where: { OR: phoneNumbers.map(phoneNumber => ({ phone: { contains: phoneNumber } })) } });
     return [response];
   }
 

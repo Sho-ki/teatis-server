@@ -30,6 +30,8 @@ import { ProductGeneralRepository } from '../repositories/teatisDB/product/produ
 import { CustomerRewardTokenRepository } from '../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 import { CreateRewardOrderUsecase } from '../usecases/rewardOrder/createRewardOrder.usecase';
 import { CustomerAddressRepository } from '../repositories/teatisDB/customer/customerAddress.repository';
+import { CreateCustomerConversationSummaryService } from './createCustomerConversationSummary/createCustomerConversationSummary.service';
+import { CreateCustomerConversationSummaryUsecase } from '../usecases/chatGPT/createCustomerConversationSummary.usecase';
 
 @Module({
   exports: [WorkerModule],
@@ -38,6 +40,7 @@ import { CustomerAddressRepository } from '../repositories/teatisDB/customer/cus
     UpdateOrderService,
     CreateEmployeeOrderService,
     PrismaService,
+    CreateCustomerConversationSummaryService,
     Logger,
     {
       provide: 'TwilioClient',
@@ -149,6 +152,10 @@ import { CustomerAddressRepository } from '../repositories/teatisDB/customer/cus
     {
       provide: 'TwilioRepositoryInterface',
       useClass: TwilioRepository,
+    },
+    {
+      provide: 'CreateCustomerConversationSummaryUsecaseInterface',
+      useClass: CreateCustomerConversationSummaryUsecase,
     },
 
   ],
