@@ -32,13 +32,13 @@ interface GetCustomerProductSurveyResponseArgs {
   surveyHistoryId: number;
 }
 
-export interface CustomerSurveyResponseRepositoryInterface extends Transactionable {
 interface GetCustomerSurveyResponsesArgs {
   surveyName: SurveyName;
   customerId: number;
 }
 
-export interface CustomerSurveyResponseRepositoryInterface {
+export interface CustomerSurveyResponseRepositoryInterface extends Transactionable {
+
   upsertCustomerResponse({
     surveyHistoryId,
     surveyQuestionId,
