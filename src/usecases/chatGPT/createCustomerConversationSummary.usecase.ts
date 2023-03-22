@@ -6,6 +6,7 @@ import { CustomerGeneralRepository } from '../../repositories/teatisDB/customer/
 import { coachingNotePrompt } from '../utils/coachingNote';
 import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
 import { yyyyLLLddss } from '../../usecases/utils/dates';
+import { Prisma } from '@prisma/client';
 
 export interface CreateCustomerConversationSummaryUsecaseInterface {
     createCustomerConversationSummary(): Promise<ReturnValueType<unknown>>;
@@ -23,10 +24,10 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     private coachRepository: CoachRepository,
   ){}
   private errorStack: Error[] = [];
-  async createCustomerConversationSummary(): Promise<ReturnValueType<unknown>> {
+  async createCustomerConversationSummary(): Promise<ReturnValueType<Prisma.BatchPayload>> {
     const [inboundConversations] =
       await this.twilioRepository.getInboundConversations();
-    if(!inboundConversations.length) return [[]];
+    if(!inboundConversations.length) return [{ count: -1 }];
     const uniquePhoneNumbers = new Set(inboundConversations.map(r => r.from));
     const [customers, getCustomersError] =
       await this.customerGeneralRepository.getCustomersByPhone({ phoneNumbers: [...uniquePhoneNumbers] });
@@ -37,6 +38,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     const configuration = new Configuration({ apiKey: process.env.CHATGPT_API_KEY });
     const openai = new OpenAIApi(configuration);
     for (const customer of customers) {
+      console.log('customer: ', customer.id);
       try {
         const conversationHistory =
           await this.twilioRepository.getConversationHistory({ customerChannelId: customer.twilioChannelSid });
@@ -45,7 +47,6 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
           model: 'gpt-3.5-turbo',
           messages: [{ role: 'user', content: `${coachingNotePrompt} ${conversation}` }],
         });
-
         const gptReply = completion.data.choices[0].message.content;
         const conversationSummary = `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`;
         const customerDetailsWithSummary = {

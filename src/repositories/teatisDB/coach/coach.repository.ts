@@ -180,6 +180,7 @@ export class CoachRepository implements CoachRepositoryInterface {
   async bulkInsertCustomerConversationSummary(
     args: BulkInsertCustomerConversationSummaryArgs[]
   ): Promise<ReturnValueType<Prisma.BatchPayload>> {
+    console.log('bulkInsertCustomerConversationSummary');
     const response = await this.prisma.customerCoachHistory.createMany(
       { data: { ...args } }
     );
