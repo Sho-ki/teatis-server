@@ -14,5 +14,5 @@ export interface Customer {
   note?:string;
   createdAt?: Date;
   updatedAt?: Date;
-  totalPoints?: number;
+  totalPoints: number;
 }

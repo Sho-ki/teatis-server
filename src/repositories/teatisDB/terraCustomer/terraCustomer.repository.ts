@@ -56,17 +56,19 @@ export class TerraCustomerRepository implements TerraCustomerRepositoryInterface
         terraCustomerId,
       },
       update: { terraCustomerId },
-      select: {
-        customer: true,
-        terraCustomerId: true,
-      },
+      include: { customer: true },
     });
 
     const { email, id, uuid } = response.customer;
     if(!email ||  !id || !uuid || !response.terraCustomerId){
       return [undefined, { name: 'Error', message: 'customerId is invalid' }];
     }
-    return [{ email, id, uuid, terraCustomerId: response.terraCustomerId  }];
+    return [
+      {
+        email, id, uuid, terraCustomerId: response.terraCustomerId,
+        totalPoints: response.customer.totalPoints,
+      },
+    ];
   }
 
   async getCustomerGlucoseLogs({ terraCustomerId }:GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>{

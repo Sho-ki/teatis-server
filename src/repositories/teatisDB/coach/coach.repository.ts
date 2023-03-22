@@ -86,12 +86,12 @@ export class CoachRepository implements CoachRepositoryInterface {
 
     const {
       email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
-      boxSubscribed, coachingSubscribed, twilioChannelSid,
+      boxSubscribed, coachingSubscribed, twilioChannelSid, totalPoints,
       customerCoachHistory,
     } = response;
     const customerDetails: CoachedCustomer =  {
       id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-      coachingSubscribed, boxSubscribed, twilioChannelSid,
+      coachingSubscribed, boxSubscribed, twilioChannelSid, totalPoints,
       coach: { id: coach.id, email: coach.email, phone: coach.phone },
       customerCoachHistory,
     };
@@ -149,11 +149,11 @@ export class CoachRepository implements CoachRepositoryInterface {
       response.map((
         {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
-          coachingSubscribed, boxSubscribed, customerCoachHistory,
+          coachingSubscribed, boxSubscribed, customerCoachHistory, totalPoints,
         }) => {
         return {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-          coachingSubscribed, boxSubscribed,
+          coachingSubscribed, boxSubscribed, totalPoints,
           coach: { id: coach.id, email: coach.email, phone: coach.phone },
           customerCoachHistory,
         };

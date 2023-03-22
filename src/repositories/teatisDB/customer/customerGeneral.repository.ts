@@ -274,7 +274,7 @@ implements CustomerGeneralRepositoryInterface
       {
         id: response.id, email: newEmail, uuid,
         phone: response.phone, firstName: response.firstName, lastName: response.lastName,
-        createdAt: response.createdAt, updatedAt: response.updatedAt,
+        createdAt: response.createdAt, updatedAt: response.updatedAt, totalPoints: response.totalPoints,
       },
     ];
 
@@ -292,11 +292,7 @@ implements CustomerGeneralRepositoryInterface
   > {
     const res = await this.prisma.customers.findUnique({
       where: { email },
-      select: {
-        id: true,
-        uuid: true,
-        intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: { select: { name: true } } } },
-      },
+      include: { intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: true } } },
     });
     const { id, uuid } = res;
     if (!id || !uuid) {
@@ -317,6 +313,7 @@ implements CustomerGeneralRepositoryInterface
         id,
         email,
         uuid,
+        totalPoints: res.totalPoints,
       },
     ];
   }
@@ -573,7 +570,7 @@ implements CustomerGeneralRepositoryInterface
 
       },
     });
-    return [{ id: customer.id, uuid: customer.uuid, email }];
+    return [{ id: customer.id, uuid: customer.uuid, email, totalPoints: customer.totalPoints }];
   }
 
   async upsertCustomerAddress({
