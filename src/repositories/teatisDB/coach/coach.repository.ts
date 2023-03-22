@@ -5,7 +5,6 @@ import { ReturnValueType } from '@Filters/customError';
 import { CoachedCustomer } from '@Domains/CoachedCustomer';
 import { Coach, Prisma, PrismaClient } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
-// import { Coach } from '@Domains/Coach';
 
 export interface GetCoachedCustomersArgs {
   email: string;
@@ -40,10 +39,10 @@ export interface CoachRepositoryInterface extends Transactionable{
   getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>>;
 
   connectCustomerCoach({ coachEmail, customerId }:ConnectCustomerCoachArgs):
-  Promise<Coach>;
+  Promise<ReturnValueType<Coach>>;
 
   getActiveCoachedCustomersBySendAt(
-    { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]>;
+    { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<ReturnValueType<CoachedCustomer[]>>;
   bulkInsertCustomerConversationSummary(
     args: BulkInsertCustomerConversationSummaryArgs[]
   ): Promise<ReturnValueType<Prisma.BatchPayload>>;
@@ -66,29 +65,14 @@ export class CoachRepository implements CoachRepositoryInterface {
   }
 
   async getActiveCoachedCustomersBySendAt(
-    { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<CoachedCustomer[]> {
+    { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<ReturnValueType<CoachedCustomer[]>> {
     const response = await this.prisma.customers.findMany(
       { where: { coachingSubscribed: 'active', messageTimePreference: sendAt, coachId: { not: null } }, include: { coach: true, customerCoachHistory: true } });
 
-    // eslint-disable-next-line no-console
-    console.log(response);
-    const customers :CoachedCustomer[] =  response.length ?
-      response.map((
-        {
-          id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
-          coachingSubscribed, boxSubscribed, sequenceBasedAutoMessageInterval, twilioChannelSid,
-          customerCoachHistory,
-        }) => {
-        return {
-          id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-          coachingSubscribed, boxSubscribed, sequenceBasedAutoMessageInterval,
-          twilioChannelSid,
-          coach: { id: coach.id, email: coach.email, phone: coach.phone },
-          customerCoachHistory,
-        };
-      })
+    const customers : CoachedCustomer[] = response.length ?
+      response.map((customer) => { return { ...customer }; })
       :[];
-    return customers;
+    return [customers];
   }
 
   async getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>> {
@@ -102,12 +86,12 @@ export class CoachRepository implements CoachRepositoryInterface {
 
     const {
       email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
-      boxSubscribed, coachingSubscribed, twilioChannelSid,
+      boxSubscribed, coachingSubscribed, twilioChannelSid, totalPoints,
       customerCoachHistory,
     } = response;
     const customerDetails: CoachedCustomer =  {
       id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-      coachingSubscribed, boxSubscribed, twilioChannelSid,
+      coachingSubscribed, boxSubscribed, twilioChannelSid, totalPoints,
       coach: { id: coach.id, email: coach.email, phone: coach.phone },
       customerCoachHistory,
     };
@@ -116,11 +100,11 @@ export class CoachRepository implements CoachRepositoryInterface {
   }
 
   async connectCustomerCoach({ coachEmail, customerId }: ConnectCustomerCoachArgs)
-  : Promise<Coach> {
+  : Promise<ReturnValueType<Coach>> {
     const response = await this.prisma.customers.update(
       {
         where: { id: customerId  },
-        data: { coach: { connect: {  email: coachEmail } } },
+        data: { coach: { connect: {  email: coachEmail } }  },
         include: { coach: true },
       },);
 
@@ -131,7 +115,7 @@ export class CoachRepository implements CoachRepositoryInterface {
         update: {},
       },);
 
-    return response.coach;
+    return [response.coach];
   }
 
   // async findCustomerCoach({ customerId }: FindCustomerCoachArgs)
@@ -165,11 +149,11 @@ export class CoachRepository implements CoachRepositoryInterface {
       response.map((
         {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone, coach,
-          coachingSubscribed, boxSubscribed, customerCoachHistory,
+          coachingSubscribed, boxSubscribed, customerCoachHistory, totalPoints,
         }) => {
         return {
           id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
-          coachingSubscribed, boxSubscribed,
+          coachingSubscribed, boxSubscribed, totalPoints,
           coach: { id: coach.id, email: coach.email, phone: coach.phone },
           customerCoachHistory,
         };

@@ -14,6 +14,7 @@ import { OAuth2Module } from './controllers/oAuth2/oAuth2.module';
 import { SubscriptionModule } from './controllers/recharge/subscription.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
 import { GlobalModule } from './global.module';
+import { TwilioWebhookModule } from './controllers/twilio/webhook/webhook.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { GlobalModule } from './global.module';
     OAuth2Module,
     CoachingModule,
     GlobalModule,
+    TwilioWebhookModule,
     MonthlyProductsModule,
     ScheduleModule.forRoot(),
   ],

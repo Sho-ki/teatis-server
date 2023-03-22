@@ -26,7 +26,7 @@ describe('TerraController', () => {
           provide: 'PostTerraAuthSuccessUsecaseInterface',
           useValue: {
             postTerraAuthSuccess: () =>
-              Promise.resolve<ReturnValueType<CustomerAndTerraCustomer>>([{ terraCustomerId: 'test', id: 1, email: 'teatismeal@mail.com', uuid: 'testuuid' }]),
+              Promise.resolve<ReturnValueType<CustomerAndTerraCustomer>>([{ terraCustomerId: 'test', id: 1, email: 'teatismeal@mail.com', uuid: 'testuuid', totalPoints: 0, firstName: 'test', lastName: 'test', boxSubscribed: 'active', coachingSubscribed: 'active' }]),
           } as PostTerraAuthSuccessUsecaseInterface,
         },
         {
