@@ -5,7 +5,12 @@ import { CustomerGeneralRepository } from './repositories/teatisDB/customer/cust
 import { CustomerSurveyResponseRepository } from './repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { EmployeeRepository } from './repositories/teatisDB/employee/employee.repository';
 import { ProductGeneralRepository } from './repositories/teatisDB/product/productGeneral.repository';
+import { CustomerRewardTokenRepository } from './repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
+
 import { TerraRepository } from './repositories/terra/terra.repository';
+import { TransactionOperator } from './repositories/utils/transactionOperator';
+import { CustomerPointLogRepository } from './repositories/teatisDB/customerPointLog/customerPointLog.repository';
+import { CustomerTwilioMessageRepository } from './repositories/teatisDB/customerTwilioMessage/customerTwilioMessage.repository';
 import { TwilioRepository } from './repositories/twilio/twilio.repository';
 
 const createGlobalModule = (repositories, configurations) => {
@@ -42,6 +47,10 @@ const createGlobalModule = (repositories, configurations) => {
   EmployeeRepository,
   ProductGeneralRepository,
   TerraRepository,
+  CustomerRewardTokenRepository,
+  TransactionOperator,
+  CustomerPointLogRepository,
+  CustomerTwilioMessageRepository,
   TwilioRepository,
   CustomerSurveyResponseRepository,
 ], [PrismaService]))

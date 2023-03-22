@@ -19,12 +19,14 @@ implements GetWeeklyCheckInQuestionsUsecaseInterface
   ) {}
 
   async getWeeklyCheckInQuestions(): Promise<ReturnValueType<ActiveSurvey>> {
+
     const [getWeeklyCheckInQuestions, getWeeklyCheckInQuestionsError] =
         await this.surveyQuestionsRepository.getSurveyQuestions({ surveyName: SurveyName.WeeklyCheckIn });
     if (getWeeklyCheckInQuestionsError) {
       return [undefined, getWeeklyCheckInQuestionsError];
     }
-    return [getWeeklyCheckInQuestions];
+
+    return [{ ...getWeeklyCheckInQuestions }];
   }
 }
 

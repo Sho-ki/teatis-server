@@ -4,7 +4,7 @@ import { Customer } from '@Domains/Customer';
 import { PrismaService } from '../../../prisma.service';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
-import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient } from '@prisma/client';
+import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient, RewardEventType } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { CustomerWithAddress } from '../../../domains/CustomerWithAddress';
@@ -58,6 +58,14 @@ interface GetCustomerByUuidArgs {
   uuid: string;
 }
 
+interface GetCustomerByTwilioChannelSidArgs {
+  twilioChannelSid: string;
+}
+
+interface GetCustomersWithAddressArgs {
+  customerIds: number[];
+}
+
 interface GetCustomerMedicalConditionArgs {
   email: string;
 }
@@ -83,6 +91,20 @@ export interface deactivateCustomerSubscriptionArgs {
   eventDate?:Date;
 }
 
+export interface FindCustomersWithPointsOverThresholdArgs {
+  pointsThreshold: number;
+}
+
+export interface FindCustomersWithPointsOverThresholdArgs {
+  pointsThreshold: number;
+}
+
+export interface UpdateTotalPointsArgs {
+  customerId: number;
+  points: number;
+  type: RewardEventType;
+}
+
 type SubscribeEventType = 'boxSubscribed'|'coachingSubscribed';
 
 export interface activateCustomerSubscriptionArgs {
@@ -100,6 +122,10 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     [CustomerMedicalCondition?, Error?]
   >;
   getCustomerByUuid({ uuid }: GetCustomerByUuidArgs): Promise<ReturnValueType<Customer>>;
+  getCustomerByTwilioChannelSid({ twilioChannelSid }: GetCustomerByTwilioChannelSidArgs):
+  Promise<ReturnValueType<Customer>>;
+  getCustomersWithAddress({ customerIds }: GetCustomersWithAddressArgs):
+  Promise<ReturnValueType<CustomerWithAddress[]>>;
 
   updateCustomerByUuid({
     uuid,
@@ -137,7 +163,10 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     state,
     zip,
     country,
-  }: UpsertCustomerAddressArgs ): Promise<ReturnValueType<Customer>>;
+  }: UpsertCustomerAddressArgs ): Promise<ReturnValueType<CustomerWithAddress>>;
+  findCustomersWithPointsOverThreshold({ pointsThreshold }: FindCustomersWithPointsOverThresholdArgs):
+  Promise<ReturnValueType<Customer[]>>;
+  updateTotalPoints({ customerId, points, type }:UpdateTotalPointsArgs): Promise<ReturnValueType<Customer>>;
 }
 
 @Injectable()
@@ -154,6 +183,13 @@ implements CustomerGeneralRepositoryInterface
 
   setDefaultPrismaClient() {
     this.prisma = this.originalPrismaClient;
+  }
+
+  async getCustomersWithAddress({ customerIds }: GetCustomersWithAddressArgs):
+  Promise<ReturnValueType<CustomerWithAddress[]>>{
+    const response = await this.prisma.customers.findMany(
+      { where: { id: { in: customerIds } }, include: { customerAddress: true } });
+    return [response];
   }
 
   async deactivateCustomerSubscription({ uuid, eventDate = new Date(), type }:
@@ -238,7 +274,7 @@ implements CustomerGeneralRepositoryInterface
       {
         id: response.id, email: newEmail, uuid,
         phone: response.phone, firstName: response.firstName, lastName: response.lastName,
-        createdAt: response.createdAt, updatedAt: response.updatedAt,
+        createdAt: response.createdAt, updatedAt: response.updatedAt, totalPoints: response.totalPoints,
       },
     ];
 
@@ -256,11 +292,7 @@ implements CustomerGeneralRepositoryInterface
   > {
     const res = await this.prisma.customers.findUnique({
       where: { email },
-      select: {
-        id: true,
-        uuid: true,
-        intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: { select: { name: true } } } },
-      },
+      include: { intermediateCustomerMedicalConditions: { select: { customerMedicalCondition: true } } },
     });
     const { id, uuid } = res;
     if (!id || !uuid) {
@@ -281,6 +313,7 @@ implements CustomerGeneralRepositoryInterface
         id,
         email,
         uuid,
+        totalPoints: res.totalPoints,
       },
     ];
   }
@@ -537,7 +570,7 @@ implements CustomerGeneralRepositoryInterface
 
       },
     });
-    return [{ id: customer.id, uuid: customer.uuid, email }];
+    return [{ id: customer.id, uuid: customer.uuid, email, totalPoints: customer.totalPoints }];
   }
 
   async upsertCustomerAddress({
@@ -578,4 +611,25 @@ implements CustomerGeneralRepositoryInterface
 
     return [response];
   }
+
+  async findCustomersWithPointsOverThreshold({ pointsThreshold }: FindCustomersWithPointsOverThresholdArgs):
+  Promise<ReturnValueType<Customer[]>> {
+    const customers = await this.prisma.customers.findMany({ where: { totalPoints: { gte: pointsThreshold } } });
+    return [customers];
+  }
+
+  async updateTotalPoints({ customerId, points, type }:UpdateTotalPointsArgs): Promise<ReturnValueType<Customer>> {
+    const response = await this.prisma.customers.update({
+      where: { id: customerId },
+      data: { totalPoints: { increment: points }, customerPointLog: { create: { points, type } } },
+    });
+    return [response];
+  }
+
+  async getCustomerByTwilioChannelSid({ twilioChannelSid }: GetCustomerByTwilioChannelSidArgs):
+  Promise<ReturnValueType<Customer>>{
+    const response = await this.prisma.customers.findUnique({ where: { twilioChannelSid } });
+    return [response];
+  }
+
 }

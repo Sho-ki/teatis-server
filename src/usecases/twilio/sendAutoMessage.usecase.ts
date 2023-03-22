@@ -10,6 +10,7 @@ import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/
 import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
 import { pstTime } from '../utils/dates';
 import { BitlyRepositoryInterface } from '../../repositories/bitly/bitly.repository';
+import { CustomerRewardTokenRepositoryInterface } from '../../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 
 export interface SendAutoMessageUsecaseInterface {
   sendAutoMessage():
@@ -40,6 +41,8 @@ implements SendAutoMessageUsecaseInterface
   private readonly customerGeneralRepository: CustomerGeneralRepositoryInterface,
   @Inject('BitlyRepositoryInterface')
   private readonly bitlyRepository: BitlyRepositoryInterface,
+  @Inject('CustomerRewardTokenRepositoryInterface')
+  private readonly customerRewardTokenRepository: CustomerRewardTokenRepositoryInterface,
 
   ) {}
 
@@ -90,6 +93,7 @@ implements SendAutoMessageUsecaseInterface
     const placeholderRegexes = {
       'customer.uuid': /\$\{ *customer\.uuid *\}/g,
       'customer.firstname': /\$\{ *customer\.firstname *\}/g,
+      'customer.totalPoints': /\$\{ *customer\.totalPoints *\}/g,
     };
 
     let filledTemplate = template;
@@ -100,6 +104,10 @@ implements SendAutoMessageUsecaseInterface
     if(variables.includes('customer.firstname')){
       const customerFirstName = customer.firstName?customer.firstName:'';
       filledTemplate = filledTemplate.replace(placeholderRegexes['customer.firstname'], customerFirstName);
+    }
+
+    if(variables.includes('customer.totalPoints')){
+      filledTemplate = filledTemplate.replace(placeholderRegexes['customer.totalPoints'], customer.totalPoints.toString());
     }
     return filledTemplate;
   }
@@ -151,19 +159,27 @@ implements SendAutoMessageUsecaseInterface
     body = this.replaceTemplateVariableWithValue(body, customer);
     body += webPageUrls.length ? '\n\n' + webPageUrls.join('\n\n') : '';
     const links = this.findLinks(body);
-    console.log('links1: ', links);
 
-    // If there are long (> 40) links in body, make them shorter
     for (const link of links) {
+      let processedLink = link;
 
-      if (link.length > 40) {
-        const shortUrl = await this.getShorterUrl(link);
-        console.log('shortUrl: ', shortUrl);
-        if(!shortUrl) break;
-        body = body.replace(link, shortUrl);
-        console.log('body: ', body);
+      if (link.includes('weekly-check-in')) {
+        const [customerRewardToken] = await this.customerRewardTokenRepository.createCustomerRewardToken(
+          { customerId: customer.id });
+        const separator = link.includes('?') ? '&' : '?';
+        processedLink += `${separator}point_token=${customerRewardToken.pointToken}`;
       }
+
+      console.log('link: ', processedLink);
+      const shortUrl = await this.getShorterUrl(processedLink);
+      console.log('shortUrl: ', shortUrl);
+
+      if (!shortUrl) break;
+
+      body = body.replace(link, shortUrl);
+      console.log('body: ', body);
     }
+
     // Send the text message
     const [, sendTextMessageError] = await this.twilioRepository.sendTextMessage({ customerChannelId, author: 'AUTO MESSAGE', body });
     if (sendTextMessageError) {
@@ -259,7 +275,7 @@ implements SendAutoMessageUsecaseInterface
       const customerMessagePreferenceTime = this.getCustomerMessagePreferenceTime();
       console.log('customerMessagePreferenceTime', customerMessagePreferenceTime);
       // Get only active coached customers
-      const sendableCoachedCustomers =
+      const [sendableCoachedCustomers] =
     await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: customerMessagePreferenceTime });
       if(!sendableCoachedCustomers.length) return;
       console.log('sendableCoachedCustomers.length', sendableCoachedCustomers.length);
@@ -314,6 +330,7 @@ implements SendAutoMessageUsecaseInterface
           continue;
         }
       }
+      console.log('this.sendMessageErrorStack', this.sendMessageErrorStack);
 
       if (this.getCustomerDataErrorStack.length || this.sendMessageErrorStack.length) {
         const message = this.getCustomerDataErrorStack.length && this.sendMessageErrorStack.length ? 'Both getCustomerDataErrorStack and sendMessageErrorStack error' :
@@ -331,7 +348,7 @@ implements SendAutoMessageUsecaseInterface
       return ['OK'];
     } catch(e){
       // eslint-disable-next-line no-console
-      console.log(e);
+      console.log(e.message);
       throw new Error(e);
     }
   }

@@ -21,7 +21,7 @@ describe('GetOptions', () => {
     };
     MockedCustomerGeneralRepository = {
       getCustomerByUuid: ({ uuid }) =>
-        (uuid === '12345'?Promise.resolve<ReturnValueType<Customer>>( [{ id: 1, email: 'teatismeal@mail.com', uuid: '12345' }]):
+        (uuid === '12345'?Promise.resolve<ReturnValueType<Customer>>( [{ id: 1, email: 'teatismeal@mail.com', uuid: '12345', totalPoints: 0, firstName: 'test', lastName: 'test', boxSubscribed: 'active', coachingSubscribed: 'active' }]):
         Promise.resolve<ReturnValueType<Customer>>( [undefined, { name: 'Error', message: 'uuid is invalid' }])),
     };
 
@@ -46,6 +46,7 @@ describe('GetOptions', () => {
               lastName: 'Doe',
               middleName: 'Smith',
               coachingSubscribed: 'active',
+              totalPoints: 0,
             },
           },
         );
