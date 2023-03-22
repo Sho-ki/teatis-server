@@ -129,6 +129,7 @@ export class TwilioRepository implements TwilioRepositoryInterface {
 
   async getConversationHistory({ customerChannelId }: { customerChannelId:string }) :
   Promise<ReturnValueType<unknown[]>>{
+    console.log('getConversationHistory');
     const serviceSid = process.env.TWILIO_SERVICE_SID;
 
     const storeData = [];
