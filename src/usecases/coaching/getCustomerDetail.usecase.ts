@@ -55,11 +55,12 @@ implements GetCustomerDetailUsecaseInterface
       Gender: ${getResponse('gender')}\n
       Diabetes level: ${getResponse('diabetes')}\n
     `;
-
+    const conversationSummary = customerCoachHistory[customerCoachHistory.length-1]?.conversationSummary;
+    const latestConversationSummary = conversationSummary[conversationSummary.length - 1].summary;
     const fullInformation = `
       For full information, please visit https://teatis.retool.com/embedded/public/de87e7ff-ffc9-4d84-95a9-2c0ab41590d6?uuid=${customerDetail.uuid} \n
       ${coachingNote} 
-      ${customerCoachHistory[customerCoachHistory.length-1]?.conversationSummary || `No summary`}
+      ${latestConversationSummary || `No summary`}
     `;
     const twilioCustomers:TwilioCustomerDetail =
       {
