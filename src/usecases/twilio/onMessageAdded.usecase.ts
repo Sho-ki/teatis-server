@@ -31,6 +31,7 @@ implements OnMessageAddedUsecaseInterface
     // Step 0: Find the customer by channelSid
     const [customer] = await this.customerGeneralRepository.getCustomerByTwilioChannelSid({ twilioChannelSid });
 
+    if(!customer) throw new Error('Customer not found' + twilioChannelSid);
     // Step 1: Check if the MessageId exists in the CustomerTwilioMessage table
     const [existingMessage] = await this.customerTwilioMessageRepository.findMessageByMessageId({ messageId });
     if (existingMessage) return [customer];

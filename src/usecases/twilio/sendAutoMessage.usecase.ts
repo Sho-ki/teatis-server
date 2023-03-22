@@ -93,6 +93,7 @@ implements SendAutoMessageUsecaseInterface
     const placeholderRegexes = {
       'customer.uuid': /\$\{ *customer\.uuid *\}/g,
       'customer.firstname': /\$\{ *customer\.firstname *\}/g,
+      'customer.totalPoints': /\$\{ *customer\.totalPoints *\}/g,
     };
 
     let filledTemplate = template;
@@ -103,6 +104,10 @@ implements SendAutoMessageUsecaseInterface
     if(variables.includes('customer.firstname')){
       const customerFirstName = customer.firstName?customer.firstName:'';
       filledTemplate = filledTemplate.replace(placeholderRegexes['customer.firstname'], customerFirstName);
+    }
+
+    if(variables.includes('customer.totalPoints')){
+      filledTemplate = filledTemplate.replace(placeholderRegexes['customer.totalPoints'], customer.totalPoints.toString());
     }
     return filledTemplate;
   }
@@ -270,7 +275,7 @@ implements SendAutoMessageUsecaseInterface
       const customerMessagePreferenceTime = this.getCustomerMessagePreferenceTime();
       console.log('customerMessagePreferenceTime', customerMessagePreferenceTime);
       // Get only active coached customers
-      const sendableCoachedCustomers =
+      const [sendableCoachedCustomers] =
     await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: customerMessagePreferenceTime });
       if(!sendableCoachedCustomers.length) return;
       console.log('sendableCoachedCustomers.length', sendableCoachedCustomers.length);

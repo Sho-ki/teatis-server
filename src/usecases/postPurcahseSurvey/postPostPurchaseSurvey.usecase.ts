@@ -26,7 +26,7 @@ implements PostPostPurchaseSurveyUsecaseInterface
     customerResponses,
   }: PostPostPurchaseSurveyDto): Promise<ReturnValueType<SurveyQuestionResponse[]>> {
     let productId:number;
-    if(customerResponses.length){
+    if(customerResponses && customerResponses.length){
       productId = customerResponses[0].productId;
     }
     const response = await this.customerSurveyResponseRepository

@@ -32,6 +32,7 @@ import { CreateRewardOrderUsecase } from '../usecases/rewardOrder/createRewardOr
 import { CustomerAddressRepository } from '../repositories/teatisDB/customer/customerAddress.repository';
 import { CreateCustomerConversationSummaryService } from './createCustomerConversationSummary/createCustomerConversationSummary.service';
 import { CreateCustomerConversationSummaryUsecase } from '../usecases/chatGPT/createCustomerConversationSummary.usecase';
+import { RewardItemsRepository } from '../repositories/teatisDB/rewardItem/rewardItem.repository';
 
 @Module({
   exports: [WorkerModule],
@@ -48,6 +49,10 @@ import { CreateCustomerConversationSummaryUsecase } from '../usecases/chatGPT/cr
         return new Twilio( process.env.TWILIO_ACCOUNT_SID,
           process.env.TWILIO_AUTH_TOKEN,);
       },
+    },
+    {
+      provide: 'RewardItemsRepositoryInterface',
+      useClass: RewardItemsRepository,
     },
     {
       provide: 'CustomerAddressRepositoryInterface',
