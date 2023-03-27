@@ -55,13 +55,13 @@ implements GetCustomerDetailUsecaseInterface
       Gender: ${getResponse('gender')}\n
       Diabetes level: ${getResponse('diabetes')}\n
     `;
-    const [latestConversationSummary, getLatestConversationSummaryError] =
-      await this.coachedCustomerRepository.getLatestConversationSummary({ id });
-    const summary = !getLatestConversationSummaryError ? latestConversationSummary.summary : undefined;
+    // const [latestConversationSummary, getLatestConversationSummaryError] =
+    //   await this.coachedCustomerRepository.getLatestConversationSummary({ id });
+    // const summary = !getLatestConversationSummaryError ? latestConversationSummary.summary : undefined;
     const fullInformation = `
       For full information, please visit https://teatis.retool.com/embedded/public/de87e7ff-ffc9-4d84-95a9-2c0ab41590d6?uuid=${customerDetail.uuid} \n
       ${coachingNote} 
-      ${summary || `No summary`}
+      ${`Summary temporarily unavailable`}
     `;
     const twilioCustomers:TwilioCustomerDetail =
       {

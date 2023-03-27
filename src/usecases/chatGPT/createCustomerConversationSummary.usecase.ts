@@ -42,6 +42,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
       try {
         const conversationHistory =
           await this.twilioRepository.getConversationHistory({ customerChannelId: customer.twilioChannelSid });
+        console.log('conversationHistory.length: ', conversationHistory.length);
         const [getCustomerDetail, _] =
           await this.coachRepository.getCustomerDetail({ id: customer.id });
         const conversation = JSON.stringify(conversationHistory.slice(conversationHistory.length-20));
