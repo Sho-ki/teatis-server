@@ -103,6 +103,7 @@ implements PostPrePurchaseSurveyUsecaseInterface
     const uuid = uuidv4();
     const [customer] =
       await this.customerGeneralRepository.upsertCustomer({
+        customerType,
         uuid,
         gender: customerGender,
         flavorDislikeIds: flavorDislikeIds.filter(id => id > 0), // None = 0, others = -1,
