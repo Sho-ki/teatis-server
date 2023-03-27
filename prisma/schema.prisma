@@ -57,6 +57,13 @@ model Customers {
   customerAddress CustomerAddress?
   employee Employee?
   totalPoints Int @default(0)
+  customerType CustomerType @default(standard)
+}
+
+enum CustomerType {
+  standard
+  driver
+  employee
 }
 
 enum GenderIdentify  {

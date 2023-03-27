@@ -4,7 +4,7 @@ import { Customer } from '@Domains/Customer';
 import { PrismaService } from '../../../prisma.service';
 import { CustomerMedicalCondition } from '@Domains/CustomerMedicalCondition';
 import { ReturnValueType } from '@Filters/customError';
-import { ActiveStatus, Country, GenderIdentify, Prisma, PrismaClient, RewardEventType } from '@prisma/client';
+import { ActiveStatus, Country, CustomerType, GenderIdentify, Prisma, PrismaClient, RewardEventType } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { calculateAddedAndDeletedIds } from '../../utils/calculateAddedAndDeletedIds';
 import { CustomerWithAddress } from '../../../domains/CustomerWithAddress';
@@ -32,6 +32,7 @@ interface UpsertCustomerArgs {
   lastName?: string;
   coachingSubscribed?: ActiveStatus;
   boxSubscribed?: ActiveStatus;
+  customerType: CustomerType;
 }
 
 interface UpsertCustomerAddressArgs {
@@ -153,6 +154,7 @@ export interface CustomerGeneralRepositoryInterface extends Transactionable {
     lastName,
     coachingSubscribed,
     boxSubscribed,
+    customerType,
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>>;
 
   upsertCustomerAddress({
@@ -435,6 +437,7 @@ implements CustomerGeneralRepositoryInterface
     lastName = undefined,
     coachingSubscribed,
     boxSubscribed,
+    customerType = 'standard',
   }: UpsertCustomerArgs): Promise<ReturnValueType<Customer>> {
     const existingCustomer = await this.prisma.customers.findUnique({ where: { email } });
 
@@ -475,6 +478,7 @@ implements CustomerGeneralRepositoryInterface
     const customer = await this.prisma.customers.upsert({
       where: { email },
       create: {
+        customerType,
         phone,
         firstName,
         lastName,
@@ -523,6 +527,7 @@ implements CustomerGeneralRepositoryInterface
 
       },
       update: {
+        customerType,
         phone,
         firstName,
         lastName,
