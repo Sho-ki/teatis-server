@@ -60,6 +60,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
         this.errorStack.push(e);
       }
     }
+    console.log('errorStack: ', this.errorStack);
     console.log('updateCustomersList.length: ', updateCustomersList.length);
     const [bulkInsertCustomerConversationSummary] =
       await this.coachRepository.bulkInsertCustomerConversationSummary(updateCustomersList);
