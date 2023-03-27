@@ -12,11 +12,9 @@ import {
 } from '@nestjs/common';
 
 import { Response } from 'express';
-import { GetPrePurchaseOptionsUsecaseInterface } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { GetNextBoxUsecaseInterface, GetNextBoxUsecaseRes } from '@Usecases/nextBox/getNextBox.usecase';
 import { GetNextBoxDto } from './dtos/getNextBox';
 import { CustomerCheckoutCart } from '@Domains/CustomerCheckoutCart';
-import { ProductOptions } from '@Domains/ProductOptions';
 import { CreateCheckoutCartDto } from './dtos/createCheckoutCartDto';
 import { CreateCheckoutCartUsecaseInterface } from '../../usecases/checkoutCart/createCheckoutCart.usecase';
 
@@ -25,28 +23,11 @@ import { CreateCheckoutCartUsecaseInterface } from '../../usecases/checkoutCart/
 @UsePipes(new ValidationPipe({ transform: true }))
 export class DiscoveriesController {
   constructor(
-    @Inject('GetPrePurchaseOptionsUsecaseInterface')
-    private getPrePurchaseOptionsUsecase: GetPrePurchaseOptionsUsecaseInterface,
     @Inject('GetNextBoxUsecaseInterface')
     private getNextBoxUsecase: GetNextBoxUsecaseInterface,
     @Inject('CreateCheckoutCartUsecaseInterface')
     private createCheckoutCartUsecase: CreateCheckoutCartUsecaseInterface,
   ) {}
-
-  // GET: api/discovery/pre-purchase-options
-  @Get('pre-purchase-options')
-  async getPrePurchaseOptions(
-    @Res() response: Response<ProductOptions | Error>,
-  ) {
-    const [usecaseResponse, error] =
-      await this.getPrePurchaseOptionsUsecase.getPrePurchaseOptions();
-
-    if (error) {
-      return response.status(500).send(error);
-    }
-
-    return response.status(200).send(usecaseResponse);
-  }
 
   // GET: api/discovery/next-box-survey
   @Get('next-box-survey')

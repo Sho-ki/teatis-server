@@ -12,6 +12,8 @@ import { TransactionOperator } from './repositories/utils/transactionOperator';
 import { CustomerPointLogRepository } from './repositories/teatisDB/customerPointLog/customerPointLog.repository';
 import { CustomerTwilioMessageRepository } from './repositories/teatisDB/customerTwilioMessage/customerTwilioMessage.repository';
 import { TwilioRepository } from './repositories/twilio/twilio.repository';
+import { GetProductOptionsUtil } from './usecases/utils/getProductOptions';
+import { EmployerRepository } from './repositories/teatisDB/employer/employer.repository';
 
 const createGlobalModule = (repositories, configurations) => {
   const globalModule: ModuleMetadata = {
@@ -53,5 +55,7 @@ const createGlobalModule = (repositories, configurations) => {
   CustomerTwilioMessageRepository,
   TwilioRepository,
   CustomerSurveyResponseRepository,
+  GetProductOptionsUtil,
+  EmployerRepository,
 ], [PrismaService]))
 export class GlobalModule {}

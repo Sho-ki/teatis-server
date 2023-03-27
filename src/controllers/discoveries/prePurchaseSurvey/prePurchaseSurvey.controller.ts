@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
   Post,
   Query,
   Res,
@@ -10,12 +11,14 @@ import {
 import { Response } from 'express';
 import { PostPrePurchaseSurveyNonSettingUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurveyNonSetting.usecase';
 import { PostPrePurchaseSurveyNonSettingDto } from './dtos/postPrePurchaseSurveyNonSetting.dto';
-import { GetPrePurchaseSurveyUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
+import { GetPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/getPrePurchaseSurvey.usecase';
 import { ActiveSurvey } from '@Domains/Survey';
 import { PostPrePurchaseSurveyUsecaseInterface } from '@Usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { PostPrePurchaseSurveyDto } from './dtos/postPrePurchaseSurvey.dto';
 import { Customer } from '@Domains/Customer';
 import { SurveyQuestionResponse } from '@prisma/client';
+import { GetPrePurchaseSurveyDriverUsecaseInterface } from '../../../usecases/prePurchaseSurvey/getPrePurchaseSurveyDriver.usecase';
+import { GetPrePurchaseSurveyEmployeeUsecaseInterface } from '../../../usecases/prePurchaseSurvey/getPrePurchaseSurveyEmployee.usecase';
 
 @Controller('api/discovery')
 export class PrePurchaseSurveyController {
@@ -25,13 +28,33 @@ export class PrePurchaseSurveyController {
     @Inject('PostPrePurchaseSurveyUsecaseInterface')
     private postPrePurchaseSurveyUsecase: PostPrePurchaseSurveyUsecaseInterface,
     @Inject('GetPrePurchaseSurveyUsecaseInterface')
-    private getPrePurchaseSurveyUsecase: GetPrePurchaseSurveyUsecase,
+    private getPrePurchaseSurveyUsecase: GetPrePurchaseSurveyUsecaseInterface,
+    @Inject('GetPrePurchaseSurveyDriverUsecaseInterface')
+    private getPrePurchaseSurveyDriverUsecase: GetPrePurchaseSurveyDriverUsecaseInterface,
+    @Inject('GetPrePurchaseSurveyEmployeeUsecaseInterface')
+    private getPrePurchaseSurveyEmployeeUsecase: GetPrePurchaseSurveyEmployeeUsecaseInterface,
   ) {}
   // Get: api/discovery/pre-purchase-survey
-  @Get('pre-purchase-survey')
-  async getPrePurchaseSurveyQuestions(@Query('uuid') employerUuid:string, @Res() response: Response<ActiveSurvey | Error>) {
-    const [usecaseResponse, error] =
-      await this.getPrePurchaseSurveyUsecase.getPrePurchaseSurveyQuestions(employerUuid);
+  @Get('pre-purchase-survey/:survey?')
+  async getPrePurchaseSurveyQuestions(
+    @Param('survey') survey: undefined | 'employees' | 'drivers',
+    @Query('uuid') employerUuid:string,
+    @Res() response: Response<ActiveSurvey | Error>) {
+    let [usecaseResponse, error]: [ActiveSurvey, Error] = [undefined, undefined];
+    // use different usecase for different survey
+    switch (survey) {
+      case 'employees':
+        [usecaseResponse, error] = await
+        this.getPrePurchaseSurveyEmployeeUsecase.getPrePurchaseSurveyQuestionsEmployee({ employerUuid });
+        break;
+      case 'drivers':
+        [usecaseResponse, error] = await this.getPrePurchaseSurveyDriverUsecase.getPrePurchaseSurveyQuestionsDriver();
+        break;
+      default:
+        [usecaseResponse, error] = await this.getPrePurchaseSurveyUsecase.getPrePurchaseSurveyQuestions();
+        break;
+    }
+
     if (error) {
       return response.status(404).send(error);
     }

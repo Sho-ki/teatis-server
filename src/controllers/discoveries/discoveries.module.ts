@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { DiscoveriesController } from './discoveries.controller';
 import { ShopifyRepository } from '@Repositories/shopify/shopify.repository';
 import { ShipheroRepository } from '@Repositories/shiphero/shiphero.repository';
-import { GetPrePurchaseOptionsUsecase } from '@Usecases/prePurchaseSurvey/getPrePurchaseOptions.usecase';
 import { GetNextBoxUsecase } from '@Usecases/nextBox/getNextBox.usecase';
 import { CustomerPreferenceRepository } from '@Repositories/teatisDB/customer/customerPreference.repository';
 import { AnalyzePreferenceRepository } from '@Repositories/dataAnalyze/dataAnalyze.respository';
@@ -51,10 +50,6 @@ import { PrePurchaseSurveyModule } from './prePurchaseSurvey/prePurchaseSurvey.m
     {
       provide: 'ShopifyRepositoryInterface',
       useClass: ShopifyRepository,
-    },
-    {
-      provide: 'GetPrePurchaseOptionsUsecaseInterface',
-      useClass: GetPrePurchaseOptionsUsecase,
     },
     DiscoveriesController,
   ],
