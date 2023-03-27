@@ -6,14 +6,14 @@ import { SurveyName } from '@Usecases/utils/surveyName';
 import { ActiveSurvey } from '../../domains/Survey';
 import { GetProductOptionsUtilInterface } from '../utils/getProductOptions';
 
-export interface GetPrePurchaseSurveyUsecaseInterface {
-  getPrePurchaseSurveyQuestions():
+export interface GetPrePurchaseSurveyDriverUsecaseInterface {
+  getPrePurchaseSurveyQuestionsDriver():
   Promise<ReturnValueType<ActiveSurvey>>;
 }
 
 @Injectable()
-export class GetPrePurchaseSurveyUsecase
-implements GetPrePurchaseSurveyUsecaseInterface
+export class GetPrePurchaseSurveyDriverUsecase
+implements GetPrePurchaseSurveyDriverUsecaseInterface
 {
   constructor(
     @Inject('SurveyQuestionsRepositoryInterface')
@@ -22,11 +22,11 @@ implements GetPrePurchaseSurveyUsecaseInterface
     private readonly getProductOptionsUtil: GetProductOptionsUtilInterface,
   ) {}
 
-  async getPrePurchaseSurveyQuestions():
+  async getPrePurchaseSurveyQuestionsDriver():
    Promise<ReturnValueType<ActiveSurvey>> {
     const [survey, getSurveyQuestionsError] =
       await this.surveyQuestionsRepository.getSurveyQuestions(
-        { surveyName: SurveyName.PrePurchase });
+        { surveyName: SurveyName.DriverPrePurchase });
 
     if (getSurveyQuestionsError) {
       return [undefined, getSurveyQuestionsError];

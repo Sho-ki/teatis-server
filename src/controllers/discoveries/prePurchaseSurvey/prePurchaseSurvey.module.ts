@@ -9,14 +9,19 @@ import { CustomerSurveyResponseRepository } from '../../../repositories/teatisDB
 import { CustomerSurveyHistoryRepository } from '../../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 import { PostPrePurchaseSurveyUsecase } from '../../../usecases/prePurchaseSurvey/postPrePurchaseSurvey.usecase';
 import { CoachRepository } from '../../../repositories/teatisDB/coach/coach.repository';
-import { EmployerRepository } from '../../../repositories/teatisDB/employer/employer.repository';
+import { GetPrePurchaseSurveyEmployeeUsecase } from '../../../usecases/prePurchaseSurvey/getPrePurchaseSurveyEmployee.usecase';
+import { GetPrePurchaseSurveyDriverUsecase } from '../../../usecases/prePurchaseSurvey/getPrePurchaseSurveyDriver.usecase';
 
 @Module({
   controllers: [PrePurchaseSurveyController],
   providers: [
     {
-      provide: 'EmployerRepositoryInterface',
-      useClass: EmployerRepository,
+      provide: 'GetPrePurchaseSurveyEmployeeUsecaseInterface',
+      useClass: GetPrePurchaseSurveyEmployeeUsecase,
+    },
+    {
+      provide: 'GetPrePurchaseSurveyDriverUsecaseInterface',
+      useClass: GetPrePurchaseSurveyDriverUsecase,
     },
     {
       provide: 'CoachRepositoryInterface',

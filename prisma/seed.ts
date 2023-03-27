@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { seedSurvey } from '../defaultData/survey';
+import  seedSurveyDrivers  from '../defaultData/surveyDrivers';
+import { seedSurvey } from '../defaultData/surveyNormalAndSurveyEmployees';
 import { testEmployers } from '../defaultData/testEmployer';
 import { weeklyCheckIn } from '../defaultData/weeklyCheckIn';
 // import * as fs from 'fs';
@@ -11,6 +12,8 @@ async function main() {
   await upsertWeeklyCheckin(); // currently only create
 
   await upsertEmployers();
+
+  await upsertSurveyDrivers();
   // const customerNutritionItems = [
   //   {
   //     name: 'BMR',
@@ -490,6 +493,127 @@ const upsertWeeklyCheckin = async() => {
           },
         });
       }
+    }
+  }
+};
+
+const upsertSurveyDrivers = async() => {
+  const { name, label, questions } = seedSurveyDrivers;
+  const surveyResponse = await prisma.survey.upsert({
+    where: { name },
+    create: {
+      name,
+      label,
+    },
+    update: { label },
+  });
+
+  for(const question of questions){
+    const {
+      name: questionName, label: questionLabel, responseType, isCustomerFeature, images, isRequired,
+      displayOrder, options, placeholder, hint, children,
+    } = question;
+
+    const findQuestion = await prisma.surveyQuestion.findUnique({ where: { name: questionName } });
+    if(findQuestion){
+      await prisma.intermediateSurveyQuestion.upsert({
+        where: { surveyId_surveyQuestionId: { surveyId: surveyResponse.id, surveyQuestionId: findQuestion.id } },
+        create: {
+          surveyId: surveyResponse.id,
+          surveyQuestionId: findQuestion.id,
+          displayOrder,
+        },
+        update: { displayOrder },
+      });
+      await prisma.surveyQuestion.update({
+        where: { id: findQuestion.id },
+        data: { isCustomerFeature, isRequired, placeholder, hint, responseType },
+      });
+
+      if(children){
+        let i = 1;
+        for(const child of children){
+          const { name: childQuestionName } = child;
+          const childResponse = await prisma.surveyQuestion.findUnique({ where: { name: childQuestionName } });
+          if(childResponse){
+            await prisma.intermediateSurveyQuestion.upsert({
+              where: {
+                surveyId_surveyQuestionId:
+                  { surveyId: surveyResponse.id, surveyQuestionId: childResponse.id },
+              },
+              create: {
+                surveyId: surveyResponse.id,
+                surveyQuestionId: childResponse.id,
+                displayOrder: i,
+              },
+              update: { displayOrder: i },
+            });
+          }
+          i++;
+        }
+      }
+    }
+
+    if(!findQuestion){
+      const questionResponse = await prisma.surveyQuestion.create({
+        data: {
+          name: questionName,
+          label: questionLabel,
+          responseType, isCustomerFeature, isRequired,
+          placeholder, hint,
+          image: images && images.length?{
+            createMany:
+               { data: images?.map(({ position, src }) => { return { position, src }; } ) },
+          }:{},
+          surveyQuestionOptions: options && options.length? {
+            createMany:
+               { data: options?.map(({ label, value }) => { return { label, value }; } ) },
+          }:{},
+        },
+      });
+
+      if(children){
+        let i = 1;
+        for(const child of children){
+          const {
+            name: childQuestionName, label: childQuestionLabel, responseType, isCustomerFeature, images, isRequired,
+            options, placeholder, hint,
+          } = child;
+          const childResponse = await prisma.surveyQuestion.create({
+            data: {
+              name: childQuestionName,
+              label: childQuestionLabel,
+              responseType, isCustomerFeature, isRequired,
+              placeholder, hint,
+              parentSurveyQuestionId: questionResponse.id,
+              image: images && images.length?{
+                createMany:
+               { data: images?.map(({ position, src }) => { return { position, src }; } ) },
+              }:{},
+              surveyQuestionOptions: options && options.length?{
+                createMany:
+               { data: options?.map(({ label, value }) => { return { label, value }; } ) },
+              }:{},
+            },
+          });
+
+          await prisma.intermediateSurveyQuestion.create({
+            data: {
+              surveyId: surveyResponse.id,
+              surveyQuestionId: childResponse.id,
+              displayOrder: i,
+            },
+          });
+          i++;
+        }
+      }
+      await prisma.intermediateSurveyQuestion.create({
+        data: {
+          surveyId: surveyResponse.id,
+          surveyQuestionId: questionResponse.id,
+          displayOrder,
+        },
+      });
     }
   }
 };
