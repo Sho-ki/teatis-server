@@ -42,6 +42,9 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
       try {
         const conversationHistory =
           await this.twilioRepository.getConversationHistory({ customerChannelId: customer.twilioChannelSid });
+        const [getCustomerDetail, _] =
+          await this.coachRepository.getCustomerDetail({ id: customer.id });
+        console.log('getCustomerDetail: ', getCustomerDetail);
         const conversation = JSON.stringify(conversationHistory.slice(conversationHistory.length-20));
         const completion = await openai.createChatCompletion({
           model: 'gpt-3.5-turbo',
@@ -50,8 +53,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
         const gptReply = completion.data.choices[0].message.content;
         const conversationSummary = `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`;
         const customerDetailsWithSummary = {
-          customerId: customer.id,
-          coachId: customer.coachId,
+          customerCoachHistoryId: getCustomerDetail.customerCoachHistory[0].id,
           conversationSummary,
         };
         updateCustomersList.push(customerDetailsWithSummary);
@@ -61,6 +63,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     }
     const [bulkInsertCustomerConversationSummary] =
       await this.coachRepository.bulkInsertCustomerConversationSummary(updateCustomersList);
+    console.log('bulkInsertCustomerConversationSummary: ', bulkInsertCustomerConversationSummary);
     if (!this.errorStack.length) {
       throw Error(JSON.stringify(this.errorStack));
     }
