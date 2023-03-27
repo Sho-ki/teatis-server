@@ -44,23 +44,23 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
           await this.twilioRepository.getConversationHistory({ customerChannelId: customer.twilioChannelSid });
         const [getCustomerDetail, _] =
           await this.coachRepository.getCustomerDetail({ id: customer.id });
-        console.log('getCustomerDetail: ', getCustomerDetail);
         const conversation = JSON.stringify(conversationHistory.slice(conversationHistory.length-20));
         const completion = await openai.createChatCompletion({
           model: 'gpt-3.5-turbo',
           messages: [{ role: 'user', content: `${coachingNotePrompt} ${conversation}` }],
         });
         const gptReply = completion.data.choices[0].message.content;
-        const conversationSummary = `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`;
+        const summary = `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`;
         const customerDetailsWithSummary = {
           customerCoachHistoryId: getCustomerDetail.customerCoachHistory[0].id,
-          conversationSummary,
+          summary,
         };
         updateCustomersList.push(customerDetailsWithSummary);
       } catch(e) {
         this.errorStack.push(e);
       }
     }
+    console.log('updateCustomersList.length: ', updateCustomersList.length);
     const [bulkInsertCustomerConversationSummary] =
       await this.coachRepository.bulkInsertCustomerConversationSummary(updateCustomersList);
     console.log('bulkInsertCustomerConversationSummary: ', bulkInsertCustomerConversationSummary);
