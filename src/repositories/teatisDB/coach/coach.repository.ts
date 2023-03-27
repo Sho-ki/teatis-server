@@ -25,8 +25,7 @@ export interface GetCustomerDetailArgs {
 }
 
 export interface BulkInsertCustomerConversationSummaryArgs {
-  customerId: number;
-  coachId: number;
+  customerCoachHistoryId: number;
   conversationSummary: string;
 }
 
@@ -201,12 +200,11 @@ export class CoachRepository implements CoachRepositoryInterface {
     args: BulkInsertCustomerConversationSummaryArgs[]
   ): Promise<ReturnValueType<Prisma.BatchPayload>> {
     console.log('bulkInsertCustomerConversationSummary');
-    const data = args.map(arg => ({
-      customerId: arg.customerId,
-      coachId: arg.coachId,
-      conversationSummary: { create: { summary: arg.conversationSummary } },
+    const data = args.map((summary) => ({
+      summary: summary.conversationSummary,
+      customerCoachHistoryId: summary.customerCoachHistoryId,
     }));
-    const response = await this.prisma.customerCoachHistory.createMany(
+    const response = await this.prisma.conversationSummary.createMany(
       { data }
     );
     return [{ count: response.count }];
