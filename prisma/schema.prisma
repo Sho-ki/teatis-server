@@ -25,11 +25,13 @@ model Customers {
   coachingSubscribed                                  ActiveStatus                                          @default(inactive)
   messageTimePreference                               MessageTimePreference                                 @default(at9)
   sequenceBasedAutoMessageInterval                    Int                                                   @default(7)
-  twilioChannelSid                                    String?
+  twilioChannelSid                                    String? @unique
   phoneStatus                                         ValidStatus?                                          @default(pending)
   customerBoxItems                                    CustomerBoxItems[]
   customerCoachHistory                                CustomerCoachHistory[]
   customerEventLog                                    CustomerEventLog[]
+  customerPointLog                                    CustomerPointLog[]
+  pointExchangeHistory                                PointExchangeHistory[]
   customerFoodLog                                     CustomerFoodLog[]
   customerOAuth                                       CustomerOAuth2[]
   customerSession                                     CustomerSession[]
@@ -46,12 +48,15 @@ model Customers {
   intermediateCustomerSequenceBasedAutoMessageHistory IntermediateCustomerSequenceBasedAutoMessageHistory[]
   intermediateCustomerUnavailableCookingMethods       IntermediateCustomerUnavailableCookingMethod[]
   practitionerCustomerOrderHistory                    PractitionerCustomerOrderHistory[]
+  customerTwilioMessage CustomerTwilioMessage[]
+  customerRewardToken CustomerRewardToken[]
   // queuedShopifyOrder                                  QueuedShopifyOrder[]
   surveyQuestionAnswer                                SurveyQuestionAnswer[]
   terraCustomer                                       TerraCustomer?
   customerSurveyHistory CustomerSurveyHistory[]
   customerAddress CustomerAddress?
   employee Employee?
+  totalPoints Int @default(0)
 }
 
 enum GenderIdentify  {
@@ -67,6 +72,67 @@ model CustomerEventLog {
   customerId Int
   eventDate  DateTime  @default(now())
   type       EventType
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model CustomerPointLog {
+  id         Int       @id @default(autoincrement())
+  customerId Int
+  eventDate  DateTime  @default(now())
+  type       RewardEventType
+  points     Int
+  comment    String?
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model PointExchangeHistory {
+  id         Int       @id @default(autoincrement())
+  customerId Int
+  eventDate  DateTime  @default(now())
+  points     Int
+  pointExchangeHistoryItem  PointExchangeHistoryItem[]
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model PointExchangeHistoryItem {
+  pointExchangeHistoryId Int
+  rewardItemId Int
+  pointExchangeHistory   PointExchangeHistory @relation(fields: [pointExchangeHistoryId], references: [id])
+  rewardItem   RewardItem @relation(fields: [rewardItemId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@id([pointExchangeHistoryId, rewardItemId])
+}
+
+model RewardItem {
+  id Int @id @default(autoincrement())
+  label String? @unique
+  pointValue Int
+  productId Int?  @unique
+  pointExchangeHistoryItem PointExchangeHistoryItem[]
+  product            Product?  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model CustomerRewardToken {
+  id Int @id @default(autoincrement())
+  pointToken String @unique @default(uuid())
+  customerId Int
+  status ActiveStatus @default(active)
+  validUntil DateTime  @default(dbgenerated("(now() + '7 days'::interval)"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  customer   Customers @relation(fields: [customerId], references: [id])
+}
+
+model CustomerTwilioMessage {
+  id Int @id @default(autoincrement())
+  customerId Int
+  messageId String @unique
+  sentAt DateTime @default(now())
   customer   Customers @relation(fields: [customerId], references: [id])
 }
 
@@ -410,7 +476,8 @@ model Product {
   productVendor                          ProductVendor?                           @relation(fields: [productVendorId], references: [id])
   productImages                          ProductImage[]
   productNutritionFact                   ProductNutritionFact?
-  surveyQuestionAnswer                   SurveyQuestionAnswer[]
+  surveyQuestionAnswer                   SurveyQuestionAnswer[]  
+  rewardItem                             RewardItem?
 }
 
 model MonthlyBoxSelection {
@@ -968,6 +1035,15 @@ enum EventType {
   boxUnsubscribed
   postPurchaseCalendarCreated
   boxOrdered
+  rewardBoxOrdered
+}
+
+enum RewardEventType {
+  sendMessage
+  completeWeeklyCheckIn
+  achieveWeeklyGoal
+  exchangePoints
+  customPoints
 }
 
 enum MediaType {

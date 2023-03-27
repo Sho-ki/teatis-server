@@ -5,12 +5,19 @@ import { GraphQLClient } from 'graphql-request';
 import { Cart } from '@Domains/Cart';
 import { CustomerOrderCount } from '@Domains/CustomerOrderCount';
 import { CreateCartMutation, getSdk } from './generated/graphql';
-import { GetCustomerOrdersByEmailResponse, GetShopifyOrderByApiId, RetrieveOrdersListResponse, ShopifyGetCustomerRes } from './shopify.interface';
+import { GetCustomerByPhoneNumberOrNameResponse, GetCustomerOrdersByEmailResponse, GetShopifyOrderByApiId, RetrieveOrdersListResponse, ShopifyGetCustomerRes } from './shopify.interface';
 import { ReturnValueType } from '../../filter/customError';
 import { ShopifyWebhook } from '../../domains/ShopifyWebhook';
+import { Address } from '../../domains/Address';
 
 interface GetOrderCountArgs {
   shopifyCustomerId: number;
+}
+
+interface GetCustomerByPhoneNumberOrNameArgs {
+  phone: string;
+  firstName: string;
+  lastName: string;
 }
 
 interface CreateCartArgs {
@@ -43,12 +50,42 @@ export interface ShopifyRepositoryInterface {
   getShopifyOrdersByFromDate({ fromDate }:GetShopifyOrdersByFromDateArgs):Promise<ShopifyWebhook[]>;
   getCustomerUuidByEmail({ email }:GetUuidByEmailArgs):Promise<ReturnValueType<string>>;
   getShopifyOrderByApiId({ apiId }:GetShopifyOrderByApiIdArgs): Promise<ReturnValueType<ShopifyWebhook>>;
+  getCustomerByPhoneNumberOrName({ phone, firstName, lastName }: GetCustomerByPhoneNumberOrNameArgs):
+   Promise<ReturnValueType<Address>>;
 }
 
 const endpoint = 'https://thetis-tea.myshopify.com/api/2022-01/graphql.json';
 
 @Injectable()
 export class ShopifyRepository implements ShopifyRepositoryInterface {
+  async getCustomerByPhoneNumberOrName({ phone, firstName, lastName }: GetCustomerByPhoneNumberOrNameArgs):
+   Promise<ReturnValueType<Address>> {
+    let response = await axios.get<GetCustomerByPhoneNumberOrNameResponse.Root>(
+      `/admin/api/2022-07/customers/search.json?query=phone:*${phone}`,
+      {
+        auth: {
+          username: process.env.SHOPIFY_API_KEY as string,
+          password: process.env.SHOPIFY_API_PASSWORD as string,
+        },
+      },
+    );
+    if(!response.data.customers.length) {
+      response = await axios.get<GetCustomerByPhoneNumberOrNameResponse.Root>(
+        `/admin/api/2022-07/customers/search.json?query=customer_first_name:${firstName}+customer_last_name:${lastName}`,
+        {
+          auth: {
+            username: process.env.SHOPIFY_API_KEY as string,
+            password: process.env.SHOPIFY_API_PASSWORD as string,
+          },
+        },
+      );
+    }
+    const address = response.data.customers[0].default_address;
+    const { address1, address2, city, zip, province_code } = address;
+
+    return [{ address1, address2, city, zip, state: province_code, country: 'US' }];
+  }
+
   async getCustomerUuidByEmail({ email }: GetUuidByEmailArgs): Promise<ReturnValueType<string>> {
 
     const response = await axios.get<GetCustomerOrdersByEmailResponse.RootObject>(

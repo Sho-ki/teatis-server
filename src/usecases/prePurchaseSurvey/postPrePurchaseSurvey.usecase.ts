@@ -118,7 +118,7 @@ implements PostPrePurchaseSurveyUsecaseInterface
 
     if(customerType === 'employee'){
       // eslint-disable-next-line no-empty-pattern
-      const [[], , [, employerNotFound]] = await Promise.all([
+      const [[], [], [, employerNotFound]] = await Promise.all([
         this.customerGeneralRepository.upsertCustomerAddress({
           customerId: customer.id,
           address1,

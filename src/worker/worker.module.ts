@@ -27,8 +27,12 @@ import { CreateEmployeeOrderUsecase } from '../usecases/employeeOrder/createEmpl
 import { EmployeeRepository } from '../repositories/teatisDB/employee/employee.repository';
 import { CustomerGeneralRepository } from '../repositories/teatisDB/customer/customerGeneral.repository';
 import { ProductGeneralRepository } from '../repositories/teatisDB/product/productGeneral.repository';
+import { CustomerRewardTokenRepository } from '../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
+import { CreateRewardOrderUsecase } from '../usecases/rewardOrder/createRewardOrder.usecase';
+import { CustomerAddressRepository } from '../repositories/teatisDB/customer/customerAddress.repository';
 import { CreateCustomerConversationSummaryService } from './createCustomerConversationSummary/createCustomerConversationSummary.service';
 import { CreateCustomerConversationSummaryUsecase } from '../usecases/chatGPT/createCustomerConversationSummary.usecase';
+import { RewardItemsRepository } from '../repositories/teatisDB/rewardItem/rewardItem.repository';
 
 @Module({
   exports: [WorkerModule],
@@ -45,6 +49,22 @@ import { CreateCustomerConversationSummaryUsecase } from '../usecases/chatGPT/cr
         return new Twilio( process.env.TWILIO_ACCOUNT_SID,
           process.env.TWILIO_AUTH_TOKEN,);
       },
+    },
+    {
+      provide: 'RewardItemsRepositoryInterface',
+      useClass: RewardItemsRepository,
+    },
+    {
+      provide: 'CustomerAddressRepositoryInterface',
+      useClass: CustomerAddressRepository,
+    },
+    {
+      provide: 'CreateRewardOrderUsecaseInterface',
+      useClass: CreateRewardOrderUsecase,
+    },
+    {
+      provide: 'CustomerRewardTokenRepositoryInterface',
+      useClass: CustomerRewardTokenRepository,
     },
     {
       provide: 'ProductGeneralRepositoryInterface',

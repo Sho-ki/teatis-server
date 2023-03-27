@@ -41,6 +41,7 @@ describe('CreateEmployeeOrder', () => {
               lastName: 'test',
               boxSubscribed: 'active',
               coachingSubscribed: 'active',
+              totalPoints: 0,
               employee: {
                 id: 3,
                 employerId: 1,
