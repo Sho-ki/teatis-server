@@ -13,7 +13,7 @@ export interface CoachedCustomerWithConversationSummary extends Customer {
   sequenceBasedAutoMessageData?: SequenceBasedAutoMessageData;
   coach: Coach;
   customerCoachHistory: (CustomerCoachHistory & {
-    conversationSummary: ConversationSummary;
+    conversationSummary: ConversationSummary[];
   })[];
 }
 
