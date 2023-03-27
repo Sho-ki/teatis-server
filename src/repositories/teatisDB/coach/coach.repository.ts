@@ -26,7 +26,7 @@ export interface GetCustomerDetailArgs {
 
 export interface BulkInsertCustomerConversationSummaryArgs {
   customerCoachHistoryId: number;
-  conversationSummary: string;
+  summary: string;
 }
 
 interface GetActiveCoachedCustomersBySendAtArgs {
@@ -199,13 +199,9 @@ export class CoachRepository implements CoachRepositoryInterface {
   async bulkInsertCustomerConversationSummary(
     args: BulkInsertCustomerConversationSummaryArgs[]
   ): Promise<ReturnValueType<Prisma.BatchPayload>> {
-    console.log('bulkInsertCustomerConversationSummary');
-    const data = args.map((summary) => ({
-      summary: summary.conversationSummary,
-      customerCoachHistoryId: summary.customerCoachHistoryId,
-    }));
+    console.log('bulkInsertCustomerConversationSummaryArgs', args);
     const response = await this.prisma.conversationSummary.createMany(
-      { data }
+      { data: args }
     );
     return [{ count: response.count }];
   }
