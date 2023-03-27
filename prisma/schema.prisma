@@ -991,16 +991,25 @@ model CustomerSessionStore {
 }
 
 model CustomerCoachHistory {
-  customerId Int
-  coachId    Int
-  startDate  DateTime  @default(now())
-  endDate    DateTime?
-  coachingNote String?
-  conversationSummary String?
-  coach      Coach     @relation(fields: [coachId], references: [id])
-  customer   Customers @relation(fields: [customerId], references: [id])
+  id                  Int                  @id @default(autoincrement())
+  customerId          Int
+  coachId             Int
+  startDate           DateTime             @default(now())
+  endDate             DateTime?
+  coachingNote        String?
+  coach               Coach                @relation(fields: [coachId], references: [id])
+  customer            Customers            @relation(fields: [customerId], references: [id])
+  conversationSummary ConversationSummary[]
 
-  @@id([customerId, coachId])
+  @@unique([customerId, coachId])
+}
+
+model ConversationSummary {
+  id                  Int                  @id @default(autoincrement())
+  customerCoachHistoryId Int
+  summary              String
+  createdAt            DateTime             @default(now())
+  customerCoachHistory CustomerCoachHistory @relation(fields: [customerCoachHistoryId], references: [id])
 }
 
 model Coach {
