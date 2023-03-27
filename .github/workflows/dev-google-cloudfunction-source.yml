@@ -238,19 +238,19 @@ jobs:
           secret_environment_variables: ${{ env.SECRETS }}
           deploy_timeout: 1000
 
-      - name: Deploy to Cloud Function (create-conversation-summary)
-        id: deploy-create-conversation-summary
+      - name: Deploy to Cloud Function (create-conversation-summary-dev)
+        id: deploy-create-conversation-summary-dev
         uses: google-github-actions/deploy-cloud-functions@v1
         with:
           project_id: ${{ env.PROJECT_ID }}
           region: ${{ env.REGION }}
-          name: create-conversation-summary
+          name: create-conversation-summary-dev
           runtime: nodejs16
           # source_dir: ./dist
           timeout: 500
           entry_point: createCustomerConversationSummary
           env_vars: |
-            SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_PROD }}
+            SECRET_MANAGER_PROJECT_ID=${{ secrets.SECRET_MANAGER_PROJECT_ID_DEV }}
             ENV=dev
 
           secret_environment_variables: ${{ env.SECRETS }}
@@ -267,5 +267,5 @@ jobs:
       - name: Show create-employee-order-dev Output
         run: echo ${{ steps.create-employee-order-dev.outputs.url }}
 
-      - name: Show create-conversation-summary Output
-        run: echo ${{ steps.create-conversation-summary.outputs.url }}
+      - name: Show create-conversation-summary-dev Output
+        run: echo ${{ steps.create-conversation-summary-dev.outputs.url }}
