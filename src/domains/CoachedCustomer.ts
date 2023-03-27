@@ -6,8 +6,14 @@ export interface CoachedCustomer extends Customer {
   daysSincePurchase?: number;
   sequenceBasedAutoMessageData?: SequenceBasedAutoMessageData;
   coach: Coach;
+  customerCoachHistory: CustomerCoachHistory[];
+}
+export interface CoachedCustomerWithConversationSummary extends Customer {
+  daysSincePurchase?: number;
+  sequenceBasedAutoMessageData?: SequenceBasedAutoMessageData;
+  coach: Coach;
   customerCoachHistory: (CustomerCoachHistory & {
-    conversationSummary: ConversationSummary[];
+    conversationSummary: ConversationSummary;
   })[];
 }
 

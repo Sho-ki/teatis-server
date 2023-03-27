@@ -24,7 +24,7 @@ implements GetCustomerDetailUsecaseInterface
 
   async getCustomerDetail(id:number): Promise<ReturnValueType<TwilioCustomerDetail>> {
     const [customerDetail, getCustomerDetailError] =
-      await this.coachedCustomerRepository.getCustomerDetail({ id });
+      await this.coachedCustomerRepository.getCustomerDetailWithConversationSummary({ id });
     if (getCustomerDetailError) {
       return [undefined, getCustomerDetailError];
     }
@@ -56,7 +56,7 @@ implements GetCustomerDetailUsecaseInterface
       Diabetes level: ${getResponse('diabetes')}\n
     `;
     const conversationSummary = customerCoachHistory[customerCoachHistory.length-1]?.conversationSummary;
-    const latestConversationSummary = conversationSummary[conversationSummary.length - 1].summary;
+    const latestConversationSummary = conversationSummary.summary;
     const fullInformation = `
       For full information, please visit https://teatis.retool.com/embedded/public/de87e7ff-ffc9-4d84-95a9-2c0ab41590d6?uuid=${customerDetail.uuid} \n
       ${coachingNote} 

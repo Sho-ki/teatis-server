@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
-import { CoachedCustomer } from '@Domains/CoachedCustomer';
+import { CoachedCustomer, CoachedCustomerWithConversationSummary } from '@Domains/CoachedCustomer';
 import { Coach, Prisma, PrismaClient } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 
@@ -37,6 +37,8 @@ interface GetActiveCoachedCustomersBySendAtArgs {
 export interface CoachRepositoryInterface extends Transactionable{
   getCoachedCustomers({ email, oldCursorId }: GetCoachedCustomersArgs): Promise<ReturnValueType<CoachedCustomer[]>>;
   getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>>;
+  getCustomerDetailWithConversationSummary({ id }: GetCustomerDetailArgs):
+  Promise<ReturnValueType<CoachedCustomerWithConversationSummary>>;
 
   connectCustomerCoach({ coachEmail, customerId }:ConnectCustomerCoachArgs):
   Promise<ReturnValueType<Coach>>;
@@ -75,7 +77,7 @@ export class CoachRepository implements CoachRepositoryInterface {
         },
         include: {
           coach: true,
-          customerCoachHistory: { include: { conversationSummary: true } },
+          customerCoachHistory: true,
         },
       });
 
@@ -90,7 +92,7 @@ export class CoachRepository implements CoachRepositoryInterface {
       where: { id },
       include: {
         coach: true,
-        customerCoachHistory: { include: { conversationSummary: true } },
+        customerCoachHistory: true,
       },
     });
     if (!response) {
@@ -110,6 +112,35 @@ export class CoachRepository implements CoachRepositoryInterface {
     };
 
     return [customerDetails];
+  }
+  async getCustomerDetailWithConversationSummary({ id }: GetCustomerDetailArgs):
+    Promise<ReturnValueType<CoachedCustomerWithConversationSummary>> {
+    console.log('getCustomerDetailWithConversationSummary');
+    const response = await this.prisma.customers.findUnique({
+      where: { id },
+      include: {
+        coach: true,
+        customerCoachHistory: { include: { conversationSummary: { orderBy: { createdAt: 'desc' }, take: 1 } } },
+      },
+    });
+    if (!response) {
+      return [undefined, { name: 'Internal Server Error', message: 'id is invalid' }];
+    }
+    console.log('response', response);
+
+    const { coach } = response;
+    const customerCoachHistory = response.customerCoachHistory.map((history) => ({
+      ...history,
+      conversationSummary: history.conversationSummary[0],
+    }));
+
+    const customerDetailWithConversationSummary = {
+      ...response,
+      coach: { id: coach.id, email: coach.email, phone: coach.phone },
+      customerCoachHistory,
+    };
+
+    return [customerDetailWithConversationSummary];
   }
 
   async connectCustomerCoach({ coachEmail, customerId }: ConnectCustomerCoachArgs)
@@ -153,7 +184,7 @@ export class CoachRepository implements CoachRepositoryInterface {
       orderBy: { id: 'asc' },
       include: {
         coach: true,
-        customerCoachHistory: { include: { conversationSummary: true } },
+        customerCoachHistory: true,
       },
     });
     if (!response) {
