@@ -36,11 +36,13 @@ interface GetActiveCoachedCustomersBySendAtArgs {
 export interface CoachRepositoryInterface extends Transactionable{
   getCoachedCustomers({ email, oldCursorId }: GetCoachedCustomersArgs): Promise<ReturnValueType<CoachedCustomer[]>>;
   getCustomerDetail({ id }: GetCustomerDetailArgs): Promise<ReturnValueType<CoachedCustomer>>;
+  getCustomerDetailWithLatestConversationSummary({ id }: GetCustomerDetailArgs):
+    Promise<ReturnValueType<CoachedCustomerWithConversationSummary>>;
   getLatestConversationSummary({ id }: GetCustomerDetailArgs):
-  Promise<ReturnValueType<ConversationSummary>>;
+    Promise<ReturnValueType<ConversationSummary>>;
 
   connectCustomerCoach({ coachEmail, customerId }:ConnectCustomerCoachArgs):
-  Promise<ReturnValueType<Coach>>;
+    Promise<ReturnValueType<Coach>>;
 
   getActiveCoachedCustomersBySendAt(
     { sendAt }: GetActiveCoachedCustomersBySendAtArgs): Promise<ReturnValueType<CoachedCustomer[]>>;
@@ -107,6 +109,26 @@ export class CoachRepository implements CoachRepositoryInterface {
       id, email, uuid, createdAt, updatedAt, note, firstName, middleName, lastName, phone,
       coachingSubscribed, boxSubscribed, twilioChannelSid, totalPoints,
       coach: { id: coach.id, email: coach.email, phone: coach.phone },
+      customerCoachHistory,
+    };
+
+    return [customerDetails];
+  }
+  async getCustomerDetailWithLatestConversationSummary({ id }: GetCustomerDetailArgs):
+    Promise<ReturnValueType<CoachedCustomerWithConversationSummary>> {
+    const response = await this.prisma.customers.findUnique({
+      where: { id },
+      include: {
+        coach: true,
+        customerCoachHistory: { include: { conversationSummary: true } },
+      },
+    });
+    if (!response) {
+      return [undefined, { name: 'Internal Server Error', message: 'id is invalid' }];
+    }
+    const { customerCoachHistory } = response;
+    const customerDetails: CoachedCustomerWithConversationSummary =  {
+      ...response,
       customerCoachHistory,
     };
 
