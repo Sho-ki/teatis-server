@@ -24,11 +24,11 @@ implements GetCustomerDetailUsecaseInterface
 
   async getCustomerDetail(id:number): Promise<ReturnValueType<TwilioCustomerDetail>> {
     const [customerDetail, getCustomerDetailError] =
-      await this.coachedCustomerRepository.getCustomerDetail({ id });
+      await this.coachedCustomerRepository.getCustomerDetailWithLatestConversationSummary({ id });
     if (getCustomerDetailError) {
       return [undefined, getCustomerDetailError];
     }
-    const { phone, coach,  firstName, lastName } = customerDetail;
+    const { phone, coach,  firstName, lastName, customerCoachHistory } = customerDetail;
     let displayName = `customer ${id}`;
     if(firstName && lastName) displayName = `${firstName} ${lastName}`;
     else if(firstName) displayName = firstName;
@@ -55,13 +55,15 @@ implements GetCustomerDetailUsecaseInterface
       Gender: ${getResponse('gender')}\n
       Diabetes level: ${getResponse('diabetes')}\n
     `;
-    const [latestConversationSummary, getLatestConversationSummaryError] =
-      await this.coachedCustomerRepository.getLatestConversationSummary({ id });
-    const summary = !getLatestConversationSummaryError ? latestConversationSummary.summary : undefined;
+    const conversationSummary = customerCoachHistory[customerCoachHistory.length-1]?.conversationSummary;
+    const latestConversationSummary = conversationSummary[conversationSummary.length - 1].summary;
+    // const [latestConversationSummary, getLatestConversationSummaryError] =
+    //   await this.coachedCustomerRepository.getLatestConversationSummary({ id });
+    // const summary = !getLatestConversationSummaryError ? latestConversationSummary.summary : undefined;
     const fullInformation = `
       For full information, please visit https://teatis.retool.com/embedded/public/de87e7ff-ffc9-4d84-95a9-2c0ab41590d6?uuid=${customerDetail.uuid} \n
       ${coachingNote} 
-      ${`Summary temporarily unavailable`}
+      ${latestConversationSummary || `No summary available`}
     `;
     const twilioCustomers:TwilioCustomerDetail =
       {
