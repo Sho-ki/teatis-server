@@ -558,7 +558,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 22,
+        displayOrder: 17,
         name: 'ingredientDislikes',
         label: 'Which ingredients do you dislike?',
         isRequired: false,
