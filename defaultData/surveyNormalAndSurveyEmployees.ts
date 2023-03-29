@@ -12,12 +12,69 @@ interface Question extends Omit<SurveyQuestion, 'id' | 'createdAt' | 'updatedAt'
   images?:Omit<SurveyQuestionImage, 'id' | 'createdAt' | 'updatedAt' | 'surveyQuestionId'>[];
   options:Omit<SurveyQuestionOption, 'id' | 'createdAt' | 'updatedAt' | 'surveyQuestionId'>[];
 }
+const createOptions = (labels: string[]) => {
+  const options = labels.map(label => {
+    const [min, max] = label.split('-').map(parseFloat);
+    const value = isNaN(min) ? max : (isNaN(max) ? min : (min + max) / 2);
+    return { label, isArchived: false, value };
+  });
+  return options;
+};
+
+const ethnicityOptions = [
+  'White',
+  'Hispanic or Latino',
+  'Black or African American',
+  'Native American or Alaska Native',
+  'Asian',
+  'Native Hawaiian or Other Pacific Islander',
+  'Two or more races',
+  'Other',
+  'Prefer not to answer',
+];
+const yesNo = ['Yes', 'No'];
 
 export const seedSurvey:Survey[] = [
   {
     name: 'prePurchaseSurvey',
     label: 'Pre Purchase Survey',
     questions: [
+      {
+        displayOrder: 2,
+        name: 'customerEthnicity',
+        label: 'What is your ethnicity?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: 'Please choose the option that best represents your ethnic background.',
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: createOptions(ethnicityOptions),
+      },
+      {
+        displayOrder: 2,
+        name: 'prediabetesRisk',
+        label: `Based on a blood test in the past year, have you been told by a healthcare professional that you're at risk for diabetes or have prediabetes?`,
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: 'Please choose the option that best represents your ethnic background.',
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: createOptions(yesNo),
+      },
+      {
+        displayOrder: 2,
+        name: 'customerEthnicity',
+        label: `Do you have a mother, father, sister, or brother with diabetes?`,
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: 'Please choose the option that best represents your ethnic background.',
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: createOptions(yesNo),
+      },
       {
         displayOrder: 1,
         name: 'cravingAmount',
@@ -579,7 +636,7 @@ export const seedSurvey:Survey[] = [
         label: `You've reached the end of the quiz!`,
         isRequired: true,
         isCustomerFeature: true,
-        hint: 'Submit your email to create your profile and get your box now!',
+        hint: 'Submit your email to create your profile and get free healthy snack box now!',
         placeholder: 'hi@teatismeal.com',
         responseType: 'text',
         parentSurveyQuestionId: null,
@@ -1159,7 +1216,7 @@ export const seedSurvey:Survey[] = [
         label: `You've reached the end of the quiz!`,
         isRequired: true,
         isCustomerFeature: true,
-        hint: 'Submit your email to create your profile and get your box now!',
+        hint: 'Submit your email to create your profile and get free healthy snack box now!',
         placeholder: 'hi@teatismeal.com',
         responseType: 'text',
         parentSurveyQuestionId: null,

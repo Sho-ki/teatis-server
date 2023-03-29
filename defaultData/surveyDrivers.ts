@@ -771,7 +771,7 @@ const seedSurveyDrivers:Survey =
         label: `You've reached the end of the quiz!`,
         isRequired: true,
         isCustomerFeature: true,
-        hint: 'Submit your email to create your profile and get your box now!',
+        hint: 'Submit your email to create your profile and get free healthy snack box now!',
         placeholder: 'hi@teatismeal.com',
         responseType: 'text',
         parentSurveyQuestionId: null,
