@@ -47,7 +47,8 @@ implements SendAutoMessageUsecaseInterface
   ) {}
 
   private async registerTwilioChannelSidToCustomer(customer:CoachedCustomer): Promise<string | undefined>{
-    const channelName = `${customer.firstName} ${customer.lastName?customer.lastName:''} - ID:${customer.id}`;
+    const customerType = customer.customerType === 'standard'? ``: `(${customer.customerType.slice(0, 1).toUpperCase()})`;
+    const channelName = `${customerType}${customer.firstName} ${customer.lastName?customer.lastName:''} - ID:${customer.id}`;
     const [twilioChannel, createTwilioChannelError] = await this.twilioRepository.createChannel(
       { channelName });
     if(createTwilioChannelError) {
