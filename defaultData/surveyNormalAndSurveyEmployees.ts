@@ -33,48 +33,13 @@ const ethnicityOptions = [
   'Prefer not to answer',
 ];
 const yesNo = ['Yes', 'No'];
+const smokingOptions = ['Yes, I currently smoke', 'No, but I used to smoke', 'No, I have never smoked'];
 
 export const seedSurvey:Survey[] = [
   {
     name: 'prePurchaseSurvey',
     label: 'Pre Purchase Survey',
     questions: [
-      {
-        displayOrder: 2,
-        name: 'customerEthnicity',
-        label: 'What is your ethnicity?',
-        isRequired: false,
-        isCustomerFeature: false,
-        hint: 'Please choose the option that best represents your ethnic background.',
-        placeholder: null,
-        responseType: 'single',
-        parentSurveyQuestionId: null,
-        options: createOptions(ethnicityOptions),
-      },
-      {
-        displayOrder: 2,
-        name: 'prediabetesRisk',
-        label: `Based on a blood test in the past year, have you been told by a healthcare professional that you're at risk for diabetes or have prediabetes?`,
-        isRequired: false,
-        isCustomerFeature: false,
-        hint: 'Please choose the option that best represents your ethnic background.',
-        placeholder: null,
-        responseType: 'single',
-        parentSurveyQuestionId: null,
-        options: createOptions(yesNo),
-      },
-      {
-        displayOrder: 2,
-        name: 'customerEthnicity',
-        label: `Do you have a mother, father, sister, or brother with diabetes?`,
-        isRequired: false,
-        isCustomerFeature: false,
-        hint: 'Please choose the option that best represents your ethnic background.',
-        placeholder: null,
-        responseType: 'single',
-        parentSurveyQuestionId: null,
-        options: createOptions(yesNo),
-      },
       {
         displayOrder: 1,
         name: 'cravingAmount',
@@ -593,7 +558,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 17,
+        displayOrder: 22,
         name: 'ingredientDislikes',
         label: 'Which ingredients do you dislike?',
         isRequired: false,
@@ -649,9 +614,104 @@ export const seedSurvey:Survey[] = [
     name: 'employeePrePurchaseSurvey',
     label: 'Employee Pre Purchase Survey',
     questions: [
-
       {
         displayOrder: 1,
+        name: 'A1C',
+        label: 'What was your most recent A1C score?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: [
+          {
+            label: '5',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: '6',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: '7',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: '8',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: '9',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: '10',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: '10+',
+            value: null,
+            isArchived: false,
+          },
+        ],
+      },
+      {
+        displayOrder: 2,
+        name: 'customerEthnicity',
+        label: 'What is your ethnicity?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: 'Please choose the option that best represents your ethnic background.',
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: createOptions(ethnicityOptions),
+      },
+      {
+        displayOrder: 3,
+        name: 'prediabetesRisk',
+        label: `Based on a blood test in the past year, have you been told by a healthcare professional that you're at risk for diabetes or have prediabetes?`,
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: 'Please choose the option that best represents your ethnic background.',
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: createOptions(yesNo),
+      },
+      {
+        displayOrder: 4,
+        name: 'familyHistoryOfDiabetes',
+        label: `Do you have a mother, father, sister, or brother with diabetes?`,
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: 'Please choose the option that best represents your ethnic background.',
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: createOptions(yesNo),
+      },
+      {
+        displayOrder: 5,
+        name: 'smokingStatus',
+        label: 'Do you smoke?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: 'Please choose the option that best represents your smoking status.',
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: createOptions(smokingOptions),
+      },
+      {
+        displayOrder: 6,
         name: 'cravingAmount',
         label: 'How often do you eat snacks?',
         isRequired: false,
@@ -684,7 +744,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 2,
+        displayOrder: 7,
         name: 'cravingIncrease',
         label: 'Has the amount of your snacking increase over time?',
         isRequired: false,
@@ -707,7 +767,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 3,
+        displayOrder: 8,
         name: 'mostCravingTime',
         label: 'When do you feel craving the most?',
         isRequired: false,
@@ -751,7 +811,7 @@ export const seedSurvey:Survey[] = [
       },
 
       {
-        displayOrder: 4,
+        displayOrder: 9,
         name: 'cravingReason',
         label: 'What is the main reason of your craving?',
         isRequired: false,
@@ -784,7 +844,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 5,
+        displayOrder: 10,
         name: 'cravingSnack',
         label: 'Which snack do you crave the most?',
         isRequired: false,
@@ -847,7 +907,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 6,
+        displayOrder: 11,
         name: 'diabetes',
         label: 'What stage of Diabetes are you in?',
         isRequired: false,
@@ -890,7 +950,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 7,
+        displayOrder: 12,
         name: 'gender',
         label: 'How do you identify?',
         isRequired: false,
@@ -919,7 +979,7 @@ export const seedSurvey:Survey[] = [
       },
 
       {
-        displayOrder: 8,
+        displayOrder: 13,
         name: 'age',
         label: 'How old are you?',
         isRequired: false,
@@ -968,7 +1028,7 @@ export const seedSurvey:Survey[] = [
       },
 
       {
-        displayOrder: 9,
+        displayOrder: 14,
         name: 'height',
         label: 'How tall are you?',
         isRequired: false,
@@ -1016,7 +1076,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 10,
+        displayOrder: 15,
         name: 'weight',
         label: 'How much do you weigh?',
         isRequired: false,
@@ -1084,7 +1144,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 11,
+        displayOrder: 16,
         name: 'bodyScale',
         label: 'Do you own a body scale?',
         isRequired: false,
@@ -1108,7 +1168,7 @@ export const seedSurvey:Survey[] = [
       },
 
       {
-        displayOrder: 12,
+        displayOrder: 17,
         name: 'solutionLowGISnacks',
         label: 'Low Glucose Impact Snacks',
         isRequired: false,
@@ -1121,7 +1181,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 13,
+        displayOrder: 18,
         name: 'solutionMentalCravingControl',
         label: 'Mental Craving Control',
         isRequired: false,
@@ -1134,7 +1194,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 14,
+        displayOrder: 19,
         name: 'solutionCurriculum',
         label: 'Science-based curriculum',
         isRequired: false,
@@ -1147,7 +1207,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 15,
+        displayOrder: 20,
         name: 'solutionBenefits',
         label: 'Benefit',
         isRequired: false,
@@ -1161,7 +1221,7 @@ export const seedSurvey:Survey[] = [
       },
 
       {
-        displayOrder: 16,
+        displayOrder: 21,
         name: 'allergens',
         label: 'What kind of allergies do you have?',
         isRequired: false,
@@ -1173,7 +1233,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 17,
+        displayOrder: 22,
         name: 'ingredientDislikes',
         label: 'Which ingredients do you dislike?',
         isRequired: false,
@@ -1199,7 +1259,7 @@ export const seedSurvey:Survey[] = [
         ],
       },
       {
-        displayOrder: 18,
+        displayOrder: 23,
         name: 'flavorDislikes',
         label: 'Which flavors do you dislike?',
         isRequired: false,
@@ -1211,7 +1271,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 19,
+        displayOrder: 24,
         name: 'email',
         label: `You've reached the end of the quiz!`,
         isRequired: true,
@@ -1223,7 +1283,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 20,
+        displayOrder: 25,
         name: 'name',
         label: 'What is your name?',
         isRequired: true,
@@ -1235,7 +1295,7 @@ export const seedSurvey:Survey[] = [
         options: [],
       },
       {
-        displayOrder: 21,
+        displayOrder: 26,
         name: 'address',
         label: 'What is your address?',
         isRequired: true,
