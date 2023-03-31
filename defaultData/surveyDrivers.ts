@@ -134,17 +134,17 @@ const seedSurveyDrivers:Survey =
         parentSurveyQuestionId: null,
         options: [
           {
-            label: 'Yes',
+            label: 'Yes, I currently smoke',
             value: null,
             isArchived: false,
           },
           {
-            label: 'Occasionally yes',
+            label: 'No, but I used to smoke',
             value: null,
             isArchived: false,
           },
           {
-            label: 'No',
+            label: 'No, I have never smoked',
             value: null,
             isArchived: false,
           },
