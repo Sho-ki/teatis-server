@@ -700,7 +700,7 @@ export const seedSurvey:Survey[] = [
       },
       {
         displayOrder: 5,
-        name: 'smokingStatus',
+        name: 'smoking',
         label: 'Do you smoke?',
         isRequired: false,
         isCustomerFeature: false,
