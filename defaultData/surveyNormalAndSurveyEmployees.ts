@@ -33,7 +33,7 @@ const ethnicityOptions = [
   'Prefer not to answer',
 ];
 const yesNo = ['Yes', 'No'];
-const smokingOptions = ['Yes, I currently smoke', 'No, but I used to smoke', 'No, I have never smoked'];
+const smokingOptions = ['Yes', 'Occasionally yes', 'No'];
 
 export const seedSurvey:Survey[] = [
   {
