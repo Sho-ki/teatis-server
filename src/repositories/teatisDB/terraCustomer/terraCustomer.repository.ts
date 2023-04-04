@@ -67,6 +67,7 @@ export class TerraCustomerRepository implements TerraCustomerRepositoryInterface
       {
         email, id, uuid, terraCustomerId: response.terraCustomerId,
         totalPoints: response.customer.totalPoints,
+        customerType: response.customer.customerType,
       },
     ];
   }

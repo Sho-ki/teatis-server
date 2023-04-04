@@ -71,7 +71,7 @@ describe('GetOptions', () => {
     MockedTransactionOperator= {};
     MockedCustomerEventLogRepository= {};
     MockedMonthlySelectionRepository= {};
-    MockedCustomerGeneralRepository = { getCustomer: jest.fn<Promise<ReturnValueType<Customer>>, []>().mockResolvedValue([{ id: 1, email: 'teatis@teatis.com', uuid: '12345657', totalPoints: 0 }]) };
+    MockedCustomerGeneralRepository = { getCustomer: jest.fn<Promise<ReturnValueType<Customer>>, []>().mockResolvedValue([{ id: 1, email: 'teatis@teatis.com', uuid: '12345657', totalPoints: 0, customerType: 'standard' }]) };
 
     MockedShipheroRepository = {
       updateOrderInformation: jest.fn<Promise<Order>, []>().mockResolvedValue({ orderNumber: '12345', orderId: '123' }),
