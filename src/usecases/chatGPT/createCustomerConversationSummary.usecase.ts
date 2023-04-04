@@ -5,7 +5,7 @@ import { TwilioRepository } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepository } from '../../repositories/teatisDB/customer/customerGeneral.repository';
 import { coachingNotePrompt } from '../utils/coachingNote';
 import { CoachRepository } from '../../repositories/teatisDB/coach/coach.repository';
-import { yyyyLLLddss } from '../../usecases/utils/dates';
+import { yyyyLLLdd } from '../../usecases/utils/dates';
 import { Prisma } from '@prisma/client';
 
 export interface CreateCustomerConversationSummaryUsecaseInterface {
@@ -38,12 +38,10 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
     const configuration = new Configuration({ apiKey: process.env.CHATGPT_API_KEY });
     const openai = new OpenAIApi(configuration);
     for (const customer of customers) {
-      console.log('customer: ', customer.id);
       try {
         const conversationHistory =
           await this.twilioRepository.getConversationHistory({ customerChannelId: customer.twilioChannelSid });
-        console.log('conversationHistory.length: ', conversationHistory.length);
-        const [getCustomerDetail, _] =
+        const [getCustomerDetail] =
           await this.coachRepository.getCustomerDetail({ id: customer.id });
         const conversation = JSON.stringify(conversationHistory.slice(conversationHistory.length-20));
         const completion = await openai.createChatCompletion({
@@ -51,7 +49,7 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
           messages: [{ role: 'user', content: `${coachingNotePrompt} ${conversation}` }],
         });
         const gptReply = completion.data.choices[0].message.content;
-        const summary = `updatedAt: ${yyyyLLLddss()} \n ${gptReply}`;
+        const summary = `updatedAt: ${yyyyLLLdd()} \n ${gptReply}`;
         const customerDetailsWithSummary = {
           customerCoachHistoryId: getCustomerDetail.customerCoachHistory[0].id,
           summary,
@@ -61,11 +59,8 @@ implements CreateCustomerConversationSummaryUsecaseInterface {
         this.errorStack.push(e);
       }
     }
-    console.log('errorStack: ', this.errorStack);
-    console.log('updateCustomersList.length: ', updateCustomersList.length);
     const [bulkInsertCustomerConversationSummary] =
       await this.coachRepository.bulkInsertCustomerConversationSummary(updateCustomersList);
-    console.log('bulkInsertCustomerConversationSummary: ', bulkInsertCustomerConversationSummary);
     if (!this.errorStack.length) {
       throw Error(JSON.stringify(this.errorStack));
     }

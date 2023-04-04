@@ -1,3 +1,5 @@
+import { CustomerType } from '@prisma/client';
+
 export interface Customer {
   id: number;
   uuid: string;
@@ -15,4 +17,5 @@ export interface Customer {
   createdAt?: Date;
   updatedAt?: Date;
   totalPoints: number;
+  customerType: CustomerType;
 }

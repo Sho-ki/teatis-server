@@ -27,6 +27,12 @@ export const yyyyLLLddss = ():string => {
   return pstTime.toFormat('yyyyLLLddss');
 };
 
+export const yyyyLLLdd = ():string => {
+  const currentTime = DateTime.local();
+  const pstTime = currentTime.setZone('America/Los_Angeles');
+  return pstTime.toFormat('yyyyLLLdd');
+};
+
 export const getDateTimeString = (addHours?:number):string => {
   const now = DateTime.now();
   if(addHours){

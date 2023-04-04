@@ -272,13 +272,14 @@ implements CustomerGeneralRepositoryInterface
     if(!response){
       return [undefined, { name: 'Error', message: 'uuid is invalid' }];
     }
-    return [
-      {
-        id: response.id, email: newEmail, uuid,
-        phone: response.phone, firstName: response.firstName, lastName: response.lastName,
-        createdAt: response.createdAt, updatedAt: response.updatedAt, totalPoints: response.totalPoints,
-      },
-    ];
+    return [{ ...response, email: newEmail }];
+    // return [
+    //   {
+    //     id: response.id, email: newEmail, uuid,
+    //     phone: response.phone, firstName: response.firstName, lastName: response.lastName,
+    //     createdAt: response.createdAt, updatedAt: response.updatedAt, totalPoints: response.totalPoints, customerType: response.customerType,
+    //   },
+    // ];
 
   }
 
@@ -316,6 +317,7 @@ implements CustomerGeneralRepositoryInterface
         email,
         uuid,
         totalPoints: res.totalPoints,
+        customerType: res.customerType,
       },
     ];
   }
@@ -575,7 +577,12 @@ implements CustomerGeneralRepositoryInterface
 
       },
     });
-    return [{ id: customer.id, uuid: customer.uuid, email, totalPoints: customer.totalPoints }];
+    return [
+      {
+        id: customer.id, uuid: customer.uuid, email,
+        totalPoints: customer.totalPoints, customerType: customer.customerType,
+      },
+    ];
   }
 
   async upsertCustomerAddress({
