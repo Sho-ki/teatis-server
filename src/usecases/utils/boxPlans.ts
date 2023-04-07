@@ -29,6 +29,15 @@ const sellingPlan = {
   every12: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83MjA2NjY2Nzk=',
 };
 
+export const COACH_PLAN = {
+  EVERY1: {
+    productId: 6791254671415,
+    merchandiseId: 'Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0VmFyaWFudC80MDEzNjYzOTc0MjAwNw==',
+    sellingPlanId: 'Z2lkOi8vc2hvcGlmeS9TZWxsaW5nUGxhbi83OTQ3MjIzNTk=',
+    sku: '1m-coach',
+  },
+};
+
 export const BOX_PLANS:boxPlan =
     {
       EVERY1: {

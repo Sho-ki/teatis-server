@@ -1,6 +1,10 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { CustomerType } from '@prisma/client';
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCheckoutCartDto {
+  @IsEnum(CustomerType)
+    customerType: CustomerType = CustomerType.standard;
+
   @IsNumber()
   @IsOptional()
     deliveryInterval?: 1 | 3 | 6 | 12;
