@@ -19,6 +19,7 @@ import { createGoogleOAuthClient } from '../utils/OAuthClient';
 import { CustomerEventLogRepositoryInterface } from '@Repositories/teatisDB/customerEventLog/customerEventLog.repository';
 import { ProductGeneralRepositoryInterface } from '@Repositories/teatisDB/product/productGeneral.repository';
 import { getDateTimeString } from '../utils/dates';
+import { COACH_PLAN } from '../utils/boxPlans';
 
 export interface UpdateCustomerOrderUsecaseInterface {
   updateCustomerOrder(): Promise<ReturnValueType<CustomerOrder[]>>;
@@ -156,32 +157,40 @@ implements UpdateCustomerOrderUsecaseInterface
             if(updateCustomerByUuidError) isUniquePhone = false;
           }
 
-          let hasCoachingBox = false;
+          let hasCoaching = false;
 
           let boxPlan: 'mini' | 'standard' | 'max' = undefined;
 
           // for existing customers who paid $24.44, $39.99 without coaching
           boxPlan = Number(totalPrice) > 30?'standard':'mini';
 
+          let isDriverProgram = false;
           for(let { sku } of lineItems){
             sku = sku.toLowerCase();
             if(sku.includes('mini')) boxPlan = 'mini';
             else if(sku.includes('standard')) boxPlan = 'standard';
 
-            if(sku.includes('coach')) hasCoachingBox = true;
+            if(sku.includes('coach')) hasCoaching = true;
+            if(sku === COACH_PLAN.EVERY1.sku) isDriverProgram = true;
           }
 
           // new coaching customers (it doesn't matter if they have purchased non-coaching boxes) &
           // customers who had subscribed the coaching before and re-subscribe the coaching
 
-          if(isUniquePhone && hasCoachingBox && customer.coachingSubscribed === 'inactive'){
+          if(isUniquePhone && hasCoaching && customer.coachingSubscribed === 'inactive'){
             if(!customer.coachId){
               await this.coachRepository.
                 connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
             }
-            await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
-
+            if(isDriverProgram){
+              await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed']  });
+            }else {
+              await this.customerGeneralRepository.activateCustomerSubscription({ uuid: customer.uuid, type: ['coachingSubscribed', 'boxSubscribed']  });
+            }
           }
+
+          if(isDriverProgram) continue;
+
           const [monthlyBoxSelection] =
           await this.monthlySelectionRepository.getMonthlySelection({ date: new Date(), boxPlan });
 
