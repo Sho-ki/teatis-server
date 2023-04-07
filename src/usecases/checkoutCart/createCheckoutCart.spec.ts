@@ -80,7 +80,7 @@ describe('GetOptions', () => {
     const uuid = '12345';
     const practitionerBoxUuid = '98765';
     const [res, error] = await usecase.createCheckoutCart(
-      { uuid, practitionerBoxUuid, deliveryInterval: 1, size: 'mini', sessionId: 'sessionId' });
+      { uuid, practitionerBoxUuid, deliveryInterval: 1, size: 'mini', sessionId: 'sessionId', customerType: 'standard' });
     expect(res.checkoutUrl).toBe('teatismeal.com');
     expect(error).toBeUndefined();
   });
@@ -89,7 +89,7 @@ describe('GetOptions', () => {
     const uuid = '123456';
     const practitionerBoxUuid = '98765';
     const [res, error] = await usecase.createCheckoutCart(
-      { uuid, practitionerBoxUuid, deliveryInterval: 1, size: 'mini', sessionId: 'sessionId' });
+      { uuid, practitionerBoxUuid, deliveryInterval: 1, size: 'mini', sessionId: 'sessionId', customerType: 'standard' });
     expect(error).toMatchObject({ name: 'Error', message: 'uuid is invalid' });
     expect(res).toBeUndefined();
   });
