@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Injectable } from '@nestjs/common';
 import { GraphQLClient } from 'graphql-request';
 import { Product } from '@Domains/Product';
@@ -253,11 +252,17 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
     const sdk = getSdk(client);
 
     uuid = this.createShorterUuid(uuid);
-    const response: GetLastFulfilledOrderByEmailQuery|GetLastFulfilledOrderByUuidQuery = email?
-      await sdk.getLastFulfilledOrderByEmail({ email }): await sdk.getLastFulfilledOrderByUuid({ uuid });
+    let response: GetLastFulfilledOrderByUuidQuery = await sdk.getLastFulfilledOrderByUuid({ uuid });
 
-    const hasOrdered = response?.orders?.data?.edges.length > 0;
-    if (!hasOrdered) {
+    let isFoundOrder = response?.orders?.data?.edges.length > 0;
+
+    if(!isFoundOrder) {
+      response =
+        await sdk.getLastFulfilledOrderByEmail({ email }) as GetLastFulfilledOrderByEmailQuery;
+      isFoundOrder = response?.orders?.data?.edges.length > 0;
+    }
+
+    if (!isFoundOrder) {
       return [
         {
           orderNumber: undefined,
@@ -294,11 +299,18 @@ export class ShipheroRepository implements ShipheroRepositoryInterface {
       { headers: { authorization: process.env.SHIPHERO_API_KEY } as HeadersInit });
     const sdk = getSdk(client);
     uuid = this.createShorterUuid(uuid);
-    const response: GetLastOrderByEmailQuery|GetLastOrderByUuidQuery = email?
-      await sdk.getLastOrderByEmail({ email }): await sdk.getLastOrderByUuid({ uuid });
 
-    const hasOrdered = response?.orders?.data?.edges.length > 0;
-    if (!hasOrdered) {
+    let response: GetLastOrderByUuidQuery = await sdk.getLastOrderByUuid({ uuid });
+
+    let isFoundOrder = response?.orders?.data?.edges.length > 0;
+
+    if(!isFoundOrder) {
+      response =
+        await sdk.getLastOrderByEmail({ email })as GetLastOrderByEmailQuery;
+      isFoundOrder = response?.orders?.data?.edges.length > 0;
+    }
+
+    if (!isFoundOrder) {
       return [
         {
           orderNumber: undefined,
