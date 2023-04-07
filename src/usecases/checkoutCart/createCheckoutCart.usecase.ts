@@ -7,7 +7,7 @@ import { ReturnValueType } from '@Filters/customError';
 
 import { DISCOUNT_CODES } from '../utils/discountCode';
 import { CustomerSessionRepositoryInterface } from '@Repositories/teatisDB/customer/customerSession.repository';
-import { BOX_PLANS } from '../utils/boxPlans';
+import { BOX_PLANS, COACH_PLAN } from '../utils/boxPlans';
 import { CreateCheckoutCartDto } from '../../controllers/discoveries/dtos/createCheckoutCartDto';
 
 export interface CreateCheckoutCartArgs extends CreateCheckoutCartDto {
@@ -15,6 +15,7 @@ export interface CreateCheckoutCartArgs extends CreateCheckoutCartDto {
 }
 export interface CreateCheckoutCartUsecaseInterface {
   createCheckoutCart({
+    customerType,
     uuid,
     practitionerBoxUuid,
     discountCode,
@@ -42,6 +43,7 @@ implements CreateCheckoutCartUsecaseInterface
   ) {}
 
   async createCheckoutCart({
+    customerType,
     uuid,
     practitionerBoxUuid,
     discountCode,
@@ -65,8 +67,16 @@ implements CreateCheckoutCartUsecaseInterface
     }
     discountCode = discountCode || DISCOUNT_CODES.customerBox.firstPurchase;
 
-    const merchandiseId:string = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.merchandiseId;
-    const sellingPlanId:string = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.sellingPlanId;
+    let merchandiseId:string;
+    let sellingPlanId:string;
+
+    if(customerType === 'driver' ){
+      merchandiseId = COACH_PLAN[`EVERY${deliveryInterval}`].merchandiseId;
+      sellingPlanId = COACH_PLAN[`EVERY${deliveryInterval}`].sellingPlanId;
+    } else {
+      merchandiseId = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.merchandiseId;
+      sellingPlanId = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.sellingPlanId;
+    }
 
     // const weightManagementCreateCartArgs = {
     //   merchandiseId: BOX_PLANS.weightManagement.merchandiseId,
