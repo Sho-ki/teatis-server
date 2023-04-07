@@ -65,7 +65,6 @@ implements CreateCheckoutCartUsecaseInterface
     if (getCustomerError) {
       return [undefined, getCustomerError];
     }
-    discountCode = discountCode || DISCOUNT_CODES.customerBox.firstPurchase;
 
     let merchandiseId:string;
     let sellingPlanId:string;
@@ -76,6 +75,8 @@ implements CreateCheckoutCartUsecaseInterface
     } else {
       merchandiseId = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.merchandiseId;
       sellingPlanId = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.sellingPlanId;
+      discountCode = discountCode || DISCOUNT_CODES.customerBox.firstPurchase;
+
     }
 
     // const weightManagementCreateCartArgs = {
