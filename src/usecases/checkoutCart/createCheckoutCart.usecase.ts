@@ -72,6 +72,7 @@ implements CreateCheckoutCartUsecaseInterface
     if(customerType === 'driver' ){
       merchandiseId = COACH_PLAN[`EVERY${deliveryInterval}`].merchandiseId;
       sellingPlanId = COACH_PLAN[`EVERY${deliveryInterval}`].sellingPlanId;
+      discountCode = discountCode || DISCOUNT_CODES.driver.firstPurchase;
     } else {
       merchandiseId = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.merchandiseId;
       sellingPlanId = BOX_PLANS[`EVERY${deliveryInterval}`][size.toUpperCase()].COACH.sellingPlanId;
