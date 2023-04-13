@@ -616,18 +616,6 @@ const seedSurveyDrivers:Survey =
       },
       {
         displayOrder: undefined,
-        name: 'flavorDislikes',
-        label: 'Which flavors do you dislike?',
-        isRequired: false,
-        isCustomerFeature: true,
-        hint: null,
-        placeholder: 'Search and add flavors',
-        responseType: 'multiple',
-        parentSurveyQuestionId: null,
-        options: [],
-      },
-      {
-        displayOrder: undefined,
         name: 'email',
         label: `You've reached the end of the quiz!`,
         isRequired: true,
