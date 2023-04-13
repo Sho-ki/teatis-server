@@ -311,6 +311,29 @@ const seedSurveyDrivers:Survey =
       },
       {
         displayOrder: undefined,
+        name: 'insulinUsage',
+        label: 'Do you take insulin as a cure for your diabetes?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: [
+          {
+            label: 'Yes',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'No',
+            value: null,
+            isArchived: false,
+          },
+        ],
+      },
+      {
+        displayOrder: undefined,
         name: 'gender',
         label: 'How do you identify?',
         isRequired: false,
