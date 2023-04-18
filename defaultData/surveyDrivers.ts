@@ -368,7 +368,7 @@ const seedSurveyDrivers:Survey =
       {
         displayOrder: undefined,
         name: 'cgmDevice',
-        label: 'Do you own a CGM device?',
+        label: 'Which CGM device do you use?',
         isRequired: false,
         isCustomerFeature: false,
         hint: null,
@@ -377,12 +377,42 @@ const seedSurveyDrivers:Survey =
         parentSurveyQuestionId: null,
         options: [
           {
-            label: 'Yes',
+            label: 'The Contour Next One',
             value: null,
             isArchived: false,
           },
           {
-            label: 'No',
+            label: 'FreeStyle Libre',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'Dexcom G6',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'Eversense',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'Guardian Connect System',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'Walgreens TrueMetrix Bluetooth Blood Glucose Meter',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'I don\'t use/own a CGM device',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'others',
             value: null,
             isArchived: false,
           },
