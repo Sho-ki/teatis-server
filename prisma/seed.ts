@@ -527,7 +527,7 @@ const upsertSurveyDrivers = async() => {
       });
       await prisma.surveyQuestion.update({
         where: { id: findQuestion.id },
-        data: { isCustomerFeature, isRequired, placeholder, hint, responseType },
+        data: { label: questionLabel, isCustomerFeature, isRequired, placeholder, hint, responseType },
       });
 
       if(children){

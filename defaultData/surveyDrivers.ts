@@ -43,8 +43,8 @@ const seedSurveyDrivers:Survey =
       },
       {
         displayOrder: undefined,
-        name: 'dotExam',
-        label: 'When did you take your DOT exams last?',
+        name: 'dotExamNext',
+        label: 'When will you be taking your next DOT exam?',
         isRequired: false,
         isCustomerFeature: false,
         hint: null,
@@ -334,6 +334,34 @@ const seedSurveyDrivers:Survey =
       },
       {
         displayOrder: undefined,
+        name: 'timeOnRoad',
+        label: 'Do you spend most of your time on the road or do you have time to go home on your shift?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: [
+          {
+            label: 'I spend most of my time on the truck',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'I have time to go home on my shift',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'It varies',
+            value: null,
+            isArchived: false,
+          },
+        ],
+      },
+      {
+        displayOrder: undefined,
         name: 'foodDuringShift',
         label: 'What do you typically eat during your shift?',
         isRequired: false,
@@ -360,6 +388,34 @@ const seedSurveyDrivers:Survey =
           },
           {
             label: 'I don\'t eat during my shift',
+            value: null,
+            isArchived: false,
+          },
+        ],
+      },
+      {
+        displayOrder: undefined,
+        name: 'timeOnRoad',
+        label: 'Do you spend most of your time on the road or do you have time to go home on your shift?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: [
+          {
+            label: 'I spend most of my time on the truck',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'I have time to go home on my shift',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'It varies',
             value: null,
             isArchived: false,
           },
@@ -412,12 +468,46 @@ const seedSurveyDrivers:Survey =
             isArchived: false,
           },
           {
-            label: 'others',
+            label: 'Others',
             value: null,
             isArchived: false,
           },
         ],
       },
+      {
+        displayOrder: undefined,
+        name: 'cookingToolsOnTruck',
+        label: 'What cooking tools are available on your truck? (Select all that apply)',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: null,
+        responseType: 'multiple',
+        parentSurveyQuestionId: null,
+        options: [
+          {
+            label: 'Refrigerator',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'Gas stove',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'Pan',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'Microwave',
+            value: null,
+            isArchived: false,
+          },
+        ],
+      },
+
       {
         displayOrder: undefined,
         name: 'gender',
