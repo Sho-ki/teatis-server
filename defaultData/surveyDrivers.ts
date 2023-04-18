@@ -334,6 +334,62 @@ const seedSurveyDrivers:Survey =
       },
       {
         displayOrder: undefined,
+        name: 'foodDuringShift',
+        label: 'What do you typically eat during your shift?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: [
+          {
+            label: 'I bring home cooked food',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'I order food from outside',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'I do both',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'I don\'t eat during my shift',
+            value: null,
+            isArchived: false,
+          },
+        ],
+      },
+      {
+        displayOrder: undefined,
+        name: 'cgmDevice',
+        label: 'Do you own a CGM device?',
+        isRequired: false,
+        isCustomerFeature: false,
+        hint: null,
+        placeholder: null,
+        responseType: 'single',
+        parentSurveyQuestionId: null,
+        options: [
+          {
+            label: 'Yes',
+            value: null,
+            isArchived: false,
+          },
+          {
+            label: 'No',
+            value: null,
+            isArchived: false,
+          },
+        ],
+      },
+      {
+        displayOrder: undefined,
         name: 'gender',
         label: 'How do you identify?',
         isRequired: false,
