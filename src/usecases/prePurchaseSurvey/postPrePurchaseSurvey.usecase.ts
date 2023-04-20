@@ -5,7 +5,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
-import { GenderIdentify } from '@prisma/client';
+import { CustomerType, GenderIdentify } from '@prisma/client';
 import { Customer } from '@Domains/Customer';
 import { EmployeeRepositoryInterface } from '@Repositories/teatisDB/employee/employee.repository';
 import { CoachRepositoryInterface } from '../../repositories/teatisDB/coach/coach.repository';
@@ -100,6 +100,8 @@ implements PostPrePurchaseSurveyUsecaseInterface
         break;
     }
 
+    const isEmployee = customerType === CustomerType.employee;
+    const isDriver = customerType === CustomerType.driver;
     const uuid = uuidv4();
     const [customer] =
       await this.customerGeneralRepository.upsertCustomer({
@@ -113,11 +115,11 @@ implements PostPrePurchaseSurveyUsecaseInterface
         phone,
         firstName,
         lastName,
-        coachingSubscribed: customerType === 'employee' ? 'active' : undefined,
-        boxSubscribed: customerType === 'employee' ? 'active' : undefined,
+        coachingSubscribed: (isEmployee || isDriver) ? 'active' : undefined,
+        boxSubscribed: isEmployee ? 'active' : undefined,
       });
 
-    if(customerType === 'employee'){
+    if(isEmployee){
       // eslint-disable-next-line no-empty-pattern
       const [[], [], [, employerNotFound]] = await Promise.all([
         this.customerGeneralRepository.upsertCustomerAddress({
@@ -138,6 +140,10 @@ implements PostPrePurchaseSurveyUsecaseInterface
         return [undefined, employerNotFound];
       }
 
+    }
+    if(isDriver) {
+      await this.coachRepository.
+        connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
     }
 
     return [customer, undefined];
