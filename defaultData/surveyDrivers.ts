@@ -20,6 +20,18 @@ const seedSurveyDrivers:Survey =
     questions: [
       {
         displayOrder: undefined,
+        name: 'name',
+        label: 'What is your name?',
+        isRequired: true,
+        isCustomerFeature: true,
+        hint: null,
+        placeholder: null,
+        responseType: 'text',
+        parentSurveyQuestionId: null,
+        options: [],
+      },
+      {
+        displayOrder: undefined,
         name: 'driversLicense',
         label: `Do you have Commercial Driver's License?`,
         isRequired: false,
@@ -825,7 +837,18 @@ const seedSurveyDrivers:Survey =
         parentSurveyQuestionId: null,
         options: [],
       },
-
+      {
+        displayOrder: undefined,
+        name: 'address',
+        label: 'What is your phone number?',
+        isRequired: true,
+        isCustomerFeature: true,
+        hint: null,
+        placeholder: null,
+        responseType: 'text',
+        parentSurveyQuestionId: null,
+        options: [],
+      },
     ],
   };
 
