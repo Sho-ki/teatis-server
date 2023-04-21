@@ -11,6 +11,7 @@ import { PostPrePurchaseSurveyUsecase } from '../../../usecases/prePurchaseSurve
 import { CoachRepository } from '../../../repositories/teatisDB/coach/coach.repository';
 import { GetPrePurchaseSurveyEmployeeUsecase } from '../../../usecases/prePurchaseSurvey/getPrePurchaseSurveyEmployee.usecase';
 import { GetPrePurchaseSurveyDriverUsecase } from '../../../usecases/prePurchaseSurvey/getPrePurchaseSurveyDriver.usecase';
+import { CustomerEventLogRepository } from '@Repositories/teatisDB/customerEventLog/customerEventLog.repository';
 
 @Module({
   controllers: [PrePurchaseSurveyController],
@@ -50,6 +51,10 @@ import { GetPrePurchaseSurveyDriverUsecase } from '../../../usecases/prePurchase
     {
       provide: 'SurveyQuestionsRepositoryInterface',
       useClass: SurveyQuestionsRepository,
+    },
+    {
+      provide: 'CustomerEventLogRepositoryInterface',
+      useClass: CustomerEventLogRepository,
     },
 
     PrismaService,
