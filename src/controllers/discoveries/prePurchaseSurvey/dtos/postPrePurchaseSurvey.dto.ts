@@ -25,16 +25,16 @@ export class PostPrePurchaseSurveyDto {
   @IsString()
     email: string;
 
-  @ValidateIf(o => o.customerType === CustomerType.employee)
+  @ValidateIf(o => o.customerType === CustomerType.employee || o.customerType === CustomerType.driver)
   @IsPhoneNumber('US')
   @Transform(({ value }) => { return value.startsWith('+1')?value:  '+1' + value; })
     phone: string;
 
-  @ValidateIf(o => o.customerType === CustomerType.employee)
+  @ValidateIf(o => o.customerType === CustomerType.employee || o.customerType === CustomerType.driver)
   @IsString()
     firstName: string;
 
-  @ValidateIf(o => o.customerType === CustomerType.employee)
+  @ValidateIf(o => o.customerType === CustomerType.employee || o.customerType === CustomerType.driver)
   @IsString()
     lastName: string;
 

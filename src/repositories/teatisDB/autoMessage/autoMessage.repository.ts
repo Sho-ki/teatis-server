@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
 import {  AutoMessageMedia, PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../../domains/AutoMessage';
 import { CustomerDaysSincePurchase, SequenceBasedAutoMessageData } from '../../../domains/CoachedCustomer';
-import { IntermediateCustomerSequenceBasedAutoMessageHistory } from '@prisma/client';
+import { EventType, IntermediateCustomerSequenceBasedAutoMessageHistory } from '@prisma/client';
 
 interface GetCustomerDaysSincePurchaseArgs {
     customerId: number;
@@ -145,7 +145,7 @@ implements AutoMessageRepositoryInterface
     { customerId }: GetCustomerDaysSincePurchaseArgs):
      Promise<CustomerDaysSincePurchase> {
     const response = await this.prisma.customerEventLog.findFirst(
-      { where: { customerId, type: 'boxSubscribed', customer: { coachingSubscribed: 'active' } }, orderBy: { eventDate: 'desc' } });
+      { where: { customerId, type: EventType.coachingSubscribed, customer: { coachingSubscribed: 'active' } }, orderBy: { eventDate: 'desc' } });
 
     const today = new Date();
     const startDate = response?.eventDate || today;
