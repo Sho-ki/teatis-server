@@ -5,10 +5,11 @@ import { ReturnValueType } from '@Filters/customError';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
-import { CustomerType, GenderIdentify } from '@prisma/client';
+import { CustomerType, EventType, GenderIdentify } from '@prisma/client';
 import { Customer } from '@Domains/Customer';
 import { EmployeeRepositoryInterface } from '@Repositories/teatisDB/employee/employee.repository';
 import { CoachRepositoryInterface } from '../../repositories/teatisDB/coach/coach.repository';
+import { CustomerEventLogRepositoryInterface } from '@Repositories/teatisDB/customerEventLog/customerEventLog.repository';
 
 export interface PostPrePurchaseSurveyUsecaseInterface {
   postPrePurchaseSurvey({
@@ -46,6 +47,8 @@ implements PostPrePurchaseSurveyUsecaseInterface
     private readonly employeeRepository: EmployeeRepositoryInterface,
     @Inject('CoachRepositoryInterface')
     private readonly coachRepository: CoachRepositoryInterface,
+    @Inject('CustomerEventLogRepositoryInterface')
+    private readonly customerEventLogRepository: CustomerEventLogRepositoryInterface,
   ) {}
 
   async postPrePurchaseSurvey({
@@ -118,7 +121,7 @@ implements PostPrePurchaseSurveyUsecaseInterface
         coachingSubscribed: (isEmployee || isDriver) ? 'active' : undefined,
         boxSubscribed: isEmployee ? 'active' : undefined,
       });
-
+    const customerId = customer.id;
     if(isEmployee){
       // eslint-disable-next-line no-empty-pattern
       const [[], [], [, employerNotFound]] = await Promise.all([
@@ -132,8 +135,8 @@ implements PostPrePurchaseSurveyUsecaseInterface
           country,
         }),
         this.coachRepository.
-          connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id }),
-        this.employeeRepository.connectCustomerWithEmployer({ customerId: customer.id, employerUuid }),
+          connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId }),
+        this.employeeRepository.connectCustomerWithEmployer({ customerId, employerUuid }),
 
       ]);
       if(employerNotFound){
@@ -143,7 +146,8 @@ implements PostPrePurchaseSurveyUsecaseInterface
     }
     if(isDriver) {
       await this.coachRepository.
-        connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId: customer.id });
+        connectCustomerCoach({ coachEmail: 'coach@teatismeal.com', customerId });
+      await this.customerEventLogRepository.createCustomerEventLog({ customerId, event: EventType.coachingSubscribed });
     }
 
     return [customer, undefined];
