@@ -767,7 +767,7 @@ const seedSurveyDrivers:Survey =
         label: 'Earn Miles while you drive',
         isRequired: false,
         isCustomerFeature: false,
-        hint: 'You will earn Miles for every healthy action you take. These Miles can be redeemed for cash back on gas and auto parts or a box of healthy snacks.',
+        hint: 'You will earn Miles for every healthy action you take. These Miles can be redeemed for cash back on fuel and auto parts.',
         placeholder: null,
         responseType: 'noResponse',
         parentSurveyQuestionId: null,
