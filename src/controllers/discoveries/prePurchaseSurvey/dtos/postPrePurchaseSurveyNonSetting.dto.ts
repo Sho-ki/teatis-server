@@ -1,5 +1,6 @@
-import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import { IsEnum, registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 import { IsArray, IsString } from 'class-validator';
+import { SurveyName } from '../../../../usecases/utils/surveyName';
 
 @ValidatorConstraint({ name: 'eitherResponseIdsOrResponseId', async: false })
 export class EitherResponseIdsOrResponseIdValidator implements ValidatorConstraintInterface {
@@ -36,6 +37,9 @@ export function EitherResponseIdsOrResponseId(validationOptions?: ValidationOpti
 }
 
 export class PostPrePurchaseSurveyNonSettingDto {
+  @IsEnum(SurveyName)
+    surveyName: SurveyName = SurveyName.PrePurchase;
+
   @IsString()
     uuid: string;
 
