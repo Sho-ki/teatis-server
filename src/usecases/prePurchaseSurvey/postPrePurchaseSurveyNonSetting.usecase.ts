@@ -5,11 +5,10 @@ import { PostPrePurchaseSurveyNonSettingDto } from '@Controllers/discoveries/pre
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerSurveyHistoryRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
-import { SurveyName } from '../utils/surveyName';
 import { SurveyQuestionResponse } from '@prisma/client';
 
 export interface PostPrePurchaseSurveyNonSettingUsecaseInterface {
-  postPrePurchaseSurvey({ uuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
+  postPrePurchaseSurvey({ uuid, customerResponses, surveyName }: PostPrePurchaseSurveyNonSettingDto): Promise<
     ReturnValueType<SurveyQuestionResponse[]>
   >;
 }
@@ -26,7 +25,7 @@ implements PostPrePurchaseSurveyNonSettingUsecaseInterface
     @Inject('CustomerSurveyHistoryRepositoryInterface')
     private customerSurveyHistoryRepository: CustomerSurveyHistoryRepositoryInterface,
   ) {}
-  async postPrePurchaseSurvey({ uuid, customerResponses }: PostPrePurchaseSurveyNonSettingDto): Promise<
+  async postPrePurchaseSurvey({ uuid, customerResponses, surveyName }: PostPrePurchaseSurveyNonSettingDto): Promise<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ReturnValueType<SurveyQuestionResponse[]>
   > {
@@ -40,11 +39,11 @@ implements PostPrePurchaseSurveyNonSettingUsecaseInterface
 
     let [customerSurveyHistory] =
     await this.customerSurveyHistoryRepository.getCustomerSurveyHistory(
-      { customerId: id, surveyName: SurveyName.PrePurchase });
+      { customerId: id, surveyName });
 
     if (!customerSurveyHistory) {
       customerSurveyHistory = await this.customerSurveyHistoryRepository.createCustomerSurveyHistory(
-        { customerId: customer.id, surveyName: SurveyName.PrePurchase  });
+        { customerId: customer.id, surveyName  });
     }
 
     const surveyQuestionResponses = await Promise.all(customerResponses.map((customerResponse) => {
