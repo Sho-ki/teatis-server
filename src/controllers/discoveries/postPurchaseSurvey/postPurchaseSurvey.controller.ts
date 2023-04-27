@@ -13,10 +13,10 @@ import { PostPostPurchaseSurveyUsecaseInterface } from '@Usecases/postPurcahseSu
 
 import { Response } from 'express';
 
-import { GetPostPurchaseSurveyDto } from './dtos/getPostPurchaseSurvey.dto';
 import { PostPostPurchaseSurveyDto } from '../dtos/postPostPurchaseSurvey';
 import { PostPurchaseSurveyWithResponse } from '../../../domains/PostPurchaseSurvey';
 import { SurveyQuestionResponse } from '@prisma/client';
+import { GetPostPurchaseSurveyDto } from './dtos/request/getPostPurchaseSurvey.dto';
 
 // api/discovery
 @Controller('api/discovery')

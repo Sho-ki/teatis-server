@@ -9,10 +9,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { plainToInstance } from 'class-transformer';
 
-interface ClassConstructor {
-  new (...args: any[]): {};
-}
-
 function removeTimestampProperties(obj) {
   const hasOwnProperty = Object.prototype.hasOwnProperty;
   for (const key in obj) {
@@ -20,6 +16,7 @@ function removeTimestampProperties(obj) {
       if (key === 'createdAt' || key === 'updatedAt') {
         delete obj[key];
       } else if (typeof obj[key] === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         removeTimestampProperties(obj[key]);
       }
     }
@@ -28,27 +25,23 @@ function removeTimestampProperties(obj) {
   return obj;
 }
 
-type SerializeType= {
-  dto?:ClassConstructor;
-  timestamp?:boolean;
-};
-export function Serialize({ dto, timestamp = false }:SerializeType) {
-  return UseInterceptors(new SerializeInterceptor(dto, timestamp));
+// pass removeTimestamps(bool) to the interceptor to remove timestamps from the response
+export function Serialize<T>(dto: new () => T, removeTimestamps = true) {
+  return UseInterceptors(new SerializeInterceptor(dto, removeTimestamps ));
 }
 
-export class SerializeInterceptor implements NestInterceptor {
-  timestamp: boolean;
-  constructor(private dto: any, timestamp:boolean) {
-    this.timestamp = timestamp;
+// if removeTimestamps is true, remove timestamps from the response
+export class SerializeInterceptor<T> implements NestInterceptor {
+  removeTimestamps: boolean;
+  constructor(private readonly dto: new () => T, removeTimestamps = true) {
+    this.removeTimestamps = removeTimestamps;
   }
 
-  intercept(context: ExecutionContext, handler: CallHandler): Observable<any> {
-    return handler.handle().pipe(
-      map((data: any) => {
-        if(this.timestamp){
-          return plainToInstance(this.dto, data, { excludeExtraneousValues: true });
-        }
-        return removeTimestampProperties(plainToInstance(this.dto, data, { excludeExtraneousValues: true }));
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      map((data) => {
+        return plainToInstance(this.dto,
+          data, { excludeExtraneousValues: true });
       }),
     );
   }
