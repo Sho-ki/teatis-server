@@ -33,11 +33,14 @@ import { CustomerAddressRepository } from '../repositories/teatisDB/customer/cus
 import { CreateCustomerConversationSummaryService } from './createCustomerConversationSummary/createCustomerConversationSummary.service';
 import { CreateCustomerConversationSummaryUsecase } from '../usecases/chatGPT/createCustomerConversationSummary.usecase';
 import { RewardItemsRepository } from '../repositories/teatisDB/rewardItem/rewardItem.repository';
+import { SendWelcomeMessageService } from './sendWelcomeMessage/sendWelcomeMessage.service';
+import { SendWelcomeMessageUsecase } from '../usecases/twilio/sendWelcomeMessage.usecase';
 
 @Module({
   exports: [WorkerModule],
   providers: [
     SendAutoMessageService,
+    SendWelcomeMessageService,
     UpdateOrderService,
     CreateEmployeeOrderService,
     PrismaService,
@@ -149,6 +152,10 @@ import { RewardItemsRepository } from '../repositories/teatisDB/rewardItem/rewar
     {
       provide: 'SendAutoMessageUsecaseInterface',
       useClass: SendAutoMessageUsecase,
+    },
+    {
+      provide: 'SendWelcomeMessageUsecaseInterface',
+      useClass: SendWelcomeMessageUsecase,
     },
     {
       provide: 'CoachRepositoryInterface',

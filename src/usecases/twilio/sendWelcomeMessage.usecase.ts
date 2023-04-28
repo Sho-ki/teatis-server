@@ -7,25 +7,21 @@ import { AutoMessageRepositoryInterface } from '@Repositories/teatisDB/autoMessa
 import { CoachedCustomer } from '@Domains/CoachedCustomer';
 import { TwilioRepositoryInterface } from '../../repositories/twilio/twilio.repository';
 import { CustomerGeneralRepositoryInterface } from '../../repositories/teatisDB/customer/customerGeneral.repository';
-import { PurchaseDateBasedAutoMessage, SequenceBasedAutoMessage } from '../../domains/AutoMessage';
-import { pstTime } from '../utils/dates';
+import { PurchaseDateBasedAutoMessage } from '../../domains/AutoMessage';
 import { BitlyRepositoryInterface } from '../../repositories/bitly/bitly.repository';
 import { CustomerRewardTokenRepositoryInterface } from '../../repositories/teatisDB/customerRewardToken/customerRewardToken.repository';
 
-export interface SendAutoMessageUsecaseInterface {
-  sendAutoMessage():
+export interface SendWelcomeMessageUsecaseInterface {
+  execute():
   Promise<ReturnValueType<string>>;
 }
-
-type sendAt =
-   'at0'| 'at3'| 'at6'| 'at9'| 'at12'| 'at15'| 'at18'| 'at21';
 
 enum TwilioError {
   invalidPhoneNumber = 'Invalid phone number'
 }
 @Injectable()
-export class SendAutoMessageUsecase
-implements SendAutoMessageUsecaseInterface
+export class SendWelcomeMessageUsecase
+implements SendWelcomeMessageUsecaseInterface
 {
   private sendMessageErrorStack = [];
   private getCustomerDataErrorStack=[];
@@ -128,8 +124,9 @@ implements SendAutoMessageUsecaseInterface
   }
 
   private async sendMessage(customer: CoachedCustomer,
-    messageDetail: PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage): Promise<string | undefined> {
+    messageDetail: PurchaseDateBasedAutoMessage): Promise<string | undefined> {
     let customerChannelId = customer.twilioChannelSid;
+    console.log('messageDetail: ', messageDetail);
 
     // If the customer does not already have a Twilio channel ID, register one for them
     if (!customerChannelId) {
@@ -171,7 +168,6 @@ implements SendAutoMessageUsecaseInterface
         processedLink += `${separator}point_token=${customerRewardToken.pointToken}`;
       }
 
-      console.log('link: ', processedLink);
       const shortUrl = await this.getShorterUrl(processedLink);
       console.log('shortUrl: ', shortUrl);
 
@@ -180,18 +176,11 @@ implements SendAutoMessageUsecaseInterface
       body = body.replace(link, shortUrl);
       console.log('body: ', body);
     }
-
     // Send the text message
     const [, sendTextMessageError] = await this.twilioRepository.sendTextMessage({ customerChannelId, author: 'AUTO MESSAGE', body });
     if (sendTextMessageError) {
       this.sendMessageErrorStack.push(sendTextMessageError);
       return undefined;
-    }
-
-    // Once we send something, even if media might not be sent, create the history.
-    if(messageDetail.type === 'sequenceBased'){
-      await this.autoMessageRepository.createCustomerSequenceBasedAutoMessagesHistory(
-        { customerId: customer.id, sequenceBasedAutoMessageId: messageDetail.id });
     }
 
     if (mediaUrls.length) {
@@ -205,126 +194,23 @@ implements SendAutoMessageUsecaseInterface
     return body;
   }
 
-  private async getCustomerDaysSincePurchase( customerId :number):Promise<number>{
-    // Get customer's days since their purchase
-    const { daysSincePurchase } = await
-    this.autoMessageRepository.getCustomerDaysSincePurchase({ customerId });
-
-    return daysSincePurchase;
-  }
-
-  private async getCustomerLastSequenceAutoMessage( customerId :number ):
-  Promise<{lastSequentBasedMessageDate:Date, lastSequentBasedMessageSequence:number}>{
-    // Get the last sequence based auto message data for the current customer
-    const lastSequenceBasedAutoMessageData = await
-    this.autoMessageRepository.getCustomerLastSequenceBasedAutoMessageData({ customerId });
-
-    // If customers has no last message, then set default values
-    const { lastSequentBasedMessageDate = new Date('2000-01-01'), lastSequentBasedMessageSequence = 0 } = lastSequenceBasedAutoMessageData;
-
-    return { lastSequentBasedMessageDate, lastSequentBasedMessageSequence };
-  }
-
-  private findSendingMessage(customer:CoachedCustomer,
-    purchaseDateBasedAutoMessages:PurchaseDateBasedAutoMessage[],
-    sequenceBasedAutoMessages: SequenceBasedAutoMessage[]):
-    PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage | undefined{
-    let sendingMessage: PurchaseDateBasedAutoMessage | SequenceBasedAutoMessage | undefined;
-
-    const purchaseDateBasedMatchingMessage = purchaseDateBasedAutoMessages.find(message =>
-      message.delayDaysSincePurchase === customer.daysSincePurchase);
-    if(purchaseDateBasedMatchingMessage){
-      sendingMessage = purchaseDateBasedMatchingMessage;
-    } else if(customer.daysSincePurchase > 2){ // The first welcome message will be sent on the 1st day. So do not send a sequent message on the 0th day.
-      const today = new Date();
-      const timeSinceLastMessage =
-          today.getTime() - customer.sequenceBasedAutoMessageData.lastSequentBasedMessageDate.getTime();
-      const daysSinceLastMessage = Math.floor(timeSinceLastMessage / 86400000);
-      const hasIntervalPassedSinceLastMessage =
-            customer.sequenceBasedAutoMessageInterval <= daysSinceLastMessage;
-
-      if(hasIntervalPassedSinceLastMessage){
-        const sequentBasedMatchingMessage = sequenceBasedAutoMessages.find(message =>
-          message.sequence === customer.sequenceBasedAutoMessageData.lastSequentBasedMessageSequence+1);
-        if(!sequentBasedMatchingMessage){
-          this.sendMessageErrorStack.push({ name: 'findSendingMessage failed', message: `No more sequence is found. Customer ID ${customer.id} may reach to the end of the sequence` });
-          return undefined;
-        }
-        sendingMessage = sequentBasedMatchingMessage;
-      }
-    }
-    return sendingMessage;
-  }
-
-  private getCustomerMessagePreferenceTime(date = pstTime()):sendAt{
-
-    const currentHour = date;
-    if(0 <= currentHour && currentHour < 3) return 'at0';
-    if(3 <= currentHour && currentHour < 6) return 'at3';
-    if(6 <= currentHour && currentHour < 9) return 'at6';
-    if(9 <= currentHour && currentHour < 12) return 'at9';
-    if(12 <= currentHour && currentHour < 15) return 'at12';
-    if(15 <= currentHour && currentHour < 18) return 'at15';
-    if(18 <= currentHour && currentHour < 21) return 'at18';
-    if(21 <= currentHour) return 'at21';
-    return 'at9';
-  }
-
-  async sendAutoMessage():
+  async execute():
   Promise<ReturnValueType<string>> {
     try{
-      const customerMessagePreferenceTime = this.getCustomerMessagePreferenceTime();
-      console.log('customerMessagePreferenceTime', customerMessagePreferenceTime);
       // Get only active coached customers
-      const [sendableCoachedCustomers] =
-    await this.coachRepository.getActiveCoachedCustomersBySendAt({ sendAt: customerMessagePreferenceTime });
-      if(!sendableCoachedCustomers.length) return;
-      console.log('sendableCoachedCustomers.length', sendableCoachedCustomers.length);
-      const targetCustomers:CoachedCustomer[] = [];
-      const daysSet: Set<number> = new Set();
-      const sequenceSet: Set<number> = new Set();
-      for(const customer of sendableCoachedCustomers){
-        try{
-          const customerDaysSincePurchase = await this.getCustomerDaysSincePurchase(customer.id);
-          // The first welcome message will be sent in another usecase. So do not send a sequent message on the 0th day.
-          if(customerDaysSincePurchase === 0) continue;
-          daysSet.add(customerDaysSincePurchase);
+      const [targetCustomers] =
+    await this.coachRepository.getActiveCoachedCustomersPurchasedWithinOneHour();
+      console.log('targetCustomers: ', targetCustomers);
+      if(!targetCustomers.length) return;
+      console.log('sendableCoachedCustomers.length', targetCustomers.length);
 
-          const { lastSequentBasedMessageDate, lastSequentBasedMessageSequence } =
-          await this.getCustomerLastSequenceAutoMessage(customer.id);
-          const nextSequence = lastSequentBasedMessageSequence+1;
-          sequenceSet.add(nextSequence);
-
-          // Push the current customer to the customers array, along with the daysSincePurchase and sequenceBasedAutoMessageData
-          targetCustomers.push({
-            ...customer,
-            daysSincePurchase: customerDaysSincePurchase,
-            sequenceBasedAutoMessageData:
-            { lastSequentBasedMessageDate, lastSequentBasedMessageSequence },
-          });
-        }catch(e){
-          this.getCustomerDataErrorStack.push(new Error(e));
-          continue;
-        }
-      }
-      const uniqueDays = Array.from(daysSet);
-      const uniqueSequences = Array.from(sequenceSet);
-      const purchaseDateBasedAutoMessages =
-    await this.autoMessageRepository.getPurchaseDateBasedAutoMessagesByDays({ days: uniqueDays });
-      const sequenceBasedAutoMessages =
-    await this.autoMessageRepository.getSequenceBasedAutoMessagesBySequences({ sequences: uniqueSequences });
-
+      const autoMessages = await this.autoMessageRepository.getPurchaseDateBasedAutoMessagesByDays({ days: [0] });
+      const welcomeMessage = autoMessages[0];
       for (const customer of targetCustomers) {
         try{
-          const sendingMessage=
-          this.findSendingMessage(customer, purchaseDateBasedAutoMessages, sequenceBasedAutoMessages );
-
-          if(sendingMessage){
-            const sendMessage = await this.sendMessage(customer, sendingMessage);
-            if (!sendMessage) {
-              continue;
-            }
-
+          const sendMessage = await this.sendMessage(customer, welcomeMessage);
+          if (!sendMessage) {
+            continue;
           }
 
         }catch(e){
