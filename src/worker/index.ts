@@ -6,12 +6,18 @@ import { executeUpdateOrder } from './updateOrder/updateOrder.worker';
 import { executeSendAutoMessage } from './sendAutoMessage/sendAutoMessage.worker';
 import { executeCreateEmployeeOrder } from './createEmployeeOrder/createEmployeeOrder.worker';
 import { executeCreateCustomerConversationSummary } from './createCustomerConversationSummary/createCustomerConversationSummary.worker';
+import { executeSendWelcomeMessage } from './sendWelcomeMessage/sendWelcomeMessage.worker';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 module.exports.sendAutoMessage = async (req: Request, res: Response) => {
   await executeSendAutoMessage(req.method);
+  res.end();
+};
+
+module.exports.sendWelcomeMessage = async (req: Request, res: Response) => {
+  await executeSendWelcomeMessage(req.method);
   res.end();
 };
 
@@ -45,6 +51,9 @@ const executeFunctionManually = async() => {
     case 'createCustomerConversationSummary':
       await executeCreateCustomerConversationSummary('POST');
       break;
+    case 'sendWelcomeMessage':
+      await executeSendWelcomeMessage('POST');
+
   }
 };
 

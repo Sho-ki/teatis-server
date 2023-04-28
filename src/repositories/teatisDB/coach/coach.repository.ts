@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 import { CoachedCustomer, CoachedCustomerWithConversationSummary } from '@Domains/CoachedCustomer';
-import { Coach, ConversationSummary, Prisma, PrismaClient } from '@prisma/client';
+import { Coach, ConversationSummary, EventType, Prisma, PrismaClient } from '@prisma/client';
 import { Transactionable } from '../../utils/transactionable.interface';
 
 export interface GetCoachedCustomersArgs {
@@ -50,6 +50,8 @@ export interface CoachRepositoryInterface extends Transactionable{
     args: BulkInsertCustomerConversationSummaryArgs[]
   ): Promise<ReturnValueType<Prisma.BatchPayload>>;
 
+  getActiveCoachedCustomersPurchasedWithinOneHour(): Promise<ReturnValueType<CoachedCustomer[]>>;
+
   // findCustomerCoach({ customerId }:FindCustomerCoachArgs):Promise<Coach> ;
 }
 
@@ -65,6 +67,32 @@ export class CoachRepository implements CoachRepositoryInterface {
 
   setDefaultPrismaClient() {
     this.prisma = this.originalPrismaClient;
+  }
+
+  async getActiveCoachedCustomersPurchasedWithinOneHour(): Promise<ReturnValueType<CoachedCustomer[]>> {
+    const response = await this.prisma.customers.findMany(
+      {
+        where: {
+          coachingSubscribed: 'active',
+          coachId: { not: null },
+          customerEventLog: {
+            some: {
+              type: EventType.coachingSubscribed,
+              // get customers who purchased within 1 hour
+              eventDate: { gte: new Date(Date.now() - 60 * 60 * 1000), lt: new Date() },
+            },
+          },
+        },
+        include: {
+          coach: true,
+          customerCoachHistory: true,
+        },
+      });
+
+    const customers : CoachedCustomer[] = response.length ?
+      response.map((customer) => { return { ...customer }; })
+      :[];
+    return [customers];
   }
 
   async getActiveCoachedCustomersBySendAt(

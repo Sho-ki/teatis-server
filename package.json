@@ -12,6 +12,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "worker:updateOrder": "ts-node src/worker/index.ts updateOrder",
     "worker:sendAutoMessage": "ts-node src/worker/index.ts sendAutoMessage",
+    "worker:sendWelcomeMessage": "ts-node src/worker/index.ts sendWelcomeMessage",
     "worker:createEmployeeOrder": "ts-node src/worker/index.ts createEmployeeOrder",
     "worker:createCustomerConversationSummary": "ts-node src/worker/index.ts createCustomerConversationSummary",
     "start": "nest start",
