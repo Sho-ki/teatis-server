@@ -136,8 +136,6 @@ implements SendWelcomeMessageUsecaseInterface
       customerChannelId = twilioChannelSid;
     }
 
-    const coachPhone = customer.coach.phone;
-    const customerPhone = customer.phone;
     const webPageUrls = [];
     const mediaUrls = [];
 
@@ -176,19 +174,16 @@ implements SendWelcomeMessageUsecaseInterface
       body = body.replace(link, shortUrl);
       console.log('body: ', body);
     }
+
+    if (mediaUrls.length) {
+      body += '\n\n' + mediaUrls.join('\n\n');
+    }
+
     // Send the text message
     const [, sendTextMessageError] = await this.twilioRepository.sendTextMessage({ customerChannelId, author: 'AUTO MESSAGE', body });
     if (sendTextMessageError) {
       this.sendMessageErrorStack.push(sendTextMessageError);
       return undefined;
-    }
-
-    if (mediaUrls.length) {
-      const [, sendMediaError] = await this.twilioRepository.sendMedia({ coachPhone, customerPhone, mediaUrls });
-      if (sendMediaError) {
-        this.sendMessageErrorStack.push(sendMediaError);
-        return undefined;
-      }
     }
 
     return body;
@@ -203,7 +198,6 @@ implements SendWelcomeMessageUsecaseInterface
       console.log('targetCustomers: ', targetCustomers);
       if(!targetCustomers.length) return;
       console.log('sendableCoachedCustomers.length', targetCustomers.length);
-
       const autoMessages = await this.autoMessageRepository.getPurchaseDateBasedAutoMessagesByDays({ days: [0] });
       const welcomeMessage = autoMessages[0];
       for (const customer of targetCustomers) {
