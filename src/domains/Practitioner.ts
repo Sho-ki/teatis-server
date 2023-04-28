@@ -7,6 +7,6 @@ export interface Practitioner extends SocialMedia {
   profileImage?: string;
   firstName: string;
   lastName?: string;
-  middleName: String;
-  message: String;
+  middleName: string;
+  message: string;
 }

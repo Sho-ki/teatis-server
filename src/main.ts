@@ -47,6 +47,7 @@ import { NewrelicInterceptor } from './newrelic.interceptor';
 import session from 'express-session';
 import createStore from 'connect-pg-simple';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const vercelOrigins = /^https:\/\/(.*)\.vercel\.app\/?$/;
@@ -91,6 +92,15 @@ async function bootstrap() {
   });
 
   app.use(pgSimple);
+
+  const config = new DocumentBuilder()
+    .setTitle('Api Documentation')
+    .setDescription('The Teaits API description')
+    .setVersion('1.0')
+    .addTag('teatis')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT || 8080);
 }
