@@ -139,8 +139,6 @@ implements SendAutoMessageUsecaseInterface
       customerChannelId = twilioChannelSid;
     }
 
-    const coachPhone = customer.coach.phone;
-    const customerPhone = customer.phone;
     const webPageUrls = [];
     const mediaUrls = [];
 
@@ -181,6 +179,10 @@ implements SendAutoMessageUsecaseInterface
       console.log('body: ', body);
     }
 
+    if (mediaUrls.length) {
+      body += '\n\n' + mediaUrls.join('\n\n');
+    }
+
     // Send the text message
     const [, sendTextMessageError] = await this.twilioRepository.sendTextMessage({ customerChannelId, author: 'AUTO MESSAGE', body });
     if (sendTextMessageError) {
@@ -192,14 +194,6 @@ implements SendAutoMessageUsecaseInterface
     if(messageDetail.type === 'sequenceBased'){
       await this.autoMessageRepository.createCustomerSequenceBasedAutoMessagesHistory(
         { customerId: customer.id, sequenceBasedAutoMessageId: messageDetail.id });
-    }
-
-    if (mediaUrls.length) {
-      const [, sendMediaError] = await this.twilioRepository.sendMedia({ coachPhone, customerPhone, mediaUrls });
-      if (sendMediaError) {
-        this.sendMessageErrorStack.push(sendMediaError);
-        return undefined;
-      }
     }
 
     return body;
