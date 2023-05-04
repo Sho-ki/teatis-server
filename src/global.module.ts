@@ -14,6 +14,8 @@ import { CustomerTwilioMessageRepository } from './repositories/teatisDB/custome
 import { TwilioRepository } from './repositories/twilio/twilio.repository';
 import { GetProductOptionsUtil } from './usecases/utils/getProductOptions';
 import { EmployerRepository } from './repositories/teatisDB/employer/employer.repository';
+import { CustomerMicroGoalRepository } from './repositories/teatisDB/customerMicroGoal/customerMicroGoal.repository';
+import { MicroGoalRepository } from './repositories/teatisDB/microGoal/microGoal.respository';
 
 const createGlobalModule = (repositories, configurations) => {
   const globalModule: ModuleMetadata = {
@@ -57,5 +59,7 @@ const createGlobalModule = (repositories, configurations) => {
   CustomerSurveyResponseRepository,
   GetProductOptionsUtil,
   EmployerRepository,
+  CustomerMicroGoalRepository,
+  MicroGoalRepository,
 ], [PrismaService]))
 export class GlobalModule {}
