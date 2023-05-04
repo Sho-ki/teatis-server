@@ -1,7 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
 
-export class CustomerMicroGoals {
+class CustomerMicroGoals {
   @Expose()
     id: number;
 
