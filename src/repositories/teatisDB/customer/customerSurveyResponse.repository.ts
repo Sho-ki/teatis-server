@@ -4,7 +4,7 @@ import { ProductSurveyQuestionResponse } from '@Domains/ProductSurveyQuestionRes
 
 import { PrismaService } from '../../../prisma.service';
 import { Transactionable } from '../../utils/transactionable.interface';
-import { SurveyName } from '../../../usecases/utils/surveyName';
+import { SurveyName } from '../../../shared/constants/surveyName';
 import { SurveyQuestionResponsesWithSurveyQuestionOptions } from '../../../domains/SurveyQuestionResponse';
 import { ReturnValueType } from '../../../filter/customError';
 

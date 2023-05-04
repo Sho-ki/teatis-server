@@ -4,7 +4,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { TwilioCustomerDetail } from '@Domains/TwilioCustomerDetail';
 import { CoachRepositoryInterface } from '@Repositories/teatisDB/coach/coach.repository';
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
-import { SurveyName } from '../utils/surveyName';
+import { SurveyName } from '../../shared/constants/surveyName';
 
 export interface GetCustomerDetailUsecaseInterface {
   getCustomerDetail(id:number): Promise<ReturnValueType<TwilioCustomerDetail>>;
