@@ -7,7 +7,6 @@ import { Transactionable } from '../../utils/transactionable.interface';
 import { SurveyName } from '../../../shared/constants/surveyName';
 import { SurveyQuestionResponsesWithOptions } from '../../../domains/SurveyQuestionResponse';
 import { ReturnValueType } from '../../../filter/customError';
-import { QuestionName } from '../../../shared/constants/questionName';
 
 interface UpsertCustomerResponseArgs {
   surveyHistoryId:number;
@@ -38,11 +37,6 @@ interface GetCustomerSurveyResponsesArgs {
   customerId: number;
 }
 
-interface GetCustomerSurveyQuestionResponseArgs {
-  questionName: QuestionName;
-  customerId: number;
-}
-
 export interface CustomerSurveyResponseRepositoryInterface extends Transactionable {
 
   upsertCustomerResponse({
@@ -70,10 +64,6 @@ export interface CustomerSurveyResponseRepositoryInterface extends Transactionab
   getCustomerSurveyResponses(
     { surveyName, customerId }: GetCustomerSurveyResponsesArgs):
     Promise<ReturnValueType<SurveyQuestionResponsesWithOptions[]>>;
-
-  getCustomerSurveyQuestionResponse(
-    { questionName, customerId }: GetCustomerSurveyQuestionResponseArgs):
-    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions>>;
 
 }
 
@@ -194,15 +184,4 @@ implements CustomerSurveyResponseRepositoryInterface
     return [response];
   }
 
-  async getCustomerSurveyQuestionResponse(
-    { questionName, customerId  }: GetCustomerSurveyQuestionResponseArgs):
-    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions>>{
-    const response = await this.prisma.surveyQuestionResponse.findFirst({
-      where: { surveyQuestion: { name: questionName }, customerSurveyHistory: { customerId } },
-      orderBy: { createdAt: 'desc' },
-      include: { surveyQuestion: { include: { surveyQuestionOptions: true } } },
-    });
-
-    return [response];
-  }
 }
