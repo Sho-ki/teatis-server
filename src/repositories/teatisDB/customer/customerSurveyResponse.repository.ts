@@ -5,8 +5,9 @@ import { ProductSurveyQuestionResponse } from '@Domains/ProductSurveyQuestionRes
 import { PrismaService } from '../../../prisma.service';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { SurveyName } from '../../../shared/constants/surveyName';
-import { SurveyQuestionResponsesWithSurveyQuestionOptions } from '../../../domains/SurveyQuestionResponse';
+import { SurveyQuestionResponsesWithOptions } from '../../../domains/SurveyQuestionResponse';
 import { ReturnValueType } from '../../../filter/customError';
+import { QuestionName } from '../../../shared/constants/questionName';
 
 interface UpsertCustomerResponseArgs {
   surveyHistoryId:number;
@@ -37,6 +38,11 @@ interface GetCustomerSurveyResponsesArgs {
   customerId: number;
 }
 
+interface GetCustomerSurveyQuestionResponseArgs {
+  questionName: QuestionName;
+  customerId: number;
+}
+
 export interface CustomerSurveyResponseRepositoryInterface extends Transactionable {
 
   upsertCustomerResponse({
@@ -61,9 +67,13 @@ export interface CustomerSurveyResponseRepositoryInterface extends Transactionab
     { surveyHistoryId, productId }: GetCustomerSurveyOneProductResponsesArgs):
     Promise<ProductSurveyQuestionResponse[]>;
 
-  getCustomerSurveyResponsesWithSurveyQuestionOptions(
+  getCustomerSurveyResponses(
     { surveyName, customerId }: GetCustomerSurveyResponsesArgs):
-    Promise<ReturnValueType<SurveyQuestionResponsesWithSurveyQuestionOptions[]>>;
+    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions[]>>;
+
+  getCustomerSurveyQuestionResponse(
+    { questionName, customerId }: GetCustomerSurveyQuestionResponseArgs):
+    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions>>;
 
 }
 
@@ -174,13 +184,25 @@ implements CustomerSurveyResponseRepositoryInterface
     return surveyQuestionResponses;
   }
 
-  async getCustomerSurveyResponsesWithSurveyQuestionOptions(
+  async getCustomerSurveyResponses(
     { surveyName, customerId  }: GetCustomerSurveyResponsesArgs):
-    Promise<ReturnValueType<SurveyQuestionResponsesWithSurveyQuestionOptions[]>>{
+    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions[]>>{
     const response = await this.prisma.surveyQuestionResponse.findMany({
       where: { customerSurveyHistory: { survey: { name: surveyName }, customerId } },
       include: { surveyQuestion: { include: { surveyQuestionOptions: true } } },
     });
+    return [response];
+  }
+
+  async getCustomerSurveyQuestionResponse(
+    { questionName, customerId  }: GetCustomerSurveyQuestionResponseArgs):
+    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions>>{
+    const response = await this.prisma.surveyQuestionResponse.findFirst({
+      where: { surveyQuestion: { name: questionName }, customerSurveyHistory: { customerId } },
+      orderBy: { createdAt: 'desc' },
+      include: { surveyQuestion: { include: { surveyQuestionOptions: true } } },
+    });
+
     return [response];
   }
 }

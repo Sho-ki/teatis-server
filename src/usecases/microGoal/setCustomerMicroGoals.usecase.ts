@@ -10,7 +10,7 @@ import { SetCustomerMicroGoalsRequestDto } from '../../controllers/microGoal/dto
 import { SetCustomerMicroGoalsResponseDto } from '../../controllers/microGoal/dtos/response/setCustomerMicroGoals.dto';
 import { QuestionName } from '../../shared/constants/questionName';
 import { MicroGoalCategoryTypes } from '../../shared/constants/microGoalCategories';
-import { MicroGoalWithCategory } from '../../domains/microGoalWithCategory';
+import { MicroGoalWithCategory } from '../../domains/MicroGoalWithCategory';
 
 export interface SetCustomerMicroGoalsUsecaseInterface {
   execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<ReturnValueType<SetCustomerMicroGoalsResponseDto>>;
@@ -36,11 +36,11 @@ export class SetCustomerMicroGoalsUsecase implements SetCustomerMicroGoalsUsecas
     const [hasCustomerMicroGoals] = await this.customerMicroGoalRepository.
       getCustomerMicroGoals({ customerId: customer.id });
 
-    if(hasCustomerMicroGoals.length > 0) return [undefined, { name: 'CustomerMicroGoalsAlreadyExist', message: 'Customer micro goals already exist' }];
+    if(hasCustomerMicroGoals.length > 0) return [undefined, { name: 'AlreadyExist', message: 'Customer micro goals already exist' }];
 
     // get customer pre-purchase answers by customer id
     const [customerSurveyResponses] = await this.customerSurveyResponseRepository.
-      getCustomerSurveyResponsesWithSurveyQuestionOptions(
+      getCustomerSurveyResponses(
         { customerId: customer.id, surveyName: SurveyName.DriverPrePurchase });
 
     const [microGoals] = await this.microGoalRepository.getMicroGoalsWithCategory();

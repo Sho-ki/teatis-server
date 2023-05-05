@@ -4,7 +4,7 @@ import { PrismaService } from '../../../prisma.service';
 import { Transactionable } from '../../utils/transactionable.interface';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { ReturnValueType } from '../../../filter/customError';
-import { MicroGoalWithCategory } from '../../../domains/microGoalWithCategory';
+import { MicroGoalWithCategory } from '../../../domains/MicroGoalWithCategory';
 
 export interface MicroGoalRepositoryInterface extends Transactionable {
   getMicroGoalsWithCategory():
