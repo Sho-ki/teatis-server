@@ -34,7 +34,7 @@ implements GetCustomerDetailUsecaseInterface
     else if(firstName) displayName = firstName;
 
     const [customerSurveyResponses] = await
-    this.customerSurveyResponseRepository.getCustomerSurveyResponsesWithSurveyQuestionOptions(
+    this.customerSurveyResponseRepository.getCustomerSurveyResponses(
       { surveyName: SurveyName.PrePurchase, customerId: id });
 
     for(const question of customerSurveyResponses) {
