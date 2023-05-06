@@ -55,7 +55,12 @@ async function bootstrap() {
     AppModule,
     {
       cors: {
-        origin: ['http://localhost:3000', 'https://teatismeal.com', vercelOrigins],
+        origin: [
+          'http://localhost:3000',
+          'https://teatismeal.com',
+          'https://teatishealth.com',
+          vercelOrigins,
+        ],
         credentials: true,
       },
     },
