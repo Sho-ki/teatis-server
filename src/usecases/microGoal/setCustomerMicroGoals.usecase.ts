@@ -10,14 +10,21 @@ import { SetCustomerMicroGoalsRequestDto } from '../../controllers/microGoal/dto
 import { SetCustomerMicroGoalsResponseDto } from '../../controllers/microGoal/dtos/response/setCustomerMicroGoals.dto';
 import { QuestionName } from '../../shared/constants/questionName';
 import { MicroGoalCategoryTypes } from '../../shared/constants/microGoalCategories';
-import { MicroGoalWithCategory } from '../../domains/MicroGoalWithCategory';
+import { MicroGoalWithActionSteps } from '../../domains/MicroGoalWithActionSteps';
+import { TransactionOperatorInterface } from '../../repositories/utils/transactionOperator';
+import { CustomerActionStepRepositoryInterface } from '../../repositories/teatisDB/customerActionStep/customerActionStep.repository';
+import { CustomerMicroGoal } from '@prisma/client';
 
 export interface SetCustomerMicroGoalsUsecaseInterface {
-  execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<ReturnValueType<SetCustomerMicroGoalsResponseDto>>;
+  execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<
+    ReturnValueType<SetCustomerMicroGoalsResponseDto>
+  >;
 }
 
 @Injectable()
-export class SetCustomerMicroGoalsUsecase implements SetCustomerMicroGoalsUsecaseInterface {
+export class SetCustomerMicroGoalsUsecase
+implements SetCustomerMicroGoalsUsecaseInterface
+{
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
@@ -27,52 +34,66 @@ export class SetCustomerMicroGoalsUsecase implements SetCustomerMicroGoalsUsecas
     private customerMicroGoalRepository: CustomerMicroGoalRepositoryInterface,
     @Inject('MicroGoalRepositoryInterface')
     private microGoalRepository: MicroGoalRepositoryInterface,
+    @Inject('CustomerActionStepRepositoryInterface')
+    private customerActionStepRepository: CustomerActionStepRepositoryInterface,
+    @Inject('TransactionOperatorInterface')
+    private transactionOperator: TransactionOperatorInterface,
   ) {}
 
-  async execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<ReturnValueType<SetCustomerMicroGoalsResponseDto>> {
-    // get customer by uuid
+  async execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<
+    ReturnValueType<SetCustomerMicroGoalsResponseDto>
+  > {
     const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
-    const [hasCustomerMicroGoals] = await this.customerMicroGoalRepository.
-      getCustomerMicroGoals({ customerId: customer.id });
+    const [hasCustomerMicroGoals] =
+      await this.customerMicroGoalRepository.getCustomerMicroGoals({ customerId: customer.id });
 
-    if(hasCustomerMicroGoals.length > 0) return [undefined, { name: 'AlreadyExist', message: 'Customer micro goals already exist' }];
+    if (hasCustomerMicroGoals.length > 0)
+      return [undefined, { name: 'AlreadyExist', message: 'Customer micro goals already exist' }];
 
     // get customer pre-purchase answers by customer id
-    const [customerSurveyResponses] = await this.customerSurveyResponseRepository.
-      getCustomerSurveyResponses(
-        { customerId: customer.id, surveyName: SurveyName.DriverPrePurchase });
+    const [customerSurveyResponses] =
+      await this.customerSurveyResponseRepository.getCustomerSurveyResponses({
+        customerId: customer.id,
+        surveyName: SurveyName.DriverPrePurchase,
+      });
 
-    const [microGoals] = await this.microGoalRepository.getMicroGoalsWithCategory();
+    const [microGoals] =
+      await this.microGoalRepository.getMicroGoalsWithActionSteps();
 
     const areasOfPain = [];
 
     customerSurveyResponses.forEach((customerSurveyResponse) => {
-      if (customerSurveyResponse.surveyQuestion.name === QuestionName.AreaOfPain) {
-        const pains = customerSurveyResponse.surveyQuestion.surveyQuestionOptions
-          .map((surveyQuestionOption) => {
-            const responseIds = customerSurveyResponse.response as number[];
-            if (responseIds?.includes?.(surveyQuestionOption.id)) {
-              return surveyQuestionOption.label.toLowerCase();
-            }
-          })
-          .filter(Boolean);
+      if (
+        customerSurveyResponse.surveyQuestion.name === QuestionName.AreaOfPain
+      ) {
+        const pains =
+          customerSurveyResponse.surveyQuestion.surveyQuestionOptions
+            .map((surveyQuestionOption) => {
+              const responseIds = customerSurveyResponse.response as number[];
+              if (responseIds?.includes?.(surveyQuestionOption.id)) {
+                return surveyQuestionOption.label.toLowerCase();
+              }
+            })
+            .filter(Boolean);
         areasOfPain.push(...pains);
       }
     });
 
-    const orderedMicroGoals: MicroGoalWithCategory[] = microGoals.sort((a, b) => {
-      const aInPain = areasOfPain.includes(a.subCategory.name);
-      const bInPain = areasOfPain.includes(b.subCategory.name);
+    const orderedMicroGoals: MicroGoalWithActionSteps[] = microGoals.sort(
+      (a, b) => {
+        const aInPain = areasOfPain.includes(a.subCategory.name);
+        const bInPain = areasOfPain.includes(b.subCategory.name);
 
-      if (aInPain && !bInPain) {
-        return -1;
-      } else if (!aInPain && bInPain) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+        if (aInPain && !bInPain) {
+          return -1;
+        } else if (!aInPain && bInPain) {
+          return 1;
+        } else {
+          return 0;
+        }
+      },
+    );
 
     const currentOrderSet = {
       [MicroGoalCategoryTypes.A1C]: 0,
@@ -82,7 +103,7 @@ export class SetCustomerMicroGoalsUsecase implements SetCustomerMicroGoalsUsecas
       [MicroGoalCategoryTypes.Stress]: 0,
     };
 
-    const response:SetCustomerMicroGoalsResponseDto = {
+    const response: SetCustomerMicroGoalsResponseDto = {
       id: customer.id,
       customerMicroGoals: orderedMicroGoals.map((microGoal) => {
         if (microGoal.category.name in currentOrderSet) {
@@ -96,14 +117,45 @@ export class SetCustomerMicroGoalsUsecase implements SetCustomerMicroGoalsUsecas
       }),
     };
 
-    const customerOrderedMicroGoals:{customerId:number, microGoals:{id:number, order:number}[]} = {
+    const customerOrderedMicroGoals: {
+      customerId: number;
+      microGoals: { id: number, order: number, actionStepIds: number[] }[];
+    } = {
       customerId: customer.id,
-      microGoals: response.customerMicroGoals.map(({ id, order }) => ({ id, order })),
+      microGoals: response.customerMicroGoals.map(
+        ({ id, order, actionSteps }) => ({
+          id,
+          order,
+          actionStepIds: actionSteps.map(({ id }) => id),
+        }),
+      ),
     };
 
-    await this.customerMicroGoalRepository.createCustomerMicroGoals(customerOrderedMicroGoals);
+    await this.transactionOperator
+      .performAtomicOperations(
+        [this.customerMicroGoalRepository, this.customerActionStepRepository],
+        async (): Promise<ReturnValueType<CustomerMicroGoal[]>> => {
+          const result:CustomerMicroGoal[] = [];
+          for(const microGoal of customerOrderedMicroGoals.microGoals) {
+            const [customerMicroGoal] = await this.customerMicroGoalRepository.createCustomerMicroGoal(
+              { customerId: customer.id, microGoal }
+            );
+
+            await this.customerActionStepRepository.createCustomerActionSteps(
+              {
+                customerId: customer.id,
+                customerMicroGoalId: customerMicroGoal.id,
+                actionStepIds: microGoal.actionStepIds,
+              }
+            );
+            result.push(customerMicroGoal);
+
+          }
+
+          return [result];
+
+        });
 
     return [response];
-
   }
 }
