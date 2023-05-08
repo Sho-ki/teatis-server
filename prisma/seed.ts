@@ -511,7 +511,7 @@ const upsertSurveyDrivers = async() => {
   for(const question of questions){
     const {
       name: questionName, label: questionLabel, responseType, isCustomerFeature, images, isRequired,
-      displayOrder, options, placeholder, hint, children,
+      displayOrder, options, placeholder, hint, children, isArchived,
     } = question;
 
     const findQuestion = await prisma.surveyQuestion.findUnique({ where: { name: questionName } });
@@ -522,8 +522,9 @@ const upsertSurveyDrivers = async() => {
           surveyId: surveyResponse.id,
           surveyQuestionId: findQuestion.id,
           displayOrder,
+          isArchived,
         },
-        update: { displayOrder },
+        update: { displayOrder, isArchived },
       });
       await prisma.surveyQuestion.update({
         where: { id: findQuestion.id },
@@ -545,8 +546,9 @@ const upsertSurveyDrivers = async() => {
                 surveyId: surveyResponse.id,
                 surveyQuestionId: childResponse.id,
                 displayOrder: i,
+                isArchived,
               },
-              update: { displayOrder: i },
+              update: { displayOrder: i, isArchived },
             });
           }
           i++;
