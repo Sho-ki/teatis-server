@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
-import { TransactionOperator } from '@Repositories/utils/transactionOperator';
 import { MicroGoalController } from './microGoal.controller';
 import { SetCustomerMicroGoalsUsecase } from '../../usecases/microGoal/setCustomerMicroGoals.usecase';
+import { GetCustomerMicroGoalsUsecase } from '../../usecases/microGoal/getCustomerMicroGoals.usecase';
 
 @Module({
   controllers: [MicroGoalController],
   exports: [MicroGoalController],
   providers: [
     {
-      provide: 'SetCustomerMicroGoalsUsecaseInterface',
-      useClass: SetCustomerMicroGoalsUsecase,
+      provide: 'GetCustomerMicroGoalsUsecaseInterface',
+      useClass: GetCustomerMicroGoalsUsecase,
     },
     {
-      provide: 'TransactionOperatorInterface',
-      useClass: TransactionOperator,
+      provide: 'SetCustomerMicroGoalsUsecaseInterface',
+      useClass: SetCustomerMicroGoalsUsecase,
     },
     MicroGoalController,
   ],
 })
-export class  MicroGoalModule {}
+export class MicroGoalModule {}
