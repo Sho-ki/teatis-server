@@ -11,25 +11,493 @@ interface Question extends Omit<SurveyQuestion, 'id' | 'createdAt' | 'updatedAt'
   displayOrder?:number;
   images?:Omit<SurveyQuestionImage, 'id' | 'createdAt' | 'updatedAt' | 'surveyQuestionId'>[];
   options:Omit<SurveyQuestionOption, 'id' | 'createdAt' | 'updatedAt' | 'surveyQuestionId'>[];
+  isArchived: boolean;
 }
+
+const YesNoOptions = [
+  {
+    label: 'Yes',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'No',
+    value: null,
+    isArchived: false,
+  },
+];
+const dotExamNextOptions = [
+  {
+    label: 'Within a month',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Within 3 months',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Within 6 months',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Within a year',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Within 2 years',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const struggleOnRoadOptions = [
+  {
+    label: 'Meal prep and keep full on the road',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Take exercise',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Keep hydrated',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Control sleeping',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Manage stress',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Quit smoking',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const smokeOptions = [
+  {
+    label: 'Yes, I currently smoke',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'No, but I used to smoke',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'No, I have never smoked',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const A1COptions = [
+  {
+    label: '5',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: '6',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: '7',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: '8',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: '9',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: '10',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: '10+',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const areaOfPainOptions = [
+  {
+    label: 'Neck',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Shoulders',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Elbow',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Wrist',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Hands',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Upper Back',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Lower Back',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Hips',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Knees',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Ankles',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Feet',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const diabetesOptions = [
+  {
+    label: 'Type2',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Type1',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Prediabetes',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Gestational Diabetes',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Non-Diabetic',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'I am not sure',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const timeOnRoadOptions = [
+  {
+    label: 'I spend most of my time on the truck',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'I have time to go home on my shift',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'It varies',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const foodDuringShiftOptions = [
+  {
+    label: 'I bring home cooked food',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'I order food from outside',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'I do both',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'I don\'t eat during my shift',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const cgmDeviceOptions = [
+  {
+    label: 'The Contour Next One',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'FreeStyle Libre',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Dexcom G6',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Eversense',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Guardian Connect System',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Walgreens TrueMetrix Bluetooth Blood Glucose Meter',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'I don\'t use/own a CGM device',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Others',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const cookingToolsOnTruckOptions = [
+  {
+    label: 'Refrigerator',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Gas stove',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Pan',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Microwave',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const genderOptions = [
+  {
+    label: 'Female',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Male',
+    value: null,
+    isArchived: false,
+  },
+  {
+    label: 'Prefer not to say',
+    value: null,
+    isArchived: false,
+  },
+];
+
+const ageOptions = [
+  {
+    label: '~ 19',
+    value: 15,
+    isArchived: false,
+  },
+  {
+    label: '20 ~ 29',
+    value: 25,
+    isArchived: false,
+  },
+  {
+    label: '30 ~ 39',
+    value: 35,
+    isArchived: false,
+  },
+  {
+    label: '40 ~ 49',
+    value: 45,
+    isArchived: false,
+  },
+  {
+    label: '50 ~ 59',
+    value: 55,
+    isArchived: false,
+  },
+  {
+    label: '60 ~ 69',
+    value: 65,
+    isArchived: false,
+  },
+  {
+    label: '70 ~',
+    value: 75,
+    isArchived: false,
+  },
+];
+
+const heightOptions = [
+  {
+    label: `~ 4'9`,
+    value: 145,
+    isArchived: false,
+  },
+  {
+    label: `4'9 ~ 5'1`,
+    value: 155,
+    isArchived: false,
+  },
+  {
+    label: `5'2 ~ 5'5`,
+    value: 165,
+    isArchived: false,
+  },
+  {
+    label: `5'6 ~ 5'8`,
+    value: 175,
+    isArchived: false,
+  },
+  {
+    label: `5'9 ~ 6'1`,
+    value: 185,
+    isArchived: false,
+  },
+  {
+    label: `6'2 ~ 6'5`,
+    value: 195,
+    isArchived: false,
+  },
+  {
+    label: `6'6 ~`,
+    value: 205,
+    isArchived: false,
+  },
+];
+
+const weightOptions = [
+  {
+    label: '330 ~',
+    value: 155,
+    isArchived: false,
+  },
+  {
+    label: '309 ~ 329',
+    value: 145,
+    isArchived: false,
+  },
+  {
+    label: '287 ~ 308',
+    value: 135,
+    isArchived: false,
+  },
+  {
+    label: '265 ~ 286',
+    value: 125,
+    isArchived: false,
+  },
+  {
+    label: '243 ~ 264',
+    value: 115,
+    isArchived: false,
+  },
+  {
+    label: '220 ~ 242',
+    value: 105,
+    isArchived: false,
+  },
+  {
+    label: '198 ~ 219',
+    value: 95,
+    isArchived: false,
+  },
+  {
+    label: '176 ~ 197',
+    value: 85,
+    isArchived: false,
+  },
+  {
+    label: '154 ~ 175',
+    value: 75,
+    isArchived: false,
+  },
+  {
+    label: '132 ~ 153',
+    value: 65,
+    isArchived: false,
+  },
+  {
+    label: '~ 132',
+    value: 55,
+    isArchived: false,
+  },
+];
 
 const seedSurveyDrivers:Survey =
   {
     name: 'driverPrePurchaseSurvey',
     label: 'Driver Pre Purchase Survey',
     questions: [
-      {
-        displayOrder: undefined,
-        name: 'name',
-        label: 'What is your name?',
-        isRequired: true,
-        isCustomerFeature: true,
-        hint: null,
-        placeholder: null,
-        responseType: 'text',
-        parentSurveyQuestionId: null,
-        options: [],
-      },
       {
         displayOrder: undefined,
         name: 'driversLicense',
@@ -40,18 +508,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Yes',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'No',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: YesNoOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -63,33 +521,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Within a month',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Within 3 months',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Within 6 months',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Within a year',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Within 2 years',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: dotExamNextOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -101,38 +534,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Meal prep and keep full on the road',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Take exercise',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Keep hydrated',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Control sleeping',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Manage stress',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Quit smoking',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: struggleOnRoadOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -144,23 +547,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Yes, I currently smoke',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'No, but I used to smoke',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'No, I have never smoked',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: smokeOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -172,43 +560,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: '5',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: '6',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: '7',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: '8',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: '9',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: '10',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: '10+',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: A1COptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -220,63 +573,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'multiple',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Neck',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Shoulders',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Elbow',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Wrist',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Hands',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Upper Back',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Lower Back',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Hips',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Knees',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Ankles',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Feet',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: areaOfPainOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -288,38 +586,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Type2',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Type1',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Prediabetes',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Gestational Diabetes',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Non-Diabetic',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'I am not sure',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: diabetesOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -331,18 +599,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Yes',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'No',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: YesNoOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -354,23 +612,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'I spend most of my time on the truck',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'I have time to go home on my shift',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'It varies',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: timeOnRoadOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -382,56 +625,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'I bring home cooked food',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'I order food from outside',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'I do both',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'I don\'t eat during my shift',
-            value: null,
-            isArchived: false,
-          },
-        ],
-      },
-      {
-        displayOrder: undefined,
-        name: 'timeOnRoad',
-        label: 'Do you spend most of your time on the road or do you have time to go home on your shift?',
-        isRequired: false,
-        isCustomerFeature: false,
-        hint: null,
-        placeholder: null,
-        responseType: 'single',
-        parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'I spend most of my time on the truck',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'I have time to go home on my shift',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'It varies',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: foodDuringShiftOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -443,48 +638,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'The Contour Next One',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'FreeStyle Libre',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Dexcom G6',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Eversense',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Guardian Connect System',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Walgreens TrueMetrix Bluetooth Blood Glucose Meter',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'I don\'t use/own a CGM device',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Others',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: cgmDeviceOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -496,28 +651,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'multiple',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Refrigerator',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Gas stove',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Pan',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Microwave',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: cookingToolsOnTruckOptions,
+        isArchived: false,
       },
 
       {
@@ -530,23 +665,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Female',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Male',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'Prefer not to say',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: genderOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -558,43 +678,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: '~ 19',
-            value: 15,
-            isArchived: false,
-          },
-          {
-            label: '20 ~ 29',
-            value: 25,
-            isArchived: false,
-          },
-          {
-            label: '30 ~ 39',
-            value: 35,
-            isArchived: false,
-          },
-          {
-            label: '40 ~ 49',
-            value: 45,
-            isArchived: false,
-          },
-          {
-            label: '50 ~ 59',
-            value: 55,
-            isArchived: false,
-          },
-          {
-            label: '60 ~ 69',
-            value: 65,
-            isArchived: false,
-          },
-          {
-            label: '70 ~',
-            value: 75,
-            isArchived: false,
-          },
-        ],
+        options: ageOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -606,43 +691,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: `~ 4'9`,
-            value: 145,
-            isArchived: false,
-          },
-          {
-            label: `4'9 ~ 5'1`,
-            value: 155,
-            isArchived: false,
-          },
-          {
-            label: `5'2 ~ 5'5`,
-            value: 165,
-            isArchived: false,
-          },
-          {
-            label: `5'6 ~ 5'8`,
-            value: 175,
-            isArchived: false,
-          },
-          {
-            label: `5'9 ~ 6'1`,
-            value: 185,
-            isArchived: false,
-          },
-          {
-            label: `6'2 ~ 6'5`,
-            value: 195,
-            isArchived: false,
-          },
-          {
-            label: `6'6 ~`,
-            value: 205,
-            isArchived: false,
-          },
-        ],
+        options: heightOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -654,63 +704,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: '330 ~',
-            value: 155,
-            isArchived: false,
-          },
-          {
-            label: '309 ~ 329',
-            value: 145,
-            isArchived: false,
-          },
-          {
-            label: '287 ~ 308',
-            value: 135,
-            isArchived: false,
-          },
-          {
-            label: '265 ~ 286',
-            value: 125,
-            isArchived: false,
-          },
-          {
-            label: '243 ~ 264',
-            value: 115,
-            isArchived: false,
-          },
-          {
-            label: '220 ~ 242',
-            value: 105,
-            isArchived: false,
-          },
-          {
-            label: '198 ~ 219',
-            value: 95,
-            isArchived: false,
-          },
-          {
-            label: '176 ~ 197',
-            value: 85,
-            isArchived: false,
-          },
-          {
-            label: '154 ~ 175',
-            value: 75,
-            isArchived: false,
-          },
-          {
-            label: '132 ~ 153',
-            value: 65,
-            isArchived: false,
-          },
-          {
-            label: '~ 132',
-            value: 55,
-            isArchived: false,
-          },
-        ],
+        options: weightOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -722,18 +717,8 @@ const seedSurveyDrivers:Survey =
         placeholder: null,
         responseType: 'single',
         parentSurveyQuestionId: null,
-        options: [
-          {
-            label: 'Yes',
-            value: null,
-            isArchived: false,
-          },
-          {
-            label: 'No',
-            value: null,
-            isArchived: false,
-          },
-        ],
+        options: YesNoOptions,
+        isArchived: false,
       },
       {
         displayOrder: undefined,
@@ -747,6 +732,7 @@ const seedSurveyDrivers:Survey =
         parentSurveyQuestionId: null,
         images: [{ src: 'https://storage.googleapis.com/teatis-images/onboarding/teatis_anime_carrie-min.gif', position: 1 }],
         options: [],
+        isArchived: true,
       },
       {
         displayOrder: undefined,
@@ -760,6 +746,7 @@ const seedSurveyDrivers:Survey =
         parentSurveyQuestionId: null,
         images: [{ src: 'https://storage.googleapis.com/teatis-images/onboarding/teatis_anime_charlotte-min.gif', position: 1 }],
         options: [],
+        isArchived: true,
       },
       {
         displayOrder: undefined,
@@ -773,6 +760,7 @@ const seedSurveyDrivers:Survey =
         parentSurveyQuestionId: null,
         images: [{ src: 'https://storage.googleapis.com/teatis-images/onboarding/teatis_anime_miranda-min.gif', position: 1 }],
         options: [],
+        isArchived: true,
       },
       {
         displayOrder: undefined,
@@ -786,6 +774,7 @@ const seedSurveyDrivers:Survey =
         parentSurveyQuestionId: null,
         images: [{ src: 'https://storage.googleapis.com/teatis-images/onboarding/teatis_anime_samantha-min.gif', position: 1 }],
         options: [],
+        isArchived: true,
       },
       {
         displayOrder: undefined,
@@ -798,6 +787,7 @@ const seedSurveyDrivers:Survey =
         responseType: 'multiple',
         parentSurveyQuestionId: null,
         options: [],
+        isArchived: true,
       },
       {
         displayOrder: undefined,
@@ -810,6 +800,7 @@ const seedSurveyDrivers:Survey =
         responseType: 'multiple',
         parentSurveyQuestionId: null,
         options: [],
+        isArchived: true,
         children: [
           {
             displayOrder: 1,
@@ -822,6 +813,7 @@ const seedSurveyDrivers:Survey =
             responseType: 'multiple',
             parentSurveyQuestionId: null,
             options: [],
+            isArchived: true,
           },
         ],
       },
@@ -836,19 +828,21 @@ const seedSurveyDrivers:Survey =
         responseType: 'text',
         parentSurveyQuestionId: null,
         options: [],
+        isArchived: false,
       },
-      // {
-      //   displayOrder: undefined,
-      //   name: 'address',
-      //   label: 'What is your phone number?',
-      //   isRequired: true,
-      //   isCustomerFeature: true,
-      //   hint: null,
-      //   placeholder: null,
-      //   responseType: 'text',
-      //   parentSurveyQuestionId: null,
-      //   options: [],
-      // },
+      {
+        displayOrder: undefined,
+        name: 'name',
+        label: 'What is your name?',
+        isRequired: true,
+        isCustomerFeature: true,
+        hint: null,
+        placeholder: null,
+        responseType: 'text',
+        parentSurveyQuestionId: null,
+        options: [],
+        isArchived: false,
+      },
       {
         displayOrder: undefined,
         name: 'phoneNumber',
@@ -860,6 +854,7 @@ const seedSurveyDrivers:Survey =
         responseType: 'text',
         parentSurveyQuestionId: null,
         options: [],
+        isArchived: false,
       },
     ],
   };
