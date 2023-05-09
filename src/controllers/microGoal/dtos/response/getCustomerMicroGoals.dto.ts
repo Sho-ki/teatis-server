@@ -1,7 +1,8 @@
 import { Expose } from 'class-transformer';
 import { IsOptional, ValidateNested } from 'class-validator';
 
-class CustomerActionStep {
+export namespace GetCustomerMicroGoalsResponseDto{
+export class CustomerActionStep {
   @Expose()
     id: number;
 
@@ -27,7 +28,7 @@ class CustomerActionStep {
     imageUrl?: string;
 }
 
-class CustomerMicroGoal {
+export class CustomerMicroGoal {
   @Expose()
     id: number;
 
@@ -45,7 +46,7 @@ class CustomerMicroGoal {
     actionSteps: CustomerActionStep[];
 }
 
-export class GetCustomerMicroGoalsResponseDto {
+ export class Main {
   @Expose()
     id: number;
 
@@ -64,4 +65,5 @@ export class GetCustomerMicroGoalsResponseDto {
   @Expose()
   @ValidateNested({ each: true })
     microGoals: CustomerMicroGoal[];
+ }
 }

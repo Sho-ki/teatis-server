@@ -4,15 +4,18 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerMicroGoalRepositoryInterface } from '../../repositories/teatisDB/customerMicroGoal/customerMicroGoal.repository';
 import { ReturnValueType } from '../../filter/customError';
-import { MicroGoalRepositoryInterface } from '../../repositories/teatisDB/microGoal/microGoal.respository';
 import { GetCustomerMicroGoalsRequestDto } from '../../controllers/microGoal/dtos/request/getCustomerMicroGoals.dto';
 import { GetCustomerMicroGoalsResponseDto } from '../../controllers/microGoal/dtos/response/getCustomerMicroGoals.dto';
 import { QuestionName } from '../../shared/constants/questionName';
 import { SurveyQuestionResponsesWithOptions } from '../../domains/SurveyQuestionResponse';
+import { CustomerMicroGoalWithActionSteps } from '../../domains/CustomerMicroGoalWithActionSteps';
+import { Customer } from '../../domains/Customer';
+import { ActionStep, ActionStepImage, CustomerActionStep, CustomerActionStepImage } from '@prisma/client';
+import { MicroGoalCategoryTypes } from '../../shared/constants/microGoalCategories';
 
 export interface GetCustomerMicroGoalsUsecaseInterface {
   execute({ uuid }: GetCustomerMicroGoalsRequestDto): Promise<
-    ReturnValueType<GetCustomerMicroGoalsResponseDto>
+    ReturnValueType<GetCustomerMicroGoalsResponseDto.Main>
   >;
 }
 
@@ -27,9 +30,70 @@ implements GetCustomerMicroGoalsUsecaseInterface
     private customerSurveyResponseRepository: CustomerSurveyResponseRepositoryInterface,
     @Inject('CustomerMicroGoalRepositoryInterface')
     private customerMicroGoalRepository: CustomerMicroGoalRepositoryInterface,
-    @Inject('MicroGoalRepositoryInterface')
-    private microGoalRepository: MicroGoalRepositoryInterface,
+
   ) {}
+
+  private transformActionSteps(
+    actionSteps: (ActionStep & { actionStepImage?: ActionStepImage[]})[],
+    customerActionSteps: (CustomerActionStep & {customerActionStepImage?: CustomerActionStepImage[]})[])
+    : GetCustomerMicroGoalsResponseDto.CustomerActionStep[] {
+    return actionSteps.map((actionStep): GetCustomerMicroGoalsResponseDto.CustomerActionStep => {
+      const customerActionStep = customerActionSteps.find((cas) => cas.actionStepId === actionStep.id);
+
+      if (customerActionStep) {
+        actionStep.mainText = customerActionStep.customizedMainText || actionStep.mainText;
+        actionStep.subText = customerActionStep.customizedSubText || actionStep.subText;
+
+        actionStep.actionStepImage.forEach((actionStepImage) => {
+          const casImage = customerActionStep.customerActionStepImage?.
+            find((image) => image.position === actionStepImage.position);
+          if (casImage) actionStepImage.src = casImage.src;
+        });
+      }
+
+      return {
+        id: actionStep.id,
+        order: actionStep.order,
+        mainText: actionStep.mainText,
+        subText: actionStep.subText,
+        reason: actionStep.reason,
+        completedAt: customerActionStep.completedAt,
+        imageUrl: actionStep.actionStepImage.length > 0 ? actionStep.actionStepImage[0].src : undefined,
+      };
+    });
+  }
+
+  private transformMicroGoals(customerMicroGoalWithActionSteps: CustomerMicroGoalWithActionSteps[])
+  : GetCustomerMicroGoalsResponseDto.CustomerMicroGoal[] {
+    return customerMicroGoalWithActionSteps.map(({ id, label, order, category, actionSteps, customerActionSteps }) => {
+      const mappedActionSteps = this.transformActionSteps(actionSteps, customerActionSteps);
+
+      return {
+        id,
+        label,
+        order,
+        category: category.name,
+        actionSteps: mappedActionSteps,
+      };
+    });
+  }
+
+  private transformToDto(
+    customer: Customer,
+    customerMicroGoalWithActionSteps: CustomerMicroGoalWithActionSteps[],
+    nextDotExamMonthLeft: number)
+  : GetCustomerMicroGoalsResponseDto.Main {
+    const customerMicroGoals = this.transformMicroGoals(customerMicroGoalWithActionSteps);
+
+    return {
+      id: customer.id,
+      uuid: customer.uuid,
+      nextDotExamMonthLeft,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      microGoals: customerMicroGoals,
+    };
+  }
 
   private calculateMonthLeft(
     customerSurveyResponse: SurveyQuestionResponsesWithOptions,
@@ -59,19 +123,57 @@ implements GetCustomerMicroGoalsUsecaseInterface
   }
 
   async execute({ uuid }: GetCustomerMicroGoalsRequestDto): Promise<
-    ReturnValueType<GetCustomerMicroGoalsResponseDto>
-  > {
-    // get customer by uuid
+    ReturnValueType<GetCustomerMicroGoalsResponseDto.Main>> {
     const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
     const [customerMicroGoals, getCustomerMicroGoalsWithActionStepsError] =
       await this.customerMicroGoalRepository.getCustomerMicroGoalsWithActionSteps(
         { customerId: customer.id },
       );
-    console.log('customerMicroGoals: ', customerMicroGoals);
 
     if (getCustomerMicroGoalsWithActionStepsError)
       return [undefined, getCustomerMicroGoalsWithActionStepsError];
+
+    const foundCategory = {
+      [MicroGoalCategoryTypes.A1C]: false,
+      [MicroGoalCategoryTypes.Exercise]: false,
+      [MicroGoalCategoryTypes.Food]: false,
+      [MicroGoalCategoryTypes.Hydration]: false,
+      [MicroGoalCategoryTypes.Stress]: false,
+    };
+    // find uncompleted micro goals on each category
+    const sortedCustomerMicroGoals = customerMicroGoals.sort((a, b) => a.order - b.order);
+
+    const uncompletedMicroGoals = sortedCustomerMicroGoals.filter((customerMicroGoal) => {
+      if (!foundCategory[customerMicroGoal.category.name]) {
+        const hasUncompleted = customerMicroGoal.customerActionSteps.some(
+          (customerActionStep) => !customerActionStep.completedAt,
+        );
+
+        if (hasUncompleted) {
+          foundCategory[customerMicroGoal.category.name] = true;
+          return true;
+        }
+      }
+      return false;
+    });
+
+    const hasNoUncompleted = Object.keys(foundCategory).filter((key) => !foundCategory[key]);
+
+    if (hasNoUncompleted.length) {
+      hasNoUncompleted.forEach((key) => {
+        const microGoalsInCategory = sortedCustomerMicroGoals.filter(
+          (customerMicroGoal) => customerMicroGoal.category.name === key,
+        );
+
+        if (microGoalsInCategory.length) {
+          const randomIndex = Math.floor(Math.random() * microGoalsInCategory.length);
+          const randomCustomerMicroGoal = microGoalsInCategory[randomIndex];
+          uncompletedMicroGoals.push(randomCustomerMicroGoal);
+          foundCategory[key] = true;
+        }
+      });
+    }
 
     // get customer pre-purchase answers by customer id
     const [customerSurveyResponse] =
@@ -86,38 +188,9 @@ implements GetCustomerMicroGoalsUsecaseInterface
       )
       : null;
 
-    // const response:GetCustomerMicroGoalsResponseDto = {
-    //   ...customer,
-    //   nextDotExamMonthLeft,
-    //   microGoals: customerMicroGoals.map((microGoal) => {
-    //     const { actionSteps, category, ...rest } = microGoal;
-    //     return {
-    //       ...rest,
-    //       category: category.name,
-    //       actionSteps: actionSteps.map((actionStep) => {
-    //         const { microGoal, ...rest } = actionStep;
-    //         return rest;
-    //       }),
-    //     };
-    //   }),
-    // };
+    const response: GetCustomerMicroGoalsResponseDto.Main =
+    this.transformToDto(customer, uncompletedMicroGoals, nextDotExamMonthLeft);
 
-    // if (microGoal.category.name in currentOrderGet) {
-    //   currentOrderGet[microGoal.category.name] += 1;
-    //   return {
-    //     ...microGoal,
-    //     category: microGoal.category.name,
-    //     order: currentOrderGet[microGoal.category.name],
-    //   };
-    // }
-
-    // const customerOrderedMicroGoals:{customerId:number, microGoals:{id:number, order:number}[]} = {
-    //   customerId: customer.id,
-    //   microGoals: response.customerMicroGoals.map(({ id, order }) => ({ id, order })),
-    // };
-
-    // await this.customerMicroGoalRepository.createCustomerMicroGoals(customerOrderedMicroGoals);
-
-    // return [response];
+    return [response];
   }
 }

@@ -33,7 +33,7 @@ interface GetCustomerProductSurveyResponseArgs {
   surveyHistoryId: number;
 }
 
-interface GetCustomerSurveyResponsesArgs {
+export interface GetCustomerSurveyResponsesArgs {
   surveyName: SurveyName;
   customerId: number;
 }

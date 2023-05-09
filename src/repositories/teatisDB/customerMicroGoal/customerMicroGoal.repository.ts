@@ -77,7 +77,8 @@ implements CustomerMicroGoalRepositoryInterface
     return [response];
   }
 
-  async getCustomerMicroGoalsWithActionSteps({ customerId }: GetCustomerMicroGoalsWithActionStepsArgs): Promise<
+  async getCustomerMicroGoalsWithActionSteps({ customerId }:
+     GetCustomerMicroGoalsWithActionStepsArgs): Promise<
     ReturnValueType<CustomerMicroGoalWithActionSteps[]>
   > {
     const response = await this.prisma.customerMicroGoal.findMany({
@@ -112,37 +113,6 @@ implements CustomerMicroGoalRepositoryInterface
 
         const customerActionSteps = customerMicroGoal.customerActionSteps;
 
-        //   const updatedCustomerMicroGoalWithActionSteps = {
-        //     actionSteps: actionSteps.map((actionStep) => {
-        //       const customerActionStep = customerActionSteps.find(
-        //         (cas) => cas.actionStepId === actionStep.id
-        //       );
-
-        //       if (customerActionStep) {
-        //         const { customizedMainText, customizedSubText, customerActionStepImage } = customerActionStep;
-
-        //         if (customizedMainText) {
-        //           actionStep.mainText = customizedMainText;
-        //         }
-
-        //         if (customizedSubText) {
-        //           actionStep.subText = customizedSubText;
-        //         }
-
-        //         if (customerActionStepImage && customerActionStepImage.length > 0) {
-        //           actionStep.actionStepImage.forEach((actionStepImage) => {
-        //             actionStepImage.src = customerActionStepImage.find(
-        //               (casImage) => casImage.position === actionStepImage.position
-        //             ).src;
-
-        //           }
-        //           );
-        //         }
-        //       }
-
-        //       return actionStep;
-        //     }),
-        //   };
         return {
           ...customerMicroGoal,
           actionSteps,

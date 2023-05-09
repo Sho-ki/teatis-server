@@ -13,9 +13,9 @@ import { SetCustomerMicroGoalsUsecaseInterface } from '../../usecases/microGoal/
 import { SetCustomerMicroGoalsRequestDto } from './dtos/request/setCustomerMicroGoals.dto';
 import { SetCustomerMicroGoalsResponseDto } from './dtos/response/setCustomerMicroGoals.dto';
 import { Serialize } from '../../interceptors/serialize.interceptor';
-import { GetCustomerMicroGoalsResponseDto } from './dtos/response/getCustomerMicroGoals.dto';
 import { GetCustomerMicroGoalsRequestDto } from './dtos/request/getCustomerMicroGoals.dto';
 import { GetCustomerMicroGoalsUsecaseInterface } from '../../usecases/microGoal/getCustomerMicroGoals.usecase';
+import { GetCustomerMicroGoalsResponseDto } from './dtos/response/getCustomerMicroGoals.dto';
 
 @Controller('api/micro-goals')
 export class MicroGoalController {
@@ -39,7 +39,7 @@ export class MicroGoalController {
   }
 
   @Get('customer-micro-goals')
-  @Serialize(GetCustomerMicroGoalsResponseDto)
+  @Serialize(GetCustomerMicroGoalsResponseDto.Main)
   async getCustomerMicroGoals(@Query() query: GetCustomerMicroGoalsRequestDto) {
     const [usecaseResponse, error] =
       await this.getCustomerMicroGoalsUsecase.execute(query);
