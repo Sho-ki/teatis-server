@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ReturnValueType } from '../../filter/customError';
-import { LogCustomerActionStepRequestDto } from '../../controllers/microGoal/dtos/request/logCustomerActionStep.dto';
+import { LogCustomerActionStepRequestDto } from '../../controllers/customerMicroGoal/dtos/request/logCustomerActionStep.dto';
 import { CustomerActionStepRepositoryInterface } from '../../repositories/teatisDB/customerActionStep/customerActionStep.repository';
-import { LogCustomerActionStepResponseDto } from '../../controllers/microGoal/dtos/response/logCustomerActionStep.dto';
+import { LogCustomerActionStepResponseDto } from '../../controllers/customerMicroGoal/dtos/response/logCustomerActionStep.dto';
 
 export interface LogCustomerActionStepUsecaseInterface {
   execute({ uuid, actionStepId, date }: LogCustomerActionStepRequestDto): Promise<

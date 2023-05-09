@@ -4,8 +4,8 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { CustomerSurveyResponseRepositoryInterface } from '../../repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerMicroGoalRepositoryInterface } from '../../repositories/teatisDB/customerMicroGoal/customerMicroGoal.repository';
 import { ReturnValueType } from '../../filter/customError';
-import { GetCustomerMicroGoalsRequestDto } from '../../controllers/microGoal/dtos/request/getCustomerMicroGoals.dto';
-import { GetCustomerMicroGoalsResponseDto } from '../../controllers/microGoal/dtos/response/getCustomerMicroGoals.dto';
+import { GetCustomerMicroGoalsRequestDto } from '../../controllers/customerMicroGoal/dtos/request/getCustomerMicroGoals.dto';
+import { GetCustomerMicroGoalsResponseDto } from '../../controllers/customerMicroGoal/dtos/response/getCustomerMicroGoals.dto';
 import { QuestionName } from '../../shared/constants/questionName';
 import { SurveyQuestionResponsesWithOptions } from '../../domains/SurveyQuestionResponse';
 import { CustomerMicroGoalWithActionSteps } from '../../domains/CustomerMicroGoalWithActionSteps';
@@ -127,7 +127,8 @@ implements GetCustomerMicroGoalsUsecaseInterface
 
   async execute({ uuid }: GetCustomerMicroGoalsRequestDto): Promise<
     ReturnValueType<GetCustomerMicroGoalsResponseDto.Main>> {
-    const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
+    const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
+    if(getCustomerError) return [undefined, getCustomerError];
 
     const [customerMicroGoals, getCustomerMicroGoalsWithActionStepsError] =
       await this.customerMicroGoalRepository.getCustomerMicroGoalsWithActionSteps(
