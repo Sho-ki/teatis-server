@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MicroGoalController } from './microGoal.controller';
 import { SetCustomerMicroGoalsUsecase } from '../../usecases/microGoal/setCustomerMicroGoals.usecase';
 import { GetCustomerMicroGoalsUsecase } from '../../usecases/microGoal/getCustomerMicroGoals.usecase';
+import { LogCustomerActionStepUsecase } from '../../usecases/customerActionStep/logCustomerActionStep.usecase';
 
 @Module({
   controllers: [MicroGoalController],
@@ -15,6 +16,11 @@ import { GetCustomerMicroGoalsUsecase } from '../../usecases/microGoal/getCustom
       provide: 'SetCustomerMicroGoalsUsecaseInterface',
       useClass: SetCustomerMicroGoalsUsecase,
     },
+    {
+      provide: 'LogCustomerActionStepUsecaseInterface',
+      useClass: LogCustomerActionStepUsecase,
+    },
+
     MicroGoalController,
   ],
 })
