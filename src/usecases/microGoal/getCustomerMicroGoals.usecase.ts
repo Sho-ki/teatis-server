@@ -40,9 +40,12 @@ implements GetCustomerMicroGoalsUsecaseInterface
     return actionSteps.map((actionStep): GetCustomerMicroGoalsResponseDto.CustomerActionStep => {
       const customerActionStep = customerActionSteps.find((cas) => cas.actionStepId === actionStep.id);
 
+      let mainText = '';
+      let subText = '';
+
       if (customerActionStep) {
-        actionStep.mainText = customerActionStep.customizedMainText || actionStep.mainText;
-        actionStep.subText = customerActionStep.customizedSubText || actionStep.subText;
+        mainText = customerActionStep.customizedMainText || actionStep.mainText;
+        subText = customerActionStep.customizedSubText || actionStep.subText;
 
         actionStep.actionStepImage.forEach((actionStepImage) => {
           const casImage = customerActionStep.customerActionStepImage?.
@@ -52,10 +55,10 @@ implements GetCustomerMicroGoalsUsecaseInterface
       }
 
       return {
-        id: actionStep.id,
+        id: customerActionStep.id,
         order: actionStep.order,
-        mainText: actionStep.mainText,
-        subText: actionStep.subText,
+        mainText,
+        subText,
         reason: actionStep.reason,
         completedAt: customerActionStep.completedAt,
         imageUrl: actionStep.actionStepImage.length > 0 ? actionStep.actionStepImage[0].src : undefined,
