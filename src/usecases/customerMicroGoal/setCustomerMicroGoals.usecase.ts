@@ -6,18 +6,18 @@ import { SurveyName } from '../../shared/constants/surveyName';
 import { CustomerMicroGoalRepositoryInterface } from '../../repositories/teatisDB/customerMicroGoal/customerMicroGoal.repository';
 import { ReturnValueType } from '../../filter/customError';
 import { MicroGoalRepositoryInterface } from '../../repositories/teatisDB/microGoal/microGoal.respository';
-import { SetCustomerMicroGoalsRequestDto } from '../../controllers/customerMicroGoal/dtos/request/setCustomerMicroGoals.dto';
-import { SetCustomerMicroGoalsResponseDto } from '../../controllers/customerMicroGoal/dtos/response/setCustomerMicroGoals.dto';
 import { QuestionName } from '../../shared/constants/questionName';
 import { MicroGoalCategoryTypes } from '../../shared/constants/microGoalCategories';
 import { MicroGoalWithActionSteps } from '../../domains/MicroGoalWithActionSteps';
 import { TransactionOperatorInterface } from '../../repositories/utils/transactionOperator';
 import { CustomerActionStepRepositoryInterface } from '../../repositories/teatisDB/customerActionStep/customerActionStep.repository';
 import { CustomerMicroGoal } from '@prisma/client';
+import { CustomerDto } from '../../controllers/ResponseDtos/Customer.dto';
+import { SetCustomerMicroGoalsRequestDto } from '../../controllers/customerMicroGoal/dtos/setCustomerMicroGoals.dto';
 
 export interface SetCustomerMicroGoalsUsecaseInterface {
   execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<
-    ReturnValueType<SetCustomerMicroGoalsResponseDto>
+    ReturnValueType<CustomerDto>
   >;
 }
 
@@ -41,7 +41,7 @@ implements SetCustomerMicroGoalsUsecaseInterface
   ) {}
 
   async execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<
-    ReturnValueType<SetCustomerMicroGoalsResponseDto>
+    ReturnValueType<CustomerDto>
   > {
     const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
 
@@ -103,7 +103,7 @@ implements SetCustomerMicroGoalsUsecaseInterface
       [MicroGoalCategoryTypes.Stress]: 0,
     };
 
-    const response: SetCustomerMicroGoalsResponseDto = {
+    const response = {
       id: customer.id,
       customerMicroGoals: orderedMicroGoals.map((microGoal) => {
         if (microGoal.category.name in currentOrderSet) {
@@ -156,6 +156,6 @@ implements SetCustomerMicroGoalsUsecaseInterface
 
         });
 
-    return [response];
+    return [customer];
   }
 }

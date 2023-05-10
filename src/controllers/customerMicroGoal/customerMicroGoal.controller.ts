@@ -10,15 +10,15 @@ import {
   Query,
 } from '@nestjs/common';
 import { SetCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMicroGoal/setCustomerMicroGoals.usecase';
-import { SetCustomerMicroGoalsRequestDto } from './dtos/request/setCustomerMicroGoals.dto';
-import { SetCustomerMicroGoalsResponseDto } from './dtos/response/setCustomerMicroGoals.dto';
 import { Serialize } from '../../interceptors/serialize.interceptor';
-import { GetCustomerMicroGoalsRequestDto } from './dtos/request/getCustomerMicroGoals.dto';
+import { GetCustomerMicroGoalsRequestDto } from './dtos/getCustomerMicroGoals.dto';
 import { GetCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMicroGoal/getCustomerMicroGoals.usecase';
-import { GetCustomerMicroGoalsResponseDto } from './dtos/response/getCustomerMicroGoals.dto';
-import { LogCustomerActionStepRequestDto } from './dtos/request/logCustomerActionStep.dto';
 import { LogCustomerActionStepUsecaseInterface } from '../../usecases/customerActionStep/logCustomerActionStep.usecase';
-import { LogCustomerActionStepResponseDto } from './dtos/response/logCustomerActionStep.dto';
+import { CustomerWithMicroGoalDto } from '../ResponseDtos/CustomerWithMicroGoal.dto';
+import { CustomerDto } from '../ResponseDtos/Customer.dto';
+import { ActionStepSummaryDto } from '../ResponseDtos/ActionStepSummary.dto';
+import { SetCustomerMicroGoalsRequestDto } from './dtos/setCustomerMicroGoals.dto';
+import { LogCustomerActionStepRequestDto } from './dtos/logCustomerActionStep.dto';
 
 @Controller('api/customer-micro-goals')
 export class CustomerMicroGoalController {
@@ -33,7 +33,7 @@ export class CustomerMicroGoalController {
 
   @Post()
   @HttpCode(201)
-  @Serialize(SetCustomerMicroGoalsResponseDto)
+  @Serialize(CustomerDto)
   async setCustomerMicroGoals(@Body() body: SetCustomerMicroGoalsRequestDto) {
     const [usecaseResponse, error] =
       await this.setCustomerMicroGoalsUsecase.execute(body);
@@ -44,18 +44,18 @@ export class CustomerMicroGoalController {
   }
 
   @Get()
-  @Serialize(GetCustomerMicroGoalsResponseDto.Main)
+  @Serialize(CustomerWithMicroGoalDto)
   async getCustomerMicroGoals(@Query() query: GetCustomerMicroGoalsRequestDto) {
     const [usecaseResponse, error] =
       await this.getCustomerMicroGoalsUsecase.execute(query);
     if (error) {
-      throw new HttpException(error, HttpStatus.CONFLICT);
+      throw new HttpException(error, HttpStatus.NOT_FOUND);
     }
     return usecaseResponse;
   }
 
   @Post('action-step')
-  @Serialize(LogCustomerActionStepResponseDto.Main)
+  @Serialize(ActionStepSummaryDto)
   async logCustomerActionStep(@Body() body: LogCustomerActionStepRequestDto) {
     const [usecaseResponse, error] =
       await this.logCustomerActionStepUsecase.execute(body);

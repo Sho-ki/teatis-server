@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { ReturnValueType } from '../../filter/customError';
-import { LogCustomerActionStepRequestDto } from '../../controllers/customerMicroGoal/dtos/request/logCustomerActionStep.dto';
 import { CustomerActionStepRepositoryInterface } from '../../repositories/teatisDB/customerActionStep/customerActionStep.repository';
-import { LogCustomerActionStepResponseDto } from '../../controllers/customerMicroGoal/dtos/response/logCustomerActionStep.dto';
+import { ActionStepSummaryDto } from '../../controllers/ResponseDtos/ActionStepSummary.dto';
+import { LogCustomerActionStepRequestDto } from '../../controllers/customerMicroGoal/dtos/logCustomerActionStep.dto';
 
 export interface LogCustomerActionStepUsecaseInterface {
   execute({ uuid, actionStepId, date }: LogCustomerActionStepRequestDto): Promise<
-    ReturnValueType<LogCustomerActionStepResponseDto.Main>
+    ReturnValueType<ActionStepSummaryDto>
   >;
 }
 
@@ -25,13 +25,13 @@ implements LogCustomerActionStepUsecaseInterface
   ) {}
 
   async execute({ uuid, actionStepId, date }: LogCustomerActionStepRequestDto): Promise<
-    ReturnValueType<LogCustomerActionStepResponseDto.Main>> {
-    const [customer, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
+    ReturnValueType<ActionStepSummaryDto>> {
+    const [, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if (getCustomerError) return [undefined, getCustomerError];
     const [customerActionStep] =
     await this.customerActionStepRepository.logCustomerActionStep({ date, actionStepId });
 
-    return [{ customerId: customer.id, id: customerActionStep.id, completedAt: customerActionStep.completedAt }];
+    return [customerActionStep];
 
   }
 }
