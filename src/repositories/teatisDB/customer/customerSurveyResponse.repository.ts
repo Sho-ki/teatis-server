@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {  Prisma, PrismaClient, SurveyQuestionResponse  } from '@prisma/client';
+import { Prisma, PrismaClient, SurveyQuestionResponse } from '@prisma/client';
 import { ProductSurveyQuestionResponse } from '@Domains/ProductSurveyQuestionResponse';
 
 import { PrismaService } from '../../../prisma.service';
@@ -7,38 +7,44 @@ import { Transactionable } from '../../utils/transactionable.interface';
 import { SurveyName } from '../../../shared/constants/surveyName';
 import { SurveyQuestionResponsesWithOptions } from '../../../domains/SurveyQuestionResponse';
 import { ReturnValueType } from '../../../filter/customError';
+import { QuestionName } from '../../../shared/constants/questionName';
 
 interface UpsertCustomerResponseArgs {
-  surveyHistoryId:number;
+  surveyHistoryId: number;
   surveyQuestionId: number;
   customerResponse: Prisma.JsonValue;
-  surveyQuestionResponseId?:number;
+  surveyQuestionResponseId?: number;
 }
 
-interface UpsertCustomerResponseWithProductsArgs{
- surveyQuestionResponseId?:number;
- surveyQuestionId:number;
- productId:number;
- customerResponse: Prisma.JsonValue;
- surveyHistoryId:number;
+interface UpsertCustomerResponseWithProductsArgs {
+  surveyQuestionResponseId?: number;
+  surveyQuestionId: number;
+  productId: number;
+  customerResponse: Prisma.JsonValue;
+  surveyHistoryId: number;
 }
 
 interface GetCustomerSurveyOneProductResponsesArgs {
-  surveyHistoryId:number;
-  productId:number;
+  surveyHistoryId: number;
+  productId: number;
 }
 
 interface GetCustomerProductSurveyResponseArgs {
   surveyHistoryId: number;
 }
 
-interface GetCustomerSurveyResponsesArgs {
+export interface GetCustomerSurveyResponsesArgs {
   surveyName: SurveyName;
   customerId: number;
 }
 
-export interface CustomerSurveyResponseRepositoryInterface extends Transactionable {
+interface GetCustomerSurveyQuestionResponseArgs {
+  questionName: QuestionName;
+  customerId: number;
+}
 
+export interface CustomerSurveyResponseRepositoryInterface
+  extends Transactionable {
   upsertCustomerResponse({
     surveyHistoryId,
     surveyQuestionId,
@@ -54,26 +60,44 @@ export interface CustomerSurveyResponseRepositoryInterface extends Transactionab
     surveyQuestionId,
   }: UpsertCustomerResponseWithProductsArgs): Promise<SurveyQuestionResponse>;
 
-  getCustomerSurveyAllProductsResponses({ surveyHistoryId }:GetCustomerProductSurveyResponseArgs):
-  Promise<ProductSurveyQuestionResponse[]>;
+  getCustomerSurveyAllProductsResponses({ surveyHistoryId }: GetCustomerProductSurveyResponseArgs): Promise<
+    ProductSurveyQuestionResponse[]
+  >;
 
-  getCustomerSurveyOneProductResponses(
-    { surveyHistoryId, productId }: GetCustomerSurveyOneProductResponsesArgs):
-    Promise<ProductSurveyQuestionResponse[]>;
+  getCustomerSurveyOneProductResponses({
+    surveyHistoryId,
+    productId,
+  }: GetCustomerSurveyOneProductResponsesArgs): Promise<
+    ProductSurveyQuestionResponse[]
+  >;
 
-  getCustomerSurveyResponses(
-    { surveyName, customerId }: GetCustomerSurveyResponsesArgs):
-    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions[]>>;
+  getCustomerSurveyResponses({
+    surveyName,
+    customerId,
+  }: GetCustomerSurveyResponsesArgs): Promise<
+    ReturnValueType<SurveyQuestionResponsesWithOptions[]>
+  >;
 
+  getCustomerSurveyQuestionResponse({
+    questionName,
+    customerId,
+  }: GetCustomerSurveyQuestionResponseArgs): Promise<
+    ReturnValueType<SurveyQuestionResponsesWithOptions>
+  >;
 }
 
 @Injectable()
 export class CustomerSurveyResponseRepository
 implements CustomerSurveyResponseRepositoryInterface
 {
-  private originalPrismaClient : PrismaClient;
-  constructor(@Inject(PrismaService) private prisma: PrismaClient | Prisma.TransactionClient) {}
-  setPrismaClient(prisma: Prisma.TransactionClient): CustomerSurveyResponseRepositoryInterface {
+  private originalPrismaClient: PrismaClient;
+  constructor(
+    @Inject(PrismaService)
+    private prisma: PrismaClient | Prisma.TransactionClient,
+  ) {}
+  setPrismaClient(
+    prisma: Prisma.TransactionClient,
+  ): CustomerSurveyResponseRepositoryInterface {
     this.originalPrismaClient = this.prisma as PrismaClient;
     this.prisma = prisma;
     return this;
@@ -88,23 +112,19 @@ implements CustomerSurveyResponseRepositoryInterface
     customerResponse,
     surveyQuestionResponseId,
   }: UpsertCustomerResponseArgs): Promise<SurveyQuestionResponse> {
-
-    if(!surveyQuestionResponseId){
-      return await this.prisma.surveyQuestionResponse.create(
-        {
-          data:
-         {
-           response: customerResponse? customerResponse:Prisma.DbNull,
-           surveyQuestion: { connect: { id: surveyQuestionId } },
-           customerSurveyHistory: { connect: { id: surveyHistoryId } },
-         },
-        });
-    }
-    return await this.prisma.surveyQuestionResponse.update(
-      {
-        where: { id: surveyQuestionResponseId },
-        data: { response: customerResponse? customerResponse:Prisma.DbNull },
+    if (!surveyQuestionResponseId) {
+      return await this.prisma.surveyQuestionResponse.create({
+        data: {
+          response: customerResponse ? customerResponse : Prisma.DbNull,
+          surveyQuestion: { connect: { id: surveyQuestionId } },
+          customerSurveyHistory: { connect: { id: surveyHistoryId } },
+        },
       });
+    }
+    return await this.prisma.surveyQuestionResponse.update({
+      where: { id: surveyQuestionResponseId },
+      data: { response: customerResponse ? customerResponse : Prisma.DbNull },
+    });
   }
 
   async upsertCustomerResponseWithProduct({
@@ -114,69 +134,79 @@ implements CustomerSurveyResponseRepositoryInterface
     surveyHistoryId,
     surveyQuestionId,
   }: UpsertCustomerResponseWithProductsArgs): Promise<SurveyQuestionResponse> {
-    if(!surveyQuestionResponseId){
-      return await this.prisma.surveyQuestionResponse.create(
-        {
-          data:
-         {
-           response: customerResponse? customerResponse:Prisma.DbNull,
-           surveyQuestion: { connect: { id: surveyQuestionId } },
-           customerSurveyHistory: { connect: { id: surveyHistoryId } },
-           intermediateProductSurveyQuestionResponse: { create: { productId } },
-         },
-        });
-    }
-    return  await this.prisma.surveyQuestionResponse.update(
-      {
-        where: { id: surveyQuestionResponseId },
-        data: { response: customerResponse? customerResponse:Prisma.DbNull },
-      });
-
-  }
-
-  async getCustomerSurveyAllProductsResponses({ surveyHistoryId }:GetCustomerProductSurveyResponseArgs):
-  Promise<ProductSurveyQuestionResponse[]>{
-    const response = await this.prisma.surveyQuestionResponse.findMany(
-      {
-        where: { customerSurveyHistoryId: surveyHistoryId },
-        include: {
-          intermediateProductSurveyQuestionResponse:
-          { include: { product: true } },
+    if (!surveyQuestionResponseId) {
+      return await this.prisma.surveyQuestionResponse.create({
+        data: {
+          response: customerResponse ? customerResponse : Prisma.DbNull,
+          surveyQuestion: { connect: { id: surveyQuestionId } },
+          customerSurveyHistory: { connect: { id: surveyHistoryId } },
+          intermediateProductSurveyQuestionResponse: { create: { productId } },
         },
       });
-
-    const surveyQuestionResponses:ProductSurveyQuestionResponse[] = response?.map((res) => {
-      const matched = res.intermediateProductSurveyQuestionResponse.find((responseProductSet) =>
-      { return responseProductSet.surveyQuestionResponseId === res.id; });
-
-      const { id, externalSku, label, name } = matched.product;
-      return { ...res, product: { id, label, name, sku: externalSku } };
-    }) || [];
-    return surveyQuestionResponses;
-
+    }
+    return await this.prisma.surveyQuestionResponse.update({
+      where: { id: surveyQuestionResponseId },
+      data: { response: customerResponse ? customerResponse : Prisma.DbNull },
+    });
   }
 
-  async getCustomerSurveyOneProductResponses({ surveyHistoryId, productId }: GetCustomerSurveyOneProductResponsesArgs):
-   Promise<ProductSurveyQuestionResponse[]> {
-    const response = await this.prisma.intermediateProductSurveyQuestionResponse.findMany({
-      where: { surveyQuestionResponse: { customerSurveyHistoryId: surveyHistoryId }, productId },
-      include: { surveyQuestionResponse: true, product: true },
+  async getCustomerSurveyAllProductsResponses({ surveyHistoryId }: GetCustomerProductSurveyResponseArgs): Promise<
+    ProductSurveyQuestionResponse[]
+  > {
+    const response = await this.prisma.surveyQuestionResponse.findMany({
+      where: { customerSurveyHistoryId: surveyHistoryId },
+      include: { intermediateProductSurveyQuestionResponse: { include: { product: true } } },
     });
 
-    if(!response.length){
+    const surveyQuestionResponses: ProductSurveyQuestionResponse[] =
+      response?.map((res) => {
+        const matched = res.intermediateProductSurveyQuestionResponse.find(
+          (responseProductSet) => {
+            return responseProductSet.surveyQuestionResponseId === res.id;
+          },
+        );
+
+        const { id, externalSku, label, name } = matched.product;
+        return { ...res, product: { id, label, name, sku: externalSku } };
+      }) || [];
+    return surveyQuestionResponses;
+  }
+
+  async getCustomerSurveyOneProductResponses({
+    surveyHistoryId,
+    productId,
+  }: GetCustomerSurveyOneProductResponsesArgs): Promise<
+    ProductSurveyQuestionResponse[]
+  > {
+    const response =
+      await this.prisma.intermediateProductSurveyQuestionResponse.findMany({
+        where: {
+          surveyQuestionResponse: { customerSurveyHistoryId: surveyHistoryId },
+          productId,
+        },
+        include: { surveyQuestionResponse: true, product: true },
+      });
+
+    if (!response.length) {
       return [];
     }
-    const surveyQuestionResponses:ProductSurveyQuestionResponse[] = response.map((val) => {
-
-      const { id, externalSku, label, name } = val.product;
-      return { ...val.surveyQuestionResponse, product: { id, label, name, sku: externalSku } };
-    });
+    const surveyQuestionResponses: ProductSurveyQuestionResponse[] =
+      response.map((val) => {
+        const { id, externalSku, label, name } = val.product;
+        return {
+          ...val.surveyQuestionResponse,
+          product: { id, label, name, sku: externalSku },
+        };
+      });
     return surveyQuestionResponses;
   }
 
-  async getCustomerSurveyResponses(
-    { surveyName, customerId  }: GetCustomerSurveyResponsesArgs):
-    Promise<ReturnValueType<SurveyQuestionResponsesWithOptions[]>>{
+  async getCustomerSurveyResponses({
+    surveyName,
+    customerId,
+  }: GetCustomerSurveyResponsesArgs): Promise<
+    ReturnValueType<SurveyQuestionResponsesWithOptions[]>
+  > {
     const response = await this.prisma.surveyQuestionResponse.findMany({
       where: { customerSurveyHistory: { survey: { name: surveyName }, customerId } },
       include: { surveyQuestion: { include: { surveyQuestionOptions: true } } },
@@ -184,4 +214,21 @@ implements CustomerSurveyResponseRepositoryInterface
     return [response];
   }
 
+  async getCustomerSurveyQuestionResponse({
+    questionName,
+    customerId,
+  }: GetCustomerSurveyQuestionResponseArgs): Promise<
+    ReturnValueType<SurveyQuestionResponsesWithOptions>
+  > {
+    const response = await this.prisma.surveyQuestionResponse.findFirst({
+      where: {
+        surveyQuestion: { name: questionName },
+        customerSurveyHistory: { customerId },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { surveyQuestion: { include: { surveyQuestionOptions: true } } },
+    });
+
+    return [response];
+  }
 }
