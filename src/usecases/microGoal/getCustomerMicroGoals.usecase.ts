@@ -23,8 +23,7 @@ export interface GetCustomerMicroGoalsUsecaseInterface {
 
 @Injectable()
 export class GetCustomerMicroGoalsUsecase
-implements GetCustomerMicroGoalsUsecaseInterface
-{
+implements GetCustomerMicroGoalsUsecaseInterface {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
     private customerGeneralRepository: CustomerGeneralRepositoryInterface,
