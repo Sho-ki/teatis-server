@@ -480,9 +480,35 @@ const bloodSugarMicroGoals: MicroGoalType[] = [
 
 ];
 
+const foodMicroGoals: MicroGoalType[] = [
+  {
+    id: 14,
+    label: 'Send images of your meals to your coach for personalized feedback.',
+    subCategory: { name: MicroGoalSubCategoryTypes.TipsFood },
+    actionSteps: [
+      {
+        id: 53,
+        order: 1,
+        mainText: 'Take a picture of each meal you eat throughout the day, and send the pictures of your meal to your coach.',
+        subText: undefined,
+        reason: 'Your coach can provide valuable feedback and guidance on your food choices.',
+      },
+      {
+        id: 54,
+        order: 2,
+        mainText: 'Review the feedback from your coach and apply it to your future meal choices.',
+        subText: undefined,
+        reason: 'Making informed adjustments to your diet can lead to better health outcomes.',
+      },
+    ],
+  },
+
+];
+
 export const microGoals = [
   ...stressMicroGoals,
   ...hydrationMicroGoals,
   ...exerciseMicroGoals,
   ...bloodSugarMicroGoals,
+  ...foodMicroGoals,
 ];
