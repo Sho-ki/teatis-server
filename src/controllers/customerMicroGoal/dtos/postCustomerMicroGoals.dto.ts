@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class SetCustomerMicroGoalsRequestDto {
+export class PostCustomerMicroGoalsRequestDto {
   @IsString()
     uuid: string;
 

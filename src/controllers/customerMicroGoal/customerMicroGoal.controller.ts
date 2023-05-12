@@ -9,22 +9,22 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { SetCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMicroGoal/setCustomerMicroGoals.usecase';
+import { PostCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMicroGoal/postCustomerMicroGoals.usecase';
 import { Serialize } from '../../interceptors/serialize.interceptor';
 import { GetCustomerMicroGoalsRequestDto } from './dtos/getCustomerMicroGoals.dto';
 import { GetCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMicroGoal/getCustomerMicroGoals.usecase';
 import { PostCustomerActionStepUsecaseInterface } from '../../usecases/customerActionStep/postCustomerActionStep.usecase';
 import { CustomerWithMicroGoalDto } from '../ResponseDtos/CustomerWithMicroGoal.dto';
 import { CustomerDto } from '../ResponseDtos/Customer.dto';
-import { SetCustomerMicroGoalsRequestDto } from './dtos/setCustomerMicroGoals.dto';
+import { PostCustomerMicroGoalsRequestDto } from './dtos/postCustomerMicroGoals.dto';
 import { PostCustomerActionStepRequestDto } from './dtos/postCustomerActionStep.dto';
 import { ActionStepDto } from '../ResponseDtos/ActionStep.dto';
 
 @Controller('api/customer-micro-goals')
 export class CustomerMicroGoalController {
   constructor(
-    @Inject('SetCustomerMicroGoalsUsecaseInterface')
-    private setCustomerMicroGoalsUsecase: SetCustomerMicroGoalsUsecaseInterface,
+    @Inject('PostCustomerMicroGoalsUsecaseInterface')
+    private postCustomerMicroGoalsUsecase: PostCustomerMicroGoalsUsecaseInterface,
     @Inject('GetCustomerMicroGoalsUsecaseInterface')
     private getCustomerMicroGoalsUsecase: GetCustomerMicroGoalsUsecaseInterface,
     @Inject('PostCustomerActionStepUsecaseInterface')
@@ -34,9 +34,9 @@ export class CustomerMicroGoalController {
   @Post()
   @HttpCode(201)
   @Serialize(CustomerDto)
-  async setCustomerMicroGoals(@Body() body: SetCustomerMicroGoalsRequestDto) {
+  async postCustomerMicroGoals(@Body() body: PostCustomerMicroGoalsRequestDto) {
     const [usecaseResponse, error] =
-      await this.setCustomerMicroGoalsUsecase.execute(body);
+      await this.postCustomerMicroGoalsUsecase.execute(body);
     if (error) {
       throw new HttpException(error, HttpStatus.CONFLICT);
     }

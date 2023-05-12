@@ -13,17 +13,17 @@ import { TransactionOperatorInterface } from '../../repositories/utils/transacti
 import { CustomerActionStepRepositoryInterface } from '../../repositories/teatisDB/customerActionStep/customerActionStep.repository';
 import { CustomerMicroGoal } from '@prisma/client';
 import { CustomerDto } from '../../controllers/ResponseDtos/Customer.dto';
-import { SetCustomerMicroGoalsRequestDto } from '../../controllers/customerMicroGoal/dtos/setCustomerMicroGoals.dto';
+import { PostCustomerMicroGoalsRequestDto } from '../../controllers/customerMicroGoal/dtos/postCustomerMicroGoals.dto';
 
-export interface SetCustomerMicroGoalsUsecaseInterface {
-  execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<
+export interface PostCustomerMicroGoalsUsecaseInterface {
+  execute({ uuid }: PostCustomerMicroGoalsRequestDto): Promise<
     ReturnValueType<CustomerDto>
   >;
 }
 
 @Injectable()
-export class SetCustomerMicroGoalsUsecase
-implements SetCustomerMicroGoalsUsecaseInterface
+export class PostCustomerMicroGoalsUsecase
+implements PostCustomerMicroGoalsUsecaseInterface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
@@ -40,7 +40,7 @@ implements SetCustomerMicroGoalsUsecaseInterface
     private transactionOperator: TransactionOperatorInterface,
   ) {}
 
-  async execute({ uuid }: SetCustomerMicroGoalsRequestDto): Promise<
+  async execute({ uuid }: PostCustomerMicroGoalsRequestDto): Promise<
     ReturnValueType<CustomerDto>
   > {
     const [customer] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
