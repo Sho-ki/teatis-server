@@ -2,8 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../prisma.service';
 import { Transactionable } from '../../utils/transactionable.interface';
-import { PrismaClient, Prisma, CustomerActionStep  } from '@prisma/client';
+import { PrismaClient, Prisma  } from '@prisma/client';
 import { ReturnValueType } from '../../../filter/customError';
+import { CustomerActionStepWithOriginal } from '../../../domains/CustomerActionStepWithOriginal';
 
 interface CreateCustomerActionStepsArgs {
   customerId: number;
@@ -11,7 +12,7 @@ interface CreateCustomerActionStepsArgs {
   customerMicroGoalId: number;
 }
 
-interface LogCustomerActionStepArgs {
+interface PostCustomerActionStepArgs {
   actionStepId: number;
   date: Date;
 }
@@ -25,8 +26,8 @@ export interface CustomerActionStepRepositoryInterface extends Transactionable {
     ReturnValueType<Prisma.BatchPayload>
   >;
 
-  postCustomerActionStep({ actionStepId, date }:LogCustomerActionStepArgs):
-  Promise<ReturnValueType<CustomerActionStep>>;
+  postCustomerActionStep({ actionStepId, date }:PostCustomerActionStepArgs):
+  Promise<ReturnValueType<CustomerActionStepWithOriginal>>;
 }
 
 @Injectable()
@@ -68,13 +69,20 @@ implements CustomerActionStepRepositoryInterface
     return [response];
   }
 
-  async postCustomerActionStep({ actionStepId, date }:LogCustomerActionStepArgs):
-  Promise<ReturnValueType<CustomerActionStep>>{
+  async postCustomerActionStep({ actionStepId, date }:PostCustomerActionStepArgs):
+  Promise<ReturnValueType<CustomerActionStepWithOriginal>>{
     const response = await this.prisma.customerActionStep.update({
       where: { id: actionStepId },
       data: { completedAt: date },
+      include: { customerActionStepImage: true, actionStep: { include: { actionStepImage: true } } },
     });
 
-    return [response];
+    const customerMicroGoalsWithActionSteps: CustomerActionStepWithOriginal = {
+      customerActionStep: { ...response },
+      actionStep: { ...response.actionStep },
+    };
+
+    return [customerMicroGoalsWithActionSteps];
+
   }
 }

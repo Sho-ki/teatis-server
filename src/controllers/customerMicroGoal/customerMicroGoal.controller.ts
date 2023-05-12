@@ -16,9 +16,9 @@ import { GetCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMi
 import { PostCustomerActionStepUsecaseInterface } from '../../usecases/customerActionStep/postCustomerActionStep.usecase';
 import { CustomerWithMicroGoalDto } from '../ResponseDtos/CustomerWithMicroGoal.dto';
 import { CustomerDto } from '../ResponseDtos/Customer.dto';
-import { ActionStepSummaryDto } from '../ResponseDtos/ActionStepSummary.dto';
 import { SetCustomerMicroGoalsRequestDto } from './dtos/setCustomerMicroGoals.dto';
 import { PostCustomerActionStepRequestDto } from './dtos/postCustomerActionStep.dto';
+import { ActionStepDto } from '../ResponseDtos/ActionStep.dto';
 
 @Controller('api/customer-micro-goals')
 export class CustomerMicroGoalController {
@@ -55,7 +55,7 @@ export class CustomerMicroGoalController {
   }
 
   @Post('action-steps')
-  @Serialize(ActionStepSummaryDto)
+  @Serialize(ActionStepDto)
   async postCustomerActionStep(@Body() body: PostCustomerActionStepRequestDto) {
     const [usecaseResponse, error] =
       await this.postCustomerActionStepUsecase.execute(body);
