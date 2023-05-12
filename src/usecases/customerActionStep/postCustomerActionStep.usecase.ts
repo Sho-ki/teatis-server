@@ -4,17 +4,17 @@ import { CustomerGeneralRepositoryInterface } from '@Repositories/teatisDB/custo
 import { ReturnValueType } from '../../filter/customError';
 import { CustomerActionStepRepositoryInterface } from '../../repositories/teatisDB/customerActionStep/customerActionStep.repository';
 import { ActionStepSummaryDto } from '../../controllers/ResponseDtos/ActionStepSummary.dto';
-import { LogCustomerActionStepRequestDto } from '../../controllers/customerMicroGoal/dtos/logCustomerActionStep.dto';
+import { PostCustomerActionStepRequestDto } from '../../controllers/customerMicroGoal/dtos/postCustomerActionStep.dto';
 
-export interface LogCustomerActionStepUsecaseInterface {
-  execute({ uuid, actionStepId, date }: LogCustomerActionStepRequestDto): Promise<
+export interface PostCustomerActionStepUsecaseInterface {
+  execute({ uuid, actionStepId, date }: PostCustomerActionStepRequestDto): Promise<
     ReturnValueType<ActionStepSummaryDto>
   >;
 }
 
 @Injectable()
-export class LogCustomerActionStepUsecase
-implements LogCustomerActionStepUsecaseInterface
+export class PostCustomerActionStepUsecase
+implements PostCustomerActionStepUsecaseInterface
 {
   constructor(
     @Inject('CustomerGeneralRepositoryInterface')
@@ -24,12 +24,12 @@ implements LogCustomerActionStepUsecaseInterface
 
   ) {}
 
-  async execute({ uuid, actionStepId, date }: LogCustomerActionStepRequestDto): Promise<
+  async execute({ uuid, actionStepId, date }: PostCustomerActionStepRequestDto): Promise<
     ReturnValueType<ActionStepSummaryDto>> {
     const [, getCustomerError] = await this.customerGeneralRepository.getCustomerByUuid({ uuid });
     if (getCustomerError) return [undefined, getCustomerError];
     const [customerActionStep] =
-    await this.customerActionStepRepository.logCustomerActionStep({ date, actionStepId });
+    await this.customerActionStepRepository.postCustomerActionStep({ date, actionStepId });
 
     return [customerActionStep];
 

@@ -13,12 +13,12 @@ import { SetCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMi
 import { Serialize } from '../../interceptors/serialize.interceptor';
 import { GetCustomerMicroGoalsRequestDto } from './dtos/getCustomerMicroGoals.dto';
 import { GetCustomerMicroGoalsUsecaseInterface } from '../../usecases/customerMicroGoal/getCustomerMicroGoals.usecase';
-import { LogCustomerActionStepUsecaseInterface } from '../../usecases/customerActionStep/logCustomerActionStep.usecase';
+import { PostCustomerActionStepUsecaseInterface } from '../../usecases/customerActionStep/postCustomerActionStep.usecase';
 import { CustomerWithMicroGoalDto } from '../ResponseDtos/CustomerWithMicroGoal.dto';
 import { CustomerDto } from '../ResponseDtos/Customer.dto';
 import { ActionStepSummaryDto } from '../ResponseDtos/ActionStepSummary.dto';
 import { SetCustomerMicroGoalsRequestDto } from './dtos/setCustomerMicroGoals.dto';
-import { LogCustomerActionStepRequestDto } from './dtos/logCustomerActionStep.dto';
+import { PostCustomerActionStepRequestDto } from './dtos/postCustomerActionStep.dto';
 
 @Controller('api/customer-micro-goals')
 export class CustomerMicroGoalController {
@@ -27,8 +27,8 @@ export class CustomerMicroGoalController {
     private setCustomerMicroGoalsUsecase: SetCustomerMicroGoalsUsecaseInterface,
     @Inject('GetCustomerMicroGoalsUsecaseInterface')
     private getCustomerMicroGoalsUsecase: GetCustomerMicroGoalsUsecaseInterface,
-    @Inject('LogCustomerActionStepUsecaseInterface')
-    private logCustomerActionStepUsecase: LogCustomerActionStepUsecaseInterface
+    @Inject('PostCustomerActionStepUsecaseInterface')
+    private postCustomerActionStepUsecase: PostCustomerActionStepUsecaseInterface
   ) {}
 
   @Post()
@@ -54,11 +54,11 @@ export class CustomerMicroGoalController {
     return usecaseResponse;
   }
 
-  @Post('action-step')
+  @Post('action-steps')
   @Serialize(ActionStepSummaryDto)
-  async logCustomerActionStep(@Body() body: LogCustomerActionStepRequestDto) {
+  async postCustomerActionStep(@Body() body: PostCustomerActionStepRequestDto) {
     const [usecaseResponse, error] =
-      await this.logCustomerActionStepUsecase.execute(body);
+      await this.postCustomerActionStepUsecase.execute(body);
     if (error) {
       throw new HttpException(error, HttpStatus.NOT_FOUND);
     }

@@ -1,6 +1,6 @@
 import { IsDate, IsNumber, IsString } from 'class-validator';
 
-export class LogCustomerActionStepRequestDto {
+export class PostCustomerActionStepRequestDto {
     @IsString()
       uuid: string;
 

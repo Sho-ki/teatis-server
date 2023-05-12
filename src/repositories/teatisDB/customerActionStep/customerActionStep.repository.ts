@@ -25,7 +25,7 @@ export interface CustomerActionStepRepositoryInterface extends Transactionable {
     ReturnValueType<Prisma.BatchPayload>
   >;
 
-  logCustomerActionStep({ actionStepId, date }:LogCustomerActionStepArgs):
+  postCustomerActionStep({ actionStepId, date }:LogCustomerActionStepArgs):
   Promise<ReturnValueType<CustomerActionStep>>;
 }
 
@@ -68,7 +68,7 @@ implements CustomerActionStepRepositoryInterface
     return [response];
   }
 
-  async logCustomerActionStep({ actionStepId, date }:LogCustomerActionStepArgs):
+  async postCustomerActionStep({ actionStepId, date }:LogCustomerActionStepArgs):
   Promise<ReturnValueType<CustomerActionStep>>{
     const response = await this.prisma.customerActionStep.update({
       where: { id: actionStepId },
