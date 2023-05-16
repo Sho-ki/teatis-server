@@ -1,5 +1,6 @@
+import { CustomerType } from '@prisma/client';
 import { Expose } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 
 export class CustomerDto {
   @Expose()
@@ -7,6 +8,17 @@ export class CustomerDto {
 
   @Expose()
     uuid: string;
+
+  @Expose()
+    email: string;
+
+  @Expose()
+  @IsEnum(CustomerType)
+    customerType: CustomerType;
+
+  @Expose()
+  @IsOptional()
+    phone?: string;
 
   @Expose()
   @IsOptional()

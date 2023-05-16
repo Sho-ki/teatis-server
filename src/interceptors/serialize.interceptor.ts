@@ -40,6 +40,9 @@ export class SerializeInterceptor<T> implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
+        if (this.removeTimestamps) {
+          data = removeTimestampProperties(data);
+        }
         return plainToInstance(this.dto,
           data, { excludeExtraneousValues: true });
       }),

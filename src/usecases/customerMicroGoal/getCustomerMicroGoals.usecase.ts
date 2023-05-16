@@ -93,6 +93,9 @@ implements GetCustomerMicroGoalsUsecaseInterface
     return {
       id: customer.id,
       uuid: customer.uuid,
+      email: customer.email,
+      phone: customer.phone,
+      customerType: customer.customerType,
       nextDotExamMonthLeft,
       firstName: customer.firstName,
       lastName: customer.lastName,
