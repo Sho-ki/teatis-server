@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { OAuth2Controller } from './oAuth2.controller';
 import { PrismaService } from '../../prisma.service';
-import { CustomerGeneralRepository } from '@Repositories/teatisDB/customer/customerGeneral.repository';
 import { CustomerAuthRepository } from '@Repositories/teatisDB/customer/customerAuth.repository';
 import { StoreCustomerTokenUsecase } from '@Usecases/auth/google/storeCustomerToken.usecase';
 import { GoogleOAuth2Repository } from '@Repositories/googleOAuth2/googleOAuth2.repository';

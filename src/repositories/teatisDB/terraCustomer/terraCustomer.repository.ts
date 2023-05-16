@@ -5,6 +5,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { CustomerAndTerraCustomer } from '../../../domains/CustomerAndTerraCustomer';
 import { GlucoseLog } from '../../../domains/GlucoseLog';
 import {  Prisma } from '@prisma/client';
+import { TerraCustomerWithLogs } from '../../../domains/TerraCustomerWithLogs';
 
 export interface GetTerraCustomersArgs {
   terraCustomerIds: string[];
@@ -28,6 +29,10 @@ export interface AddCustomerGlucoseLogsArgs {
     }[];
 }
 
+export interface GetCustomerGlucoseLogsByCustomerIdArgs {
+  customerId:number;
+}
+
 export interface TerraCustomerRepositoryInterface {
   // getActiveTerraCustomers(): Promise<ReturnValueType<TerraCustomer[]>>;
   upsertTerraCustomer({ customerId, terraCustomerId }: UpsertTerraCustomersArgs):
@@ -35,6 +40,9 @@ export interface TerraCustomerRepositoryInterface {
   getCustomerGlucoseLogs({ terraCustomerId }:GetCustomerGlucoseLogsArgs):Promise<ReturnValueType<GlucoseLog>>;
   addCustomerGlucoseLogs({ terraCustomerKeyId,  data }:AddCustomerGlucoseLogsArgs):
    Promise<ReturnValueType<Prisma.BatchPayload>>;
+
+  getCustomerGlucoseLogsByCustomerId({ customerId }:GetCustomerGlucoseLogsByCustomerIdArgs)
+  :Promise<ReturnValueType<TerraCustomerWithLogs>>;
 }
 
 @Injectable()
@@ -85,6 +93,19 @@ export class TerraCustomerRepository implements TerraCustomerRepositoryInterface
       ) || [],
     };
     return [glucoseLogs];
+  }
+
+  async getCustomerGlucoseLogsByCustomerId({ customerId }:GetCustomerGlucoseLogsByCustomerIdArgs):
+  Promise<ReturnValueType<TerraCustomerWithLogs>>{
+    const response = await this.prisma.terraCustomer.findUnique({
+      where: { customerId },
+      include: { terraCustomerLog: true },
+    });
+    if(!response){
+      return [undefined, { name: 'NotFound', message: 'This customer has not connected to this device' }];
+    }
+
+    return [response];
   }
 
   async addCustomerGlucoseLogs({ terraCustomerKeyId, data }:AddCustomerGlucoseLogsArgs):

@@ -17,6 +17,7 @@ import { EmployerRepository } from './repositories/teatisDB/employer/employer.re
 import { CustomerMicroGoalRepository } from './repositories/teatisDB/customerMicroGoal/customerMicroGoal.repository';
 import { MicroGoalRepository } from './repositories/teatisDB/microGoal/microGoal.respository';
 import { CustomerActionStepRepository } from './repositories/teatisDB/customerActionStep/customerActionStep.repository';
+import { TerraCustomerRepository } from './repositories/teatisDB/terraCustomer/terraCustomer.repository';
 
 const createGlobalModule = (repositories, configurations) => {
   const globalModule: ModuleMetadata = {
@@ -68,6 +69,7 @@ const createGlobalModule = (repositories, configurations) => {
       CustomerMicroGoalRepository,
       MicroGoalRepository,
       CustomerActionStepRepository,
+      TerraCustomerRepository,
     ],
     [PrismaService],
   ),
