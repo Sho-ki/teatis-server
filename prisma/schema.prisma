@@ -58,6 +58,7 @@ model Customers {
   employee Employee?
   totalPoints Int @default(0)
   customerType CustomerType @default(standard)
+  customerMicroGoal CustomerMicroGoal[]
 }
 
 enum CustomerType {
@@ -1027,6 +1028,98 @@ model Coach {
   phone                String?
   customerCoachHistory CustomerCoachHistory[]
   customer             Customers[]
+}
+
+model MicroGoalCategory {
+  id              Int            @id @default(autoincrement())
+  name            String  @unique
+  label           String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+  subCategories   MicroGoalSubCategory[]
+}
+
+model MicroGoalSubCategory {
+  id              Int            @id @default(autoincrement())
+  name            String  @unique
+  label           String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+  category        MicroGoalCategory @relation(fields: [categoryId], references: [id])
+  categoryId      Int
+  microGoals      MicroGoal[]
+}
+
+model MicroGoal {
+  id              Int            @id @default(autoincrement())
+  label     String
+  subCategoryId      Int
+  actionSteps     ActionStep[]
+  subCategory MicroGoalSubCategory @relation(fields: [subCategoryId], references: [id])
+  customerMicroGoals CustomerMicroGoal[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+}
+
+model ActionStep {
+  id              Int            @id @default(autoincrement())
+  mainText        String 
+  subText         String?
+  reason          String
+  order           Int
+  microGoalId     Int
+  microGoal       MicroGoal      @relation(fields: [microGoalId], references: [id])
+  customerActionSteps CustomerActionStep[]
+  actionStepImage ActionStepImage[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+}
+
+model ActionStepImage {
+  id               Int      @id @default(autoincrement())
+  src              String
+  position         Int     @default(0)
+  actionStepId Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  actionStep          ActionStep  @relation(fields: [actionStepId], references: [id])
+}
+
+model CustomerMicroGoal {
+  id              Int            @id @default(autoincrement())
+  microGoalId     Int
+  order           Int
+  customerActionSteps CustomerActionStep[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+  microGoal       MicroGoal      @relation(fields: [microGoalId], references: [id])
+  customer        Customers       @relation(fields: [customerId], references: [id])
+  customerId      Int
+}
+
+model CustomerActionStep {
+  id              Int            @id @default(autoincrement())
+  customerId      Int
+  actionStepId    Int
+  customerMicroGoalId Int
+  customizedMainText String?
+  customizedSubText String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+  completedAt     DateTime?
+  customerMicroGoal CustomerMicroGoal @relation(fields: [customerMicroGoalId], references: [id])
+  actionStep      ActionStep     @relation(fields: [actionStepId], references: [id])
+  customerActionStepImage CustomerActionStepImage[]
+}
+
+model CustomerActionStepImage {
+  id               Int      @id @default(autoincrement())
+  src              String
+  position         Int     @default(0)
+  customerActionStepId Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  customerActionStep          CustomerActionStep  @relation(fields: [customerActionStepId], references: [id])
 }
 
 enum ValidStatus {

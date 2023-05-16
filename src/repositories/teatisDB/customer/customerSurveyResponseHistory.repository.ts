@@ -6,7 +6,7 @@ import { CustomerSurveyHistoryAndResponses } from '../../../domains/CustomerSurv
 import { ReturnValueType } from '../../../filter/customError';
 
 import { PrismaService } from '../../../prisma.service';
-import { SurveyName } from '../../../usecases/utils/surveyName';
+import { SurveyName } from '../../../shared/constants/surveyName';
 import { Transactionable } from '../../utils/transactionable.interface';
 
 interface GetCustomerSurveyHistoryArgs {

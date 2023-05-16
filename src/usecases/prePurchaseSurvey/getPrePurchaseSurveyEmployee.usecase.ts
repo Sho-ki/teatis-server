@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ReturnValueType } from '@Filters/customError';
 import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
-import { SurveyName } from '@Usecases/utils/surveyName';
+import { SurveyName } from 'src/shared/constants/surveyName';
 import { ActiveSurvey } from '../../domains/Survey';
 import { EmployerRepositoryInterface } from '../../repositories/teatisDB/employer/employer.repository';
 import { GetProductOptionsUtilInterface } from '../utils/getProductOptions';

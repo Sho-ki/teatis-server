@@ -3,6 +3,8 @@ import  seedSurveyDrivers  from '../defaultData/surveyDrivers';
 import { seedSurvey } from '../defaultData/surveyNormalAndSurveyEmployees';
 import { testEmployers } from '../defaultData/testEmployer';
 import { weeklyCheckIn } from '../defaultData/weeklyCheckIn';
+import microGoalCategories from '../defaultData/microGoalCategories';
+import { microGoals } from '../defaultData/microGoals';
 // import * as fs from 'fs';
 
 const prisma = new PrismaClient();
@@ -14,6 +16,10 @@ async function main() {
   await upsertEmployers();
 
   await upsertSurveyDrivers();
+
+  await upsertMicroGoalCategories();
+
+  await upsertMicroGoals();
   // const customerNutritionItems = [
   //   {
   //     name: 'BMR',
@@ -310,6 +316,65 @@ async function main() {
   // }
 
 }
+
+const upsertMicroGoals = async() => {
+  for(const microGoal of microGoals){
+    const { id, label, subCategory } = microGoal;
+    const microGoalResponse = await prisma.microGoal.upsert({
+      where: { id },
+      create: {
+        label,
+        subCategory: { connect: { name: subCategory.name } },
+      },
+      update: { },
+    });
+
+    for(const actionStep of microGoal.actionSteps){
+      const { mainText, subText, reason, order, imageUrl, id } = actionStep;
+      await prisma.actionStep.upsert({
+        where: { id },
+        create: {
+          mainText,
+          subText,
+          reason,
+          order,
+          actionStepImage: imageUrl? { create: { src: imageUrl } } : {},
+          microGoal: { connect: { id: microGoalResponse.id } },
+        },
+        update: { },
+      });
+
+    }
+
+  } };
+
+const upsertMicroGoalCategories = async() => {
+  // upsert micro goal categories and micro sub categories
+  for(const microGoalCategory of microGoalCategories){
+    const { name, label, subcategories } = microGoalCategory;
+    const microGoalCategoryResponse = await prisma.microGoalCategory.upsert({
+      where: { name },
+      create: {
+        name,
+        label,
+      },
+      update: { },
+    });
+
+    for(const microGoalSubCategory of subcategories){
+      const { name: microGoalSubCategoryName, label: microGoalSubCategoryLabel } = microGoalSubCategory;
+      await prisma.microGoalSubCategory.upsert({
+        where: { name: microGoalSubCategoryName },
+        create: {
+          name: microGoalSubCategoryName,
+          label: microGoalSubCategoryLabel,
+          category: { connect: { id: microGoalCategoryResponse.id } },
+        },
+        update: {},
+      });
+    }
+  }
+};
 
 const upsertEmployers = async() => {
   for(const employer of testEmployers){

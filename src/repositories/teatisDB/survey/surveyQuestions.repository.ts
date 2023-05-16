@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma.service';
 import { ReturnValueType } from '@Filters/customError';
 
-import { SurveyName } from '@Usecases/utils/surveyName';
+import { SurveyName } from 'src/shared/constants/surveyName';
 import { ActiveSurvey, ChildSurveyQuestion, ParentSurveyQuestion, ParentSurveyQuestionWithoutOption } from '../../../domains/Survey';
 import { SurveyQuestionOption } from '@prisma/client';
 
