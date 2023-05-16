@@ -7,7 +7,7 @@ import { ReturnValueType } from '@Filters/customError';
 import { SurveyQuestionsRepositoryInterface } from '@Repositories/teatisDB/survey/surveyQuestions.repository';
 import {  ParentSurveyQuestion } from '@Domains/Survey';
 import { PostPurchaseSurveyWithResponse } from '@Domains/PostPurchaseSurvey';
-import { SurveyName } from '../utils/surveyName';
+import { SurveyName } from '../../shared/constants/surveyName';
 import { CustomerSurveyResponseRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponse.repository';
 import { CustomerSurveyHistoryRepositoryInterface } from '@Repositories/teatisDB/customer/customerSurveyResponseHistory.repository';
 

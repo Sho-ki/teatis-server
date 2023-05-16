@@ -15,6 +15,7 @@ import { SubscriptionModule } from './controllers/recharge/subscription.module';
 import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
 import { GlobalModule } from './global.module';
 import { TwilioWebhookModule } from './controllers/twilio/webhook/webhook.module';
+import { CustomerMicroGoalModule } from './controllers/customerMicroGoal/customerMicroGoal.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TwilioWebhookModule } from './controllers/twilio/webhook/webhook.module
     GlobalModule,
     TwilioWebhookModule,
     MonthlyProductsModule,
+    CustomerMicroGoalModule,
     ScheduleModule.forRoot(),
   ],
 

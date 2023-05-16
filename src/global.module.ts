@@ -14,6 +14,9 @@ import { CustomerTwilioMessageRepository } from './repositories/teatisDB/custome
 import { TwilioRepository } from './repositories/twilio/twilio.repository';
 import { GetProductOptionsUtil } from './usecases/utils/getProductOptions';
 import { EmployerRepository } from './repositories/teatisDB/employer/employer.repository';
+import { CustomerMicroGoalRepository } from './repositories/teatisDB/customerMicroGoal/customerMicroGoal.repository';
+import { MicroGoalRepository } from './repositories/teatisDB/microGoal/microGoal.respository';
+import { CustomerActionStepRepository } from './repositories/teatisDB/customerActionStep/customerActionStep.repository';
 
 const createGlobalModule = (repositories, configurations) => {
   const globalModule: ModuleMetadata = {
@@ -21,18 +24,21 @@ const createGlobalModule = (repositories, configurations) => {
       {
         provide: 'TwilioClient',
         useFactory: () => {
-          return new Twilio( process.env.TWILIO_ACCOUNT_SID,
-            process.env.TWILIO_AUTH_TOKEN,);
+          return new Twilio(
+            process.env.TWILIO_ACCOUNT_SID,
+            process.env.TWILIO_AUTH_TOKEN,
+          );
         },
       },
-    ], exports: [],
+    ],
+    exports: [],
   };
 
-  for(const configuration of configurations) {
+  for (const configuration of configurations) {
     globalModule.providers.push(configuration);
     globalModule.exports.push(configuration);
   }
-  for(const repository of repositories) {
+  for (const repository of repositories) {
     globalModule.providers.push(repository);
     globalModule.providers.push({
       provide: `${repository.name}Interface`,
@@ -44,18 +50,26 @@ const createGlobalModule = (repositories, configurations) => {
 };
 
 @Global()
-@Module(createGlobalModule([
-  CustomerGeneralRepository,
-  EmployeeRepository,
-  ProductGeneralRepository,
-  TerraRepository,
-  CustomerRewardTokenRepository,
-  TransactionOperator,
-  CustomerPointLogRepository,
-  CustomerTwilioMessageRepository,
-  TwilioRepository,
-  CustomerSurveyResponseRepository,
-  GetProductOptionsUtil,
-  EmployerRepository,
-], [PrismaService]))
+@Module(
+  createGlobalModule(
+    [
+      CustomerGeneralRepository,
+      EmployeeRepository,
+      ProductGeneralRepository,
+      TerraRepository,
+      CustomerRewardTokenRepository,
+      TransactionOperator,
+      CustomerPointLogRepository,
+      CustomerTwilioMessageRepository,
+      TwilioRepository,
+      CustomerSurveyResponseRepository,
+      GetProductOptionsUtil,
+      EmployerRepository,
+      CustomerMicroGoalRepository,
+      MicroGoalRepository,
+      CustomerActionStepRepository,
+    ],
+    [PrismaService],
+  ),
+)
 export class GlobalModule {}
