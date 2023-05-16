@@ -16,6 +16,7 @@ import { CoachingModule } from './controllers/twilio/coaching/coaching.module';
 import { GlobalModule } from './global.module';
 import { TwilioWebhookModule } from './controllers/twilio/webhook/webhook.module';
 import { CustomerMicroGoalModule } from './controllers/customerMicroGoal/customerMicroGoal.module';
+import { CustomerDeviceModule } from './controllers/v2/customers/customerDevice.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CustomerMicroGoalModule } from './controllers/customerMicroGoal/custome
     TwilioWebhookModule,
     MonthlyProductsModule,
     CustomerMicroGoalModule,
+    CustomerDeviceModule,
     ScheduleModule.forRoot(),
   ],
 
